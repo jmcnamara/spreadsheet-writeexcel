@@ -4,7 +4,8 @@
 #
 # Example of how to using the Date::Calc module to calculate Excel dates.
 #
-# See also the excel_date1.pl example.
+# NOTE: An easier way of writing dates and times is to use the newer
+#       write_date_time() Worksheet method. See the date_time.pl example.
 #
 # These functions have been superceded by Spreadsheet::WriteExcel::Utility.
 #

@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.04';
+$VERSION = '2.10';
 
 ###############################################################################
 #
@@ -38,7 +38,6 @@ sub new {
     my $self                    = Spreadsheet::WriteExcel::BIFFwriter->new();
     my $rowmax                  = 65536;
     my $colmax                  = 256;
-    #my $strmax                  = 1023; # TODO
     my $strmax                  = 0;
 
     $self->{_name}              = $_[0];
@@ -53,7 +52,9 @@ sub new {
     $self->{_str_total}         = $_[8];
     $self->{_str_unique}        = $_[9];
     $self->{_str_table}         = $_[10];
+    $self->{_1904}              = $_[11];
 
+    $self->{_type}              = 0x0000;
     $self->{_ext_sheets}        = [];
     $self->{_using_tmpfile}     = 1;
     $self->{_filehandle}        = "";
@@ -1031,6 +1032,14 @@ sub write {
         splice @_, 2, 1; # remove the empty string from the parameter list
         return $self->write_blank(@_);
     }
+    # Match ISO8601 style date string
+    elsif ($token =~ /^(\d\d\d\d)-(\d\d)-(\d\d)T/) {
+        return $self->write_date_time(@_);
+    }
+    # Match ISO8601 style time string
+    elsif ($token =~ /^T(\d\d):(\d\d)(:(\d\d(\.\d+)?))?/) {
+        return $self->write_date_time(@_);
+    }
     # Default: match string
     else {
         return $self->write_string(@_);
@@ -1470,7 +1479,7 @@ sub write_string {
         @_ = $self->_substitute_cellref(@_);
     }
 
-    if (@_ < 3) { return -1 }                    # Check the number of args
+    if (@_ < 3) { return -1 }                        # Check the number of args
 
     my $record      = 0x00FD;                        # Record identifier
     my $length      = 0x000A;                        # Bytes to follow
@@ -1482,6 +1491,18 @@ sub write_string {
     my $xf          = _XF($self, $row, $col, $_[3]); # The cell format
     my $encoding    = 0x0;
     my $str_error   = 0;
+
+
+    # Handle utf8 strings in newer perls.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($str)) {
+            my $tmp = Encode::encode("UTF-16LE", $str);
+            return $self->write_unicode_le($row, $col, $tmp, $_[3]);
+        }
+    }
+
 
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
@@ -2222,6 +2243,195 @@ sub _write_url_external_net {
 
     return $str_error;
 }
+
+
+###############################################################################
+#
+# write_date_time ($row, $col, $string, $format)
+#
+# Write a datetime string in ISO8601 "yyyy-mm-ddThh:mm:ss.ss" format as a
+# number representing an Excel date. $format is optional.
+#
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#         -3 : Invalid date_time, written as string
+#
+sub write_date_time {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    if (@_ < 3) { return -1 }                        # Check the number of args
+
+    my $row       = $_[0];                           # Zero indexed row
+    my $col       = $_[1];                           # Zero indexed column
+    my $str       = $_[2];
+
+
+    # Check that row and col are valid and store max and min values
+    return -2 if $self->_check_dimensions($row, $col);
+
+    my $error     = 0;
+    my $date_time = $self->_check_date_time($str);
+
+    if (defined $date_time) {
+        $error = $self->write_number($row, $col, $date_time, $_[3]);
+    }
+    else {
+        # The date isn't valid so write it as a string.
+        $self->write_string($row, $col, $str, $_[3]);
+        $error = -3;
+    }
+    return $error;
+}
+
+
+
+###############################################################################
+#
+# _check_date_time($date_time_string)
+#
+# The function takes a date and time in ISO8601 "yyyy-mm-ddThh:mm:ss.ss" format
+# and converts it to a decimal number representing a valid Excel date.
+#
+# Dates and times in Excel are represented by real numbers. The integer part of
+# the number stores the number of days since the epoch and the fractional part
+# stores the percentage of the day in seconds. The epoch can be either 1900 or
+# 1904.
+#
+# Parameter: Date and time string in one of the following formats:
+#               yyyy-mm-ddThh:mm:ss.ss  # Standard
+#               yyyy-mm-ddT             # Date only
+#                         Thh:mm:ss.ss  # Time only
+#
+# Returns:
+#            A decimal number representing a valid Excel date, or
+#            undef if the date is invalid.
+#
+sub _check_date_time {
+
+    my $self      = shift;
+    my $date_time = $_[0];
+
+    my $days      = 0; # Number of days since epoch
+    my $seconds   = 0; # Time expressed as fraction of 24h hours in seconds
+
+    my ($year, $month, $day);
+    my ($hour, $min, $sec);
+
+
+    # Strip leading and trailing whitespace.
+    $date_time =~ s/^\s+//;
+    $date_time =~ s/\s+$//;
+
+    # Check for invalid date char.
+    return if     $date_time =~ /[^0-9T:\-\.Z]/;
+
+    # Check for "T" after date or before time.
+    return unless $date_time =~ /\dT|T\d/;
+
+    # Strip trailing Z in ISO8601 date.
+    $date_time =~ s/Z$//;
+
+
+    # Split into date and time.
+    my ($date, $time) = split /T/, $date_time;
+
+
+    # We allow the time portion of the input DateTime to be optional.
+    if ($time ne '') {
+        # Match hh:mm:ss.sss+ where the seconds are optional
+        if ($time =~ /^(\d\d):(\d\d)(:(\d\d(\.\d+)?))?/) {
+            $hour   = $1;
+            $min    = $2;
+            $sec    = $4 || 0;
+        }
+        else {
+            return undef; # Not a valid time format.
+        }
+
+        # Some boundary checks
+        return if $hour >= 24;
+        return if $min  >= 60;
+        return if $sec  >= 60;
+
+        # Excel expresses seconds as a fraction of the number in 24 hours.
+        $seconds = ($hour *60*60 + $min *60 + $sec) / (24 *60 *60);
+    }
+
+
+    # We allow the date portion of the input DateTime to be optional.
+    return $seconds if $date eq '';
+
+
+    # Match date as yyyy-mm-dd.
+    if ($date =~ /^(\d\d\d\d)-(\d\d)-(\d\d)$/) {
+        $year   = $1;
+        $month  = $2;
+        $day    = $3;
+    }
+    else {
+        return undef; # Not a valid date format.
+    }
+
+    # Set the epoch as 1900 or 1904. Defaults to 1900.
+    my $date_1904 = $self->{_1904};
+
+
+    # Special cases for Excel.
+    if (not $date_1904) {
+        return      $seconds if $date eq '1899-12-31'; # Excel 1900 epoch
+        return      $seconds if $date eq '1900-01-00'; # Excel 1900 epoch
+        return 60 + $seconds if $date eq '1900-02-29'; # Excel false leapday
+    }
+
+
+    # We calculate the date by calculating the number of days since the epoch
+    # and adjust for the number of leap days. We calculate the number of leap
+    # days by normalising the year in relation to the epoch. Thus the year 2000
+    # becomes 100 for 4 and 100 year leapdays and 400 for 400 year leapdays.
+    #
+    my $epoch   = $date_1904 ? 1904 : 1900;
+    my $offset  = $date_1904 ?    4 :    0;
+    my $norm    = 300;
+    my $range   = $year -$epoch;
+
+
+    # Set month days and check for leap year.
+    my @mdays   = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31);
+    my $leap    = 0;
+       $leap    = 1  if $year % 4 == 0 and $year % 100 or $year % 400 == 0;
+    $mdays[1]   = 29 if $leap;
+
+
+    # Some boundary checks
+    return if $year  < $epoch or $year  > 9999;
+    return if $month < 1      or $month > 12;
+    return if $day   < 1      or $day   > $mdays[$month -1];
+
+    # Accumulate the number of days since the epoch.
+    $days  = $day;                              # Add days for current month
+    $days += $mdays[$_] for 0 .. $month -2;     # Add days for past months
+    $days += $range *365;                       # Add days for past years
+    $days += int(($range)                /  4); # Add leapdays
+    $days -= int(($range +$offset)       /100); # Subtract 100 year leapdays
+    $days += int(($range +$offset +$norm)/400); # Add 400 year leapdays
+    $days -= $leap;                             # Already counted above
+
+
+    # Adjust for Excel erroneously treating 1900 as a leap year.
+    $days++ if $date_1904 == 0 and $days > 59;
+
+    return $days + $seconds;
+}
+
+
+
 
 
 ###############################################################################
@@ -3793,7 +4003,7 @@ sub write_unicode {
         @_ = $self->_substitute_cellref(@_);
     }
 
-    if (@_ < 3) { return -1 }                    # Check the number of args
+    if (@_ < 3) { return -1 }                        # Check the number of args
 
     my $record      = 0x00FD;                        # Record identifier
     my $length      = 0x000A;                        # Bytes to follow
@@ -3873,7 +4083,7 @@ sub write_unicode_le {
         @_ = $self->_substitute_cellref(@_);
     }
 
-    if (@_ < 3) { return -1 }                    # Check the number of args
+    if (@_ < 3) { return -1 }                        # Check the number of args
 
     my $record      = 0x00FD;                        # Record identifier
     my $length      = 0x000A;                        # Bytes to follow

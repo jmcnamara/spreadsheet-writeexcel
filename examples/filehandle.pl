@@ -33,7 +33,7 @@ $worksheet1->write(0, 0,  "Hi Excel!");
 # Example 2. Write an Excel file to an existing filehandle.
 #
 
-open TEST, "> fh_02.xls";
+open    TEST, "> fh_02.xls" or die "Couldn't open file: $!";
 binmode TEST; # Always do this regardless of whether the platform requires it.
 
 my $workbook2  = Spreadsheet::WriteExcel->new(\*TEST);
@@ -49,7 +49,8 @@ $worksheet2->write(0, 0,  "Hi Excel!");
 # Example 3. Write an Excel file to an existing OO style filehandle.
 #
 
-my $fh = FileHandle->new("> fh_03.xls");
+my $fh = FileHandle->new("> fh_03.xls")
+         or die "Couldn't open file: $!";
 
 binmode($fh);
 
@@ -79,7 +80,7 @@ $workbook4->close(); # This is required before we use the scalar
 
 
 # The Excel file is now in $xls_str. As a demonstration, print it to a file.
-open    TMP, "> fh_04.xls";
+open    TMP, "> fh_04.xls" or die "Couldn't open file: $!";
 binmode TMP;
 print   TMP  $xls_str;
 close   TMP;
@@ -89,7 +90,7 @@ close   TMP;
 
 ###############################################################################
 #
-# Example 5. Write an Excel file to a string via IO::Scalar newer interface.
+# Example 5. Write an Excel file to a string via IO::Scalar's newer interface.
 # Please refer to the IO::Scalar documentation for further details.
 #
 my $xls_str2;
@@ -101,12 +102,12 @@ my $workbook5  = Spreadsheet::WriteExcel->new($fh5);
 my $worksheet5 = $workbook5->add_worksheet();
 
 $worksheet5->write(0, 0, "Hi Excel 5");
-$workbook5->close();
+$workbook5->close(); # This is required before we use the scalar
 
 # The Excel file is now in $xls_str. As a demonstration, print it to a file.
-open    TMP, "> fh_05.xls";
+open    TMP, "> fh_05.xls" or die "Couldn't open file: $!";
 binmode TMP;
-print   TMP  $xls_str2; # This is required before we use the scalar
+print   TMP  $xls_str2;
 close   TMP;
 
 

@@ -4,6 +4,9 @@
 #
 # A simple example of writing some Unicode text with Spreadsheet::WriteExcel.
 #
+# This example shows UTF16 encoding. With perl 5.8 it is also possible to use
+# utf8 without modification.
+#
 # reverse('©'), May 2004, John McNamara, jmcnamara@cpan.org
 #
 

@@ -1,5 +1,12 @@
 #!/usr/bin/perl -w
 
+
+#
+# NOTE: An easier way of writing dates and times is to use the newer
+#       write_date_time() Worksheet method. See the date_time.pl example.
+#
+
+
 ######################################################################
 #
 # Demonstration of writing date/time cells to Excel spreadsheets,

@@ -1,0 +1,38 @@
+This directory contains files that are relevant to the the addition of charts to a Spreadsheet::WriteExcel file.
+
+The files are as follows:
+
+    charts.txt      Explanation of how to include externally generated
+                    charts in a Spreadsheet::WriteExcel file.
+
+    charts.pod      Same as the above in Pod format.
+
+    chartex.pl*     A utility to extract charts from an Excel file.
+
+    demo1.pl        A demo of a line chart.
+    demo2.pl        A demo of a pie chart.
+    demo3.pl        A demo of a Open-High-Low-Close stock chart.
+
+    Chart1.xls      A template for use with demo1.pl.
+    Chart2.xls      A template for use with demo2.pl.
+    Chart3.xls      A template for use with demo3.pl.
+
+    * If you performed a normal installation then the chartex utility
+      should be installed to your C<perl/bin> directory and should be
+      available from the command line.
+
+
+You can run the examples as follows:
+
+    perl chartex.pl -c=demo1 Chart1.xls
+    perl demo1.pl
+
+    perl chartex.pl -c=demo2 Chart2.xls
+    perl demo2.pl
+
+    perl chartex.pl -c=demo3 Chart3.xls
+    perl demo3.pl
+
+
+See charts.txt for further details of how to include externally generated charts in a Spreadsheet::WriteExcel file.
+

@@ -1,6 +1,25 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+2.10 September 23 2004 - Major
+
+    + Added chart support via external templates.
+      Added Chart.pm and add_chart_ext() method to Workbook object.
+      Added /charts directory with examples and documentation
+
+    + Added write_date_time() worksheet method for writing dates
+      and times in Excel date format.
+      Added date_time.pl example.
+
+    + Added automatic Unicode handling via utf8 in perl 5.8 and
+      later. Thanks Mark Fowler.
+      Added several unicode_*.pl examples in different encodings.
+      Thanks to Sean Burke for the sample encodings.
+
+    + Added write_to_scalar.pl example in order to answer frequently
+      asked question about writing an Excel file to a scalar.
+
+
 2.04 August 18 2004 - Minor
 
     ! Fixed handling of Euro symbol in num_format() strings.
@@ -11,7 +30,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
     ! Added bug warning about using merge formats outside of
       merged ranges.
 
-    + Fixed handling of double quotes in formula strings.
+    + Fixed handling of doubled double quotes in formula strings.
       Thanks to a tip from merlyn.
 
     + The 2.xx versions are now compatible with MS Access. Removed
@@ -29,7 +48,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
 
     ! Internal fix to number of rows in several (unseen) places.
 
-    + Added mod_perl 2 example program from Matisse Enzer.
+    + Added mod_perl 2 example program from Matisse Enzer. Thanks.
 
 
 2.02 May 28 2004 - Minor
@@ -250,7 +269,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
       Thanks Brian White.
 
     ! Added "use integer" when using shift << to avoid bug with
-	  Perl 5.6.0 on HP-UX. Thanks Markus Schmitz, VSarkiss.
+      Perl 5.6.0 on HP-UX. Thanks Markus Schmitz, VSarkiss.
 
     ! Fixed minor bug in Formula.pm. Thanks Sven Passig.
 
@@ -302,7 +321,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
     + Added A1 notation.
 
     + Added facility to new() to accept valid filehandles.
-      Thanks  Peter Dintelmann.
+      Thanks Peter Dintelmann.
 
     + Added more examples. Thanks Tom O'Sullivan.
 
@@ -378,7 +397,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
 0.21 Oct 1 2000 - Minor
 
     + Replaced direct access to worksheets array with a workbook
-      method;worksheets().
+      method; worksheets().
 
     + Added set_selection() and set_col_width() worksheet methods.
 

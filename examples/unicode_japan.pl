@@ -6,6 +6,11 @@
 #
 # This creates an Excel file with the word Nippon in 3 character sets.
 #
+# This example shows UTF16 encoding. With perl 5.8 it is also possible to use
+# utf8 without modification.
+#
+# See also the unicode_2022_jp.pl and unicode_shift_jis.pl examples.
+#
 # reverse('©'), May 2004, John McNamara, jmcnamara@cpan.org
 #
 

@@ -19,13 +19,12 @@ use Spreadsheet::WriteExcel::BIFFwriter;
 use Spreadsheet::WriteExcel::OLEwriter;
 use Spreadsheet::WriteExcel::Worksheet;
 use Spreadsheet::WriteExcel::Format;
-
-
+use Spreadsheet::WriteExcel::Chart;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.03';
+$VERSION = '2.10';
 
 ###############################################################################
 #
@@ -382,6 +381,7 @@ sub add_worksheet {
                         \$self->{_str_total},
                         \$self->{_str_unique},
                         \$self->{_str_table},
+                         $self->{_1904},
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
@@ -390,6 +390,55 @@ sub add_worksheet {
     $self->{_parser}->set_ext_sheets($name, $index); # Store names in Formula.pm
     return $worksheet;
 }
+
+
+###############################################################################
+#
+# add_chart_ext($name, $filename)
+#
+# Add an externally created chart.
+#
+#
+sub add_chart_ext {
+
+    my $self     = shift;
+    my $filename = $_[0];
+    my $name     = $_[1] || "";
+
+    my $encoding = 0;
+
+    my $index     = @{$self->{_worksheets}};
+
+    if ($name eq "" ) {
+        $name     = 'Chart' . ($index+1);
+    }
+
+    # Check that the worksheet name doesn't already exist: a fatal Excel error.
+    # The check must also exclude case insensitive matches.
+    foreach my $tmp (@{$self->{_worksheets}}) {
+        if (lc $name eq lc $tmp->get_name()) {
+            croak "Worksheet name '$name', with case ignored, " .
+                  "is already in use";
+        }
+    }
+
+
+    my @init_data = (
+                         $filename,
+                         $name,
+                         $index,
+                         $encoding,
+                        \$self->{_activesheet},
+                        \$self->{_firstsheet},
+                    );
+
+    my $worksheet = Spreadsheet::WriteExcel::Chart->new(@init_data);
+    $self->{_worksheets}->[$index] = $worksheet;     # Store ref for iterator
+    $self->{_sheetnames}->[$index] = $name;          # Store EXTERNSHEET names
+    $self->{_parser}->set_ext_sheets($name, $index); # Store names in Formula.pm
+    return $worksheet;
+}
+
 
 
 ###############################################################################
@@ -449,6 +498,9 @@ sub addformat {
 sub set_1904 {
 
     my $self      = shift;
+
+    croak "set_1904() must be called before add_worksheet" if $self->sheets();
+
 
     if (defined($_[0])) {
         $self->{_1904} = $_[0];
@@ -672,6 +724,7 @@ sub _store_workbook {
     foreach my $sheet (@{$self->{_worksheets}}) {
         $self->_store_boundsheet($sheet->{_name},
                                  $sheet->{_offset},
+                                 $sheet->{_type},
                                  $sheet->{_name_encoding});
     }
 
@@ -1067,8 +1120,8 @@ sub _store_boundsheet {
 
     my $sheetname = $_[0];                # Worksheet name
     my $offset    = $_[1];                # Location of worksheet BOF
-    my $encoding  = $_[2];                # Location of worksheet BOF
-    my $grbit     = 0x0000;               # Sheet identifier
+    my $grbit     = $_[2];                # Sheet identifier
+    my $encoding  = $_[3];                # Sheet name encoding
     my $cch       = length($sheetname);   # Length of sheet name
 
 

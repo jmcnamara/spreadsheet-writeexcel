@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.04'; # Telephone call from Istanbul
+$VERSION = '2.10'; # Five Sugars Please
 
 
 
@@ -31,6 +31,7 @@ $VERSION = '2.04'; # Telephone call from Istanbul
 #
 # Constructor. Wrapper for a Workbook object.
 # uses: Spreadsheet::WriteExcel::BIFFwriter
+#       Spreadsheet::WriteExcel::Chart
 #       Spreadsheet::WriteExcel::OLEwriter
 #       Spreadsheet::WriteExcel::Workbook
 #       Spreadsheet::WriteExcel::Worksheet
@@ -62,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.04 of Spreadsheet::WriteExcel, released August 18, 2004.
+This document refers to version 2.10 of Spreadsheet::WriteExcel, released September 23, 2004.
 
 
 
@@ -209,11 +210,36 @@ However, this special case will not work in C<mod_perl> programs where you will 
 
 See also, the C<mod_perl1.pl> and C<mod_perl2.pl> programs in the C<examples> directory of the distro.
 
-Filehandles can also be useful if you want to stream an Excel file over a socket or if you want to store an Excel file in a tied scalar. For some examples of using filehandles with Spreadsheet::WriteExcel see the C<filehandle.pl> program in the C<examples> directory of the distro.
+Filehandles can also be useful if you want to stream an Excel file over a socket or if you want to store an Excel file in a scalar.
+
+For example here is a way to write an Excel file to a scalar with C<perl 5.8>:
+
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+    # Requires perl 5.8 or later
+    open my $fh, '>', \my $str or die "Failed to open filehandle: $!";
+
+    my $workbook  = Spreadsheet::WriteExcel->new($fh);
+    my $worksheet = $workbook->add_worksheet();
+
+    $worksheet->write(0, 0,  "Hi Excel!");
+
+    $workbook->close();
+
+    # The Excel file in now in $str. Remember to binmode() the output
+    # filehandle before printing it.
+    binmode STDOUT;
+    print $str;
+
+See also the C<write_to_scalar.pl> and C<filehandle.pl> programs in the C<examples> directory of the distro.
 
 B<Note about the requirement for> C<binmode()>: An Excel file is comprised of binary data. Therefore, if you are using a filehandle you should ensure that you C<binmode()> it prior to passing it to C<new()>.You should do this regardless of whether you are on a Windows platform or not. This applies especially to users of perl 5.8 on systems where utf8 is likely to be in operation such as RedHat Linux 9. If your program, either intentionally or not, writes UTF8 data to a filehandle that is passed to C<new()> it will corrupt the Excel file that is created.
 
 You don't have to worry about C<binmode()> if you are using filenames instead of filehandles. Spreadsheet::WriteExcel performs the C<binmode()> internally when it converts the filename to a filehandle. For more information about C<binmode()> see C<perlfunc> and C<perlopentut> in the main Perl documentation.
+
 
 
 
@@ -302,6 +328,16 @@ If C<$sheetname> is not specified the default Excel convention will be followed,
 
 The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<: * ? / \> and it must be less than 32 characters. In addition, you cannot use the same, case insensitive, C<$sheetname> for more than one worksheet.
 
+
+
+
+=head2 add_chart_ext($chart_data, $chartname)
+
+This method is use to include externally generated charts in a Spreadsheet::WriteExcel file.
+
+    my $chart = $workbook->add_chart_ext('chart01.bin', 'Chart1');
+
+This feature is new and would be best described as experimental. Read C<charts.txt> in the charts directory of the distro for a full explanation.
 
 
 
@@ -576,6 +612,8 @@ The write() method will ignore empty strings or C<undef> tokens unless a format 
 
 One problem with the C<write()> method is that occasionally data looks like a number but you don't want it treated as a number. For example, zip codes or ID numbers often start with a leading zero. If you write this data as a number then the leading zero(s) will be stripped. You can change this default behaviour by using the C<keep_leading_zeros()> method. While this property is in place any integers with leading zeros will be treated as strings and the zeros will be preserved. See the C<keep_leading_zeros()> section for a full discussion of this issue.
 
+On systems with C<perl 5.8> and later the C<write()> method will also handle strings in Perl's C<utf8> format.
+
 The C<write> methods return:
 
     0 for success.
@@ -611,6 +649,8 @@ The maximum string size is 32767 characters. However the maximum string segment 
 
 The C<$format> parameter is optional.
 
+On systems with C<perl 5.8> and later the C<write()> method will also handle strings in Perl's C<utf8> format. With older perls you can also write Unicode in C<UTF16> format via the C<write_unicode()> method. See also the C<unicode_*.pl> programs in the examples directory of the distro.
+
 In general it is sufficient to use the C<write()> method. However, you may sometimes wish to use the C<write_string()> method to write data that looks like a number but that you don't want treated as a number. For example, zip codes or phone numbers:
 
     # Write as a plain string
@@ -629,12 +669,11 @@ See also the note about L<Cell notation>.
 
 =head2 write_unicode($row, $column, $string, $format)
 
+This method is used to write Unicode strings to a cell in Excel. It is functionally the same as the C<write_string()> method except that the string should be in UTF-16 Unicode format.
 
-This method is used to write Unicode strings to a cell in Excel. It is functionally the same as the C<write_string()> method except that the string should be in Unicode format.
+B<Note>: on systems with C<perl 5.8> and later the C<write()> and C<write_string()>methods will also handle strings in Perl's C<utf8> format. With older perls you must use the C<write_unicode()> method.
 
-The Unicode format required by Excel is UTF-16. No other Unicode format is supported by Excel.
-
-Additionally C<Spreadsheet::WriteExcel> requires that the 16-bit characters are in big-endian order. This is generally referred to as UTF-16BE. To write UTF-16 strings in little-endian format use the C<write_unicode_le()> method.
+The Unicode format required by Excel is UTF-16. Additionally C<Spreadsheet::WriteExcel> requires that the 16-bit characters are in big-endian order. This is generally referred to as UTF-16BE. To write UTF-16 strings in little-endian format use the C<write_unicode_le()> method.
 
 
 The following is a simple example showing how to write some Unicode strings:
@@ -717,30 +756,21 @@ The following is an example of creating an Excel file with some Japanese text. Y
     $worksheet->write('B3', 'Hiragana');
 
 
-
-
-Note: UTF-8 data is not supported by Excel or Spreadsheet::WriteExcel. UTF-8 strings can be converted to the required UTF-16BE format using one of the many Unicode modules on CPAN. For example C<Unicode::Map> and C<Unicode::String>: http://search.cpan.org/author/MSCHWARTZ/Unicode-Map-0.112/Map.pm and http://search.cpan.org/author/GAAS/Unicode-String-2.06/String.pm
+Note: You can convert ascii encodings to the required UTF-16BE format using one of the many Unicode modules on CPAN. For example C<Unicode::Map> and C<Unicode::String>: http://search.cpan.org/author/MSCHWARTZ/Unicode-Map-0.112/Map.pm and http://search.cpan.org/author/GAAS/Unicode-String-2.06/String.pm
 
 For a full list of the Perl Unicode modules see: http://search.cpan.org/search?query=unicode&mode=all
+
+See also the C<unicode_*.pl> programs in the examples directory of the distro.
+
 
 
 =head2 write_unicode_le($row, $column, $string, $format)
 
-This method is used to write Unicode strings to a cell in Excel.
+This method is the same as C<write_unicode()> except that the string should be 16-bit characters in little-endian format. This is generally referred to as UTF-16LE.
 
-The string should be comprised of 16-bit characters in little-endian format. This is generally referred to as UTF-16LE.
-
-    my $smiley = pack "v", 0x263a;
-
-    $worksheet->write_unicode_le('A3', $smiley);
-
-
-UTF-16 data can be changed from little-endian to big-endian format (and vide-versa) as follows:
+UTF-16 data can be changed from little-endian to big-endian format (and vice-versa) as follows:
 
     $utf16 = pack "n*", unpack "v*", $utf16;
-
-
-To write UTF-16 strings in big-endian format use the C<write_unicode()> method.
 
 Note, it is slightly faster to write little-endian data via write_unicode_le() than it is to write big-endian data via write_unicode().
 
@@ -1163,6 +1193,41 @@ If you think that you have a problem related to a false match you can check the 
     print "@$formula\n";
 
 See also the C<repeat.pl> program in the C<examples> directory of the distro.
+
+
+
+
+=head2 write_date_time($row, $col, $date_string, $format)
+
+The C<write_date_time()> method can be used to write a date or time to the cell specified by C<$row> and C<$column>:
+
+    $worksheet->write_date_time('A1', '2004-05-13T23:20', $date_format);
+
+The C<$date_string> should be in the following format:
+
+    yyyy-mm-ddThh:mm:ss.sss
+
+This conforms to am ISO8601 date but it should be noted that the full range of ISO8601 formats are not supported.
+
+The following variations on the C<$date_string> parameter are permitted:
+
+    yyyy-mm-ddThh:mm:ss.sss         # Standard format
+    yyyy-mm-ddT                     # No time
+              Thh:mm:ss.sss         # No date
+    yyyy-mm-ddThh:mm:ss.sssZ        # Additional Z (but not time zones)
+    yyyy-mm-ddThh:mm:ss             # No fractional seconds
+    yyyy-mm-ddThh:mm                # No seconds
+
+Note that the C<T> is required in all cases.
+
+A date should always have a C<$format>, otherwise it will appear as a number, see L<DATES IN EXCEL> and L<CELL FORMATTING>. Here is a typical example:
+
+    my $date_format = $workbook->add_format(num_format => 'mm/dd/yy');
+    $worksheet->write_date_time('A1', '2004-05-13T23:20', $date_format);
+
+Valid dates should be in the range 1900-01-01 to 9999-12-31, for the 1900 epoch and 1904-01-01 to 9999-12-31, for the 1904 epoch. As with Excel, dates outside these ranges will be written as a string.
+
+See also the date_time.pl program in the C<examples> directory of the distro.
 
 
 
@@ -2888,27 +2953,13 @@ A date or time in Excel is like any other number. To display the number as a dat
     $format->set_num_format('mmm d yyyy hh:mm AM/PM');
     $worksheet->write('A1', 36892.521 , $format); # Jan 1 2001 12:30 AM
 
+You can also use the C<write_date_time()> worksheet method to write dates in  ISO8601 date format.
 
-The C<Spreadsheet::WriteExcel::Utility> module that is included in the distro contains helper functions for dealing with dates and times in Excel, for example:
+    $worksheet->write_date_time('A2', '2001-01-01T12:20', format);
 
-    $date = xl_date_list(2002, 1, 1);         # 37257
-    $date = xl_parse_date("11 July 1997");    # 35622
-    $time = xl_parse_time('3:21:36 PM');      # 0.64
-    $date = xl_decode_date_EU("13 May 2002"); # 37389
+See the C<write_date_time()> section of the documentation for more details.
 
-These functions deal automatically with the 1900 leap year issue described above.
-
-The date and time functions are based on functions provided by the C<Date::Calc> and C<Date::Manip> modules. These modules are very useful if you plan to manipulate dates in different formats.
-
-See also the DateTime::Format::Excel module,http://search.cpan.org/search?dist=DateTime-Format-Excel which is part of the DateTime project and which deals specifically with converting dates and times to and from Excel's format.
-
-There is also the C<excel_date1.pl> program in the C<examples> directory of the WriteExcel distribution which was written by Andrew Benham. It contains a detailed description of the problems involved in calculating dates in Excel. It does not require any external modules.
-
-It is also possible to get Excel to calculate dates for you by defining a function:
-
-    $worksheet->write('A1', '=DATEVALUE("1-Jan-2001")');
-
-However, this carries a performance overhead in Spreadsheet::WriteExcel due to the parsing of the formula and it shouldn't be used for programs that deal with a large number of dates, unless you use it in conjunction with C<store_formula()> and C<repeat_formula()> .
+See also the C<Spreadsheet::WriteExcel::Utility> module that is included in the distro and which includes date handling functions and the DateTime::Format::Excel module, http://search.cpan.org/search?dist=DateTime-Format-Excel which is part of the DateTime project and which deals specifically with converting dates and times to and from Excel's format.
 
 
 
@@ -3460,66 +3511,79 @@ different features and options of the module.
 
     Getting started
     ===============
-    bug_report.pl       A template for submitting bug reports.
-    demo.pl             Creates a demo of some of the features.
-    formats.pl          Creates a demo of the available formatting.
-    regions.pl          Demonstrates multiple worksheets.
-    simple.pl           An example of some of the basic features.
-    stats.pl            Basic formulas and functions.
+    bug_report.pl           A template for submitting bug reports.
+    demo.pl                 Creates a demo of some of the features.
+    formats.pl              Creates a demo of the available formatting.
+    regions.pl              Demonstrates multiple worksheets.
+    simple.pl               An example of some of the basic features.
+    stats.pl                Basic formulas and functions.
 
     Advanced
     ========
-    bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
-    cgi.pl              A simple CGI program.
-    chess.pl            An example of formatting using properties.
-    colors.pl           Demo of the colour palette and named colours.
-    copyformat.pl       Example of copying a cell format.
-    diag_border.pl      A simple example of diagonal cell borders.
-    easter_egg.pl       Expose the Excel97 flight simulator. A must see.
-    headers.pl          Examples of worksheet headers and footers.
-    hyperlink1.pl       Shows how to create web hyperlinks.
-    hyperlink2.pl       Examples of internal and external hyperlinks.
-    images.pl           Adding bitmap images to worksheets.
-    indent.pl           An example of cell indentation.
-    merge1.pl           A simple example of cell merging.
-    merge2.pl           A simple example of cell merging with formatting.
-    merge3.pl           Add hyperlinks to merged cells.
-    merge4.pl           An advanced example of merging with formatting.
-    merge5.pl           An advanced example of merging with formatting.
-    mod_perl1.pl        A simple mod_perl 1 program.
-    mod_perl2.pl        A simple mod_perl 2 program.
-    outline.pl          An example of outlines and grouping.
-    panes.pl            An examples of how to create panes.
-    protection.pl       Example of cell locking and formula hiding.
-    repeat.pl           Example of writing repeated formulas.
-    sales.pl            An example of a simple sales spreadsheet.
-    sendmail.pl         Send an Excel email attachment using Mail::Sender.
-    stats_ext.pl        Same as stats.pl with external references.
-    stocks.pl           Demonstrates conditional formatting.
-    textwrap.pl         Demonstrates text wrapping options.
-    unicode.pl          Simple example of using Unicode strings.
-    unicode_japan.pl    Write Japanese Unicode strings.
-    unicode_list.pl     List the chars in a Unicode font.
-    win32ole.pl         A sample Win32::OLE example for comparison.
-    write_arrays.pl     Example of writing 1D or 2D arrays of data.
+    bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
+    cgi.pl                  A simple CGI program.
+    chess.pl                An example of formatting using properties.
+    colors.pl               Demo of the colour palette and named colours.
+    copyformat.pl           Example of copying a cell format.
+    diag_border.pl          A simple example of diagonal cell borders.
+    easter_egg.pl           Expose the Excel97 flight simulator. A must see.
+    filehandle.pl           Examples of working with filehandles.
+    headers.pl              Examples of worksheet headers and footers.
+    hyperlink1.pl           Shows how to create web hyperlinks.
+    hyperlink2.pl           Examples of internal and external hyperlinks.
+    images.pl               Adding bitmap images to worksheets.
+    indent.pl               An example of cell indentation.
+    merge1.pl               A simple example of cell merging.
+    merge2.pl               A simple example of cell merging with formatting.
+    merge3.pl               Add hyperlinks to merged cells.
+    merge4.pl               An advanced example of merging with formatting.
+    merge5.pl               An advanced example of merging with formatting.
+    mod_perl1.pl            A simple mod_perl 1 program.
+    mod_perl2.pl            A simple mod_perl 2 program.
+    outline.pl              An example of outlines and grouping.
+    panes.pl                An examples of how to create panes.
+    protection.pl           Example of cell locking and formula hiding.
+    repeat.pl               Example of writing repeated formulas.
+    sales.pl                An example of a simple sales spreadsheet.
+    sendmail.pl             Send an Excel email attachment using Mail::Sender.
+    stats_ext.pl            Same as stats.pl with external references.
+    stocks.pl               Demonstrates conditional formatting.
+    textwrap.pl             Demonstrates text wrapping options.
+    win32ole.pl             A sample Win32::OLE example for comparison.
+    write_arrays.pl         Example of writing 1D or 2D arrays of data.
+    write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
+
+    Unicode
+    =======
+    unicode.pl              Simple example of using Unicode UTF16 strings.
+    unicode_japan.pl        Write Japanese Unicode strings using UTF16.
+    unicode_list.pl         List the chars in a Unicode font.
+    unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
+    unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.
+    unicode_8859_7.pl       Greek:    ISO-8859_7  to utf8 in perl 5.8.
+    unicode_big5.pl         Chinese:  BIG5        to utf8 in perl 5.8.
+    unicode_cp1251.pl       Russian:  CP1251      to utf8 in perl 5.8.
+    unicode_cp1256.pl       Arabic:   CP1256      to utf8 in perl 5.8.
+    unicode_koi8r.pl        Russian:  KOI8-R      to utf8 in perl 5.8.
+    unicode_polish_utf8.pl  Polish :  UTF8        to utf8 in perl 5.8.
+    unicode_shift_jis.pl    Japanese: Shift JIS   to utf8 in perl 5.8.
 
 
     Utility
     =======
-    csv2xls.pl          Program to convert a CSV file to an Excel file.
-    datecalc1.pl        Convert Unix/Perl time to Excel time.
-    datecalc2.pl        Calculate an Excel date using Date::Calc.
-    lecxe.pl            Convert Excel to WriteExcel using Win32::OLE.
-    tab2xls.pl          Program to convert a tab separated file to xls.
+    csv2xls.pl              Program to convert a CSV file to an Excel file.
+    datecalc1.pl            Convert Unix/Perl time to Excel time.
+    datecalc2.pl            Calculate an Excel date using Date::Calc.
+    lecxe.pl                Convert Excel to WriteExcel using Win32::OLE.
+    tab2xls.pl              Program to convert a tab separated file to xls.
 
 
     Developer
     =========
-    convertA1.pl        Helper functions for dealing with A1 notation.
-    function_locale.pl  Add non-English function names to Formula.pm.
-    filehandle.pl       Examples of working with filehandles.
-    writeA1.pl          Example of how to extend the module.
-    writemany.pl        Write an 2d array of values in one go.
+    convertA1.pl            Helper functions for dealing with A1 notation.
+    function_locale.pl      Add non-English function names to Formula.pm.
+    writeA1.pl              Example of how to extend the module.
+
 
 
 
@@ -3563,7 +3627,7 @@ This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.04/WriteExcel/doc/install.html
+http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.10/WriteExcel/doc/install.html
 
 
 
@@ -3788,7 +3852,7 @@ To avoid this problems you should convert the output data to ASCII or ISO-8859-1
 
 If you are interested in creating an XML spreadsheet format you can use Spreadsheet::WriteExcelXML which uses the same interface as Spreadsheet::WriteExcel. See http://search.cpan.org/dist/Spreadsheet-WriteExcelXML
 
-s
+
 
 
 =head1 BUGS
@@ -3822,6 +3886,8 @@ The roadmap is as follows:
 
 =over 4
 
+=item * Extend uft8 support to all relevant methods.
+
 =item * Add write_comment().
 
 =item * Add AutoFilters.
@@ -3834,10 +3900,6 @@ You can keep up to date with future releases by registering as a user with Fresh
 Also, here are some of the most requested features that probably won't get added:
 
 =over 4
-
-=item * Graphs.
-
-The format is documented but it would require too much work to implement. It would also require too much work to design a useable interface to the hundreds of features in an Excel graph. So that's two too much works. Nevertheless, I do hope to *try* implement graphs. However, it is a long term goal. It won't be available for at least 6 months, even if you read this in 6 months time.
 
 =item * Macros.
 
@@ -3884,7 +3946,7 @@ Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Ol
 
 The following people contributed patches, examples or Excel information:
 
-Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Matisse Enzer, Sam Kington, Takanori Kawai, Tom O'Sullivan.
+Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Mark Fowler, Matisse Enzer, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 
 Many thanks to Ron McKelvey, Ronzo Consulting for Siemens, who sponsored the development of the formula caching routines.
 
@@ -3905,23 +3967,13 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
+    The difference between dogs and sheds
 
-    All night long on the broken glass
-    Livin in a medicine chest
-    Mediteromanian hotel back
-    sprawled across a roll top desk
-    The monkey rode the blade on an
-    overhead fan
-    They paint the donkey blue if you pay
-    I got a telephone call from Istanbul
-    My baby's coming home today
+    It's not a very good idea to give a dog
+    a coat
+    of creosote
 
-    Will you sell me one of those if I shave my head
-    Get me out of town is what fireball said
-    Never trust a man in a blue trench coat
-    Never drive a car when you're dead
-
-        -- Tom Waits
+        -- John Hegley
 
 
 

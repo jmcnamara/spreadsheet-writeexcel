@@ -1,5 +1,3 @@
-
-
 The following is a description of the example files that are provided
 with Spreadsheet::WriteExcel. They are intended to demonstrate the
 different features and options of the module.
@@ -7,63 +5,75 @@ different features and options of the module.
 
 Getting started
 ===============
-bug_report.pl       A template for submitting bug reports.
-demo.pl             Creates a demo of some of the features.
-formats.pl          Creates a demo of the available formatting.
-regions.pl          Demonstrates multiple worksheets.
-simple.pl           An example of some of the basic features.
-stats.pl            Basic formulas and functions.
+bug_report.pl           A template for submitting bug reports.
+demo.pl                 Creates a demo of some of the features.
+formats.pl              Creates a demo of the available formatting.
+regions.pl              Demonstrates multiple worksheets.
+simple.pl               An example of some of the basic features.
+stats.pl                Basic formulas and functions.
 
 Advanced
 ========
-bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
-cgi.pl              A simple CGI program.
-chess.pl            An example of formatting using properties.
-colors.pl           Demo of the colour palette and named colours.
-copyformat.pl       Example of copying a cell format.
-diag_border.pl      A simple example of diagonal cell borders.
-easter_egg.pl       Expose the Excel97 flight simulator. A must see.
-headers.pl          Examples of worksheet headers and footers.
-hyperlink1.pl       Shows how to create web hyperlinks.
-hyperlink2.pl       Examples of internal and external hyperlinks.
-images.pl           Adding bitmap images to worksheets.
-indent.pl           An example of cell indentation.
-merge1.pl           A simple example of cell merging.
-merge2.pl           A simple example of cell merging with formatting.
-merge3.pl           Add hyperlinks to merged cells.
-merge4.pl           An advanced example of merging with formatting.
-merge5.pl           An advanced example of merging with formatting.
-mod_perl1.pl        A simple mod_perl 1 program.
-mod_perl2.pl        A simple mod_perl 2 program.
-outline.pl          An example of outlines and grouping.
-panes.pl            An examples of how to create panes.
-protection.pl       Example of cell locking and formula hiding.
-repeat.pl           Example of writing repeated formulas.
-sales.pl            An example of a simple sales spreadsheet.
-sendmail.pl         Send an Excel email attachment using Mail::Sender.
-stats_ext.pl        Same as stats.pl with external references.
-stocks.pl           Demonstrates conditional formatting.
-textwrap.pl         Demonstrates text wrapping options.
-unicode.pl          Simple example of using Unicode strings.
-unicode_japan.pl    Write Japanese Unicode strings.
-unicode_list.pl     List the chars in a Unicode font.
-win32ole.pl         A sample Win32::OLE example for comparison.
-write_arrays.pl     Example of writing 1D or 2D arrays of data.
+bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
+cgi.pl                  A simple CGI program.
+chess.pl                An example of formatting using properties.
+colors.pl               Demo of the colour palette and named colours.
+copyformat.pl           Example of copying a cell format.
+diag_border.pl          A simple example of diagonal cell borders.
+easter_egg.pl           Expose the Excel97 flight simulator. A must see.
+filehandle.pl           Examples of working with filehandles.
+headers.pl              Examples of worksheet headers and footers.
+hyperlink1.pl           Shows how to create web hyperlinks.
+hyperlink2.pl           Examples of internal and external hyperlinks.
+images.pl               Adding bitmap images to worksheets.
+indent.pl               An example of cell indentation.
+merge1.pl               A simple example of cell merging.
+merge2.pl               A simple example of cell merging with formatting.
+merge3.pl               Add hyperlinks to merged cells.
+merge4.pl               An advanced example of merging with formatting.
+merge5.pl               An advanced example of merging with formatting.
+mod_perl1.pl            A simple mod_perl 1 program.
+mod_perl2.pl            A simple mod_perl 2 program.
+outline.pl              An example of outlines and grouping.
+panes.pl                An examples of how to create panes.
+protection.pl           Example of cell locking and formula hiding.
+repeat.pl               Example of writing repeated formulas.
+sales.pl                An example of a simple sales spreadsheet.
+sendmail.pl             Send an Excel email attachment using Mail::Sender.
+stats_ext.pl            Same as stats.pl with external references.
+stocks.pl               Demonstrates conditional formatting.
+textwrap.pl             Demonstrates text wrapping options.
+win32ole.pl             A sample Win32::OLE example for comparison.
+write_arrays.pl         Example of writing 1D or 2D arrays of data.
+write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
+
+Unicode
+=======
+unicode.pl              Simple example of using Unicode UTF16 strings.
+unicode_japan.pl        Write Japanese Unicode strings using UTF16.
+unicode_list.pl         List the chars in a Unicode font.
+unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
+unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.
+unicode_8859_7.pl       Greek:    ISO-8859_7  to utf8 in perl 5.8.
+unicode_big5.pl         Chinese:  BIG5        to utf8 in perl 5.8.
+unicode_cp1251.pl       Russian:  CP1251      to utf8 in perl 5.8.
+unicode_cp1256.pl       Arabic:   CP1256      to utf8 in perl 5.8.
+unicode_koi8r.pl        Russian:  KOI8-R      to utf8 in perl 5.8.
+unicode_polish_utf8.pl  Polish :  UTF8        to utf8 in perl 5.8.
+unicode_shift_jis.pl    Japanese: Shift JIS   to utf8 in perl 5.8.
 
 
 Utility
 =======
-csv2xls.pl          Program to convert a CSV file to an Excel file.
-datecalc1.pl        Convert Unix/Perl time to Excel time.
-datecalc2.pl        Calculate an Excel date using Date::Calc.
-lecxe.pl            Convert Excel to WriteExcel using Win32::OLE.
-tab2xls.pl          Program to convert a tab separated file to xls.
+csv2xls.pl              Program to convert a CSV file to an Excel file.
+datecalc1.pl            Convert Unix/Perl time to Excel time.
+datecalc2.pl            Calculate an Excel date using Date::Calc.
+lecxe.pl                Convert Excel to WriteExcel using Win32::OLE.
+tab2xls.pl              Program to convert a tab separated file to xls.
 
 
 Developer
 =========
-convertA1.pl        Helper functions for dealing with A1 notation.
-function_locale.pl  Add non-English function names to Formula.pm.
-filehandle.pl       Examples of working with filehandles.
-writeA1.pl          Example of how to extend the module.
-writemany.pl        Write an 2d array of values in one go.
+convertA1.pl            Helper functions for dealing with A1 notation.
+function_locale.pl      Add non-English function names to Formula.pm.
+writeA1.pl              Example of how to extend the module.
