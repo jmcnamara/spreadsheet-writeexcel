@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 ###############################################################################
 #
@@ -120,11 +120,12 @@ sub worksheets {
 
 ###############################################################################
 #
-# addworksheet()
+# addworksheet($name)
 #
 # Add a new worksheet to the Excel workbook.
-# TODO: add accessor for $self->{_sheetname} to mimic international
-# versions of Excel.
+# TODO: add accessor for $self->{_sheetname} to mimic international versions of
+# Excel.
+# TODO: Limit sheet name to the Excel limit of31 chars.
 #
 # Returns: reference to a worksheet object
 #
@@ -156,19 +157,19 @@ sub addworksheet {
 
 ###############################################################################
 #
-# addformat()
+# addformat(%properties)
 #
 # Add a new format to the Excel workbook. This adds an XF record and
-# a FONT record.
+# a FONT record. Also, pass any properties to the Format::new().
 #
 sub addformat {
 
-    my $self      = shift;
+    my $self = shift;
 
-    my $format = Spreadsheet::WriteExcel::Format->new($self->{_xf_index});
+    my $format = Spreadsheet::WriteExcel::Format->new($self->{_xf_index}, @_);
+
     $self->{_xf_index} += 1;
-
-    push @{$self->{_formats}}, $format;
+    push @{$self->{_formats}}, $format; # Store format reference
 
     return $format;
 }
@@ -180,7 +181,7 @@ sub addformat {
 #
 # Set the date system: 0 = 1900 (the default), 1 = 1904
 #
-sub set_1904{
+sub set_1904 {
 
     my $self      = shift;
 
@@ -199,74 +200,11 @@ sub set_1904{
 #
 # Return the date system: 0 = 1900, 1 = 1904
 #
-sub get_1904{
+sub get_1904 {
 
     my $self = shift;
 
     return $self->{_1904};
-}
-
-
-###############################################################################
-#
-# write()
-#
-# Calls write method on first worksheet for backward compatibility.
-# Adds first worksheet as necessary.
-#
-# Returns: return value of the worksheet->write() method
-#
-sub write {
-
-    my $self    = shift;
-
-    if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
-    carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjunction with a worksheet object instead"
-        ) if $^W;
-    return $self->{_worksheets}[0]->write(@_);
-}
-
-
-###############################################################################
-#
-# write_string()
-#
-# Calls write_string method on first worksheet for backward
-# compatibility. Adds first worksheet as necessary.
-#
-# Returns: return value of the worksheet->write_string() method
-#
-sub write_string {
-
-    my $self    = shift;
-
-    if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
-    carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjunction with a worksheet object instead"
-        ) if $^W;
-    return $self->{_worksheets}[0]->write_string(@_);
-}
-
-
-###############################################################################
-#
-# write_number()
-#
-# Calls write_number method on first worksheet for backward
-# compatibility. Adds first worksheet as necessary.
-#
-# Returns: return value of the worksheet->write_number() method
-#
-sub write_number {
-
-    my $self    = shift;
-
-    if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
-    carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjunction with a worksheet object instead"
-        ) if $^W;
-    return $self->{_worksheets}[0]->write_number(@_);
 }
 
 
@@ -278,7 +216,7 @@ sub write_number {
 # or IIS might not have permission to create tmp files. The test is here rather
 # than in Worksheet.pm so that only one warning is given.
 #
-sub _tmpfile_warning{
+sub _tmpfile_warning {
 
     my $fh = IO::File->new_tmpfile();
 
@@ -314,6 +252,8 @@ sub _store_workbook {
 
     # Add Workbook globals
     $self->_store_bof(0x0005);
+    $self->_store_externs();    # For print area and repeat rows
+    $self->_store_names();      # For print area and repeat rows
     $self->_store_window1();
     $self->_store_1904();
     $self->_store_all_fonts();
@@ -339,7 +279,7 @@ sub _store_workbook {
 #
 # _store_OLE_file()
 #
-# Store the workbook in an OLE container if the total size of the worbook data
+# Store the workbook in an OLE container if the total size of the workbook data
 # is less than ~ 7MB.
 #
 sub _store_OLE_file {
@@ -399,7 +339,7 @@ sub _calc_sheet_offsets {
 #
 sub _store_all_fonts {
 
-    my $self   = shift;
+    my $self = shift;
 
     # _tmp_format is added by new(). We use this to write the default XF's
     my $format = $self->{_tmp_format};
@@ -451,7 +391,7 @@ sub _store_all_fonts {
 #
 sub _store_all_num_formats {
 
-    my $self   = shift;
+    my $self = shift;
 
     # Leaning num_format syndrome
     my %num_formats;
@@ -465,12 +405,12 @@ sub _store_all_num_formats {
     foreach my $format (@{$self->{_formats}}) {
         my $num_format = $format->{_num_format};
 
-        # Check if $num_format is an index to a builtin format.
+        # Check if $num_format is an index to a built-in format.
         # Also check for a string of zeros, which is a valid format string
         # but would evaluate to zero.
         #
         if ($num_format !~ m/^0+\d/) {
-            next if $num_format =~ m/^\d+$/; # builtin
+            next if $num_format =~ m/^\d+$/; # built-in
         }
 
         if (exists($num_formats{$num_format})) {
@@ -503,7 +443,7 @@ sub _store_all_num_formats {
 #
 sub _store_all_xfs {
 
-    my $self    = shift;
+    my $self = shift;
 
     # _tmp_format is added by new(). We use this to write the default XF's
     # The default font index is 0
@@ -536,12 +476,116 @@ sub _store_all_xfs {
 #
 sub _store_all_styles {
 
-    my $self    = shift;
+    my $self = shift;
 
     $self->_store_style();
 }
 
 
+###############################################################################
+#
+# _store_externs()
+#
+# Write the EXTERNCOUNT and EXTERNSHEET records. These are used as indexes for
+# the NAME records.
+#
+sub _store_externs {
+
+    my $self = shift;
+
+    # Create EXTERNCOUNT with number of worksheets
+    $self->_store_externcount(scalar @{$self->{_worksheets}});
+
+    # Create EXTERNSHEET for each worksheet
+    foreach my $sheetname (@{$self->{_sheetnames}}) {
+        $self->_store_externsheet($sheetname);
+    }
+}
+
+
+###############################################################################
+#
+# _store_names()
+#
+# Write the NAME record to define the print area and the repeat rows and cols.
+#
+sub _store_names {
+
+    my $self = shift;
+
+    # Create the print area NAME records
+    foreach my $worksheet (@{$self->{_worksheets}}) {
+        # Write a Name record if the print area has been defined
+        if (defined $worksheet->{_print_rowmin}) {
+            $self->_store_name_short(
+                $worksheet->{_index},
+                0x06, # NAME type
+                $worksheet->{_print_rowmin},
+                $worksheet->{_print_rowmax},
+                $worksheet->{_print_colmin},
+                $worksheet->{_print_colmax}
+            );
+        }
+    }
+
+
+    # Create the print title NAME records
+    foreach my $worksheet (@{$self->{_worksheets}}) {
+
+        my $rowmin = $worksheet->{_title_rowmin};
+        my $rowmax = $worksheet->{_title_rowmax};
+        my $colmin = $worksheet->{_title_colmin};
+        my $colmax = $worksheet->{_title_colmax};
+
+        # Determine if row + col, row, col or nothing has been defined
+        # and write the appropriate record
+        #
+        if (defined $rowmin && defined $colmin) {
+            # Row and column titles have been defined.
+            # Row title has been defined.
+            $self->_store_name_long(
+                $worksheet->{_index},
+                0x07, # NAME type
+                $rowmin,
+                $rowmax,
+                $colmin,
+                $colmax
+           );
+        }
+        elsif (defined $rowmin) {
+            # Row title has been defined.
+            $self->_store_name_short(
+                $worksheet->{_index},
+                0x07, # NAME type
+                $rowmin,
+                $rowmax,
+                0x00,
+                0xff
+            );
+        }
+        elsif (defined $colmin) {
+            # Column title has been defined.
+            $self->_store_name_short(
+                $worksheet->{_index},
+                0x07, # NAME type
+                0x0000,
+                0x3fff,
+                $colmin,
+                $colmax
+            );
+        }
+        else {
+            # Print title hasn't been defined.
+            return;
+        }
+
+    }
+}
+
+
+
+
+###############################################################################
 ###############################################################################
 #
 # BIFF RECORDS
@@ -675,6 +719,232 @@ sub _store_1904 {
 
     $self->_append($header, $data);
 }
+
+
+###############################################################################
+#
+# _store_externcount($count)
+#
+# Write BIFF record EXTERNCOUNT to indicate the number of external sheet
+# references in the workbook.
+#
+# Excel only stores references to external sheets that are used in NAME.
+# The workbook NAME record is required to define the print area and the repeat
+# rows and columns.
+#
+# A similar method is used in Worksheet.pm for a slightly different purpose.
+#
+sub _store_externcount {
+
+    my $self     = shift;
+    
+    my $record   = 0x0016;          # Record identifier
+    my $length   = 0x0002;          # Number of bytes to follow
+
+    my $cxals    = $_[0];           # Number of external references
+
+    my $header   = pack("vv", $record, $length);
+    my $data     = pack("v",  $cxals);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_externsheet($sheetname)
+#
+#
+# Writes the Excel BIFF EXTERNSHEET record. These references are used by
+# formulas. NAME record is required to define the print area and the repeat
+# rows and columns.
+#
+# A similar method is used in Worksheet.pm for a slightly different purpose.
+#
+sub _store_externsheet {
+
+    my $self        = shift;
+
+    my $record      = 0x0017;               # Record identifier
+    my $length      = 0x02 + length($_[0]); # Number of bytes to follow
+
+    my $sheetname   = $_[0];                # Worksheet name
+    my $cch         = length($sheetname);   # Length of sheet name
+    my $rgch        = 0x03;                 # Filename encoding
+
+    my $header      = pack("vv",  $record, $length);
+    my $data        = pack("CC", $cch, $rgch);
+
+    $self->_append($header, $data, $sheetname);
+}
+
+
+###############################################################################
+#
+# _store_name_short()
+#
+#
+# Store the NAME record in the short format that is used for storing the print
+# area, repeat rows only and repeat columns only.
+#
+sub _store_name_short {
+
+    my $self            = shift;
+
+    my $record          = 0x0018;       # Record identifier
+    my $length          = 0x0024;       # Number of bytes to follow
+
+    my $index           = shift;        # Sheet index
+    my $type            = shift;
+
+    my $grbit           = 0x0020;       # Option flags
+    my $chKey           = 0x00;         # Keyboard shortcut
+    my $cch             = 0x01;         # Length of text name
+    my $cce             = 0x0015;       # Length of text definition
+    my $ixals           = $index +1;    # Sheet index
+    my $itab            = $ixals;       # Equal to ixals
+    my $cchCustMenu     = 0x00;         # Length of cust menu text
+    my $cchDescription  = 0x00;         # Length of description text
+    my $cchHelptopic    = 0x00;         # Length of help topic text
+    my $cchStatustext   = 0x00;         # Length of status bar text
+    my $rgch            = $type;        # Built-in name type
+
+    my $unknown03       = 0x3b;
+    my $unknown04       = 0xffff-$index;
+    my $unknown05       = 0x0000;
+    my $unknown06       = 0x0000;
+    my $unknown07       = 0x1087;
+    my $unknown08       = 0x8005;
+
+    my $rowmin          = $_[0];        # Start row
+    my $rowmax          = $_[1];        # End row
+    my $colmin          = $_[2];        # Start column
+    my $colmax          = $_[3];        # end column
+
+
+    my $header          = pack("vv",  $record, $length);
+    my $data            = pack("v", $grbit);
+    $data              .= pack("C", $chKey);
+    $data              .= pack("C", $cch);
+    $data              .= pack("v", $cce);
+    $data              .= pack("v", $ixals);
+    $data              .= pack("v", $itab);
+    $data              .= pack("C", $cchCustMenu);
+    $data              .= pack("C", $cchDescription);
+    $data              .= pack("C", $cchHelptopic);
+    $data              .= pack("C", $cchStatustext);
+    $data              .= pack("C", $rgch);
+    $data              .= pack("C", $unknown03);
+    $data              .= pack("v", $unknown04);
+    $data              .= pack("v", $unknown05);
+    $data              .= pack("v", $unknown06);
+    $data              .= pack("v", $unknown07);
+    $data              .= pack("v", $unknown08);
+    $data              .= pack("v", $index);
+    $data              .= pack("v", $index);
+    $data              .= pack("v", $rowmin);
+    $data              .= pack("v", $rowmax);
+    $data              .= pack("C", $colmin);
+    $data              .= pack("C", $colmax);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_name_long()
+#
+#
+# Store the NAME record in the long format that is used for storing the repeat
+# rows and columns when both are specified. This share a lot of code with
+# _store_name_short() but we use a separate method to keep the code clean.
+# Code abstraction for reuse can be carried too far, and I should know. ;-)
+#
+sub _store_name_long {
+
+    my $self            = shift;
+
+    my $record          = 0x0018;       # Record identifier
+    my $length          = 0x003d;       # Number of bytes to follow
+
+    my $index           = shift;        # Sheet index
+    my $type            = shift;
+
+    my $grbit           = 0x0020;       # Option flags
+    my $chKey           = 0x00;         # Keyboard shortcut
+    my $cch             = 0x01;         # Length of text name
+    my $cce             = 0x002e;       # Length of text definition
+    my $ixals           = $index +1;    # Sheet index
+    my $itab            = $ixals;       # Equal to ixals
+    my $cchCustMenu     = 0x00;         # Length of cust menu text
+    my $cchDescription  = 0x00;         # Length of description text
+    my $cchHelptopic    = 0x00;         # Length of help topic text
+    my $cchStatustext   = 0x00;         # Length of status bar text
+    my $rgch            = $type;        # Built-in name type
+
+    my $unknown01       = 0x29;
+    my $unknown02       = 0x002b;
+    my $unknown03       = 0x3b;
+    my $unknown04       = 0xffff-$index;
+    my $unknown05       = 0x0000;
+    my $unknown06       = 0x0000;
+    my $unknown07       = 0x1087;
+    my $unknown08       = 0x8008;
+
+    my $rowmin          = $_[0];        # Start row
+    my $rowmax          = $_[1];        # End row
+    my $colmin          = $_[2];        # Start column
+    my $colmax          = $_[3];        # end column
+
+
+    my $header          = pack("vv",  $record, $length);
+    my $data            = pack("v", $grbit);
+    $data              .= pack("C", $chKey);
+    $data              .= pack("C", $cch);
+    $data              .= pack("v", $cce);
+    $data              .= pack("v", $ixals);
+    $data              .= pack("v", $itab);
+    $data              .= pack("C", $cchCustMenu);
+    $data              .= pack("C", $cchDescription);
+    $data              .= pack("C", $cchHelptopic);
+    $data              .= pack("C", $cchStatustext);
+    $data              .= pack("C", $rgch);
+    $data              .= pack("C", $unknown01);
+    $data              .= pack("v", $unknown02);
+    # Column definition
+    $data              .= pack("C", $unknown03);
+    $data              .= pack("v", $unknown04);
+    $data              .= pack("v", $unknown05);
+    $data              .= pack("v", $unknown06);
+    $data              .= pack("v", $unknown07);
+    $data              .= pack("v", $unknown08);
+    $data              .= pack("v", $index);
+    $data              .= pack("v", $index);
+    $data              .= pack("v", 0x0000);
+    $data              .= pack("v", 0x3fff);
+    $data              .= pack("C", $colmin);
+    $data              .= pack("C", $colmax);
+    # Row definition
+    $data              .= pack("C", $unknown03);
+    $data              .= pack("v", $unknown04);
+    $data              .= pack("v", $unknown05);
+    $data              .= pack("v", $unknown06);
+    $data              .= pack("v", $unknown07);
+    $data              .= pack("v", $unknown08);
+    $data              .= pack("v", $index);
+    $data              .= pack("v", $index);
+    $data              .= pack("v", $rowmin);
+    $data              .= pack("v", $rowmax);
+    $data              .= pack("C", 0x00);
+    $data              .= pack("C", 0xff);
+    # End of data
+    $data              .= pack("C", 0x10);
+
+    $self->_append($header, $data);
+}
+
+
 
 
 1;

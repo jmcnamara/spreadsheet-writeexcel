@@ -11,7 +11,7 @@ package Spreadsheet::WriteExcel;
 # Documentation after __END__
 #
 
-require Exporter;
+use Exporter;
 
 use strict;
 use Spreadsheet::WriteExcel::Workbook;
@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.32'; #  Weller.
+$VERSION = '0.33'; # I Jonathan.
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.32 of Spreadsheet::WriteExcel, released May 17, 2001.
+This document refers to version 0.33 of Spreadsheet::WriteExcel, released July 30, 2001.
 
 
 
@@ -104,7 +104,34 @@ The Spreadsheet::WriteExcel module can be used to create a cross-platform Excel 
 
 The Excel file produced by this module is compatible with Excel 5, 95, 97 and 2000.
 
-The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications OpenOffice, Gnumeric and XESS. The generated files are not compatible with MS Access.
+The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications OpenOffice, Gnumeric and XESS.
+
+This module cannot be uses to write to an existing Excel file.
+
+
+
+
+=head1 QUICK START
+
+Spreadsheet::WriteExcel tries to provide an interface to as many of Excel's features as possible. As a result there is a lot of documentation to accompany the interface and it can be difficult at first glance to see what it important and what is not. So for those of you who prefer to assemble Ikea furniture first and then read the instructions, here are three easy steps: 
+
+1. Create a new Excel I<workbook> (i.e. file) using C<new()>.
+
+2. Add a I<worksheet> to the new workbook using C<addworksheet()>.
+
+3. Write to the worksheet using C<write()>.
+
+Like this:
+
+    use Spreadsheet::WriteExcel;                            # Step 0
+
+    $workbook  = Spreadsheet::WriteExcel->new("perl.xls");  # Step 1
+    $worksheet = $workbook->addworksheet();                 # Step 2
+    $worksheet->write('A1', "Hi Excel!");                   # Step 3
+
+This will create an Excel file called C<perl.xls> with a single worksheet and the text C<"Hi Excel!"> in the relevant cell. And that's it. Okay, so there is actually a zeroth step as well, but C<use module> goes without saying. There are also more than 20 examples that come with the distribution and which you can use to get you started. See L<EXAMPLES>.
+
+Those of you who read the instructions first and assemble the furniture afterwards will know how to proceed. ;-)
 
 
 
@@ -113,7 +140,16 @@ The module will work on the majority of Windows, UNIX and Macintosh platforms. G
 
 The Spreadsheet::WriteExcel module provides an object oriented interface to a new Excel workbook. The following methods are available through a new workbook.
 
+    new()
+    close()
+    addworksheet($sheetname)
+    addformat()
+    worksheets()
+    set_1904()
+
 If you are unfamiliar with object oriented interfaces or the way that they are implemented in Perl have a look at C<perlobj> and C<perltoot> in the main Perl documentation.
+
+
 
 
 =head2 new()
@@ -122,7 +158,7 @@ A new Excel workbook is created using the C<new()> constructor which accepts eit
 
     my $workbook  = Spreadsheet::WriteExcel->new('filename.xls');
     my $worksheet = $workbook->addworksheet();
-    $worksheet->write(0, 0,  "Hi Excel!");
+    $worksheet->write(0, 0, "Hi Excel!");
 
 Here are some other examples of using C<new()> with filenames:
 
@@ -199,14 +235,14 @@ If C<$sheetname> is not specified the default Excel convention will be followed,
 
 
 
-=head2 addformat()
+=head2 addformat(%properties)
 
-The C<addformat()> method can be used to create new Format objects which are used to apply formatting to a cell:
+The C<addformat()> method can be used to create new Format objects which are used to apply formatting to a cell. You can either define the properties at creation time via a hash of property values or later via method calls.
 
-    $format1 = $workbook->addformat();
-    $format2 = $workbook->addformat();
+    $format1 = $workbook->addformat(%props); # Set properties at creation
+    $format2 = $workbook->addformat();       # Set properties later
 
-See the L<FORMAT METHODS> section for details.
+See the L<CELL FORMATTING> section for more details about Format properties and how to set them.
 
 
 
@@ -236,6 +272,8 @@ Excel stores dates as real numbers where the integer part stores the number of d
 
 Spreadsheet::WriteExcel stores dates in the 1900 format by default. If you wish to change this you can call the C<set_1904()> workbook method. You can query the current value by calling the C<get_1904()> workbook method. This returns 0 for 1900 and 1 for 1904.
 
+See also L<Dates in Excel> for more information about working with Excel's date system.
+
 In general you probably won't need to use C<set_1904()>.
 
 
@@ -243,10 +281,29 @@ In general you probably won't need to use C<set_1904()>.
 
 =head1 WORKSHEET METHODS
 
-The following methods are available through a new worksheet. A new worksheet is created by calling the C<addworksheet()> method from a workbook object:
+A new worksheet is created by calling the C<addworksheet()> method from a workbook object:
 
     $worksheet1 = $workbook->addworksheet();
     $worksheet2 = $workbook->addworksheet();
+
+The following methods are available through a new worksheet:
+
+    write()
+    write_number()
+    write_string()
+    write_formula()
+    write_blank()
+    write_url()
+    get_name()
+    activate()
+    select()
+    set_first_sheet()
+    set_selection()
+    set_row()
+    set_column()
+    freeze_panes()
+    thaw_panes()
+    merge_cells()
 
 
 
@@ -274,7 +331,10 @@ A1 notation is useful for setting up a worksheet manually and for working with f
     $worksheet->write('H1', 200);
     $worksheet->write('H2', '=H7+1');
 
-In the C<examples> directory of the distro there is a program called C<convertA1.pl> which contains helper functions for dealing with A1 notation.
+In the C<examples> directory of the distro there is a program called C<convertA1.pl> which contains helper functions for dealing with A1 notation, for example:
+
+    cell_to_rowcol('B7'); # Returns (6, 1)
+    rowcol_to_cell(6, 1), # Returns "B7"
 
 For simplicity, the parameter lists for the worksheet method calls in the following sections are given in terms of row-column notation. In all cases it is also possible to use A1 notation.
 
@@ -308,7 +368,7 @@ Here are some examples in both row-column and A1 notation:
     $worksheet->write(8, 0,  '=A3 + 3*A4'           );  # write_formula()
     $worksheet->write('A10', '=SIN(PI()/4)'         );  # write_formula()
 
-The C<$format> argument is optional. It should be a valid Format object, see L<FORMAT METHODS>:
+The C<$format> parameter is optional. It should be a valid Format object, see L<CELL FORMATTING>:
 
     my $format = $workbook->addformat();
     $format->set_bold();
@@ -335,7 +395,7 @@ Write an integer or a float to the cell specified by C<$row> and C<$column>:
     $worksheet->write_number(0, 0,  1     );
     $worksheet->write_number('A2',  2.3451);
 
-See the note about L<Cell notation>. The C<$format> argument is optional.
+See the note about L<Cell notation>. The C<$format> parameter is optional.
 
 
 
@@ -347,7 +407,7 @@ Write a string to the cell specified by C<$row> and C<$column>:
     $worksheet->write_string(0, 0, "Your text here" );
     $worksheet->write_string('A2', "or here" );
 
-See the note about L<Cell notation>. The maximum string size is 255 characters. The C<$format> argument is optional.
+See the note about L<Cell notation>. The maximum string size is 255 characters. The C<$format> parameter is optional.
 
 
 
@@ -381,16 +441,30 @@ See the note about L<Cell notation>. This method is useful for adding formatting
 
 =head2 write_url($row, $col, $url, $string, $format)
 
-Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative string is specified. The alternative C<$string> and the C<$format> are optional.
+Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative string is specified. The parameters C<$string> and the C<$format> are optional. As of version 0.33 you can use C<$format> without C<$string> without having to replace the missing argument with undef.
 
-    $worksheet->write_url(0, 0, 'http://www.perl.com/'                );
-    $worksheet->write_url(1, 0, 'http://www.perl.com/', 'Perl home'   );
-    $worksheet->write_url(2, 0, 'http://www.perl.com/', undef, $format);
-    $worksheet->write_url(3, 0, 'mailto:jmcnamara@cpan.org'           );
+    $worksheet->write_url(0, 0, 'http://www.perl.com/'                 );
+    $worksheet->write_url(1, 0, 'http://www.perl.com/', 'Perl home'    );
+    $worksheet->write_url('A3', 'http://www.perl.com/', $format        );
+    $worksheet->write_url('A4', 'http://www.perl.com/', 'Perl', $format);
+    $worksheet->write_url('A5', 'mailto:jmcnamara@cpan.org'            );
 
-The label is written using the C<write_string()> method. Therefore the 255 characters string limit applies to the label: the URL can be any length. Use C<undef> if you wish to specify a format without specifying an alternative string.See the note about L<Cell notation>.
+The label is written using the C<write_string()> method. Therefore the 255 characters string limit applies to the label: the URL can be any length.
+
+See the note about L<Cell notation>.
 
 Note: Hyperlinks are not available in Excel 5. They will appear as a string only.
+
+
+
+
+=head2 get_name()
+
+The C<get_name()> method is used to retrieve the name of a worksheet. For example:
+
+    foreach my $worksheet (@{$workbook->worksheets()}) {
+        print $worksheet->get_name(), "\n";
+    }
 
 
 
@@ -442,7 +516,7 @@ This method is not required very often. The default value is the first worksheet
 
 
 
-=head2 set_selection($first_row, $first_col, $last_row, $last_col);
+=head2 set_selection($first_row, $first_col, $last_row, $last_col)
 
 This method can be used to specify which cell or cells are selected in a worksheet. The most common requirement is to select a single cell, in which case C<$last_row> and C<$last_col> are not required. The active cell within a selected range is determined by the order in which C<$first> and C<$last> are specified. It is also possible to specify a cell or a range using A1 notation. See the note about L<Cell notation>.
 
@@ -460,9 +534,9 @@ The default cell is (0, 0), 'A1'.
 
 
 
-=head2 set_row($row, $height, $format);
+=head2 set_row($row, $height, $format)
 
-This method can be used to specify the height of a row. The C<$format> argument is optional, for additional information, see L<FORMAT METHODS>.
+This method can be used to specify the height of a row. The C<$format> parameter is optional, for additional information, see L<CELL FORMATTING>.
 
     $worksheet->set_row(0, 20); # Row 1 height set to 20
 
@@ -470,8 +544,18 @@ If you wish to set the format without changing the height you can pass C<undef> 
 
     $worksheet->set_row(0, undef, $format);
 
+The C<$format> parameter will only define a format if C<set_row()> is called after the cells have been written:
 
-=head2 set_column($first_col, $last_col, $width, $format);
+    $worksheet->write('A1', "Hello");       # Formatted
+    $worksheet->set_row(0, undef, $format);
+    $worksheet->write('B1', "Hello");       # Not formatted
+
+This behaviour will be fixed in a future release.
+
+
+
+
+=head2 set_column($first_col, $last_col, $width, $format, $hidden)
 
 This method can be used to specify the width of a single column or a range of columns. If the method is applied to a single column the value of C<$first_col> and C<$last_col> should be the same. It is also possible to specify a column range using the form of A1 notation used for columns. See the note about L<Cell notation>.
 
@@ -482,19 +566,25 @@ Examples:
     $worksheet->set_column('E:E', 20); # Column  E   width set to 20
     $worksheet->set_column('F:H', 30); # Columns F-H width set to 30
 
-The width corresponds to the column width value that is specified in Excel. It is approximately equal to the length of a string in the default font of Arial 10. The C<$format> argument is optional, for additional information, see L<FORMAT METHODS>.
+The width corresponds to the column width value that is specified in Excel. It is approximately equal to the length of a string in the default font of Arial 10. Unfortunately, there is no way to specify "AutoFit" for a column in the Excel file format. This feature is only available at runtime from within Excel.
 
-If you wish to set the format without changing the width you can pass C<undef> as the width parameter:
+The C<$format> parameter is optional, for additional information, see L<CELL FORMATTING>. If you wish to set the format without changing the width you can pass C<undef> as the width parameter:
 
     $worksheet->set_column(0, 0, undef, $format);
 
-Unfortunately, there is no way to specify "AutoFit" for a column in the Excel file format. This feature is only available at runtime from within Excel.
+The C<$format> parameter will not set the format for individual cells written by Spreadsheet::WriteExcel, it only has an effect on cells written after the workbook is opened in Excel. This behaviour will be fixed in a future release.
+
+The C<$hidden> parameter is optional. It should be set to 1 if you wish to hide a column. This can be used, for example, to hide intermediary steps in a complicated calculation:
+
+    $worksheet->set_column('D:D', 20,    $format, 1);
+    $worksheet->set_column('E:E', undef, undef,   1);
 
 
 
-=head2 freeze_panes($row, $col, $top_row, $left_col);
 
-This method can be used to divide a worksheet into horizontal or vertical regions known as panes and to also "freeze" these panes so that the splitter bars are not visible. This is the the same as the "Window->Freeze Panes" menu command in Excel
+=head2 freeze_panes($row, $col, $top_row, $left_col)
+
+This method can be used to divide a worksheet into horizontal or vertical regions known as panes and to also "freeze" these panes so that the splitter bars are not visible. This is the same as the "Window->Freeze Panes" menu command in Excel
 
 The parameters C<$row> and C<$col> are used to specify the location of the split. It should be noted that the split is specified at the top or left of a cell and that the method uses zero based indexing. Therefore to freeze the first row of a worksheet it is necessary to specify the split at row 2 (which is 1 as the zero-based index). This might lead you to think that you are using a 1 based index but this is not the case.
 
@@ -516,12 +606,12 @@ The parameters C<$top_row> and C<$left_col> are optional. They are used to speci
 You cannot use A1 notation for the C<$top_row> and C<$left_col> parameters.
     
 
-See also the C<panes.pl> program in the examples directory of the distribution.
+See also the C<panes.pl> program in the C<examples> directory of the distribution.
 
 
 
 
-=head2 thaw_panes($y, $x, $top_row, $left_col);
+=head2 thaw_panes($y, $x, $top_row, $left_col)
 
 This method can be used to divide a worksheet into horizontal or vertical regions known as panes. This method is different from the C<freeze_panes()> method in that the splits between the panes will be visible to the user and each pane will have its own scroll bars.
 
@@ -537,21 +627,40 @@ Example:
 
 You cannot use A1 notation with this method.
 
-See also the C<freeze_panes()> method and the C<panes.pl> program in the examples directory of the distribution.
+See also the C<freeze_panes()> method and the C<panes.pl> program in the C<examples> directory of the distribution.
 
 
 
 
-=head1 PAGE SETUP METHODS
+=head2 merge_cells()
 
-Page setup methods affect the way that a worksheet will look when it is printed. They control features such as page headers and footers and margins. These methods are really just standard worksheet methods. They are documented here in a separate section for the sake of clarity.
+Merging cells is generally achieved by setting the C<merge> property of a Format object, see L<CELL FORMATTING>. However, in certain circumstances this is not enough and you must additionally specify the cells to be merged via the C<merge_cells()> method.
 
-Not all of Excel's page setup options are available in this release but they will be added in subsequent releases.
+Cases where the C<merge_cells()> method is required are:
 
-A common requirement when working with Spreadsheet::WriteExcel is to apply the same page setup features to all of the worksheets in a workbook. To do this you can use the the C<worksheets()> method of the C<workbook> class to access the array of worksheets in a workbook:
+    1. Merging cells vertically
+    2. Merging cells that contain hyperlinks
+
+For an example of how to use this methods see the C<merge3.pl> program in the C<examples> directory of the distribution.
+
+This method is currently of limited use. It will play a more important role when Spreadsheet::WriteExcel moves to the Excel 97/2000 file format.
+
+In general the C<set_merge()> method is all that you will require to create merged cells, see L<CELL FORMATTING>.
+
+
+
+
+
+=head1 PAGE SET-UP METHODS
+
+Page set-up methods affect the way that a worksheet will look when it is printed. They control features such as page headers and footers and margins. These methods are really just standard worksheet methods. They are documented here in a separate section for the sake of clarity.
+
+Not all of Excel's page set-up options are available in this release but they will be added in subsequent releases.
+
+A common requirement when working with Spreadsheet::WriteExcel is to apply the same page set-up features to all of the worksheets in a workbook. To do this you can use the C<worksheets()> method of the C<workbook> class to access the array of worksheets in a workbook:
 
     foreach $worksheet (@{$workbook->worksheets()}) {
-       $worksheet->$worksheet->set_orientation(0);
+       $worksheet->set_landscape();
     }
 
 
@@ -561,14 +670,14 @@ A common requirement when working with Spreadsheet::WriteExcel is to apply the s
 
 This method is used to set the orientation of a worksheet's printed page to landscape:
 
-    $worksheet->set_orientation(); # Landscape mode
+    $worksheet->set_landscape(); # Landscape mode
 
 
 
 
 =head2 set_portrait()
 
-This method is used to set the orientation of a worksheet's printed page to portrait. The default worksheet orientation is portrait, so you generally won't need to call this method.
+This method is used to set the orientation of a worksheet's printed page to portrait. The default worksheet orientation is portrait, so you won't generally need to call this method.
 
     $worksheet->set_portrait(); # Portrait mode
 
@@ -626,10 +735,11 @@ This method is used to set the paper format for the printed output of a workshee
 
 Note, it is likely that not all of these paper types will be available to the end user since it will depend on the paper formats that the user's printer supports. Therefore, it is best to stick to standard paper types.
 
-If you do not specify a paper type the worksheet will print using the printer's default paper. 
-
     $worksheet->set_paper(1); # US Letter
     $worksheet->set_paper(9); # A4
+
+If you do not specify a paper type the worksheet will print using the printer's default paper. 
+
 
 
 
@@ -673,21 +783,21 @@ Headers and footers are generated using a C<$string> which is a combination of p
 
 The available control character are:
 
-    Control              Type             Description
-    =======              ====             ===========
-    &L                   Justification    Left
-    &C                                    Center
-    &R                                    Right
+    Control             Type                Description
+    =======             ====                ===========
+    &L                  Justification       Left
+    &C                                      Center
+    &R                                      Right
     
-    &P                   Information      Page number
-    &N                                    Total number of pages
-    &D                                    Date
-    &T                                    Time
-    &F                                    File name
-    &A                                    Worksheet name
+    &P                  Information         Page number
+    &N                                      Total number of pages
+    &D                                      Date
+    &T                                      Time
+    &F                                      File name
+    &A                                      Worksheet name
     
-    &fontsize            Font             Font size
-    &"fontname,style"                     Font name and style
+    &fontsize           Font                Font size
+    &"font,style"                           Font name and style
     
     
 
@@ -719,7 +829,7 @@ For example (with ASCII art representation of the results):
     |                                                               |
     
 
-If you do not specify any justification the text will be centered:
+If you do not specify any justification the text will be centred:
 
     $worksheet->set_header('Hello');
     
@@ -760,16 +870,16 @@ The information control characters act as variables that Excel will update as th
 
 You can specify the font size of a section of the text by prefixing it with the control character C<&n> where C<n> is the font size:
 
-    $worksheet->set_header('&20Big Hello');
-    $worksheet->set_header('&6Small Hello');
+    $worksheet->set_header('&30Hello Big'  );
+    $worksheet->set_header('&10Hello Small');
 
-You can specify the font of a section of the text by prefixing it with the control sequence C<&"fontname,style"> where C<fontname> is a font name such as "Courier New" or "Times New Roman" and C<style> is one of the standard Windows font descriptions: "Regular", "Italic", "Bold" or "Bold Italic":
+You can specify the font of a section of the text by prefixing it with the control sequence C<&"font,style"> where C<fontname> is a font name such as "Courier New" or "Times New Roman" and C<style> is one of the standard Windows font descriptions: "Regular", "Italic", "Bold" or "Bold Italic":
 
     $worksheet1->set_header('&"Courier New,Italic"Hello');
     $worksheet2->set_header('&"Courier New,Bold Italic"Hello');
     $worksheet3->set_header('&"Times New Roman,Regular"Hello');
 
-It is possible to combine all of these features together to create sophisticated headers and footers. As an aid to setting up complicated headers and footers you can record a page setup as a macro in Excel and look at the format strings that VBA produces. Remember however that VBA uses a double double quote C<""> to indicate a single double quote. For the last example above the equivalent VBA code looks like this:
+It is possible to combine all of these features together to create sophisticated headers and footers. As an aid to setting up complicated headers and footers you can record a page set-up as a macro in Excel and look at the format strings that VBA produces. Remember however that VBA uses a two double quotes C<""> to indicate a single double quote. For the last example above the equivalent VBA code looks like this:
 
     .LeftHeader   = ""
     .CenterHeader = "&""Times New Roman,Regular""Hello"
@@ -787,74 +897,147 @@ Note, the header and footer margins are independent of the top and bottom margin
 
 =head2 set_footer()
 
-See the C<set_header()> section above.
+Usage of the C<set_footer()> method is the same as the C<set_header()> method explained above.
 
 
 
 
-=head1 FORMAT METHODS
+=head2 repeat_rows($first_row, $last_row)
 
-This section describes the methods that are available through a Format object. Format objects are created by calling the workbook C<addformat()> method as follows:
+Set the number of rows to repeat at the top of each printed page.
 
-    my $heading1 = $workbook->addformat();
-    my $heading2 = $workbook->addformat();
+For large Excel documents it is often desirable to have the first row or rows of the worksheet print out at the top of each page. This can be achieved by using the C<repeat_rows()> method. The parameters C<$first_row> and C<$last_row> are zero based. The C<$last_row> parameter is optional if you only wish to specify one row:
 
-The format object holds all the formatting properties that can be applied to a cell, a row or a column. The following table shows the Excel format categories, the formatting properties that can be applied and the relevant object method to do so:
-
-
-    Category        Property            Method Name
-    --------        --------            -----------
-    Font            Font type           set_font()
-                    Font size           set_size()
-                    Font color          set_color()
-                    Bold                set_bold()
-                    Italic              set_italic()
-                    Underline           set_underline()
-                    Strikeout           set_font_strikeout()
-                    Super/Subscript     set_font_script()
-                    Outline             set_font_outline()
-                    Shadow              set_font_shadow()
-
-    Number          Numeric format      set_num_format()
-
-    Alignment       Horizontal align    set_align()
-                    Vertical align      set_align()
-                    Rotation            set_rotation()
-                    Text wrap           set_text_wrap()
-                    Justify last        set_text_justlast()
-                    Merge               set_merge()
-
-    Pattern         Cell pattern        set_pattern()
-                    Background color    set_bg_color()
-                    Foreground color    set_fg_color()
-
-    Border          Cell border         set_border()
-                    Bottom border       set_bottom()
-                    Top border          set_top()
-                    Left border         set_left()
-                    Right border        set_right()
-                    Border color        set_border_color()
-                    Bottom color        set_bottom_color()
-                    Top color           set_top_color()
-                    Left color          set_left_color()
-                    Right color         set_right_color()
+    $worksheet1->repeat_rows(0);    # Repeat the first row
+    $worksheet2->repeat_rows(0, 1); # Repeat the first two rows
 
 
-The default format is Arial 10 with all other properties off. In general a method call without an argument will turn a property on, for example:
 
-    my $format1 = $workbook->addformat();
-    $format1->set_bold();  # Turns bold on
-    $format1->set_bold(1); # Also turns bold on
-    $format1->set_bold(0); # Turns bold off
 
-More than one property can be applied to a format:
+=head2 repeat_columns($first_col, $last_col)
 
-    my $format2 = $workbook->addformat();
-    $format2->set_bold();
-    $format2->set_italic();
-    $format2->set_color('red');
+Set the columns to repeat at the left hand side of each printed page.
 
-Once a Format object has been constructed it can be passed as an argument to the worksheet C<write> methods as follows:
+For large Excel documents it is often desirable to have the first column or columns of the worksheet print out at the left hand side of each page. This can be achieved by using the C<repeat_columns()> method. The parameters C<$first_column> and C<$last_column> are zero based. The C<$last_column> parameter is optional if you only wish to specify one column. You can also specify the columns using A1 column notation, see the note about L<Cell notation>.
+
+    $worksheet1->repeat_columns(0);     # Repeat the first column
+    $worksheet2->repeat_columns(0, 1);  # Repeat the first two columns
+    $worksheet3->repeat_columns('A:A'); # Repeat the first column
+    $worksheet4->repeat_columns('A:B'); # Repeat the first two columns
+
+
+
+
+=head2 hide_gridlines()
+
+This method is used to hide the gridlines on a printed page. 
+
+Gridlines are the lines that divide the cells on a worksheet. Printed gridlines are turned on by default. If you have defined your own cell borders you may wish to hide the gridlines on the printed page.
+
+    $worksheet->hide_gridlines();
+
+
+
+
+=head2 print_row_col_headers()
+
+Set the option to print the row and column headers on the printed page.
+
+An Excel worksheet looks something like the following;
+
+     ------------------------------------------
+    |   |   A   |   B   |   C   |   D   |  ... 
+     ------------------------------------------
+    | 1 |       |       |       |       |  ... 
+    | 2 |       |       |       |       |  ... 
+    | 3 |       |       |       |       |  ... 
+    | 4 |       |       |       |       |  ... 
+    |...|  ...  |  ...  |  ...  |  ...  |  ... 
+
+The headers are the letters and numbers at the top and the left of the worksheet. Since these headers serve mainly as a indication of position on the worksheet they generally do not appear on the printed page. If you wish to have them printed you can use the C<print_row_col_headers()> method : 
+
+    $worksheet1->print_row_col_headers()
+
+Do not confuse these headers with page headers as described in the C<set_header()> section above.
+
+
+
+
+=head2 print_area($first_row, $first_col, $last_row, $last_col)
+
+This method is used to specify the area of the worksheet that will be printed. All four parameters must be specified. You can also use A1 notation, see the note about L<Cell notation>.
+
+
+    $worksheet1->print_area("A1:H20");    # Cells A1 to H20
+    $worksheet2->print_area(0, 0, 19, 7); # The same
+
+
+
+
+=head2 fit_to_pages($width, $height)
+
+The C<fit_to_pages()> method is used to fit the printed area to a specific number of pages both vertically and horizontally. If the printed area exceeds the specified number of pages it will be scaled down to fit. This guarantees that the printed area will always appear on the specified number of pages even if the page size or margins change.
+
+    $worksheet1->fit_to_pages(1, 1); # Fit to 1x1 pages
+    $worksheet2->fit_to_pages(2, 1); # Fit to 2x1 pages
+    $worksheet3->fit_to_pages(1, 2); # Fit to 1x2 pages
+
+The print area can be defined using the C<print_area()> method as described above. 
+
+If you call C<fit_to_pages()> without arguments or with one argument the default values for C<$width> and C<$height> are 1 page. However the fit to page option is off by default.
+
+Note that C<fit_to_pages()> will override any manual page breaks that are defined in the worksheet.
+
+
+=head2 set_h_pagebreaks(@breaks)
+
+Add horizontal page breaks to a worksheet. A page break causes all the data that follows it to be printed on the next page. Horizontal page breaks act between rows. To create a page break between rows 20 and 21 you must specify the break at row 21. However in zero index notation this is actually row 20. So you can pretend for a small while that you are using 1 index notation:
+
+    $worksheet1->set_h_pagebreaks(20); # Break between row 20 and 21
+
+The C<set_h_pagebreaks()> method will accept a list of page breaks and you can call it more than once:
+
+    $worksheet2->set_h_pagebreaks( 20,  40,  60,  80, 100); # Add breaks
+    $worksheet2->set_h_pagebreaks(120, 140, 160, 180, 200); # Add some more
+
+Note: If you specify the "fit to page" option via the C<fit_to_pages()> method it will override all manual page breaks.
+
+The current implementation will silently limited you to about 1000 page breaks per worksheet. This limitation will be removed in a future release.
+
+
+
+
+=head2 set_v_pagebreaks(@breaks)
+
+Add vertical page breaks to a worksheet. A page break causes all the data that follows it to be printed on the next page. Vertical page breaks act between columns. To create a page break between columns 20 and 21 you must specify the break at column 21. However in zero index notation this is actually column 20. So you can pretend for a small while that you are using 1 index notation:
+
+    $worksheet1->set_v_pagebreaks(20); # Break between column 20 and 21
+
+The C<set_v_pagebreaks()> method will accept a list of page breaks and you can call it more than once:
+
+    $worksheet2->set_v_pagebreaks( 20,  40,  60,  80, 100); # Add breaks
+    $worksheet2->set_v_pagebreaks(120, 140, 160, 180, 200); # Add some more
+
+Note: If you specify the "fit to page" option via the C<fit_to_pages()> method it will override all manual page breaks.
+
+
+
+
+=head1 CELL FORMATTING
+
+This section describes the methods and properties that are available for formatting cells in Excel. Examples of the cell formatting that is available through Spreadsheet::WriteExcel include: fonts, colours, patterns, borders, alignment and number formatting.
+
+
+=head2 Creating and using a Format object
+
+Cell formatting is defined through a Format object. Format objects are created by calling the workbook C<addformat()> method as follows:
+
+    my $format1 = $workbook->addformat();       # Set properties later
+    my $format2 = $workbook->addformat(%props); # Set properties at creation
+
+The format object holds all the formatting properties that can be applied to a cell, a row or a column. The process of setting these properties is discussed in the next section.
+
+Once a Format object has been constructed and it properties have been set it can be passed as an argument to the worksheet C<write> methods as follows:
 
     $worksheet->write(0, 0, "One", $format);
     $worksheet->write_string(1, 0, "Two", $format);
@@ -868,56 +1051,192 @@ Formats can also be passed to the worksheet C<set_row()> and C<set_column()> met
 
 However, the C<set_row()> and C<set_column()> methods will not set the format for individual cells written by WriteExcel, they only have an effect on cells written after the workbook is opened in Excel.
 
+=head2 Format methods and Format properties
 
-It is important to understand that a Format is applied to a cell not in its current state but in its final state. Consider the following example:
+The following table shows the Excel format categories, the formatting properties that can be applied and the equivalent object method:
+
+
+    Category   Description       Property        Method Name         
+    --------   -----------       --------        -----------         
+    Font       Font type         font            set_font()          
+               Font size         size            set_size()          
+               Font color        color           set_color()         
+               Bold              bold            set_bold()          
+               Italic            italic          set_italic()        
+               Underline         underline       set_underline()     
+               Strikeout         font_strikeout  set_font_strikeout()
+               Super/Subscript   font_script     set_font_script()   
+               Outline           font_outline    set_font_outline()  
+               Shadow            font_shadow     set_font_shadow()   
+                                                                     
+    Number     Numeric format    num_format      set_num_format()    
+                                                                     
+    Alignment  Horizontal align  align           set_align()         
+               Vertical align    align           set_align()         
+               Rotation          rotation        set_rotation()      
+               Text wrap         text_wrap       set_text_wrap()     
+               Justify last      text_justlast   set_text_justlast() 
+               Merge             merge           set_merge()         
+                                                                     
+    Pattern    Cell pattern      pattern         set_pattern()       
+               Background color  bg_color        set_bg_color()      
+               Foreground color  fg_color        set_fg_color()      
+                                                                     
+    Border     Cell border       border          set_border()        
+               Bottom border     bottom          set_bottom()        
+               Top border        top             set_top()           
+               Left border       left            set_left()          
+               Right border      right           set_right()         
+               Border color      border_color    set_border_color()  
+               Bottom color      bottom_color    set_bottom_color()  
+               Top color         top_color       set_top_color()     
+               Left color        left_color      set_left_color()    
+               Right color       right_color     set_right_color()   
+
+
+There are two ways of setting Format properties: by using the object method interface or by setting the property directly. For example, a typical use of the method interface would be as follows:
 
     my $format = $workbook->addformat();
     $format->set_bold();
     $format->set_color('red');
-    $worksheet->write(0, 0, "Cell A1", $format);
+
+By comparison the properties can be set directly by passing a hash of properties to the Format constructor:
+
+    my $format = $workbook->addformat(bold => 1, color => 'red');
+
+or after the Format has been constructed by means of the C<set_properties()> method as follows:
+
+    my $format = $workbook->addformat();
+    $format->set_properties(bold => 1, color => 'red');
+
+You can also store the properties in one or more named hashes and pass them to the required method:
+
+    my %font    = (
+                    'font'      => 'Arial',
+                    'size'      => 12,
+                    'color'     => 'blue',
+                    'bold'      => 1,
+                  );
+
+    my %shading = (
+                    'fg_color'  => 'green',
+                    'pattern'   => 1,
+                  );
+
+
+    my $format1 = $workbook->addformat(%font);            # Font only
+    my $format2 = $workbook->addformat(%font, %shading);  # Font and shading
+
+
+The provision of two ways of setting properties might lead you to wonder which is the best way. The answer depends on the amount of formatting that will be required in your program. Initially, Spreadsheet::WriteExcel only allowed individual Format properties to be set via the appropriate method. While this was sufficient for most programs it proved very cumbersome in programs that required a large amount of formatting. In addition the mechanism for reusing properties between Format objects was difficult.
+
+As a result the Perl/Tk style of adding properties was added to, hopefully, facilitate developers who need to define a lot of formatting. In fact the Tk style of defining properties is also supported:
+
+    my %font    = (
+                    -font      => 'Arial',
+                    -size      => 12,
+                    -color     => 'blue',
+                    -bold      => 1,
+                  );
+
+An additional advantage of working with hashes of properties is that it allows you to share formatting between workbook objects
+
+You can also create a format "on the fly" and pass it directly to a write method as follows:
+
+    $worksheet->write('A1', "Title", $workbook->addformat(bold => 1));
+
+This corresponds to an "anonymous" format in the Perl sense of anonymous data or subs.
+
+If you need to create an Excel file with a large amount of formatting you can also use the C<lecxe.pl> program in the C<examples> directory of the distribution. C<lecxe> is a Win32::OLE program written by Tomas Andersson which converts Excel files to Spreadsheet::WriteExcel files. Therefore, you can use Excel to define your formatting and have C<lecxe> do the hard work for you.
+
+
+
+
+=head2 Working with formats
+
+The default format is Arial 10 with all other properties off. 
+
+Each unique format in Spreadsheet::WriteExcel must have a corresponding Format object. It isn't possible to use a Format with a write() method and then redefine the Format for use at a later stage. This is because a Format is applied to a cell not in its current state but in its final state. Consider the following example:
+
+    my $format = $workbook->addformat();
+    $format->set_bold();
+    $format->set_color('red');
+    $worksheet->write('A1', "Cell A1", $format);
     $format->set_color('green');
-    $worksheet->write(0, 1, "Cell B1", $format);
+    $worksheet->write('B1', "Cell B1", $format);
 
 Cell A1 is assigned the Format C<$format> which is initially set to the colour red. However, the colour is subsequently set to green. When Excel displays Cell A1 it will display the final state of the Format which in this case will be the colour green.
 
+In general a method call without an argument will turn a property on, for example:
+
+    my $format1 = $workbook->addformat();
+    $format1->set_bold();  # Turns bold on
+    $format1->set_bold(1); # Also turns bold on
+    $format1->set_bold(0); # Turns bold off
+
+
+
+
+=head1 FORMAT METHODS
+
 The Format object methods are described in more detail in the following sections. In addition, there is a Perl program called C<formats.pl> in the C<examples> directory of the WriteExcel distribution. This program creates an Excel workbook called C<formats.xls> which contains examples of almost all the format types.
 
+The following Format methods are available:
+
+    set_font()          
+    set_size()          
+    set_color()         
+    set_bold()          
+    set_italic()        
+    set_underline()     
+    set_font_strikeout()
+    set_font_script()   
+    set_font_outline()  
+    set_font_shadow()   
+    set_num_format()    
+    set_align()         
+    set_align()         
+    set_rotation()      
+    set_text_wrap()     
+    set_text_justlast() 
+    set_merge()         
+    set_pattern()       
+    set_bg_color()      
+    set_fg_color()      
+    set_border()        
+    set_bottom()        
+    set_top()           
+    set_left()          
+    set_right()         
+    set_border_color()  
+    set_bottom_color()  
+    set_top_color()     
+    set_left_color()    
+    set_right_color()   
 
 
+The above methods can also be applied directly as properties. For example C<$worksheet->set_bold()> is equivalent to C<set_properties(bold => 1)>.
 
-=head2 copy($format)
 
+=head2 set_properties(%properties)
 
-This is the only method of a Format object that doesn't apply directly to a property. It is used to copy all of the properties from one Format object to another:
+The properties of an existing Format object can be set by means of C<set_properties()>:
 
-    my $lorry1 = $workbook->addformat();
-    $lorry1->set_bold();
-    $lorry1->set_italic();
-    $lorry1->set_color('red');    # lorry1 is bold, italic and red
+    my $format = $workbook->addformat();
+    $format->set_properties( bold => 1, color => 'red');
 
-    my $lorry2 = $workbook->addformat();
-    $lorry2->copy($lorry1);
-    $lorry2->set_color('yellow'); # lorry2 is bold, italic and yellow
+You can also store the properties in one or more named hashes and pass them to the C<set_properties()> method:
 
-This can be useful when you are setting up several complex but similar formats. It is also useful if you want to use a format in more than one workbook:
+    my %font    = (
+                    'font'      => 'Arial',
+                    'size'      => 12,
+                    'color'     => 'blue',
+                    'bold'      => 1,
+                  );
 
-    # Create the workbooks
-    my $workbook1   = Spreadsheet::WriteExcel->new("workbook1.xls");
-    my $workbook2   = Spreadsheet::WriteExcel->new("workbook2.xls");
-    my $worksheet1  = $workbook->addworksheet();
-    my $worksheet2  = $workbook->addworksheet();
-    my $format1     = $workbook->addformat();
-    my $format2     = $workbook->addformat();
+    my $format = $workbook->set_properties(%font);
 
-    # Create a global format object that isn't tied to a workbook
-    my $global      = Spreadsheet::WriteExcel::Format->new();
-    $global->set_color('blue');
-
-    # Copy the global format properties to the worksheet formats
-    $format1->copy($global);
-    $format2->copy($global);
-
-Note: this is not a copy constructor, both objects must exist prior to copying.
+This method can be used as an alternative to setting the properties with C<addformat()> or the specific format methods that are detailed in the following sections.
 
 
 
@@ -957,7 +1276,7 @@ Set the font size. Excel adjusts the height of a row to accommodate the largest 
 
     Default state:      Excels default color, usually black
     Default action:     Set the default color
-    Valid args:         Integers form 8..63 or the following strings:
+    Valid args:         Integers from 8..63 or the following strings:
                         'aqua'
                         'black'
                         'blue'
@@ -1094,7 +1413,6 @@ The numerical format of a cell can be specified by using a format string or an i
 
 Using format strings you can define very sophisticated formatting of numbers.
 
-
     $format01->set_num_format('0.000');
     $worksheet->write(0,  0, 3.1415926, $format01);    # 3.142
 
@@ -1134,6 +1452,8 @@ Using format strings you can define very sophisticated formatting of numbers.
     $worksheet->write(12, 0, -45,       $format12);    # < 0 Red
     $worksheet->write(13, 0, 0,         $format12);    # = 0 Default colour
 
+The number system used for dates is described in L<Dates in Excel>. 
+
 The colour format should have one of the following values:
 
     [Black] [Blue] [Cyan] [Green] [Magenta] [Red] [White] [Yellow]
@@ -1143,9 +1463,6 @@ Alternatively you can specify the colour based on a colour index as follows: C<[
 For more information refer to the documentation on formatting in the C<doc> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or to the tutorial at: http://support.microsoft.com/support/Excel/Content/Formats/default.asp and http://support.microsoft.com/support/Excel/Content/Formats/codes.asp
 
 You should ensure that the format string is valid in Excel prior to using it in WriteExcel.
-
-One of the most common uses of the C<set_num_format()> is to format a number as a date. Excel stores dates as a real number where the integer part of the number stores the number of days since the epoch and the fractional part stores the percentage of the day. The epoch can be either 1900 or 1904. Excel for Windows uses 1900 and Excel for Macintosh uses 1904. However, Excel on either platform will convert automatically between one system and the other. For an example of how to convert between UNIX/Perl time and Excel time have a look at the C<ms_time.pl> program in the C<examples> directory of the WriteExcel distribution.
-
 
 Excel's built-in formats are shown in the following table:
 
@@ -1251,7 +1568,7 @@ Only one cell should contain the text, the other cells should be blank:
     $worksheet->write(1, 1, 'Merged cells', $format);
     $worksheet->write_blank(1, 2, $format);
 
-See also the C<merge1.pl> and C<merge2.pl> programs in the C<examples> directory.
+See also the C<merge1.pl>, C<merge2.pl> and C<merge3.pl> programs in the C<examples> directory.
 
 
 
@@ -1372,6 +1689,64 @@ Set the colour of the cell borders.
 
 
 
+=head2 copy($format)
+
+
+This method is used to copy all of the properties from one Format object to another:
+
+    my $lorry1 = $workbook->addformat();
+    $lorry1->set_bold();
+    $lorry1->set_italic();
+    $lorry1->set_color('red');    # lorry1 is bold, italic and red
+
+    my $lorry2 = $workbook->addformat();
+    $lorry2->copy($lorry1);
+    $lorry2->set_color('yellow'); # lorry2 is bold, italic and yellow
+
+It is only useful if you are using the method interface to Format properties. It generally isn't required if you are setting Format properties directly using hashes.
+
+
+Note: this is not a copy constructor, both objects must exist prior to copying.
+
+
+
+
+=head1 DATES IN EXCEL
+
+
+Excel stores dates as a real number where the integer part of the number stores the number of days since the epoch and the fractional part stores the percentage of the day. A number format is then applied to the cell to display the date in the required format. With Spreadsheet::WriteExcel the sequence would be as follows:
+
+    $format->set_num_format('mmm d yyyy hh:mm AM/PM');
+    $worksheet->write('A1', 36892.521, $format); # Jan 1 2001 12:30 AM
+
+The epoch can be either 1900 or 1904. Excel for Windows uses 1900 and Excel for Macintosh uses 1904. However, Excel on either platform will convert automatically between one system and the other. By default Spreadsheet::WriteExcel uses the 1900 format.
+
+The epochs are:
+
+    1900: 0 January 1900 i.e. 31 December 1899
+    1904: 1 January 1904
+
+There are two strange things to note about the 1900 date format. The first is that the epoch starts on 0 January 1900. The second is that the year 1900 is erroneously but deliberately treated as a leap year!! Therefore you must add an extra day to dates after 28 February 1900. The reason for this anomaly is given at http://support.microsoft.com/support/kb/articles/Q181/3/70.asp
+
+There are two example programs that contain functions for calculating Excel's dates in the C<examples> directory of the WriteExcel distribution:
+
+C<excel_date1.pl> was written by Andrew Benham. It contains a detailed description of the problems involved in calculating dates in Excel. It does not require any external modules.
+
+C<excel_date2.pl> uses the C<Date::Calc> module to calculate the dates.
+
+These functions and some other functions will be included in a utility module in a later release.
+
+If you plan to manipulate dates in different formats it may be worth looking at the functions provided by the C<Date::Calc> and C<Date::Manip> modules.
+
+It is also possible to get Excel to calculate dates for you by defining a function:
+
+    $worksheet->write('A1', '=DATEVALUE("1-Jan-2001")');
+
+However, this carries a performance overhead in Spreadsheet::WriteExcel due to the parsing of the formula and it shouldn't be used for programs that deal with a large number of dates.
+
+
+
+
 =head1 FORMULAS AND FUNCTIONS IN EXCEL
 
 The first thing to note is that there are still some outstanding issues with the implementation of formulas and functions:
@@ -1393,7 +1768,12 @@ A formula is a string that begins with an equal sign:
 
 The formula can contain numbers, strings, boolean values, cell references, cell ranges and functions. Formulas should be written as they appear in Excel, that is cells and functions must be in uppercase.
 
-Cells in Excel are referenced using the A1 notation system where the column is designated by a letter and the row by a number. Columns range from A to IV i.e. 0 to 255, rows range from 1 to 16384. In the C<examples> directory of the distro there is program called C<convertA1.pl> which contains functions to help you work with this system.
+Cells in Excel are referenced using the A1 notation system where the column is designated by a letter and the row by a number. Columns range from A to IV i.e. 0 to 255, rows range from 1 to 16384. In the C<examples> directory of the distro there is program called C<convertA1.pl> which contains functions to help you work with this system. For example:
+
+    cell_to_rowcol('B7'); # Returns (6, 1)
+    rowcol_to_cell(6, 1), # Returns "B7"
+
+These functions and some other functions will be included in a utility module in a later release.
 
 The Excel C<$> notation in cell references is also supported. This allows you to specify whether a row or column is relative or absolute. This only has an effect if the cell is copied. The following examples show relative and absolute values.
 
@@ -1411,7 +1791,7 @@ Formulas can also refer to cells in other worksheets of the current workbook. Fo
     q{='Test Data'!A1}
     q{='Test Data1:Test Data2'!A1}
 
-The sheet reference and and the cell reference are separated by  C<!> the exclamation mark symbol. If worksheet names contain spaces then Excel requires them to be enclosed in single quotes as in the last two examples above. In this case you will have to use the quote operator C<q{}> to protect the quotes. See C<perlop> in the main Perl documentation. Only valid sheet names that have been added using the C<addworksheet()> method can be used in formulas. You cannot reference external workbooks.
+The sheet reference and the cell reference are separated by  C<!> the exclamation mark symbol. If worksheet names contain spaces then Excel requires them to be enclosed in single quotes as in the last two examples above. In this case you will have to use the quote operator C<q{}> to protect the quotes. See C<perlop> in the main Perl documentation. Only valid sheet names that have been added using the C<addworksheet()> method can be used in formulas. You cannot reference external workbooks.
 
 
 The following table lists the operators that are available in Excel's formulas. The majority of the operators are the same as Perl's. Differences are indicated.
@@ -1527,9 +1907,6 @@ If you go through steps 1-5 and you still have a problem, mail me.
 
 
 =head1 EXAMPLES
-
-
-There are additional examples in the C<examples> directory of the Spreadsheet::WriteExcel distro.
 
 
 
@@ -1787,6 +2164,60 @@ The following example converts a tab separated file called C<tab.txt> into an Ex
     }
 
 
+=head2 Additional Examples
+
+If you performed a normal installation the following examples file should have been copied to your C<~site/Spreadsheet/WriteExcel/examples> directory:
+
+    Getting started
+    ===============
+    simple.pl           An example of some of the basic features.
+    regions.pl          Demonstrates multiple worksheets.
+    stats.pl            Basic formulas and functions.
+    formats.pl          Creates a demo of the available formatting.
+
+
+    Advanced
+    ========
+    stocks.pl           Demonstrates conditional formatting.
+    chess.pl            An example of formatting using properties.
+    stats_ext.pl        Same as stats.pl with external references.
+    cgi.pl              A simple CGI program.
+    mod_perl.pl         A simple mod_perl program.
+    hyperlink.pl        Shows how to create hyperlinks.
+    merge1.pl           A simple example of cell merging.
+    merge2.pl           A more advanced example of cell merging.
+    merge3.pl           Merge hyperlinks and merge vertically.
+    textwrap.pl         Demonstrates text wrapping options.
+    panes.pl            An examples of how to create panes.
+    copyformat.pl       Example of copying a cell format.
+    win32ole.pl         A sample Win32::OLE example for comparison.
+    easter_egg.pl       Expose the Excel97 flight simulator. A must see.
+
+
+    Utility
+    =======
+    convertA1.pl        Helper functions for dealing with A1 notation.
+    lecxe.pl            Convert Excel to WriteExcel using Win32::OLE.
+    csv2xls.pl          Program to convert a CSV file to an Excel file.
+    tab2xls.pl          Program to convert a tab separated file to xls.
+    datecalc1.pl        Convert Unix/Perl time to Excel time.
+    datecalc2.pl        Calculate an Excel date using Date::Calc.
+    writemany.pl        Write an 2d array of values in one go.
+
+
+    Developer
+    =========
+    function_locale.pl  Add non-English function names to Formula.pm.
+    filehandle.pl       Examples of working with filehandles.
+    writeA1.pl          Example of how to extend the module.
+    comments.pl         Add cell comments to Excel 5 worksheets.
+    bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
+
+
+There are additional examples of a CGI application that uses Spreadsheet::WriteExcel available at the website of the German Unix/web journal iX:
+ftp://ftp.heise.de/pub/ix/ix_listings/2001_06/perl.tgz
+
+
 
 
 =head1 LIMITATIONS
@@ -1799,6 +2230,7 @@ The following limits are imposed by Excel or the version of the BIFF file that h
     Maximum number of columns            256     Excel 5, 97
     Maximum number of rows in Excel 5    16384   Excel 5
     Maximum number of rows in Excel 97   65536   Excel 97
+    Maximum chars in a sheet name        32      Excel 5, 97
 
 
 Note: the maximum row reference in a formula is the Excel 5 row limit of 16384.
@@ -1817,7 +2249,7 @@ This module requires Perl 5.005 (or later) and Parse::RecDescent: http://search.
 
 =head1 PORTABILITY
 
-Spreadsheet::WriteExcel.pm will work on the majority of Windows, UNIX and Macintosh platforms. Specifically, the module will work on any system where perl packs floats in the 64 bit IEEE format. The float must also be in little-endian format but WriteExcel.pm will reverse it as necessary. Thus:
+Spreadsheet::WriteExcel will work on the majority of Windows, UNIX and Macintosh platforms. Specifically, the module will work on any system where perl packs floats in the 64 bit IEEE format. The float must also be in little-endian format but it will be reversed if necessary. Thus:
 
     print join(" ", map { sprintf "%#02x", $_ } unpack("C*", pack "d", 1.2345)), "\n";
 
@@ -1885,7 +2317,7 @@ The documentation for the OLE::Storage module, http://user.cs.tu-berlin.de/~schw
 
 For a open source implementation of the OLE library see the 'cole' library at http://atena.com/libole2.php
 
-The source code for the Excel plugin of the Gnumeric spreadsheet also contains information relevant to the Excel BIFF format and the OLE container, http://www.gnumeric.org/gnumeric
+The source code for the Excel plugin of the Gnumeric spreadsheet also contains information relevant to the Excel BIFF format and the OLE container, http://www.ximian.com/apps/gnumeric.php3 and ftp://ftp.ximian.com/pub/ximian-source/
 
 In addition the source code for OpenOffice is available at http://www.openoffice.org/
 
@@ -1905,7 +2337,7 @@ Depending on your requirements, background and general sensibilities you may pre
 
 * DBI with DBD::ADO or DBD::ODBC. Excel files contain an internal index table that allows them to act like a database file. Using one of the standard Perl database modules you can connect to an Excel file as a database.
 
-* DBI::Excel, you can also access Spreadsheet::WriteExcel using the standard DBI interface via Kawai Takanori's DBI::Excel module http://search.cpan.org/search?dist=DBI-Excel.
+* DBD::Excel, you can also access Spreadsheet::WriteExcel using the standard DBI interface via Kawai Takanori's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
 
 * Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. This is the most powerful and complete method for interfacing with Excel. See http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/faq/Windows/ActivePerl-Winfaq12.html and http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/site/lib/Win32/OLE.html If your main platform is UNIX but you have the resources to set up a separate Win32/MSOffice server, you can convert office documents to text, postscript or PDF using Win32::OLE. For a demonstration of how to do this using Perl see Docserver: http://search.cpan.org/search?mode=module&query=docserver
 
@@ -1928,7 +2360,7 @@ To read data from Excel files try:
 
 * DBI with DBD::ADO or DBD::ODBC. See, the section L<WRITING EXCEL FILES>.
 
-* DBI::Excel, you can also access Spreadsheet::ParseExcel using the standard DBI interface via Kawai Takanori's DBI::Excel module http://search.cpan.org/search?dist=DBI-Excel.
+* DBD::Excel, you can also access Spreadsheet::ParseExcel using the standard DBI interface via Kawai Takanori's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
 
 * XML::Excel converts Excel files to XML using Spreadsheet::ParseExcel http://search.cpan.org/search?dist=XML-Excel. 
 
@@ -1967,15 +2399,16 @@ The roadmap is as follows:
 
 =over
 
-=item * More page set-up features. The aim is to support all the page setup features that are available through Excel's page setup dialog. Also vertical and horizontal page breaks will be added.
+=item * Move to Excel97/2000 format as standard. This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. This is a priority requirement.
+
+=item * More a few more minor features but not many more.
 
 =item * Add cell protection and formula hiding.
 
 =item * Add handling for non-English formula syntax and numbers in different locales.
 
-=item * Move to Excel97/2000 format as standard. This will allow strings greater than 255 characters (who thought up that limit) and hopefully Unicode. The Excel 5 format will be optional.
-
 =back
+
 
 Also, here are some of the most requested features that probably won't get added:
 
@@ -1992,17 +2425,24 @@ Also, here are some of the most requested features that probably won't get added
 If there is some feature of an Excel file that you really, really need then you should use Win32::OLE with Excel on Windows. If you are on Unix, then set up a Windows server and use SOAP or CORBA or get your clients to use Gnumeric, it's better than Excel anyway.
 
 
+You can keep up to date with future release by registering as a user with Freshmeat http://freshmeat.net/ and subscribing to Spreadsheet::WriteExcel at the project page http://freshmeat.net/projects/writeexcel/ You will then receive mailed updates when a new version is released. Alternatively you can keep an eye on news://comp.lang.perl.announce
+
+
 =head1 ACKNOWLEDGEMENTS
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Cedric Bouvier, CPAN testers, Daniel Berger, Daniel Gardner, Harold Bamford, James Holmes, Johan Ekenberg, J.C. Wren, Kenneth Stacey, Michael Buschauer, Mike Blazer, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Rich Sorden, Shane Ashby, Shenyu Zheng.
+Alexander Farber, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Cedric Bouvier, CPAN testers, Daniel Berger, Daniel Gardner, Harold Bamford, James Holmes, Johan Ekenberg, J.C. Wren, Kenneth Stacey, Kyle Krom, Michael Buschauer, Mike Blazer, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng,  Steve Sapovits.
 
 The following people contributed code or examples:
 
-Andrew Benham, Bill Young, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
+Andrew Benham, Bill Young, Cedric Bouvier, Ian Penman, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 
 Additional thanks to Takanori Kawai for translating the documentation into Japanese: http://member.nifty.ne.jp/hippo2000/perltips/Spreadsheet/WriteExcel.htm
+
+Peter Dintelmann and Christian Kirsch wrote an article entitled "Excel-Dateien mit Perl erstellen - Controller im Glück" for the German Unix/web journal iX: http://www.heise.de/ix/artikel/2001/06/175/
+
+Dirk Eddelbuettel maintains the Debian distro.
 
 Thanks to Damian Conway for the excellent Parse::RecDescent. Thanks to Michael Meeks for his work on Gnumeric.
 
@@ -2014,21 +2454,18 @@ Thanks to Damian Conway for the excellent Parse::RecDescent. Thanks to Michael M
 John McNamara jmcnamara@cpan.org
 
 
-    Waking up from bad dreams and smoking cigarettes
-    Cuddling a warm girl and smelling stale perfume
-    A hot summer's day, and sticky black tarmac
-    Feeding ducks in the park, and wishing you were far away
+    When the cool of the pond makes you drop down on it
+    When the smell of the lawn makes you flop down on it
+    When the teenage car gets the cop down on it
+    The time is here for one more year
+    And that summer feeling is gonna haunt you
+    One day in your life.
     
-    That's entertainment
+    That summer feeling,
+    That summer feeling,
+    That summer feeling.
     
-    Two lovers kissing amongst the scream of midnight
-    Two lovers missing the tranquility of solitude
-    Getting a cab and travelling on buses
-    Reading the graffiti about slash-seat affairs
-    
-    That's entertainment.
-    
-        --Paul Weller
+        -- Jonathan Richman.
 
 
 =head1 COPYRIGHT

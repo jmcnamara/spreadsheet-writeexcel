@@ -24,7 +24,7 @@ use Carp;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 ###############################################################################
 #
@@ -37,7 +37,7 @@ sub new {
     my $class  = shift;
 
     my $self   = {
-                    _xf_index       => $_[0] || 0,
+                    _xf_index       => shift || 0,
 
                     _font_index     => 0,
                     _font           => 'Arial',
@@ -78,6 +78,10 @@ sub new {
                  };
 
     bless  $self, $class;
+    
+    # Set properties passed to Workbook::addformat()
+    $self->set_properties(@_) if @_;
+    
     return $self;
 }
 
@@ -92,16 +96,12 @@ sub copy {
     my $self  = shift;
     my $other = $_[0];
 
-    return if not defined $other;
-    return if (ref($self) ne ref($other));
+    return unless defined $other;
+    return unless (ref($self) eq ref($other));
 
-    my $xf    = $self->{_xf_index};
-    my $font  = $self->{_font_index};
-
-    %$self = %$other;
-
-    $self->{_xf_index}   = $xf;
-    $self->{_font_index} = $font;
+    my $xf = $self->{_xf_index};    # Store XF index assigned by Workbook.pm
+    %$self = %$other;               # Copy properties
+    $self->{_xf_index} = $xf;       # Restore XF index
 }
 
 
@@ -316,16 +316,22 @@ sub _get_color {
                     yellow  => 0x0D,
                  );
 
-    # Return: 1. The default color, 0x7FFF, if undef,
-    #         2. Color string converted to an integer,
-    #         3. The default color if string is unrecognised,
-    #         4. The default color if arg is outside range,
-    #         5. An integer in the valid range
-    #
-    return 0x7FFF if not $_[0];
+    # Return the default color, 0x7FFF, if undef,
+    return 0x7FFF unless defined $_[0];
+
+    # or the color string converted to an integer,
     return $colors{lc($_[0])} if exists $colors{lc($_[0])};
+
+    # or the default color if string is unrecognised,
     return 0x7FFF if ($_[0] =~ m/\D/);
-    return 0x7FFF if (($_[0] < 8) || ($_[0] > 63));
+
+    # or an index < 8 mapped into the correct range,
+    return $_[0] + 8 if $_[0] < 8;
+    
+    # or the default color if arg is outside range,
+    return 0x7FFF if $_[0] > 63;
+
+    # or an integer in the valid range
     return $_[0];
 }
 
@@ -351,11 +357,13 @@ sub set_align {
     $self->set_text_h_align(4) if ($location eq 'fill');
     $self->set_text_h_align(5) if ($location eq 'justify');
     $self->set_text_h_align(6) if ($location eq 'merge');
+    $self->set_text_h_align(7) if ($location eq 'equal_space');     # For K.T.
     $self->set_text_v_align(0) if ($location eq 'top');
     $self->set_text_v_align(1) if ($location eq 'vcentre');
     $self->set_text_v_align(1) if ($location eq 'vcenter');
     $self->set_text_v_align(2) if ($location eq 'bottom');
     $self->set_text_v_align(3) if ($location eq 'vjustify');
+    $self->set_text_v_align(4) if ($location eq 'vequal_space');    # For K.T.
 }
 
 
@@ -433,15 +441,39 @@ sub set_border_color {
 
 ###############################################################################
 #
-# set_format()
+# set_properties()
 #
-# Backward compatible alias for set_num_format(). set_format() was a poor
-# choice of method name. It is now deprecated and will disappear.
+# Convert hashes of properties to method calls.
 #
-sub set_format {
+sub set_properties {
+
     my $self = shift;
-    $self->set_num_format(@_);
-    carp("set_format() is deprecated, use set_num_format() instead") if $^W;
+
+    my %properties = @_; # Merge multiple hashes into one
+
+    while (my($key, $value) = each(%properties)) {
+
+        # Strip leading "-" from Tk style properties eg. -color => 'red'.
+        $key =~ s/^-//;
+        
+        # Make sure method names are alphanumeric characters only, in case
+        # tainted data is passed to the eval().
+        #
+        croak "Unknown method: \$self->set_$key" if $key =~ /\W/;
+        
+        # Evaling all $values as a strings gets around the problem of some
+        # numerical format strings being evaluated as numbers, for example
+        # "00000" for a zip code.
+        #
+        if (defined $value) {
+            eval "\$self->set_$key('$value')";
+        }
+        else {
+            eval "\$self->set_$key(undef)";
+        }
+        
+        die $@ if $@; # Rethrow the eval error.
+    }
 }
 
 

@@ -103,10 +103,9 @@ INSTALLATION
         PPM>install http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
 
     If you wish to perform a local PPM install you can get the files
-    from:
+    from (xx is the version number):
         http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
         http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel-0.xx-PPM.tar.gz
-
 
 
 ======================================================================

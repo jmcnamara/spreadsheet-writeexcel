@@ -9,6 +9,8 @@ WriteExcel/OLEwriter.pm
 WriteExcel/BIFFwriter.pm
 WriteExcel/Format.pm
 WriteExcel/Formula.pm
+WriteExcel/Big.pm
+WriteExcel/WorkbookBig.pm
 
 
 Makefile.PL
@@ -40,19 +42,23 @@ WriteExcel/doc/win32ole.gif
 WriteExcel/examples/README
 WriteExcel/examples/bigfile.pl
 WriteExcel/examples/cgi.pl
+WriteExcel/examples/chess.pl
 WriteExcel/examples/comments.pl
 WriteExcel/examples/convertA1.pl
 WriteExcel/examples/copyformat.pl
 WriteExcel/examples/csv2xls.pl
+WriteExcel/examples/datecalc1.pl
+WriteExcel/examples/datecalc2.pl
 WriteExcel/examples/easter_egg.pl
 WriteExcel/examples/filehandle.pl
 WriteExcel/examples/formats.pl
 WriteExcel/examples/function_locale.pl
 WriteExcel/examples/hyperlink.pl
+WriteExcel/examples/lecxe.pl
 WriteExcel/examples/merge1.pl
 WriteExcel/examples/merge2.pl
+WriteExcel/examples/merge3.pl
 WriteExcel/examples/mod_perl.pl
-WriteExcel/examples/ms_time.pl
 WriteExcel/examples/panes.pl
 WriteExcel/examples/regions.pl
 WriteExcel/examples/simple.pl
@@ -64,8 +70,6 @@ WriteExcel/examples/textwrap.pl
 WriteExcel/examples/win32ole.pl
 WriteExcel/examples/writeA1.pl
 WriteExcel/examples/writemany.pl
-WriteExcel/examples/Big.pm
-WriteExcel/examples/WorkbookBig.pm
 
 
 

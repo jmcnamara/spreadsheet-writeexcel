@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.09';
+$VERSION = '0.10';
 
 ###############################################################################
 #
@@ -34,50 +34,69 @@ $VERSION = '0.09';
 #
 sub new {
 
-    my $class               = shift;
-    my $self                = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $rowmax              = 65536; # 16384 in Excel 5
-    my $colmax              = 256;
-    my $strmax              = 255;
+    my $class                   = shift;
+    my $self                    = Spreadsheet::WriteExcel::BIFFwriter->new();
+    my $rowmax                  = 65536; # 16384 in Excel 5
+    my $colmax                  = 256;
+    my $strmax                  = 255;
 
-    $self->{_name}          = $_[0];
-    $self->{_index}         = $_[1];
-    $self->{_activesheet}   = $_[2];
-    $self->{_firstsheet}    = $_[3];
-    $self->{_url_format}    = $_[4];
-    $self->{_parser}        = $_[5];
+    $self->{_name}              = $_[0];
+    $self->{_index}             = $_[1];
+    $self->{_activesheet}       = $_[2];
+    $self->{_firstsheet}        = $_[3];
+    $self->{_url_format}        = $_[4];
+    $self->{_parser}            = $_[5];
 
-    $self->{_ext_sheets}    = [];
-    $self->{_using_tmpfile} = 1;
-    $self->{_filehandle}    = "";
-    $self->{_fileclosed}    = 0;
-    $self->{_offset}        = 0;
-    $self->{_xls_rowmax}    = $rowmax;
-    $self->{_xls_colmax}    = $colmax;
-    $self->{_xls_strmax}    = $strmax;
-    $self->{_dim_rowmin}    = $rowmax +1;
-    $self->{_dim_rowmax}    = 0;
-    $self->{_dim_colmin}    = $colmax +1;
-    $self->{_dim_colmax}    = 0;
-    $self->{_colinfo}       = [];
-    $self->{_selection}     = [0, 0];
-    $self->{_panes}         = [];
-    $self->{_active_pane}   = 3;
-    $self->{_frozen}        = 0;
-    $self->{_selected}      = 0;
+    $self->{_ext_sheets}        = [];
+    $self->{_using_tmpfile}     = 1;
+    $self->{_filehandle}        = "";
+    $self->{_fileclosed}        = 0;
+    $self->{_offset}            = 0;
+    $self->{_xls_rowmax}        = $rowmax;
+    $self->{_xls_colmax}        = $colmax;
+    $self->{_xls_strmax}        = $strmax;
+    $self->{_dim_rowmin}        = $rowmax +1;
+    $self->{_dim_rowmax}        = 0;
+    $self->{_dim_colmin}        = $colmax +1;
+    $self->{_dim_colmax}        = 0;
+    $self->{_colinfo}           = [];
+    $self->{_selection}         = [0, 0];
+    $self->{_panes}             = [];
+    $self->{_active_pane}       = 3;
+    $self->{_frozen}            = 0;
+    $self->{_selected}          = 0;
 
-    $self->{_paper_size}    = 0x0;
-    $self->{_orientation}   = 0x1;
-    $self->{_header}        = '';
-    $self->{_footer}        = '';
-    $self->{_hcenter}       = 0;
-    $self->{_vcenter}       = 0;
-    $self->{_margin_head}   = 0.50;
-    $self->{_margin_foot}   = 0.50;
-    $self->{_margin_left}   = 0.75;
-    $self->{_margin_right}  = 0.75;
-    $self->{_margin_top}    = 1.00;
-    $self->{_margin_bottom} = 1.00;
+    $self->{_paper_size}        = 0x0;
+    $self->{_orientation}       = 0x1;
+    $self->{_header}            = '';
+    $self->{_footer}            = '';
+    $self->{_hcenter}           = 0;
+    $self->{_vcenter}           = 0;
+    $self->{_margin_head}       = 0.50;
+    $self->{_margin_foot}       = 0.50;
+    $self->{_margin_left}       = 0.75;
+    $self->{_margin_right}      = 0.75;
+    $self->{_margin_top}        = 1.00;
+    $self->{_margin_bottom}     = 1.00;
+
+    $self->{_title_rowmin}      = undef;
+    $self->{_title_rowmax}      = undef;
+    $self->{_title_colmin}      = undef;
+    $self->{_title_colmax}      = undef;
+    $self->{_print_rowmin}      = undef;
+    $self->{_print_rowmax}      = undef;
+    $self->{_print_colmin}      = undef;
+    $self->{_print_colmax}      = undef;
+
+    $self->{_print_gridlines}   = 1;
+    $self->{_print_headers}     = 0;
+
+    $self->{_fit_page}          = 0;
+    $self->{_fit_width}         = 1;
+    $self->{_fit_heigth}        = 1;
+
+    $self->{_hbreaks}           = [];
+    $self->{_vbreaks}           = [];
 
     bless $self, $class;
     $self->_initialize();
@@ -95,7 +114,7 @@ sub new {
 #
 sub _initialize {
 
-    my $self    = shift;
+    my $self = shift;
 
     # Open tmp file for storing Worksheet data
     my $fh = IO::File->new_tmpfile();
@@ -161,6 +180,24 @@ sub _close {
     # Prepend the page header
     $self->_store_header();
 
+    # Prepend the vertical page breaks
+    $self->_store_vbreak();
+
+    # Prepend the horizontal page breaks
+    $self->_store_hbreak();
+
+    # Prepend WSBOOL
+    $self->_store_wsbool();
+
+    # Prepend GRIDSET
+    $self->_store_gridset();
+
+    # Prepend PRINTGRIDLINES
+    $self->_store_print_gridlines();
+
+    # Prepend PRINTHEADERS
+    $self->_store_print_headers();
+
     # Prepend EXTERNSHEET references
     for (my $i = $num_sheets; $i > 0; $i--) {
         my $sheetname = @{$sheetnames}[$i-1];
@@ -191,28 +228,6 @@ sub _close {
     $self->_store_panes(@{$self->{_panes}}) if @{$self->{_panes}};
     $self->_store_selection(@{$self->{_selection}});
     $self->_store_eof();
-}
-
-
-###############################################################################
-#
-# _append(), overloaded.
-#
-# Store Worksheet data in memory using the base class _append() or to a
-# temporary file, the default.
-#
-sub _append {
-
-    my $self = shift;
-
-    if ($self->{_using_tmpfile}) {
-        my $data = join('', @_);
-        print {$self->{_filehandle}} $data;
-        $self->{_datasize} += length($data);
-    }
-    else {
-        $self->SUPER::_append(@_);
-    }
 }
 
 
@@ -327,21 +342,6 @@ sub set_column {
     }
 
     push @{$self->{_colinfo}}, [ @_ ];
-}
-
-
-###############################################################################
-#
-# set_col_width()
-#
-# This is a deprecated alias for set_column().
-#
-sub set_col_width {
-
-    my $self = shift;
-
-    $self->set_column(@_);
-    carp("set_col_width() is deprecated, use set_column() instead") if $^W;
 }
 
 
@@ -615,20 +615,143 @@ sub set_margin_bottom {
 
 ###############################################################################
 #
-# _XF()
+# repeat_rows($first_row, $last_row)
 #
-# Returns an index to the XF record in the workbook
+# Set the rows to repeat at the top of each printed page. See also the
+# _store_name_xxxx() methods in Workbook.pm.
 #
-sub _XF {
+sub repeat_rows {
 
     my $self = shift;
 
-    if (ref($self)) {
-        return $self->get_xf_index();
+    $self->{_title_rowmin}  = $_[0];
+    $self->{_title_rowmax}  = $_[1] || $_[0]; # Second row is optional
+}
+
+
+###############################################################################
+#
+# repeat_columns($first_col, $last_col)
+#
+# Set the columns to repeat at the left hand side of each printed page.
+# See also the _store_names() methods in Workbook.pm.
+#
+sub repeat_columns {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    $self->{_title_colmin}  = $_[0];
+    $self->{_title_colmax}  = $_[1] || $_[0]; # Second col is optional
+}
+
+
+###############################################################################
+#
+# print_area($first_row, $first_col, $last_row, $last_col)
+#
+# Set the area of each worksheet that will be printed. See also the
+# _store_names() methods in Workbook.pm.
+#
+sub print_area {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    return if @_ != 4; # Require 4 parameters
+
+    $self->{_print_rowmin}  = $_[0];
+    $self->{_print_colmin}  = $_[1];
+    $self->{_print_rowmax}  = $_[2];
+    $self->{_print_colmax}  = $_[3];
+}
+
+
+###############################################################################
+#
+# hide_gridlines()
+#
+# Set the option to hide gridlines on the printed page. See also the
+# _store_print_gridlines() and _store_gridset() methods below.
+#
+sub hide_gridlines {
+
+    my $self = shift;
+
+    $self->{_print_gridlines} = 0;
+}
+
+
+###############################################################################
+#
+# print_row_col_headers()
+#
+# Set the option to print the row and column headers on the printed page.
+# See also the _store_print_headers() method below.
+#
+sub print_row_col_headers {
+
+    my $self = shift;
+
+    if (defined $_[0]) {
+        $self->{_print_headers} = $_[0];
     }
     else {
-        return 0x0F;
+        $self->{_print_headers} = 1;
     }
+}
+
+
+###############################################################################
+#
+# fit_to_pages($width, $height)
+#
+# Store the vertical and horizontal number of pages that will define the
+# maximum area printed. See also _store_setup() and _store_wsbool() below.
+#
+sub fit_to_pages {
+
+    my $self = shift;
+
+    $self->{_fit_page}      = 1;
+    $self->{_fit_width}     = $_[0] || 1;
+    $self->{_fit_heigth}    = $_[1] || 1;
+}
+
+
+###############################################################################
+#
+# set_h_pagebreaks(@breaks)
+#
+# Store the horizontal page breaks on a worksheet.
+#
+sub set_h_pagebreaks {
+
+    my $self = shift;
+
+    push @{$self->{_hbreaks}}, @_;
+}
+
+
+###############################################################################
+#
+# set_v_pagebreaks(@breaks)
+#
+# Store the vertical page breaks on a worksheet.
+#
+sub set_v_pagebreaks {
+
+    my $self = shift;
+
+    push @{$self->{_vbreaks}}, @_;
 }
 
 
@@ -676,6 +799,58 @@ sub write {
     # Default: match string
     else {
         return $self->write_string(@_);
+    }
+}
+
+
+###############################################################################
+#
+# _XF()
+#
+# Returns an index to the XF record in the workbook
+#
+sub _XF {
+
+    my $self = shift;
+
+    if (ref($self)) {
+        return $self->get_xf_index();
+    }
+    else {
+        return 0x0F;
+    }
+}
+
+
+###############################################################################
+###############################################################################
+#
+# Internal methods
+#
+
+
+###############################################################################
+#
+# _append(), overloaded.
+#
+# Store Worksheet data in memory using the base class _append() or to a
+# temporary file, the default.
+#
+sub _append {
+
+    my $self = shift;
+
+    if ($self->{_using_tmpfile}) {
+        my $data = join('', @_);
+
+        # Protect print() from -l on the command line.
+        local $\ = undef;
+
+        print {$self->{_filehandle}} $data;
+        $self->{_datasize} += length($data);
+    }
+    else {
+        $self->SUPER::_append(@_);
     }
 }
 
@@ -758,8 +933,36 @@ sub _cell_to_rowcol {
 }
 
 
+###############################################################################
+#
+# _sort_pagebreaks()
+#
+#
+# This is an internal method that is used to filter elements of the array of
+# pagebreaks used in the _store_hbreak() and _store_vbreak() methods. It:
+#   1. Removes duplicate entries from the list.
+#   2. Sorts the list.
+#   3. Removes 0 from the list if present.
+#
+sub _sort_pagebreaks {
+
+    my $self= shift;
+
+    my %hash;
+    my @array;
+
+    @hash{@_} = undef;                       # Hash slice to remove duplicates
+    @array    = sort {$a <=> $b} keys %hash; # Numerical sort
+    shift @array if $array[0] == 0;          # Remove zero
+
+    # Limit the max data size until CONTINUE is implemented
+    splice(@array, 1039) if (@array > 1039);
+
+    return @array
+}
 
 
+###############################################################################
 ###############################################################################
 #
 # BIFF RECORDS
@@ -1004,7 +1207,7 @@ sub write_formula{
 # the invisible link. The visible label is the same as the link unless an
 # alternative string is specified. The label is written using the
 # write_string() method. Therefore the 255 characters string limit applies.
-# $string and $format are optional.
+# $string and $format are optional and their order is interchangeable.
 #
 # Returns  0 : normal termination
 #         -1 : insufficient number of arguments
@@ -1020,6 +1223,9 @@ sub write_url {
     }
 
     if (@_ < 3) { return -1 }                    # Check the number of args
+    
+    # Reverse the order of $string and $format if necessary.
+    ($_[3], $_[4]) = ($_[4], $_[3]) if (ref $_[3]);
 
     my $record  = 0x01B8;                        # Record identifier
     my $length  = 0x0034 + 2*(1+length($_[2]));  # Bytes to follow
@@ -1393,7 +1599,7 @@ sub _store_panes {
 
 
     # Determine which pane should be active. There is also the undocumented
-    # option to override this should it be neccessary: may be removed later.
+    # option to override this should it be necessary: may be removed later.
     #
     if (not defined $pnnAct) {
         $pnnAct = 0 if ($x != 0 && $y != 0); # Bottom right
@@ -1426,8 +1632,8 @@ sub _store_setup {
     my $iPaperSize   = $self->{_paper_size};    # Paper size
     my $iScale       = 0x64;                    # Scaling factor
     my $iPageStart   = 0x01;                    # Starting page number
-    my $iFitWidth    = 0x01;                    # Fit to width
-    my $iFitHeight   = 0x01;                    # Fit to height
+    my $iFitWidth    = $self->{_fit_width};     # Fit to number of pages wide
+    my $iFitHeight   = $self->{_fit_heigth};    # Fit to number of pages high
     my $grbit        = 0x00;                    # Option flags
     my $iRes         = 0x0258;                  # Print resolution
     my $iVRes        = 0x0258;                  # Vertical print resolution
@@ -1666,6 +1872,219 @@ sub _store_margin_bottom {
 
     $self->_append($header, $data);
 }
+
+
+###############################################################################
+#
+# merge_cells($first_row, $first_col, $last_row, $last_col)
+#
+# This is an Excel97/2000 method. It is required to perform more complicated
+# merging than the normal align merge in Format.pm
+#
+sub merge_cells {
+
+    my $self    = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    my $record  = 0x00E5;                   # Record identifier
+    my $length  = 0x000A;                   # Bytes to follow
+
+    my $cref     = 1;                       # Number of refs
+    my $rwFirst  = $_[0];                   # First row in reference
+    my $colFirst = $_[1];                   # First col in reference
+    my $rwLast   = $_[2] || $rwFirst;       # Last  row in reference
+    my $colLast  = $_[3] || $colFirst;      # Last  col in reference
+
+    # Swap last row/col for first row/col as necessary
+    if ($rwFirst > $rwLast) {
+        ($rwFirst, $rwLast) = ($rwLast, $rwFirst);
+    }
+
+    if ($colFirst > $colLast) {
+        ($colFirst, $colLast) = ($colLast, $colFirst);
+    }
+
+    my $header   = pack("vv",       $record, $length);
+    my $data     = pack("vvvvv",    $cref,
+                                    $rwFirst, $rwLast,
+                                    $colFirst, $colLast);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_print_headers()
+#
+# Write the PRINTHEADERS BIFF record.
+#
+sub _store_print_headers {
+
+    my $self        = shift;
+
+    my $record      = 0x002a;                   # Record identifier
+    my $length      = 0x0002;                   # Bytes to follow
+
+    my $fPrintRwCol = $self->{_print_headers};  # Boolean flag
+
+    my $header      = pack("vv",  $record, $length);
+    my $data        = pack("v",   $fPrintRwCol);
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_print_gridlines()
+#
+# Write the PRINTGRIDLINES BIFF record. Must be used in conjunction with the
+# GRIDSET record.
+#
+sub _store_print_gridlines {
+
+    my $self        = shift;
+
+    my $record      = 0x002b;                    # Record identifier
+    my $length      = 0x0002;                    # Bytes to follow
+
+    my $fPrintGrid  = $self->{_print_gridlines}; # Boolean flag
+
+    my $header      = pack("vv",  $record, $length);
+    my $data        = pack("v",   $fPrintGrid);
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_gridset()
+#
+# Write the GRIDSET BIFF record. Must be used in conjunction with the
+# PRINTGRIDLINES record.
+#
+sub _store_gridset {
+
+    my $self        = shift;
+
+    my $record      = 0x0082;                        # Record identifier
+    my $length      = 0x0002;                        # Bytes to follow
+
+    my $fGridSet    = not $self->{_print_gridlines}; # Boolean flag
+
+    my $header      = pack("vv",  $record, $length);
+    my $data        = pack("v",   $fGridSet);
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_wsbool()
+#
+# Write the WSBOOL BIFF record, mainly for fit-to-page. Used in conjunction
+# with the SETUP record.
+#
+sub _store_wsbool {
+
+    my $self        = shift;
+
+    my $record      = 0x0081;   # Record identifier
+    my $length      = 0x0002;   # Bytes to follow
+
+    my $grbit;                  # Option flags
+
+    # The only option that is of interest is the flag for fit to page. So we
+    # set all the options in one go.
+    #
+    if ($self->{_fit_page}) {
+        $grbit = 0x05c1
+    }
+    else {
+        $grbit = 0x04c1
+    }
+
+    my $header      = pack("vv",  $record, $length);
+    my $data        = pack("v",   $grbit);
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_hbreak()
+#
+# Write the HORIZONTALPAGEBREAKS BIFF record.
+#
+sub _store_hbreak {
+
+    my $self    = shift;
+
+    # Return if the user hasn't specified pagebreaks
+    return unless @{$self->{_hbreaks}};
+
+    # Sort and filter array of page breaks
+    my @breaks  = $self->_sort_pagebreaks(@{$self->{_hbreaks}});
+
+    my $record  = 0x001b;               # Record identifier
+    my $cbrk    = scalar @breaks;       # Number of page breaks
+    my $length  = ($cbrk + 1) * 2;      # Bytes to follow
+
+
+    my $header  = pack("vv",  $record, $length);
+    my $data    = pack("v",   $cbrk);
+
+    # Append each page break
+    foreach my $break (@breaks) {
+        $data .= pack("v", $break);
+    }
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_vbreak()
+#
+# Write the VERTICALPAGEBREAKS BIFF record.
+#
+sub _store_vbreak {
+
+
+    my $self    = shift;
+
+    # Return if the user hasn't specified pagebreaks
+    return unless @{$self->{_vbreaks}};
+
+    # Sort and filter array of page breaks
+    my @breaks  = $self->_sort_pagebreaks(@{$self->{_vbreaks}});
+
+    my $record  = 0x001a;               # Record identifier
+    my $cbrk    = scalar @breaks;       # Number of page breaks
+    my $length  = ($cbrk + 1) * 2;      # Bytes to follow
+
+
+    my $header  = pack("vv",  $record, $length);
+    my $data    = pack("v",   $cbrk);
+
+    # Append each page break
+    foreach my $break (@breaks) {
+        $data .= pack("v", $break);
+    }
+
+    $self->_prepend($header, $data);
+}
+
+
 
 
 1;

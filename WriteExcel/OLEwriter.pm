@@ -24,7 +24,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 ###############################################################################
 #
@@ -211,6 +211,8 @@ sub write {
 
     my $self = shift;
 
+    # Protect print() from -l on the command line.
+    local $\ = undef;
     print {$self->{_filehandle}} $_[0];
 }
 
@@ -243,6 +245,9 @@ sub write_header {
     my $sbd_startblock  = pack("V",    -2);
     my $unknown7        = pack("VVV",  0x00, -2 ,0x00);
     my $unused          = pack("V",    -1);
+
+    # Protect print() from -l on the command line.
+    local $\ = undef;
 
     print {$self->{_filehandle}}  $id;
     print {$self->{_filehandle}}  $unknown1;
@@ -285,6 +290,9 @@ sub _write_big_block_depot {
     my $end_of_chain = pack("V", -2);
     my $unused       = pack("V", -1);
 
+
+    # Protect print() from -l on the command line.
+    local $\ = undef;
 
     for my $i (1..$num_blocks-1) {
         print {$self->{_filehandle}}  pack("V",$i);
@@ -364,6 +372,9 @@ sub _write_pps {
     my $pps_size        = pack("V",  $_[4]);      #0x78
 
 
+    # Protect print() from -l on the command line.
+    local $\ = undef;
+
     print {$self->{_filehandle}}  $rawname;
     print {$self->{_filehandle}}  $zero x (64 -$length);
     print {$self->{_filehandle}}  $pps_sizeofname;
@@ -400,6 +411,9 @@ sub _write_padding {
     else {
         $min_size = 512;
     }
+
+    # Protect print() from -l on the command line.
+    local $\ = undef;
 
     if ($biffsize % $min_size != 0) {
         my $padding  = $min_size - ($biffsize % $min_size);

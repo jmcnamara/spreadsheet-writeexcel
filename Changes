@@ -1,5 +1,14 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.33 July 30 2001
+    Minor
+    Added (hopefully) easier mechanism to add format properties.
+    Added more page setup options: repeat rows and columns, hide
+    gridlines, print area, fit to pages and page breaks.
+    Added fix to protect print() from -l on the command line. Thanks
+    Cedric Bouvier and Kyle Krom.
+    Added more examples.
+
 0.32 May 17 2001
     Minor
     Added panes option.
