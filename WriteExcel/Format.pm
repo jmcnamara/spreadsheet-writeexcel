@@ -24,7 +24,7 @@ use strict;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 ###############################################################################
 #
@@ -316,16 +316,19 @@ sub _get_color {
 
     my %colors = (
                     aqua    => 0x0F,
+                    cyan    => 0x0F,
                     black   => 0x08,
                     blue    => 0x0C,
+                    brown   => 0x10,
+                    magenta => 0x0E,
                     fuchsia => 0x0E,
                     gray    => 0x17,
                     grey    => 0x17,
                     green   => 0x11,
                     lime    => 0x0B,
                     navy    => 0x12,
-                    orange  => 0x1D,
-                    purple  => 0x24,
+                    orange  => 0x35,
+                    purple  => 0x14,
                     red     => 0x0A,
                     silver  => 0x16,
                     white   => 0x09,
@@ -375,13 +378,13 @@ sub set_align {
     $self->set_text_h_align(4) if ($location eq 'fill');
     $self->set_text_h_align(5) if ($location eq 'justify');
     $self->set_text_h_align(6) if ($location eq 'merge');
-    $self->set_text_h_align(7) if ($location eq 'equal_space');     # For K.T.
+    $self->set_text_h_align(7) if ($location eq 'equal_space'); # For T.K.
     $self->set_text_v_align(0) if ($location eq 'top');
     $self->set_text_v_align(1) if ($location eq 'vcentre');
     $self->set_text_v_align(1) if ($location eq 'vcenter');
     $self->set_text_v_align(2) if ($location eq 'bottom');
     $self->set_text_v_align(3) if ($location eq 'vjustify');
-    $self->set_text_v_align(4) if ($location eq 'vequal_space');    # For K.T.
+    $self->set_text_v_align(4) if ($location eq 'vequal_space'); # For T.K.
 }
 
 

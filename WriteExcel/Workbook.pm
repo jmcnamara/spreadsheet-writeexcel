@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 ###############################################################################
 #
@@ -55,6 +55,7 @@ sub new {
     $self->{_worksheets}        = [];
     $self->{_sheetnames}        = [];
     $self->{_formats}           = [];
+    $self->{_palette}           = [];
 
     bless $self, $class;
 
@@ -83,6 +84,7 @@ sub new {
     }
     # Warn if tmpfiles can't be used.
     $self->_tmpfile_warning();
+    $self->set_palette_xl97();
 
     return $self;
 }
@@ -252,6 +254,200 @@ sub get_1904 {
 
 ###############################################################################
 #
+# set_custom_color()
+#
+# Change the RGB components of the elements in the colour palette.
+#
+sub set_custom_color {
+
+    my $self    = shift;
+    
+
+    # Match a HTML #xxyyzz style parameter
+    if (defined $_[1] and $_[1] =~ /^#(\w\w)(\w\w)(\w\w)/ ) {
+        @_ = ($_[0], hex $1, hex $2, hex $3);
+    }
+
+
+    my $index   = $_[0] || 0;
+    my $red     = $_[1] || 0;
+    my $green   = $_[2] || 0;
+    my $blue    = $_[3] || 0;
+
+    my $aref    = $self->{_palette};
+
+    # Check that the colour index is the right range
+    if ($index < 8 or $index > 64) {
+        carp "Color index $index outside range: 8 <= index <= 64";
+        return 0;
+    }
+
+    # Check that the colour components are in the right range
+    if ( ($red   < 0 or $red   > 255) ||
+         ($green < 0 or $green > 255) ||
+         ($blue  < 0 or $blue  > 255) )  
+    {
+        carp "Color component outside range: 0 <= color <= 255";
+        return 0;
+    }
+
+    $index -=8; # Adjust colour index (wingless dragonfly)
+    
+    # Set the RGB value
+    $$aref[$index] = [$red, $green, $blue, 0];
+    
+    return $index +8;
+}
+
+
+###############################################################################
+#
+# set_palette_xl97()
+#
+# Sets the colour palette to the Excel 97+ default.
+#
+sub set_palette_xl97 {
+
+    my $self = shift;
+
+    $self->{_palette} = [
+                            [0x00, 0x00, 0x00, 0x00],   # 8
+                            [0xff, 0xff, 0xff, 0x00],   # 9
+                            [0xff, 0x00, 0x00, 0x00],   # 10
+                            [0x00, 0xff, 0x00, 0x00],   # 11
+                            [0x00, 0x00, 0xff, 0x00],   # 12
+                            [0xff, 0xff, 0x00, 0x00],   # 13
+                            [0xff, 0x00, 0xff, 0x00],   # 14
+                            [0x00, 0xff, 0xff, 0x00],   # 15
+                            [0x80, 0x00, 0x00, 0x00],   # 16
+                            [0x00, 0x80, 0x00, 0x00],   # 17
+                            [0x00, 0x00, 0x80, 0x00],   # 18
+                            [0x80, 0x80, 0x00, 0x00],   # 19
+                            [0x80, 0x00, 0x80, 0x00],   # 20
+                            [0x00, 0x80, 0x80, 0x00],   # 21
+                            [0xc0, 0xc0, 0xc0, 0x00],   # 22
+                            [0x80, 0x80, 0x80, 0x00],   # 23
+                            [0x99, 0x99, 0xff, 0x00],   # 24
+                            [0x99, 0x33, 0x66, 0x00],   # 25
+                            [0xff, 0xff, 0xcc, 0x00],   # 26
+                            [0xcc, 0xff, 0xff, 0x00],   # 27
+                            [0x66, 0x00, 0x66, 0x00],   # 28
+                            [0xff, 0x80, 0x80, 0x00],   # 29
+                            [0x00, 0x66, 0xcc, 0x00],   # 30
+                            [0xcc, 0xcc, 0xff, 0x00],   # 31
+                            [0x00, 0x00, 0x80, 0x00],   # 32
+                            [0xff, 0x00, 0xff, 0x00],   # 33
+                            [0xff, 0xff, 0x00, 0x00],   # 34
+                            [0x00, 0xff, 0xff, 0x00],   # 35
+                            [0x80, 0x00, 0x80, 0x00],   # 36
+                            [0x80, 0x00, 0x00, 0x00],   # 37
+                            [0x00, 0x80, 0x80, 0x00],   # 38
+                            [0x00, 0x00, 0xff, 0x00],   # 39
+                            [0x00, 0xcc, 0xff, 0x00],   # 40
+                            [0xcc, 0xff, 0xff, 0x00],   # 41
+                            [0xcc, 0xff, 0xcc, 0x00],   # 42
+                            [0xff, 0xff, 0x99, 0x00],   # 43
+                            [0x99, 0xcc, 0xff, 0x00],   # 44
+                            [0xff, 0x99, 0xcc, 0x00],   # 45
+                            [0xcc, 0x99, 0xff, 0x00],   # 46
+                            [0xff, 0xcc, 0x99, 0x00],   # 47
+                            [0x33, 0x66, 0xff, 0x00],   # 48
+                            [0x33, 0xcc, 0xcc, 0x00],   # 49
+                            [0x99, 0xcc, 0x00, 0x00],   # 50
+                            [0xff, 0xcc, 0x00, 0x00],   # 51
+                            [0xff, 0x99, 0x00, 0x00],   # 52
+                            [0xff, 0x66, 0x00, 0x00],   # 53
+                            [0x66, 0x66, 0x99, 0x00],   # 54
+                            [0x96, 0x96, 0x96, 0x00],   # 55
+                            [0x00, 0x33, 0x66, 0x00],   # 56
+                            [0x33, 0x99, 0x66, 0x00],   # 57
+                            [0x00, 0x33, 0x00, 0x00],   # 58
+                            [0x33, 0x33, 0x00, 0x00],   # 59
+                            [0x99, 0x33, 0x00, 0x00],   # 60
+                            [0x99, 0x33, 0x66, 0x00],   # 61
+                            [0x33, 0x33, 0x99, 0x00],   # 62
+                            [0x33, 0x33, 0x33, 0x00],   # 63
+                        ];
+
+    return 0;
+}
+
+
+###############################################################################
+#
+# set_palette_xl5()
+#
+# Sets the colour palette to the Excel 5 default.
+#
+sub set_palette_xl5 {
+
+    my $self = shift;
+
+    $self->{_palette} = [
+                            [0x00, 0x00, 0x00, 0x00],   # 8
+                            [0xff, 0xff, 0xff, 0x00],   # 9
+                            [0xff, 0x00, 0x00, 0x00],   # 10
+                            [0x00, 0xff, 0x00, 0x00],   # 11
+                            [0x00, 0x00, 0xff, 0x00],   # 12
+                            [0xff, 0xff, 0x00, 0x00],   # 13
+                            [0xff, 0x00, 0xff, 0x00],   # 14
+                            [0x00, 0xff, 0xff, 0x00],   # 15
+                            [0x80, 0x00, 0x00, 0x00],   # 16
+                            [0x00, 0x80, 0x00, 0x00],   # 17
+                            [0x00, 0x00, 0x80, 0x00],   # 18
+                            [0x80, 0x80, 0x00, 0x00],   # 19
+                            [0x80, 0x00, 0x80, 0x00],   # 20
+                            [0x00, 0x80, 0x80, 0x00],   # 21
+                            [0xc0, 0xc0, 0xc0, 0x00],   # 22
+                            [0x80, 0x80, 0x80, 0x00],   # 23
+                            [0x80, 0x80, 0xff, 0x00],   # 24
+                            [0x80, 0x20, 0x60, 0x00],   # 25
+                            [0xff, 0xff, 0xc0, 0x00],   # 26
+                            [0xa0, 0xe0, 0xe0, 0x00],   # 27
+                            [0x60, 0x00, 0x80, 0x00],   # 28
+                            [0xff, 0x80, 0x80, 0x00],   # 29
+                            [0x00, 0x80, 0xc0, 0x00],   # 30
+                            [0xc0, 0xc0, 0xff, 0x00],   # 31
+                            [0x00, 0x00, 0x80, 0x00],   # 32
+                            [0xff, 0x00, 0xff, 0x00],   # 33
+                            [0xff, 0xff, 0x00, 0x00],   # 34
+                            [0x00, 0xff, 0xff, 0x00],   # 35
+                            [0x80, 0x00, 0x80, 0x00],   # 36
+                            [0x80, 0x00, 0x00, 0x00],   # 37
+                            [0x00, 0x80, 0x80, 0x00],   # 38
+                            [0x00, 0x00, 0xff, 0x00],   # 39
+                            [0x00, 0xcf, 0xff, 0x00],   # 40
+                            [0x69, 0xff, 0xff, 0x00],   # 41
+                            [0xe0, 0xff, 0xe0, 0x00],   # 42
+                            [0xff, 0xff, 0x80, 0x00],   # 43
+                            [0xa6, 0xca, 0xf0, 0x00],   # 44
+                            [0xdd, 0x9c, 0xb3, 0x00],   # 45
+                            [0xb3, 0x8f, 0xee, 0x00],   # 46
+                            [0xe3, 0xe3, 0xe3, 0x00],   # 47
+                            [0x2a, 0x6f, 0xf9, 0x00],   # 48
+                            [0x3f, 0xb8, 0xcd, 0x00],   # 49
+                            [0x48, 0x84, 0x36, 0x00],   # 50
+                            [0x95, 0x8c, 0x41, 0x00],   # 51
+                            [0x8e, 0x5e, 0x42, 0x00],   # 52
+                            [0xa0, 0x62, 0x7a, 0x00],   # 53
+                            [0x62, 0x4f, 0xac, 0x00],   # 54
+                            [0x96, 0x96, 0x96, 0x00],   # 55
+                            [0x1d, 0x2f, 0xbe, 0x00],   # 56
+                            [0x28, 0x66, 0x76, 0x00],   # 57
+                            [0x00, 0x45, 0x00, 0x00],   # 58
+                            [0x45, 0x3e, 0x01, 0x00],   # 59
+                            [0x6a, 0x28, 0x13, 0x00],   # 60
+                            [0x85, 0x39, 0x6a, 0x00],   # 61
+                            [0x4a, 0x32, 0x85, 0x00],   # 62
+                            [0x42, 0x42, 0x42, 0x00],   # 63
+                        ];
+
+    return 0;
+}
+
+
+###############################################################################
+#
 # _tmpfile_warning()
 #
 # Check that tmp files can be created for use in Worksheet.pm. A CGI, mod_perl
@@ -302,6 +498,7 @@ sub _store_workbook {
     $self->_store_all_num_formats();
     $self->_store_all_xfs();
     $self->_store_all_styles();
+    $self->_store_palette();
     $self->_calc_sheet_offsets();
 
     # Add BOUNDSHEET records
@@ -736,7 +933,7 @@ sub _store_num_format {
     my $header    = pack("vv", $record, $length);
     my $data      = pack("vC", $ifmt, $cch);
 
-    $self->_append($header, $data, $format)
+    $self->_append($header, $data, $format);
 }
 
 
@@ -986,6 +1183,30 @@ sub _store_name_long {
 }
 
 
+###############################################################################
+#
+# _store_palette()
+#
+# Stores the PALETTE biff record.
+#
+sub _store_palette {
+
+    my $self            = shift;
+
+    my $aref            = $self->{_palette};
+
+    my $record          = 0x0092;           # Record identifier
+    my $length          = 2 + 4 * @$aref;   # Number of bytes to follow
+    my $ccv             =         @$aref;   # Number of RGB values to follow
+    my $data;                               # The RGB data
+
+    # Pack the RGB data
+    $data .= pack "CCCC", @$_ for @$aref;
+
+    my $header = pack("vvv",  $record, $length, $ccv);
+
+    $self->_append($header, $data);
+}
 
 
 1;

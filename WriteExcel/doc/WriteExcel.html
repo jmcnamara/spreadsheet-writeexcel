@@ -41,10 +41,12 @@
 	<LI><A HREF="#WORKBOOK_METHODS">WORKBOOK METHODS</A></LI>
 	<UL>
 
-<code>      <LI><A HREF="#new_">new()</A></LI>
+        <code><LI><A HREF="#new_">new()</A></LI>
         <LI><A HREF="#close_">close()</A></LI>
         <LI><A HREF="#addworksheet_sheetname_">addworksheet($sheetname)</A></LI>
         <LI><A HREF="#addformat_properties_">addformat(%properties)</A></LI>
+        <LI><A HREF="#set_custom_color_index_red_">set_custom_color($index, $red, $green, $blue)</A></LI>
+        <LI><A HREF="#set_palette_xl5_">set_palette_xl5()</A></LI>
         <LI><A HREF="#sheets_">sheets()</A></LI>
         <LI><A HREF="#set_1904_">set_1904()</A></LI></code>
 	</UL>
@@ -52,7 +54,7 @@
 	<LI><A HREF="#WORKSHEET_METHODS">WORKSHEET METHODS</A></LI>
 	<UL>
 
-<code>      <LI><A HREF="#Cell_notation">Cell notation</A></LI>
+        <code><LI><A HREF="#Cell_notation">Cell notation</A></LI>
         <LI><A HREF="#write_row_column_token_fo">write($row, $column, $token, $format)</A></LI>
         <LI><A HREF="#write_number_row_column_num">write_number($row, $column, $number, $format)</A></LI>
         <LI><A HREF="#write_string_row_column_str">write_string($row, $column, $string, $format)</A></LI>
@@ -74,13 +76,13 @@
         <LI><A HREF="#freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col)</A></LI>
         <LI><A HREF="#thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col)</A></LI>
         <LI><A HREF="#merge_cells_first_row_first_c">merge_cells($first_row, $first_col, $last_row, $last_col)</A></LI>
-        <LI><A HREF="#set_zoom_scale_">set_zoom($scale)</A></LI>
-</code>  </UL>
+        <LI><A HREF="#set_zoom_scale_">set_zoom($scale)</A></LI></code>
+	</UL>
 
 	<LI><A HREF="#PAGE_SET_UP_METHODS">PAGE SET-UP METHODS</A></LI>
 	<UL>
 
-<code>      <LI><A HREF="#set_landscape_">set_landscape()</A></LI>
+        <code><LI><A HREF="#set_landscape_">set_landscape()</A></LI>
         <LI><A HREF="#set_portrait_">set_portrait()</A></LI>
         <LI><A HREF="#set_paper_index_">set_paper($index)</A></LI>
         <LI><A HREF="#center_horizontally_">center_horizontally()</A></LI>
@@ -110,7 +112,7 @@
 	<LI><A HREF="#FORMAT_METHODS">FORMAT METHODS</A></LI>
 	<UL>
 
-<code>      <LI><A HREF="#set_properties_properties_">set_properties(%properties)</A></LI>
+        <code><LI><A HREF="#set_properties_properties_">set_properties(%properties)</A></LI>
         <LI><A HREF="#set_font_fontname_">set_font($fontname)</A></LI>
         <LI><A HREF="#set_size_">set_size()</A></LI>
         <LI><A HREF="#set_color_">set_color()</A></LI>
@@ -136,17 +138,18 @@
         <LI><A HREF="#copy_format_">copy($format)</A></LI></code>
 	</UL>
 
+	<LI><A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A></LI>
 	<LI><A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A></LI>
 	<LI><A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A></LI>
 	<LI><A HREF="#EXAMPLES">EXAMPLES</A></LI>
 	<UL>
-<code>
-        <LI><A HREF="#Example_1">Example 1</A></LI>
+
+        <code><LI><A HREF="#Example_1">Example 1</A></LI>
         <LI><A HREF="#Example_2">Example 2</A></LI>
         <LI><A HREF="#Example_3">Example 3</A></LI>
         <LI><A HREF="#Example_4">Example 4</A></LI>
-        <LI><A HREF="#Example_5">Example 5</A></LI></code>
-		<LI><A HREF="#Additional_Examples">Additional Examples</A></LI>
+        <LI><A HREF="#Example_5">Example 5</A></LI>
+        <LI><A HREF="#Additional_Examples">Additional Examples</A></LI></code>
 	</UL>
 
 	<LI><A HREF="#LIMITATIONS">LIMITATIONS</A></LI>
@@ -176,8 +179,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.35 of Spreadsheet::WriteExcel, released
-March 18, 2002.
+This document refers to version 0.36 of Spreadsheet::WriteExcel, released
+April 9, 2002.
 
 </P>
 <P>
@@ -318,7 +321,9 @@ workbook.
 <PRE>
     new()
     close()
-    addworksheet($sheetname)
+    addworksheet()
+    set_custom_color()
+    set_palette_xl5()
     addformat()
     sheets()
     set_1904()
@@ -508,6 +513,105 @@ via a hash of property values or later via method calls.
 </P>
 <P>
 See the <A HREF="#CELL_FORMATTING">CELL FORMATTING</A> section for more details about Format properties and how to set them.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_custom_color_index_red_">set_custom_color($index, $red, $green, $blue)</A></H2>
+<P>
+The <CODE>set_custom_color()</CODE> method can be used to override one of the built-in palette values with a
+more suitable colour.
+
+</P>
+<P>
+The value for <CODE>$index</CODE> should be in the range 8..63, see <A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A>.
+
+</P>
+<P>
+The default named colours use the following indices:
+
+</P>
+<P>
+<PRE>
+     8   =&gt;   black
+     9   =&gt;   white
+    10   =&gt;   red
+    11   =&gt;   lime
+    12   =&gt;   blue
+    13   =&gt;   yellow
+    14   =&gt;   magenta
+    15   =&gt;   cyan
+    16   =&gt;   brown
+    17   =&gt;   green
+    18   =&gt;   navy
+    20   =&gt;   purple
+    22   =&gt;   silver
+    23   =&gt;   gray
+    53   =&gt;   orange
+</PRE>
+</P>
+<P>
+A new colour is set using its RGB (red green blue) components. The <CODE>$red</CODE>, <CODE>$green</CODE> and <CODE>$blue</CODE> values must be in the range 0..255. You can determine the required values
+in Excel using the <CODE>Tools-&gt;Options-&gt;Colors-&gt;Modify</CODE> dialog.
+
+</P>
+<P>
+The <CODE>set_custom_color()</CODE> workbook method can also be used with a HTML style <CODE>#zzyyzz</CODE> hex value:
+
+</P>
+<P>
+<PRE>
+    $workbook-&gt;set_custom_color(40, 255,  102,  0   ); # Orange
+    $workbook-&gt;set_custom_color(40, 0xFF, 0x66, 0x00); # Same thing
+    $workbook-&gt;set_custom_color(40, '#FF6600'       ); # Same thing
+    
+    my $font = $workbook-&gt;addformat(color =&gt; 40); # Use the modified colour
+</PRE>
+</P>
+<P>
+The return value from <CODE>set_custom_color()</CODE> is the index of the colour that was changed:
+
+</P>
+<P>
+<PRE>
+    my $ferrari = $workbook-&gt;set_custom_color(40, 216, 12, 12);
+</PRE>
+</P>
+<P>
+<PRE>
+    my $format  = $workbook-&gt;addformat(
+                                        fg_color =&gt; $ferrari,
+                                        pattern  =&gt; 1,
+                                        border   =&gt; 1
+                                      );
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_palette_xl5_">set_palette_xl5()</A></H2>
+<P>
+Prior to this version (0.36), Spreadsheet::WriteExcel used the Excel 5
+default colour palette. It has been changed to the Excel 97+ palette for
+future compatibility.
+
+</P>
+<P>
+However, if you have programs that rely on the colours and indices of the
+Excel 5 palette you can revert to the previous default by using the <CODE>set_palette_xl5()</CODE> method:
+
+</P>
+<P>
+<PRE>
+    $workbook-&gt;set_palette_xl5();
+</PRE>
+</P>
+<P>
+A comparison of the colour components in the Excel 5 and Excel 97+ colour
+palettes is shown in <CODE>rgb5-97.txt</CODE> in the <CODE>doc</CODE> directory of the distro.
+
+</P>
+<P>
+See also <A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A>.
 
 </P>
 <P>
@@ -777,26 +881,44 @@ One problem with the <CODE>write()</CODE> method is that occasionally data looks
 treated as a number. For example, zip codes or phone numbers often start
 with a leading zero. If you write it as a number then the leading
 <CODE>zero(s)</CODE> will be stripped. To get around this you can either
-explicitly write the number as a string or write the number with a number
-format:
+write the number with a number format or explicitly write the number as a
+string:
 
 </P>
 <P>
 <PRE>
-    # write as a number (1209)
+    # Write as a number (1209)
     $worksheet-&gt;write('A1', '01209');
-    
-    # Format as a string (01209)
-    $worksheet-&gt;write_string('A2', '01209');
-    
-    # Format as a number (01209)
-    my $format    = $workbook-&gt;addformat(num_format =&gt; '00000');
-    $worksheet-&gt;write('A3', '01209', $format);
 </PRE>
 </P>
 <P>
-Note, Excel writes strings with a left justification and numbers with a
-right justification so you may want to add an align format as well, <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>.
+<PRE>
+    # Format as a number (01209)
+    my $format1 = $workbook-&gt;addformat(num_format =&gt; '00000');
+    $worksheet-&gt;write('A2', '01209', $format1);
+</PRE>
+</P>
+<P>
+<PRE>
+    # Write as a string (01209)
+    $worksheet-&gt;write_string('A3', '01209');
+</PRE>
+</P>
+<P>
+However, if the user edits the string in the last example it will convert
+back to a number. To get around this you can use the Excel text format <CODE>@</CODE>:
+
+</P>
+<P>
+<PRE>
+    # Format as a string (01209)
+    my $format2 = $workbook-&gt;addformat(num_format =&gt; '@');
+    $worksheet-&gt;write_string('A4', '01209', $format2);
+</PRE>
+</P>
+<P>
+Note also that Excel writes strings with a left justification and numbers
+with a right justification by default.
 
 </P>
 <P>
@@ -846,11 +968,34 @@ Write a string to the cell specified by <CODE>$row</CODE> and <CODE>$column</COD
 </PRE>
 </P>
 <P>
-See the note about <A HREF="#Cell_notation">Cell notation</A>. The maximum string size is 255 characters. The <CODE>$format</CODE> parameter is optional.
+The maximum string size is 255 characters. The <CODE>$format</CODE> parameter is optional.
 
 </P>
 <P>
-In general it is sufficient to use the <CODE>write()</CODE> method.
+In general it is sufficient to use the <CODE>write()</CODE> method. However, you may sometimes wish to use the <CODE>write_string()</CODE> method to write data that looks like a number but that you don't want
+treated as a number. For example, zip codes or phone numbers:
+
+</P>
+<P>
+<PRE>
+    # Write as a plain string
+    $worksheet-&gt;write_string('A1', '01209');
+</PRE>
+</P>
+<P>
+However, if the user edits this string Excel may convert it back to a
+number. To get around this you can use the Excel text format <CODE>@</CODE>:
+
+</P>
+<P>
+<PRE>
+    # Format as a string. Doesn't change to a number when edited
+    my $format1 = $workbook-&gt;addformat(num_format =&gt; '@');
+    $worksheet-&gt;write_string('A2', '01209', $format1);
+</PRE>
+</P>
+<P>
+See also the note about <A HREF="#Cell_notation">Cell notation</A>.
 
 </P>
 <P>
@@ -1507,7 +1652,7 @@ It does not encrypt your data in any way and it is very easy to deactivate.
 Therefore, do not use the above method if you wish to protect sensitive
 data or calculations. However, before you get worried, Excel's own workbook
 level password protection does provide strong encryption in Excel 97+. For
-reasons both ethical and technical, this will never be supported by <CODE>Spreadsheet::WriteExcel</CODE>.
+technical reasons this will never be supported by <CODE>Spreadsheet::WriteExcel</CODE>.
 
 </P>
 <P>
@@ -2054,7 +2199,8 @@ For example (with ASCII art representation of the results):
 </PRE>
 </P>
 <P>
-If you do not specify any justification the text will be centred:
+For simple text, if you do not specify any justification the text will be
+centred. However, you must prefix the text with <CODE>&amp;C</CODE> if you specify a font name:
 
 </P>
 <P>
@@ -2091,7 +2237,7 @@ default format:
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;set_header('Page &amp;P of &amp;N');
+    $worksheet-&gt;set_header('&amp;CPage &amp;P of &amp;N');
     
      ---------------------------------------------------------------
     |                                                               |
@@ -2099,7 +2245,7 @@ default format:
     |                                                               |
     
     
-    $worksheet-&gt;set_header('Updated at &amp;T');
+    $worksheet-&gt;set_header('&amp;CUpdated at &amp;T');
     
      ---------------------------------------------------------------
     |                                                               |
@@ -2115,8 +2261,8 @@ the control character <CODE>&amp;n</CODE> where <CODE>n</CODE> is the font size:
 </P>
 <P>
 <PRE>
-    $worksheet1-&gt;set_header('&amp;30Hello Big'  );
-    $worksheet2-&gt;set_header('&amp;10Hello Small');
+    $worksheet1-&gt;set_header('&amp;C&amp;30Hello Big'  );
+    $worksheet2-&gt;set_header('&amp;C&amp;10Hello Small');
 </PRE>
 </P>
 <P>
@@ -2128,9 +2274,9 @@ Roman&quot; and <CODE>style</CODE> is one of the standard Windows font descripti
 </P>
 <P>
 <PRE>
-    $worksheet1-&gt;set_header('&amp;&quot;Courier New,Italic&quot;Hello');
-    $worksheet2-&gt;set_header('&amp;&quot;Courier New,Bold Italic&quot;Hello');
-    $worksheet3-&gt;set_header('&amp;&quot;Times New Roman,Regular&quot;Hello');
+    $worksheet1-&gt;set_header('&amp;C&amp;&quot;Courier New,Italic&quot;Hello');
+    $worksheet2-&gt;set_header('&amp;C&amp;&quot;Courier New,Bold Italic&quot;Hello');
+    $worksheet3-&gt;set_header('&amp;C&amp;&quot;Times New Roman,Regular&quot;Hello');
 </PRE>
 </P>
 <P>
@@ -2155,7 +2301,7 @@ To include a single literal ampersand <CODE>&amp;</CODE> in a header or footer y
 </P>
 <P>
 <PRE>
-    $worksheet1-&gt;set_header('Rhythm &amp;&amp; Blues');
+    $worksheet1-&gt;set_header('&amp;CCuriouser &amp;&amp; Curiouser - Attorneys at Law');
 </PRE>
 </P>
 <P>
@@ -2180,10 +2326,14 @@ longer than this will not be written and a warning will be generated.
 
 </P>
 <P>
+See, also the <CODE>headers.pl</CODE> program in the <CODE>examples</CODE> directory of the distribution. 
+
+</P>
+<P>
 <HR>
 <H2><A NAME="set_footer_">set_footer()</A></H2>
 <P>
-Use of the <CODE>set_footer()</CODE> method is the same as the <CODE>set_header()</CODE> method explained above.
+The syntax of the <CODE>set_footer()</CODE> method is the same as the <CODE>set_header()</CODE>, see above.
 
 </P>
 <P>
@@ -2851,13 +3001,14 @@ a row using the <CODE>set_row()</CODE> worksheet method.
     Default state:      Excels default color, usually black
     Default action:     Set the default color
     Valid args:         Integers from 8..63 or the following strings:
-                        'aqua'
                         'black'
                         'blue'
-                        'fuchsia'
+                        'brown'
+                        'cyan'
                         'gray'
                         'green'
                         'lime'
+                        'magenta'
                         'navy'
                         'orange'
                         'purple'
@@ -2886,6 +3037,10 @@ of a cell use the <CODE>set_fg_color()</CODE> and <CODE>set_pattern()</CODE> met
 <P>
 For additional examples see the 'Named colors' and 'Standard colors'
 worksheets created by formats.pl in the examples directory.
+
+</P>
+<P>
+See also <A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A>.
 
 </P>
 <P>
@@ -3586,6 +3741,127 @@ properties directly using hashes.
 <P>
 Note: this is not a copy constructor, both objects must exist prior to
 copying.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="COLOURS_IN_EXCEL">COLOURS IN EXCEL</A></H1>
+<P>
+Excel provides a colour palette of 56 colours. In Spreadsheet::WriteExcel
+these colours are accessed via their palette index in the range 8..63. This
+index is used to set the colour of fonts, cell patterns and cell borders.
+For example:
+
+</P>
+<P>
+<PRE>
+    my $format = $workbook-&gt;addformat(
+                                        color =&gt; 12, # index for blue
+                                        font  =&gt; 'Arial',
+                                        size  =&gt; 12,
+                                        bold  =&gt; 1,
+                                     );
+</PRE>
+</P>
+<P>
+The most commonly used colours can also be accessed by name. The name acts
+as a simple alias for the colour index:
+
+</P>
+<P>
+<PRE>
+    black     =&gt;    8 
+    blue      =&gt;   12
+    brown     =&gt;   16
+    cyan      =&gt;   15
+    gray      =&gt;   23
+    green     =&gt;   17
+    lime      =&gt;   11
+    magenta   =&gt;   14
+    navy      =&gt;   18
+    orange    =&gt;   53
+    purple    =&gt;   20
+    red       =&gt;   10
+    silver    =&gt;   22
+    white     =&gt;    9 
+    yellow    =&gt;   13
+</PRE>
+</P>
+<P>
+For example:
+
+</P>
+<P>
+<PRE>
+    my $font = $workbook-&gt;addformat(color =&gt; 'red');
+</PRE>
+</P>
+<P>
+Users of VBA in Excel should note that the equivalent colour indices are in
+the range 1..56 instead of 8..63.
+
+</P>
+<P>
+If the default palette does not provide a required colour you can override
+one of the built-in values. This is achieved by using the <CODE>set_custom_color()</CODE> workbook method to adjust the RGB (red green blue) components of the
+colour:
+
+</P>
+<P>
+<PRE>
+    my $ferrari = $workbook-&gt;set_custom_color(40, 216, 12, 12);
+</PRE>
+</P>
+<P>
+<PRE>
+    my $format  = $workbook-&gt;addformat(
+                                        fg_color =&gt; $ferrari,
+                                        pattern  =&gt; 1,
+                                        border   =&gt; 1
+                                      );
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write_blank('A1', $format);
+</PRE>
+</P>
+<P>
+Spreadsheet::WriteExcel uses the Excel 97/2000 default colour palette.
+However, for backward compatibility the Excel 5 palette can be specified
+instead using the <CODE>set_palette_xl5()</CODE> workbook method.
+
+</P>
+<P>
+The default Excel colour palette is shown in <CODE>palette.html</CODE> in the <CODE>doc</CODE> directory of the distro. You can generate an Excel version of the palette
+using <CODE>colors.pl</CODE> in the <CODE>examples</CODE> directory.
+
+</P>
+<P>
+A comparison of the colour components in the Excel 5 and Excel 97+ colour
+palettes is shown in <CODE>rgb5-97.txt</CODE> in the <CODE>doc</CODE> directory.
+
+</P>
+<P>
+You may also find the following links helpful:
+
+</P>
+<P>
+A detailed look at Excel's colour palette: <A
+HREF="http://www.geocities.com/davemcritchie/excel/colors.htm">http://www.geocities.com/davemcritchie/excel/colors.htm</A>
+
+
+</P>
+<P>
+A decimal RGB chart: <A
+HREF="http://www.hypersolutions.org/pages/rgbdec.html">http://www.hypersolutions.org/pages/rgbdec.html</A>
+
+
+</P>
+<P>
+A hex RGB chart: : <A
+HREF="http://www.hypersolutions.org/pages/rgbhex.html">http://www.hypersolutions.org/pages/rgbhex.html</A>
+
 
 </P>
 <P>
@@ -4385,8 +4661,10 @@ features and options of the module.
     ========
     sales.pl            An example of a simple sales spreadsheet.
     stocks.pl           Demonstrates conditional formatting.
+    headers.pl          Examples of worksheet headers and footers.
     write_array.pl      Example of writing 1D or 2D arrays of data.
     chess.pl            An example of formatting using properties.
+    colors.pl            Demo of the colour palette and named colours.
     images.pl           Adding bitmap images to worksheets.
     stats_ext.pl        Same as stats.pl with external references.
     cgi.pl              A simple CGI program.
@@ -4821,10 +5099,6 @@ HREF="http://officeupdate.microsoft.com/2000/downloaddetails/xlviewer.htm">http:
 <HR>
 <H1><A NAME="BUGS">BUGS</A></H1>
 <P>
-Orange isn't.
-
-</P>
-<P>
 Formulas are formulae.
 
 </P>
@@ -4866,7 +5140,9 @@ The roadmap is as follows:
 
 </P>
 <UL>
-<LI><A NAME="item_Move">Move to Excel97/2000 format as standard. This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. This will be in the next major release of the module. All other features are on hold.</A>
+<LI><A NAME="item_Add">Add formula caching to speed up the writing of formulas.</A>
+<LI><A NAME="item_Add">Add a user definable temp file directory for IIS users.</A>
+<LI><A NAME="item_Move">Move to Excel97/2000 format as standard. This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. This is a priority feature.</A>
 </UL>
 <P>
 You can keep up to date with future release by registering as a user with
@@ -4884,7 +5160,7 @@ added:
 
 </P>
 <UL>
-<LI><A NAME="item_Graphs">Graphs. The format is documented but it would require too much work to implement. It would also require too much work to design a useable interface to the hundreds of features in an Excel graph. So that's two too much works.</A>
+<LI><A NAME="item_Graphs">Graphs. The format is documented but it would require too much work to implement. It would also require too much work to design a useable interface to the hundreds of features in an Excel graph. So that's two too much works. Nevertheless, I do hope to *try* implement graphs. However, it is a long term goal. It won't be available for at least 6 months, even if you read this in 6 months time.</A>
 <LI><A NAME="item_Macros">Macros. This would solve the previous problem neatly. However, the format of Excel macros isn't documented.</A>
 <LI><A NAME="item_Some">Some feature that you really need. ;-)</A>
 </UL>
@@ -5000,10 +5276,16 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Pointy birds, O pointy pointy,
-    Anoint my head, anointy nointy.
+    Had I the heavens' embroidered cloths,
+    Enwrought with golden and silver light,
+    The blue and the dim and the dark cloths
+    Of night and light and the half-light,
+    I would spread the cloths under your feet:
+    But I, being poor, have only my dreams;
+    I have spread my dreams under your feet;
+    Tread softly because you tread on my dreams. 
     
-        -- Steve Martin.
+        -- W. B. Yeats
 </PRE>
 </P>
 <P>

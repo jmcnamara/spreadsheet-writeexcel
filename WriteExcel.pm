@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.35'; # The Man with Two Brains.
+$VERSION = '0.36'; # He wishes for the cloths of Heaven.
 
 
 
@@ -65,7 +65,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.35 of Spreadsheet::WriteExcel, released March 18, 2002.
+This document refers to version 0.36 of Spreadsheet::WriteExcel, released April 9, 2002.
 
 
 
@@ -144,7 +144,9 @@ The Spreadsheet::WriteExcel module provides an object oriented interface to a ne
 
     new()
     close()
-    addworksheet($sheetname)
+    addworksheet()
+    set_custom_color()
+    set_palette_xl5()
     addformat()
     sheets()
     set_1904()
@@ -252,6 +254,69 @@ The C<addformat()> method can be used to create new Format objects which are use
     $format2 = $workbook->addformat();       # Set properties later
 
 See the L<CELL FORMATTING> section for more details about Format properties and how to set them.
+
+
+
+
+=head2 set_custom_color($index, $red, $green, $blue)
+
+The C<set_custom_color()> method can be used to override one of the built-in palette values with a more suitable colour.
+
+The value for C<$index> should be in the range 8..63, see L<COLOURS IN EXCEL>.
+
+The default named colours use the following indices:
+
+     8   =>   black
+     9   =>   white
+    10   =>   red
+    11   =>   lime
+    12   =>   blue
+    13   =>   yellow
+    14   =>   magenta
+    15   =>   cyan
+    16   =>   brown
+    17   =>   green
+    18   =>   navy
+    20   =>   purple
+    22   =>   silver
+    23   =>   gray
+    53   =>   orange
+
+A new colour is set using its RGB (red green blue) components. The C<$red>, C<$green> and C<$blue> values must be in the range 0..255. You can determine the required values in Excel using the C<Tools-E<gt>Options-E<gt>Colors-E<gt>Modify> dialog.
+
+The C<set_custom_color()> workbook method can also be used with a HTML style C<#zzyyzz> hex value:
+
+    $workbook->set_custom_color(40, 255,  102,  0   ); # Orange
+    $workbook->set_custom_color(40, 0xFF, 0x66, 0x00); # Same thing
+    $workbook->set_custom_color(40, '#FF6600'       ); # Same thing
+    
+    my $font = $workbook->addformat(color => 40); # Use the modified colour
+
+The return value from C<set_custom_color()> is the index of the colour that was changed:
+
+    my $ferrari = $workbook->set_custom_color(40, 216, 12, 12);
+
+    my $format  = $workbook->addformat(
+                                        fg_color => $ferrari,
+                                        pattern  => 1,
+                                        border   => 1
+                                      );
+
+
+
+
+=head2 set_palette_xl5()
+
+Prior to this version (0.36), Spreadsheet::WriteExcel used the Excel 5 default colour palette. It has been changed to the Excel 97+ palette for future compatibility.
+
+However, if you have programs that rely on the colours and indices of the Excel 5 palette you can revert to the previous default by using the C<set_palette_xl5()> method:
+
+    $workbook->set_palette_xl5();
+
+
+A comparison of the colour components in the Excel 5 and Excel 97+ colour palettes is shown in C<rgb5-97.txt> in the C<doc> directory of the distro.
+
+See also L<COLOURS IN EXCEL>.
 
 
 
@@ -416,19 +481,25 @@ The C<$format> parameter is optional. It should be a valid Format object, see L<
 
 The write() method will ignore empty string or C<undef> tokens unless a format is also supplied. As such you needn't worry about special handling for empty or C<undef> values in your data. See also the the C<write_blank()> method.
 
-One problem with the C<write()> method is that occasionally data looks like a number but you don't want it treated as a number. For example, zip codes or phone numbers often start with a leading zero. If you write it as a number then the leading zero(s) will be stripped. To get around this you can either explicitly write the number as a string or write the number with a number format:
+One problem with the C<write()> method is that occasionally data looks like a number but you don't want it treated as a number. For example, zip codes or phone numbers often start with a leading zero. If you write it as a number then the leading zero(s) will be stripped. To get around this you can either write the number with a number format or explicitly write the number as a string:
 
-    # write as a number (1209)
+    # Write as a number (1209)
     $worksheet->write('A1', '01209');
-    
-    # Format as a string (01209)
-    $worksheet->write_string('A2', '01209');
-    
-    # Format as a number (01209)
-    my $format    = $workbook->addformat(num_format => '00000');
-    $worksheet->write('A3', '01209', $format);
 
-Note, Excel writes strings with a left justification and numbers with a right justification so you may want to add an align format as well, L<CELL FORMATTING>.
+    # Format as a number (01209)
+    my $format1 = $workbook->addformat(num_format => '00000');
+    $worksheet->write('A2', '01209', $format1);
+
+    # Write as a string (01209)
+    $worksheet->write_string('A3', '01209');
+
+However, if the user edits the string in the last example it will convert back to a number. To get around this you can use the Excel text format C<@>:
+
+    # Format as a string (01209)
+    my $format2 = $workbook->addformat(num_format => '@');
+    $worksheet->write_string('A4', '01209', $format2);
+
+Note also that Excel writes strings with a left justification and numbers with a right justification by default.
 
 The C<write> methods return:
 
@@ -461,10 +532,20 @@ Write a string to the cell specified by C<$row> and C<$column>:
     $worksheet->write_string(0, 0, "Your text here" );
     $worksheet->write_string('A2', "or here" );
 
-See the note about L<Cell notation>. The maximum string size is 255 characters. The C<$format> parameter is optional.
+The maximum string size is 255 characters. The C<$format> parameter is optional.
 
-In general it is sufficient to use the C<write()> method.
+In general it is sufficient to use the C<write()> method. However, you may sometimes wish to use the C<write_string()> method to write data that looks like a number but that you don't want treated as a number. For example, zip codes or phone numbers:
 
+    # Write as a plain string
+    $worksheet->write_string('A1', '01209');
+
+However, if the user edits this string Excel may convert it back to a number. To get around this you can use the Excel text format C<@>:
+
+    # Format as a string. Doesn't change to a number when edited
+    my $format1 = $workbook->addformat(num_format => '@');
+    $worksheet->write_string('A2', '01209', $format1);
+
+See also the note about L<Cell notation>.
 
 
 
@@ -836,7 +917,7 @@ You can optionally add a password to the worksheet protection:
 
     $worksheet->protect('drowssap');
 
-Note, the worksheet level password in Excel provides very weak protection. It does not encrypt your data in any way and it is very easy to deactivate. Therefore, do not use the above method if you wish to protect sensitive data or calculations. However, before you get worried, Excel's own workbook level password protection does provide strong encryption in Excel 97+. For reasons both ethical and technical, this will never be supported by C<Spreadsheet::WriteExcel>.
+Note, the worksheet level password in Excel provides very weak protection. It does not encrypt your data in any way and it is very easy to deactivate. Therefore, do not use the above method if you wish to protect sensitive data or calculations. However, before you get worried, Excel's own workbook level password protection does provide strong encryption in Excel 97+. For technical reasons this will never be supported by C<Spreadsheet::WriteExcel>.
 
 
 
@@ -1192,7 +1273,7 @@ For example (with ASCII art representation of the results):
     |                                                               |
     
 
-If you do not specify any justification the text will be centred:
+For simple text, if you do not specify any justification the text will be centred. However, you must prefix the text with C<&C> if you specify a font name:
 
     $worksheet->set_header('Hello');
     
@@ -1214,7 +1295,7 @@ You can also have text in each of the justification regions:
 
 The information control characters act as variables that Excel will update as the workbook or worksheet changes. Times and dates are in the users default format:
 
-    $worksheet->set_header('Page &P of &N');
+    $worksheet->set_header('&CPage &P of &N');
     
      ---------------------------------------------------------------
     |                                                               |
@@ -1222,7 +1303,7 @@ The information control characters act as variables that Excel will update as th
     |                                                               |
     
     
-    $worksheet->set_header('Updated at &T');
+    $worksheet->set_header('&CUpdated at &T');
     
      ---------------------------------------------------------------
     |                                                               |
@@ -1233,14 +1314,14 @@ The information control characters act as variables that Excel will update as th
 
 You can specify the font size of a section of the text by prefixing it with the control character C<&n> where C<n> is the font size:
 
-    $worksheet1->set_header('&30Hello Big'  );
-    $worksheet2->set_header('&10Hello Small');
+    $worksheet1->set_header('&C&30Hello Big'  );
+    $worksheet2->set_header('&C&10Hello Small');
 
 You can specify the font of a section of the text by prefixing it with the control sequence C<&"font,style"> where C<fontname> is a font name such as "Courier New" or "Times New Roman" and C<style> is one of the standard Windows font descriptions: "Regular", "Italic", "Bold" or "Bold Italic":
 
-    $worksheet1->set_header('&"Courier New,Italic"Hello');
-    $worksheet2->set_header('&"Courier New,Bold Italic"Hello');
-    $worksheet3->set_header('&"Times New Roman,Regular"Hello');
+    $worksheet1->set_header('&C&"Courier New,Italic"Hello');
+    $worksheet2->set_header('&C&"Courier New,Bold Italic"Hello');
+    $worksheet3->set_header('&C&"Times New Roman,Regular"Hello');
 
 It is possible to combine all of these features together to create sophisticated headers and footers. As an aid to setting up complicated headers and footers you can record a page set-up as a macro in Excel and look at the format strings that VBA produces. Remember however that VBA uses two double quotes C<""> to indicate a single double quote. For the last example above the equivalent VBA code looks like this:
 
@@ -1251,7 +1332,7 @@ It is possible to combine all of these features together to create sophisticated
 
 To include a single literal ampersand C<&> in a header or footer you should use a double ampersand C<&&>:
 
-    $worksheet1->set_header('Rhythm && Blues');
+    $worksheet1->set_header('&CCuriouser && Curiouser - Attorneys at Law');
 
 As stated above the margin parameter is optional. As with the other margins the value should be in inches. The default header and footer margin is 0.50 inch. The header and footer margin size can be set as follows:
 
@@ -1261,12 +1342,14 @@ The header and footer margins are independent of the top and bottom margins.
 
 Note, the header or footer string must be less than 255 characters. Strings longer than this will not be written and a warning will be generated.
 
+See, also the C<headers.pl> program in the C<examples> directory of the distribution. 
+
 
 
 
 =head2 set_footer()
 
-Use of the C<set_footer()> method is the same as the C<set_header()> method explained above.
+The syntax of the C<set_footer()> method is the same as the C<set_header()>,  see above.
 
 
 
@@ -1674,13 +1757,14 @@ Set the font size. Excel adjusts the height of a row to accommodate the largest 
     Default state:      Excels default color, usually black
     Default action:     Set the default color
     Valid args:         Integers from 8..63 or the following strings:
-                        'aqua'
                         'black'
                         'blue'
-                        'fuchsia'
+                        'brown'
+                        'cyan'
                         'gray'
                         'green'
                         'lime'
+                        'magenta'
                         'navy'
                         'orange'
                         'purple'
@@ -1698,6 +1782,8 @@ Set the font colour. The C<set_color()> method is used as follows:
 Note: The C<set_color()> method is used to set the colour of the font in a cell. To set the colour of a cell use the C<set_fg_color()> and C<set_pattern()> methods.
 
 For additional examples see the 'Named colors' and 'Standard colors' worksheets created by formats.pl in the examples directory.
+
+See also L<COLOURS IN EXCEL>.
 
 
 
@@ -2165,6 +2251,70 @@ It is only useful if you are using the method interface to Format properties. It
 
 Note: this is not a copy constructor, both objects must exist prior to copying.
 
+
+
+
+=head1 COLOURS IN EXCEL
+
+Excel provides a colour palette of 56 colours. In Spreadsheet::WriteExcel these colours are accessed via their palette index in the range 8..63. This index is used to set the colour of fonts, cell patterns and cell borders. For example:
+
+    my $format = $workbook->addformat(
+                                        color => 12, # index for blue
+                                        font  => 'Arial',
+                                        size  => 12,
+                                        bold  => 1,
+                                     );
+
+The most commonly used colours can also be accessed by name. The name acts as a simple alias for the colour index:
+
+    black     =>    8 
+    blue      =>   12
+    brown     =>   16
+    cyan      =>   15
+    gray      =>   23
+    green     =>   17
+    lime      =>   11
+    magenta   =>   14
+    navy      =>   18
+    orange    =>   53
+    purple    =>   20
+    red       =>   10
+    silver    =>   22
+    white     =>    9 
+    yellow    =>   13
+
+For example:
+
+    my $font = $workbook->addformat(color => 'red');
+
+Users of VBA in Excel should note that the equivalent colour indices are in the range 1..56 instead of 8..63.
+
+If the default palette does not provide a required colour you can override one of the built-in values. This is achieved by using the C<set_custom_color()> workbook method to adjust the RGB (red green blue) components of the colour:
+
+    my $ferrari = $workbook->set_custom_color(40, 216, 12, 12);
+
+    my $format  = $workbook->addformat(
+                                        fg_color => $ferrari,
+                                        pattern  => 1,
+                                        border   => 1
+                                      );
+
+    $worksheet->write_blank('A1', $format);
+
+Spreadsheet::WriteExcel uses the Excel 97/2000 default colour palette. However, for backward compatibility the Excel 5 palette can be specified instead using the C<set_palette_xl5()> workbook method.
+
+The default Excel colour palette is shown in C<palette.html> in the C<doc> directory  of the distro. You can generate an Excel version of the palette using C<colors.pl> in the C<examples> directory.
+
+A comparison of the colour components in the Excel 5 and Excel 97+ colour palettes is shown in C<rgb5-97.txt> in the C<doc> directory.
+
+
+You may also find the following links helpful:
+
+A detailed look at Excel's colour palette: http://www.geocities.com/davemcritchie/excel/colors.htm
+
+A decimal RGB chart: http://www.hypersolutions.org/pages/rgbdec.html
+
+A hex RGB chart: : http://www.hypersolutions.org/pages/rgbhex.html
 
 
 
@@ -2655,8 +2805,10 @@ different features and options of the module.
     ========
     sales.pl            An example of a simple sales spreadsheet.
     stocks.pl           Demonstrates conditional formatting.
+    headers.pl          Examples of worksheet headers and footers.
     write_array.pl      Example of writing 1D or 2D arrays of data.
     chess.pl            An example of formatting using properties.
+    colors.pl            Demo of the colour palette and named colours.
     images.pl           Adding bitmap images to worksheets.
     stats_ext.pl        Same as stats.pl with external references.
     cgi.pl              A simple CGI program.
@@ -2875,8 +3027,6 @@ If you wish to view Excel files on a Windows platform which doesn't have Excel i
 
 =head1 BUGS
 
-Orange isn't.
-
 Formulas are formulae.
 
 Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE". This will be fixed in a later release.
@@ -2899,7 +3049,11 @@ The roadmap is as follows:
 
 =over
 
-=item * Move to Excel97/2000 format as standard. This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. This will be in the next major release of the module. All other features are on hold.
+=item * Add formula caching to speed up the writing of formulas. 
+
+=item * Add a user definable temp file directory for IIS users. 
+
+=item * Move to Excel97/2000 format as standard. This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. This is a priority feature.
 
 =back
 
@@ -2909,7 +3063,7 @@ Also, here are some of the most requested features that probably won't get added
 
 =over
 
-=item * Graphs. The format is documented but it would require too much work to implement. It would also require too much work to design a useable interface to the hundreds of features in an Excel graph. So that's two too much works.
+=item * Graphs. The format is documented but it would require too much work to implement. It would also require too much work to design a useable interface to the hundreds of features in an Excel graph. So that's two too much works. Nevertheless, I do hope to *try* implement graphs. However, it is a long term goal. It won't be available for at least 6 months, even if you read this in 6 months time.
 
 =item * Macros. This would solve the previous problem neatly. However, the format of Excel macros isn't documented.
 
@@ -2918,7 +3072,6 @@ Also, here are some of the most requested features that probably won't get added
 =back
 
 If there is some feature of an Excel file that you really, really need then you should use Win32::OLE with Excel on Windows.
-
 
 
 
@@ -2969,10 +3122,16 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    Pointy birds, O pointy pointy,
-    Anoint my head, anointy nointy.
+    Had I the heavens' embroidered cloths,
+    Enwrought with golden and silver light,
+    The blue and the dim and the dark cloths
+    Of night and light and the half-light,
+    I would spread the cloths under your feet:
+    But I, being poor, have only my dreams;
+    I have spread my dreams under your feet;
+    Tread softly because you tread on my dreams. 
     
-        -- Steve Martin.
+        -- W. B. Yeats
 
 
 =head1 COPYRIGHT

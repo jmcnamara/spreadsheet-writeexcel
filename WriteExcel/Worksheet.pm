@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.12';
+$VERSION = '0.13';
 
 ###############################################################################
 #
@@ -829,7 +829,7 @@ sub set_zoom {
 
     # Confine the scale to Excel's range
     if ($scale < 10 or $scale > 400) {
-        carp("Zoom factor $scale outside range: 10 <= zoom <= 400.");
+        carp "Zoom factor $scale outside range: 10 <= zoom <= 400";
         $scale = 100;
     }
 
@@ -850,7 +850,7 @@ sub set_print_scale {
 
     # Confine the scale to Excel's range
     if ($scale < 10 or $scale > 400) {
-        carp("Print $scale outside range: 10 <= zoom <= 400.");
+        carp "Print scale $scale outside range: 10 <= zoom <= 400";
         $scale = 100;
     }
 

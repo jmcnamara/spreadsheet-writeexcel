@@ -13,12 +13,27 @@ use Spreadsheet::WriteExcel;
 my $workbook = Spreadsheet::WriteExcel->new("formats.xls");
 
 # Some common formats
-my $center  = $workbook->addformat();
-my $heading = $workbook->addformat();
-$center->set_align('center');
-$heading->set_align('center');
-$heading->set_bold();
+my $center  = $workbook->addformat(align => 'center');
+my $heading = $workbook->addformat(align => 'center', bold => 1);
 
+# The named colors
+my %colors = (
+                0x08, 'black',
+                0x0C, 'blue',
+                0x10, 'brown',
+                0x0F, 'cyan',
+                0x17, 'gray',
+                0x11, 'green',
+                0x0B, 'lime',
+                0x0E, 'magenta',
+                0x12, 'navy',
+                0x35, 'orange',
+                0x14, 'purple',
+                0x0A, 'red',
+                0x16, 'silver',
+                0x09, 'white',
+                0x0D, 'yellow',
+             );
 
 # Call these subroutines to demonstrate different formatting options
 intro();
@@ -58,7 +73,7 @@ sub intro {
     $worksheet->write(2, 0, 'This workbook demonstrates some of',  $format);
     $worksheet->write(3, 0, 'the formatting options provided by',  $format);
     $worksheet->write(4, 0, 'the Spreadsheet::WriteExcel module.', $format);
-    
+
     $worksheet->write('A7',  'Sections:', $format2);
     $worksheet->write('A8',  "internal:'Named colors'!A1",    'Named colors'   );
     $worksheet->write('A9',  "internal:'Standard colors'!A1", 'Standard colors');
@@ -78,12 +93,6 @@ sub intro {
 #
 sub named_colors {
 
-    my @colors  = qw(aqua black blue fuchsia gray green lime navy
-                     orange purple red silver white yellow);
-
-    my @indices =   ( 0x0F, 0x08, 0x0C, 0x0E, 0x17, 0x11, 0x0B,
-                      0x12, 0x1D, 0x24, 0x0A, 0x16, 0x09, 0x0D);
-
     my $worksheet = $workbook->addworksheet('Named colors');
 
     $worksheet->set_column(0, 3, 15);
@@ -93,16 +102,20 @@ sub named_colors {
     $worksheet->write(0, 2, "Name",  $heading);
     $worksheet->write(0, 3, "Color", $heading);
 
-    for my $i (0..13) {
-        my $format = $workbook->addformat();
-        $format->set_pattern();
-        $format->set_fg_color($indices[$i]);
-        $format->set_border();
+    my $i = 1;
 
-        $worksheet->write($i+1, 0, $indices[$i],                    $center);
-        $worksheet->write($i+1, 1, sprintf("0x%02X", $indices[$i]), $center);
-        $worksheet->write($i+1, 2, $colors[$i],                     $center);
-        $worksheet->write($i+1, 3, '',                              $format);
+    while (my($index, $color) = each %colors) {
+        my $format = $workbook->addformat(
+                                            fg_color => $color,
+                                            pattern  => 1,
+                                            border   => 1
+                                         );
+
+        $worksheet->write($i+1, 0, $index,                    $center);
+        $worksheet->write($i+1, 1, sprintf("0x%02X", $index), $center);
+        $worksheet->write($i+1, 2, $color,                    $center);
+        $worksheet->write($i+1, 3, '',                        $format);
+        $i++;
     }
 }
 
@@ -120,16 +133,24 @@ sub standard_colors {
     $worksheet->write(0, 0, "Index", $heading);
     $worksheet->write(0, 1, "Index", $heading);
     $worksheet->write(0, 2, "Color", $heading);
+    $worksheet->write(0, 3, "Name",  $heading);
 
-    for my $i (8..63){
-        my $format = $workbook->addformat();
-        $format->set_pattern();
-        $format->set_fg_color($i);
-        $format->set_border();
+    for my $i (8..63) {
+        my $format = $workbook->addformat(
+                                            fg_color => $i,
+                                            pattern  => 1,
+                                            border   => 1
+                                         );
 
         $worksheet->write(($i -7), 0, $i,                    $center);
         $worksheet->write(($i -7), 1, sprintf("0x%02X", $i), $center);
         $worksheet->write(($i -7), 2, '',                    $format);
+
+        # Add the  color names
+        if (exists $colors{$i}) {
+            $worksheet->write(($i -7), 3, $colors{$i}, $center);
+
+        }
     }
 }
 

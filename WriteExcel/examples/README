@@ -18,8 +18,10 @@ Advanced
 ========
 sales.pl            An example of a simple sales spreadsheet.
 stocks.pl           Demonstrates conditional formatting.
+headers.pl          Examples of worksheet headers and footers.
 write_array.pl      Example of writing 1D or 2D arrays of data.
 chess.pl            An example of formatting using properties.
+colors.pl            Demo of the colour palette and named colours.
 images.pl           Adding bitmap images to worksheets.
 stats_ext.pl        Same as stats.pl with external references.
 cgi.pl              A simple CGI program.

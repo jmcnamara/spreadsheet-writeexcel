@@ -23,6 +23,8 @@ WriteExcel/doc/examples.html
 WriteExcel/doc/install.html
 WriteExcel/doc/number_formats1.html
 WriteExcel/doc/number_formats2.html
+WriteExcel/doc/palette.html
+WriteExcel/doc/rgb5-97.html
 WriteExcel/doc/tpj.html
 
 WriteExcel/doc/merge1.gif
@@ -44,6 +46,7 @@ WriteExcel/examples/README
 WriteExcel/examples/bigfile.pl
 WriteExcel/examples/cgi.pl
 WriteExcel/examples/chess.pl
+WriteExcel/examples/colors.pl
 WriteExcel/examples/comments.pl
 WriteExcel/examples/convertA1.pl
 WriteExcel/examples/copyformat.pl
@@ -55,6 +58,7 @@ WriteExcel/examples/easter_egg.pl
 WriteExcel/examples/filehandle.pl
 WriteExcel/examples/formats.pl
 WriteExcel/examples/function_locale.pl
+WriteExcel/examples/headers.pl
 WriteExcel/examples/hyperlink1.pl
 WriteExcel/examples/hyperlink2.pl
 WriteExcel/examples/images.pl
