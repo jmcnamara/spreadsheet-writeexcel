@@ -75,10 +75,10 @@ sub intro {
     $worksheet->write(4, 0, 'the Spreadsheet::WriteExcel module.', $format);
 
     $worksheet->write('A7',  'Sections:', $format2);
-    $worksheet->write('A8',  "internal:'Named colors'!A1",    'Named colors'   );
-    $worksheet->write('A9',  "internal:'Standard colors'!A1", 'Standard colors');
-    $worksheet->write('A10', "internal:'Numeric formats'!A1", 'Numeric formats');
-    $worksheet->write('A11', "internal:Fonts!A1",             'Fonts'          );
+    $worksheet->write('A8',  "internal:Fonts!A1",             'Fonts'          );
+    $worksheet->write('A9',  "internal:'Named colors'!A1",    'Named colors'   );
+    $worksheet->write('A10', "internal:'Standard colors'!A1", 'Standard colors');
+    $worksheet->write('A11', "internal:'Numeric formats'!A1", 'Numeric formats');
     $worksheet->write('A12', "internal:Borders!A1",           'Borders'        );
     $worksheet->write('A13', "internal:Patterns!A1",          'Patterns'       );
     $worksheet->write('A14', "internal:Alignment!A1",         'Alignment'      );

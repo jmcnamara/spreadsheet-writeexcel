@@ -1,7 +1,24 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-0.36 April 9 2002
+0.37 April 29 2002
+    Minor
+    
+    Added set_tempdir() method to allow a user defined temp directory.
+    This is mainly of use to IIS users.
+    
+    Fixed default format behaviour for formats set via the set_row()
+    and set_column() methods.
+    
+    Extended the hide_gridlines() method to allow hiding of screen
+    gridlines as well as print gridlines.
+    
+    Added long_string.pl a workaround example for the 255 char limit.
+    
+    Added https match to url regex. Thanks The Tilghman.
+    
 
+0.36 April 9 2002
+    Minor
     Added user definable colour palette. Thanks Bill Young.
     Added headers.pl and colors.pl examples.
 

@@ -18,13 +18,13 @@ use Carp;
 use Spreadsheet::WriteExcel::BIFFwriter;
 use Spreadsheet::WriteExcel::Format;
 use Spreadsheet::WriteExcel::Formula;
-
+use File::Temp 'tempfile';
 
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.13';
+$VERSION = '0.14';
 
 ###############################################################################
 #
@@ -46,6 +46,7 @@ sub new {
     $self->{_firstsheet}        = $_[3];
     $self->{_url_format}        = $_[4];
     $self->{_parser}            = $_[5];
+    $self->{_tempdir}           = $_[6];
 
     $self->{_ext_sheets}        = [];
     $self->{_using_tmpfile}     = 1;
@@ -89,6 +90,7 @@ sub new {
     $self->{_print_colmax}      = undef;
 
     $self->{_print_gridlines}   = 1;
+    $self->{_screen_gridlines}  = 1;
     $self->{_print_headers}     = 0;
 
     $self->{_fit_page}          = 0;
@@ -103,6 +105,9 @@ sub new {
 
     $self->{_col_sizes}         = {};
     $self->{_row_sizes}         = {};
+
+    $self->{_col_formats}       = {};
+    $self->{_row_formats}       = {};
 
     $self->{_zoom}              = 100;
     $self->{_print_scale}       = 100;
@@ -124,11 +129,14 @@ sub new {
 sub _initialize {
 
     my $self = shift;
+    my $fh;
 
-    # Open tmp file for storing Worksheet data
-    my $fh = IO::File->new_tmpfile();
+    # Open tmp file for storing Worksheet data. We do this in an eval block
+    # to trap any File::Temp errors.
+    #
+    eval { $fh = File::Temp::tempfile(DIR => $self->{_tempdir}) };
 
-    if (defined $fh) {
+    if ($fh) {
         # binmode file whether platform requires it or not
         binmode($fh);
 
@@ -136,8 +144,15 @@ sub _initialize {
         $self->{_filehandle} = $fh;
     }
     else {
-        # If new_tmpfile() fails store data in memory
+        # If tempfile() failed store data in memory
         $self->{_using_tmpfile} = 0;
+
+        if ($self->{_index} == 0 && $^W) {
+            my $dir = $self->{_tempdir} || File::Spec->tmpdir;
+
+            warn "Unable to create temp files in $dir. Refer to set_tempdir()".
+                 " in the Spreadsheet::WriteExcel documentation.\n" ;
+        }
     }
 }
 
@@ -377,18 +392,19 @@ sub set_column {
     push @{$self->{_colinfo}}, [ @_ ];
 
 
-    # Store the col sizes for use when calculating image vertices
-    # Take hidden columns into account
+    # Store the col sizes for use when calculating image vertices taking
+    # hidden columns into account. Also store the column formats.
     #
-    return if @_ < 3;# Ensure at least $firstcol, $lastcol and $width
-
-    # Set width to zero if column is hidden
-    my $width = $_[4] ? 0 : $_[2];
+    return if @_ < 3; # Ensure at least $firstcol, $lastcol and $width
+    
+    my $width  = $_[4] ? 0 : $_[2]; # Set width to zero if column is hidden
+    my $format = $_[3];
 
     my ($firstcol, $lastcol) = @_;
 
     foreach my $col ($firstcol .. $lastcol) {
-        $self->{_col_sizes}->{$col} = $width;
+        $self->{_col_sizes}->{$col}   = $width;
+        $self->{_col_formats}->{$col} = $format if defined $format;
     }
 }
 
@@ -505,7 +521,7 @@ sub set_header {
         carp 'Header string must be less than 255 characters';
         return;
     }
-    
+
     $self->{_header}      = $string;
     $self->{_margin_head} = $_[1] || 0.50;
 }
@@ -526,7 +542,7 @@ sub set_footer {
         carp 'Footer string must be less than 255 characters';
         return;
     }
-    
+
 
     $self->{_footer}      = $string;
     $self->{_margin_foot} = $_[1] || 0.50;
@@ -628,7 +644,7 @@ sub set_margin_left {
 
     my $self = shift;
 
-    $self->{_margin_left} = $_[0] || 0.75;
+    $self->{_margin_left} = defined $_[0] ? $_[0] : 0.75;
 }
 
 
@@ -642,7 +658,7 @@ sub set_margin_right {
 
     my $self = shift;
 
-    $self->{_margin_right} = $_[0] || 0.75;
+    $self->{_margin_right} = defined $_[0] ? $_[0] : 0.75;
 }
 
 
@@ -656,7 +672,7 @@ sub set_margin_top {
 
     my $self = shift;
 
-    $self->{_margin_top} = $_[0] || 1.00;
+    $self->{_margin_top} = defined $_[0] ? $_[0] : 1.00;
 }
 
 
@@ -670,7 +686,7 @@ sub set_margin_bottom {
 
     my $self = shift;
 
-    $self->{_margin_bottom} = $_[0] || 1.00;
+    $self->{_margin_bottom} = defined $_[0] ? $_[0] : 1.00;
 }
 
 
@@ -729,10 +745,10 @@ sub print_area {
 
     return if @_ != 4; # Require 4 parameters
 
-    $self->{_print_rowmin}  = $_[0];
-    $self->{_print_colmin}  = $_[1];
-    $self->{_print_rowmax}  = $_[2];
-    $self->{_print_colmax}  = $_[3];
+    $self->{_print_rowmin} = $_[0];
+    $self->{_print_colmin} = $_[1];
+    $self->{_print_rowmax} = $_[2];
+    $self->{_print_colmax} = $_[3];
 }
 
 
@@ -740,14 +756,33 @@ sub print_area {
 #
 # hide_gridlines()
 #
-# Set the option to hide gridlines on the printed page. See also the
-# _store_print_gridlines() and _store_gridset() methods below.
+# Set the option to hide gridlines on the screen and the printed page.
+# There are two ways of doing this in the Excel BIFF format: The first is by
+# setting the DspGrid field of the WINDOW2 record, this turns off the screen
+# and subsequently the print gridline. The second method is to via the
+# PRINTGRIDLINES and GRIDSET records, this turns off the printed gridlines
+# only. The first method is probably sufficient for most cases. The second
+# method is supported for backwards compatibility.
 #
 sub hide_gridlines {
 
-    my $self = shift;
+    my $self   = shift;
+    my $option = $_[0];
 
-    $self->{_print_gridlines} = 0;
+    $option = 1 unless defined $option; # Default to hiding printed gridlines
+    
+    if ($option == 0) {
+        $self->{_print_gridlines}  = 1; # 1 = display, 0 = hide
+        $self->{_screen_gridlines} = 1;
+    }
+    elsif ($option == 1) {
+        $self->{_print_gridlines}  = 0;
+        $self->{_screen_gridlines} = 1;
+    }
+    else {
+        $self->{_print_gridlines}  = 0;
+        $self->{_screen_gridlines} = 0;
+    }
 }
 
 
@@ -893,8 +928,8 @@ sub write {
     if ($token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
         return $self->write_number(@_);
     }
-    # Match http or ftp URL
-    elsif ($token =~ m|^[fh]tt?p://|) {
+    # Match http, https or ftp URL
+    elsif ($token =~ m|^[fh]tt?ps?://|) {
         return $self->write_url(@_);
     }
     # Match mailto:
@@ -1021,14 +1056,26 @@ sub write_col {
 #
 # _XF()
 #
-# Returns an index to the XF record in the workbook
+# Returns an index to the XF record in the workbook.
+# TODO
+#
+# Note: this is a function, not a method.
 #
 sub _XF {
 
-    my $self = shift;
+    my $self   = $_[0];
+    my $row    = $_[1];
+    my $col    = $_[2];
+    my $format = $_[3];
 
-    if (ref($self)) {
-        return $self->get_xf_index();
+    if (ref($format)) {
+        return $format->get_xf_index();
+    }
+    elsif (exists $self->{_row_formats}->{$row}) {
+        return $self->{_row_formats}->{$row}->get_xf_index();
+    }
+    elsif (exists $self->{_col_formats}->{$col}) {
+        return $self->{_col_formats}->{$col}->get_xf_index();
     }
     else {
         return 0x0F;
@@ -1249,15 +1296,15 @@ sub write_number {
         @_ = $self->_substitute_cellref(@_);
     }
 
-    if (@_ < 3) { return -1 }               # Check the number of args
+    if (@_ < 3) { return -1 }                    # Check the number of args
 
-    my $record    = 0x0203;                 # Record identifier
-    my $length    = 0x000E;                 # Number of bytes to follow
+    my $record  = 0x0203;                        # Record identifier
+    my $length  = 0x000E;                        # Number of bytes to follow
 
-    my $row       = $_[0];                  # Zero indexed row
-    my $col       = $_[1];                  # Zero indexed column
-    my $num       = $_[2];
-    my $xf        = _XF($_[3]);             # The cell format
+    my $row     = $_[0];                         # Zero indexed row
+    my $col     = $_[1];                         # Zero indexed column
+    my $num     = $_[2];
+    my $xf      = _XF($self, $row, $col, $_[3]); # The cell format
 
     # Check that row and col are valid and store max and min values
     if ($row >= $self->{_xls_rowmax}) { return -2 }
@@ -1300,16 +1347,16 @@ sub write_string {
         @_ = $self->_substitute_cellref(@_);
     }
 
-    if (@_ < 3) { return -1 }               # Check the number of args
+    if (@_ < 3) { return -1 }                    # Check the number of args
 
-    my $record    = 0x0204;                 # Record identifier
-    my $length    = 0x0008 + length($_[2]); # Bytes to follow
+    my $record  = 0x0204;                        # Record identifier
+    my $length  = 0x0008 + length($_[2]);        # Bytes to follow
 
-    my $row       = $_[0];                  # Zero indexed row
-    my $col       = $_[1];                  # Zero indexed column
-    my $strlen    = length($_[2]);
-    my $str       = $_[2];
-    my $xf        = _XF($_[3]);             # The cell format
+    my $row     = $_[0];                         # Zero indexed row
+    my $col     = $_[1];                         # Zero indexed column
+    my $strlen  = length($_[2]);
+    my $str     = $_[2];
+    my $xf      = _XF($self, $row, $col, $_[3]); # The cell format
 
     my $str_error = 0;
 
@@ -1369,12 +1416,12 @@ sub write_blank {
     return 0 if not defined $_[2];
 
 
-    my $record    = 0x0201;                 # Record identifier
-    my $length    = 0x0006;                 # Number of bytes to follow
+    my $record  = 0x0201;                        # Record identifier
+    my $length  = 0x0006;                        # Number of bytes to follow
 
-    my $row       = $_[0];                  # Zero indexed row
-    my $col       = $_[1];                  # Zero indexed column
-    my $xf        = _XF($_[2]);             # The cell format
+    my $row     = $_[0];                         # Zero indexed row
+    my $col     = $_[1];                         # Zero indexed column
+    my $xf      = _XF($self, $row, $col, $_[2]); # The cell format
 
     # Check that row and col are valid and store max and min values
     if ($row >= $self->{_xls_rowmax}) { return -2 }
@@ -1431,10 +1478,10 @@ sub write_formula{
     # we set $num to zero and set the option flags in $grbit to ensure
     # automatic calculation of the formula when the file is opened.
     #
-    my $xf        = _XF($_[3]); # The cell format
-    my $num       = 0x00;       # Current value of formula
-    my $grbit     = 0x03;       # Option flags
-    my $chn       = 0x0000;     # Must be zero
+    my $xf        = _XF($self, $row, $col, $_[3]); # The cell format
+    my $num       = 0x00;                          # Current value of formula
+    my $grbit     = 0x03;                          # Option flags
+    my $chn       = 0x0000;                        # Must be zero
 
 
     # Check that row and col are valid and store max and min values
@@ -1936,7 +1983,18 @@ sub set_row {
     my $irwMac      = 0x0000;               # Used by Excel to optimise loading
     my $reserved    = 0x0000;               # Reserved
     my $grbit       = 0x01C0;               # Option flags. (monkey) see $1 do
-    my $ixfe        = _XF($_[2]);           # XF index
+    my $ixfe;                               # XF index
+    my $format      = $_[2];                # Format object
+
+
+    # Check for a format object
+    if (ref $_[2]) {
+        $ixfe = $format->get_xf_index();
+    }
+    else {
+        $ixfe = 0x0F;
+    }
+
 
     # Use set_row($row, undef, $XF) to set XF without setting height
     if (defined ($_[1])) {
@@ -1952,11 +2010,13 @@ sub set_row {
 
     $self->_append($header, $data);
 
-    # Store the row sizes for use when calculating image vertices
+    # Store the row sizes for use when calculating image vertices.
+    # Also store the column formats.
     #
     return if @_ < 2;# Ensure at least $row and $height
 
-    $self->{_row_sizes}->{$_[0]} = $_[1];
+    $self->{_row_sizes}->{$_[0]}  = $_[1];
+    $self->{_row_formats}->{$_[0]} = $_[2] if defined $_[2];
 }
 
 
@@ -2004,17 +2064,17 @@ sub _store_window2 {
     my $rgbHdr         = 0x00000000; # Row/column heading and gridline color
 
     # The options flags that comprise $grbit
-    my $fDspFmla       = 0;                     # 0 - bit
-    my $fDspGrid       = 1;                     # 1
-    my $fDspRwCol      = 1;                     # 2
-    my $fFrozen        = $self->{_frozen};      # 3
-    my $fDspZeros      = 1;                     # 4
-    my $fDefaultHdr    = 1;                     # 5
-    my $fArabic        = 0;                     # 6
-    my $fDspGuts       = 1;                     # 7
-    my $fFrozenNoSplit = 0;                     # 0 - bit
-    my $fSelected      = $self->{_selected};    # 1
-    my $fPaged         = 1;                     # 2
+    my $fDspFmla       = 0;                          # 0 - bit
+    my $fDspGrid       = $self->{_screen_gridlines}; # 1
+    my $fDspRwCol      = 1;                          # 2
+    my $fFrozen        = $self->{_frozen};           # 3
+    my $fDspZeros      = 1;                          # 4
+    my $fDefaultHdr    = 1;                          # 5
+    my $fArabic        = 0;                          # 6
+    my $fDspGuts       = 1;                          # 7
+    my $fFrozenNoSplit = 0;                          # 0 - bit
+    my $fSelected      = $self->{_selected};         # 1
+    my $fPaged         = 1;                          # 2
 
     $grbit             = $fDspFmla;
     $grbit            |= $fDspGrid       << 1;
@@ -2079,9 +2139,18 @@ sub _store_colinfo {
     $coldx       *= 256;            # Convert to units of 1/256 of a char
 
 
-    my $ixfe     = _XF($_[3]);      # XF
+    my $ixfe;                       # XF index
     my $grbit    = $_[4] || 0;      # Option flags
     my $reserved = 0x00;            # Reserved
+    my $format   = $_[3];           # Format object
+
+    # Check for a format object
+    if (ref $_[3]) {
+        $ixfe = $format->get_xf_index();
+    }
+    else {
+        $ixfe = 0x0F;
+    }
 
     my $header   = pack("vv",     $record, $length);
     my $data     = pack("vvvvvC", $colFirst, $colLast, $coldx,

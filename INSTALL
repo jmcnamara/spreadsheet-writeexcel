@@ -7,8 +7,11 @@ NAME
 ======================================================================
 REQUIREMENTS
 
-    This module requires Perl 5.005 (or later) and Parse::RecDescent:
-    http://search.cpan.org/search?dist=Parse-RecDescent
+    This module requires Perl 5.005 (or later)
+    Parse::RecDescent
+        http://search.cpan.org/search?dist=Parse-RecDescent
+    File::Temp
+        http://search.cpan.org/search?dist=File-Temp
 
 
 ======================================================================

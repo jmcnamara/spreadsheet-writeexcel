@@ -41,64 +41,65 @@
 	<LI><A HREF="#WORKBOOK_METHODS">WORKBOOK METHODS</A></LI>
 	<UL>
 
-        <code><LI><A HREF="#new_">new()</A></LI>
-        <LI><A HREF="#close_">close()</A></LI>
-        <LI><A HREF="#addworksheet_sheetname_">addworksheet($sheetname)</A></LI>
-        <LI><A HREF="#addformat_properties_">addformat(%properties)</A></LI>
-        <LI><A HREF="#set_custom_color_index_red_">set_custom_color($index, $red, $green, $blue)</A></LI>
-        <LI><A HREF="#set_palette_xl5_">set_palette_xl5()</A></LI>
-        <LI><A HREF="#sheets_">sheets()</A></LI>
-        <LI><A HREF="#set_1904_">set_1904()</A></LI></code>
+		<LI><A HREF="#new_">new()</A></LI>
+		<LI><A HREF="#close_">close()</A></LI>
+		<LI><A HREF="#set_tempdir_">set_tempdir()</A></LI>
+		<LI><A HREF="#addworksheet_sheetname_">addworksheet($sheetname)</A></LI>
+		<LI><A HREF="#addformat_properties_">addformat(%properties)</A></LI>
+		<LI><A HREF="#set_custom_color_index_red_">set_custom_color($index, $red, $green, $blue)</A></LI>
+		<LI><A HREF="#set_palette_xl5_">set_palette_xl5()</A></LI>
+		<LI><A HREF="#sheets_">sheets()</A></LI>
+		<LI><A HREF="#set_1904_">set_1904()</A></LI>
 	</UL>
 
 	<LI><A HREF="#WORKSHEET_METHODS">WORKSHEET METHODS</A></LI>
 	<UL>
 
-        <code><LI><A HREF="#Cell_notation">Cell notation</A></LI>
-        <LI><A HREF="#write_row_column_token_fo">write($row, $column, $token, $format)</A></LI>
-        <LI><A HREF="#write_number_row_column_num">write_number($row, $column, $number, $format)</A></LI>
-        <LI><A HREF="#write_string_row_column_str">write_string($row, $column, $string, $format)</A></LI>
-        <LI><A HREF="#write_formula_row_column_fo">write_formula($row, $column, $formula, $format)</A></LI>
-        <LI><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></LI>
-        <LI><A HREF="#write_row_row_column_array_">write_row($row, $column, $array_ref, $format)</A></LI>
-        <LI><A HREF="#write_col_row_column_array_">write_col($row, $column, $array_ref, $format)</A></LI>
-        <LI><A HREF="#write_url_row_col_url_str">write_url($row, $col, $url, $string, $format)</A></LI>
-        <LI><A HREF="#write_url_range_row1_col1_r">write_url_range($row1, $col1, $row2, $col2, $url, $string, $format)</A></LI>
-        <LI><A HREF="#insert_bitmap_row_col_filen">insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
-        <LI><A HREF="#get_name_">get_name()</A></LI>
-        <LI><A HREF="#activate_">activate()</A></LI>
-        <LI><A HREF="#select_">select()</A></LI>
-        <LI><A HREF="#set_first_sheet_">set_first_sheet()</A></LI>
-        <LI><A HREF="#protect_password_">protect($password)</A></LI>
-        <LI><A HREF="#set_selection_first_row_first">set_selection($first_row, $first_col, $last_row, $last_col)</A></LI>
-        <LI><A HREF="#set_row_row_height_format_">set_row($row, $height, $format)</A></LI>
-        <LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden)</A></LI>
-        <LI><A HREF="#freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col)</A></LI>
-        <LI><A HREF="#thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col)</A></LI>
-        <LI><A HREF="#merge_cells_first_row_first_c">merge_cells($first_row, $first_col, $last_row, $last_col)</A></LI>
-        <LI><A HREF="#set_zoom_scale_">set_zoom($scale)</A></LI></code>
+		<LI><A HREF="#Cell_notation">Cell notation</A></LI>
+		<LI><A HREF="#write_row_column_token_fo">write($row, $column, $token, $format)</A></LI>
+		<LI><A HREF="#write_number_row_column_num">write_number($row, $column, $number, $format)</A></LI>
+		<LI><A HREF="#write_string_row_column_str">write_string($row, $column, $string, $format)</A></LI>
+		<LI><A HREF="#write_formula_row_column_fo">write_formula($row, $column, $formula, $format)</A></LI>
+		<LI><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></LI>
+		<LI><A HREF="#write_row_row_column_array_">write_row($row, $column, $array_ref, $format)</A></LI>
+		<LI><A HREF="#write_col_row_column_array_">write_col($row, $column, $array_ref, $format)</A></LI>
+		<LI><A HREF="#write_url_row_col_url_str">write_url($row, $col, $url, $string, $format)</A></LI>
+		<LI><A HREF="#write_url_range_row1_col1_r">write_url_range($row1, $col1, $row2, $col2, $url, $string, $format)</A></LI>
+		<LI><A HREF="#insert_bitmap_row_col_filen">insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
+		<LI><A HREF="#get_name_">get_name()</A></LI>
+		<LI><A HREF="#activate_">activate()</A></LI>
+		<LI><A HREF="#select_">select()</A></LI>
+		<LI><A HREF="#set_first_sheet_">set_first_sheet()</A></LI>
+		<LI><A HREF="#protect_password_">protect($password)</A></LI>
+		<LI><A HREF="#set_selection_first_row_first">set_selection($first_row, $first_col, $last_row, $last_col)</A></LI>
+		<LI><A HREF="#set_row_row_height_format_">set_row($row, $height, $format)</A></LI>
+		<LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden)</A></LI>
+		<LI><A HREF="#freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col)</A></LI>
+		<LI><A HREF="#thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col)</A></LI>
+		<LI><A HREF="#merge_cells_first_row_first_c">merge_cells($first_row, $first_col, $last_row, $last_col)</A></LI>
+		<LI><A HREF="#set_zoom_scale_">set_zoom($scale)</A></LI>
 	</UL>
 
 	<LI><A HREF="#PAGE_SET_UP_METHODS">PAGE SET-UP METHODS</A></LI>
 	<UL>
 
-        <code><LI><A HREF="#set_landscape_">set_landscape()</A></LI>
-        <LI><A HREF="#set_portrait_">set_portrait()</A></LI>
-        <LI><A HREF="#set_paper_index_">set_paper($index)</A></LI>
-        <LI><A HREF="#center_horizontally_">center_horizontally()</A></LI>
-        <LI><A HREF="#center_vertically_">center_vertically()</A></LI>
-        <LI><A HREF="#set_margins_inches_">set_margins($inches)</A></LI>
-        <LI><A HREF="#set_header_string_margin_">set_header($string, $margin)</A></LI>
-        <LI><A HREF="#set_footer_">set_footer()</A></LI>
-        <LI><A HREF="#repeat_rows_first_row_last_ro">repeat_rows($first_row, $last_row)</A></LI>
-        <LI><A HREF="#repeat_columns_first_col_last">repeat_columns($first_col, $last_col)</A></LI>
-        <LI><A HREF="#hide_gridlines_">hide_gridlines()</A></LI>
-        <LI><A HREF="#print_row_col_headers_">print_row_col_headers()</A></LI>
-        <LI><A HREF="#print_area_first_row_first_co">print_area($first_row, $first_col, $last_row, $last_col)</A></LI>
-        <LI><A HREF="#fit_to_pages_width_height_">fit_to_pages($width, $height)</A></LI>
-        <LI><A HREF="#set_print_scale_scale_">set_print_scale($scale)</A></LI>
-        <LI><A HREF="#set_h_pagebreaks_breaks_">set_h_pagebreaks(@breaks)</A></LI>
-        <LI><A HREF="#set_v_pagebreaks_breaks_">set_v_pagebreaks(@breaks)</A></LI></code>
+		<LI><A HREF="#set_landscape_">set_landscape()</A></LI>
+		<LI><A HREF="#set_portrait_">set_portrait()</A></LI>
+		<LI><A HREF="#set_paper_index_">set_paper($index)</A></LI>
+		<LI><A HREF="#center_horizontally_">center_horizontally()</A></LI>
+		<LI><A HREF="#center_vertically_">center_vertically()</A></LI>
+		<LI><A HREF="#set_margins_inches_">set_margins($inches)</A></LI>
+		<LI><A HREF="#set_header_string_margin_">set_header($string, $margin)</A></LI>
+		<LI><A HREF="#set_footer_">set_footer()</A></LI>
+		<LI><A HREF="#repeat_rows_first_row_last_ro">repeat_rows($first_row, $last_row)</A></LI>
+		<LI><A HREF="#repeat_columns_first_col_last">repeat_columns($first_col, $last_col)</A></LI>
+		<LI><A HREF="#hide_gridlines_option_">hide_gridlines($option)</A></LI>
+		<LI><A HREF="#print_row_col_headers_">print_row_col_headers()</A></LI>
+		<LI><A HREF="#print_area_first_row_first_co">print_area($first_row, $first_col, $last_row, $last_col)</A></LI>
+		<LI><A HREF="#fit_to_pages_width_height_">fit_to_pages($width, $height)</A></LI>
+		<LI><A HREF="#set_print_scale_scale_">set_print_scale($scale)</A></LI>
+		<LI><A HREF="#set_h_pagebreaks_breaks_">set_h_pagebreaks(@breaks)</A></LI>
+		<LI><A HREF="#set_v_pagebreaks_breaks_">set_v_pagebreaks(@breaks)</A></LI>
 	</UL>
 
 	<LI><A HREF="#CELL_FORMATTING">CELL FORMATTING</A></LI>
@@ -112,30 +113,30 @@
 	<LI><A HREF="#FORMAT_METHODS">FORMAT METHODS</A></LI>
 	<UL>
 
-        <code><LI><A HREF="#set_properties_properties_">set_properties(%properties)</A></LI>
-        <LI><A HREF="#set_font_fontname_">set_font($fontname)</A></LI>
-        <LI><A HREF="#set_size_">set_size()</A></LI>
-        <LI><A HREF="#set_color_">set_color()</A></LI>
-        <LI><A HREF="#set_bold_">set_bold()</A></LI>
-        <LI><A HREF="#set_italic_">set_italic()</A></LI>
-        <LI><A HREF="#set_underline_">set_underline()</A></LI>
-        <LI><A HREF="#set_strikeout_">set_strikeout()</A></LI>
-        <LI><A HREF="#set_script_">set_script()</A></LI>
-        <LI><A HREF="#set_outline_">set_outline()</A></LI>
-        <LI><A HREF="#set_shadow_">set_shadow()</A></LI>
-        <LI><A HREF="#set_num_format_">set_num_format()</A></LI>
-        <LI><A HREF="#set_locked_">set_locked()</A></LI>
-        <LI><A HREF="#set_hidden_">set_hidden()</A></LI>
-        <LI><A HREF="#set_align_">set_align()</A></LI>
-        <LI><A HREF="#set_merge_">set_merge()</A></LI>
-        <LI><A HREF="#set_text_wrap_">set_text_wrap()</A></LI>
-        <LI><A HREF="#set_rotation_">set_rotation()</A></LI>
-        <LI><A HREF="#set_text_justlast_">set_text_justlast()</A></LI>
-        <LI><A HREF="#set_pattern_">set_pattern()</A></LI>
-        <LI><A HREF="#set_fg_color_">set_fg_color()</A></LI>
-        <LI><A HREF="#set_border_">set_border()</A></LI>
-        <LI><A HREF="#set_border_color_">set_border_color()</A></LI>
-        <LI><A HREF="#copy_format_">copy($format)</A></LI></code>
+		<LI><A HREF="#set_properties_properties_">set_properties(%properties)</A></LI>
+		<LI><A HREF="#set_font_fontname_">set_font($fontname)</A></LI>
+		<LI><A HREF="#set_size_">set_size()</A></LI>
+		<LI><A HREF="#set_color_">set_color()</A></LI>
+		<LI><A HREF="#set_bold_">set_bold()</A></LI>
+		<LI><A HREF="#set_italic_">set_italic()</A></LI>
+		<LI><A HREF="#set_underline_">set_underline()</A></LI>
+		<LI><A HREF="#set_strikeout_">set_strikeout()</A></LI>
+		<LI><A HREF="#set_script_">set_script()</A></LI>
+		<LI><A HREF="#set_outline_">set_outline()</A></LI>
+		<LI><A HREF="#set_shadow_">set_shadow()</A></LI>
+		<LI><A HREF="#set_num_format_">set_num_format()</A></LI>
+		<LI><A HREF="#set_locked_">set_locked()</A></LI>
+		<LI><A HREF="#set_hidden_">set_hidden()</A></LI>
+		<LI><A HREF="#set_align_">set_align()</A></LI>
+		<LI><A HREF="#set_merge_">set_merge()</A></LI>
+		<LI><A HREF="#set_text_wrap_">set_text_wrap()</A></LI>
+		<LI><A HREF="#set_rotation_">set_rotation()</A></LI>
+		<LI><A HREF="#set_text_justlast_">set_text_justlast()</A></LI>
+		<LI><A HREF="#set_pattern_">set_pattern()</A></LI>
+		<LI><A HREF="#set_fg_color_">set_fg_color()</A></LI>
+		<LI><A HREF="#set_border_">set_border()</A></LI>
+		<LI><A HREF="#set_border_color_">set_border_color()</A></LI>
+		<LI><A HREF="#copy_format_">copy($format)</A></LI>
 	</UL>
 
 	<LI><A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A></LI>
@@ -144,12 +145,12 @@
 	<LI><A HREF="#EXAMPLES">EXAMPLES</A></LI>
 	<UL>
 
-        <code><LI><A HREF="#Example_1">Example 1</A></LI>
-        <LI><A HREF="#Example_2">Example 2</A></LI>
-        <LI><A HREF="#Example_3">Example 3</A></LI>
-        <LI><A HREF="#Example_4">Example 4</A></LI>
-        <LI><A HREF="#Example_5">Example 5</A></LI>
-        <LI><A HREF="#Additional_Examples">Additional Examples</A></LI></code>
+		<LI><A HREF="#Example_1">Example 1</A></LI>
+		<LI><A HREF="#Example_2">Example 2</A></LI>
+		<LI><A HREF="#Example_3">Example 3</A></LI>
+		<LI><A HREF="#Example_4">Example 4</A></LI>
+		<LI><A HREF="#Example_5">Example 5</A></LI>
+		<LI><A HREF="#Additional_Examples">Additional Examples</A></LI>
 	</UL>
 
 	<LI><A HREF="#LIMITATIONS">LIMITATIONS</A></LI>
@@ -179,8 +180,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.36 of Spreadsheet::WriteExcel, released
-April 9, 2002.
+This document refers to version 0.37 of Spreadsheet::WriteExcel, released
+April 29, 2002.
 
 </P>
 <P>
@@ -266,7 +267,7 @@ features as possible. As a result there is a lot of documentation to
 accompany the interface and it can be difficult at first glance to see what
 it important and what is not. So for those of you who prefer to assemble
 Ikea furniture first and then read the instructions, here are three easy
-steps: 
+steps:
 
 </P>
 <P>
@@ -321,6 +322,7 @@ workbook.
 <PRE>
     new()
     close()
+    set_tempdir()
     addworksheet()
     set_custom_color()
     set_palette_xl5()
@@ -473,6 +475,78 @@ create a file you need to call <CODE>close()</CODE>.
 </P>
 <P>
 <HR>
+<H2><A NAME="set_tempdir_">set_tempdir()</A></H2>
+<P>
+For speed and efficiency <CODE>Spreadsheet::WriteExcel</CODE> stores worksheet data in temporary files prior to assembling the final
+workbook.
+
+</P>
+<P>
+If Spreadsheet::WriteExcel is unable to create these temporary files it
+will store the required data in memory. This can be slow for large files.
+To avoid this problem the <CODE>set_tempdir()</CODE> method can be used to specify a directory that is accessible for the
+creation of temporary files.
+
+</P>
+<P>
+To check if this might be a problem on a particular system you can run a
+simple test program with <CODE>-w</CODE> or <CODE>use warnings</CODE>. This will generate a warning if the module cannot create the required
+temporary files:
+
+</P>
+<P>
+<PRE>
+    #!/usr/bin/perl -w
+</PRE>
+</P>
+<P>
+<PRE>
+    use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>
+    my $workbook  = Spreadsheet::WriteExcel-&gt;new(&quot;test.xls&quot;);
+    my $worksheet = $workbook-&gt;addworksheet();
+</PRE>
+</P>
+<P>
+However, this is not a common problem. The only reported instances of this
+were with certain IIS configurations on Windows. Also, as of this version
+(0.37) the mechanism for creating temporary files has changed and it should
+now work without intervention even on IIS.
+
+</P>
+<P>
+The <CODE>File::Temp</CODE> module is used to create the temporary files. File::Temp uses <CODE>File::Spec</CODE> to determine an appropriate location for these files such as <CODE>/tmp</CODE> or <CODE>c:\windows\temp</CODE>. You can find out which directory is used on your system as follows:
+
+</P>
+<P>
+<PRE>
+    perl -MFile::Spec -le 'print File::Spec-&gt;tmpdir'
+</PRE>
+</P>
+<P>
+Even if the default temporary file directory is accessible you may wish to
+specify an alternative location for security reasons:
+
+</P>
+<P>
+<PRE>
+    $workbook-&gt;set_tempdir('/tmp/writeexcel');
+    $workbook-&gt;set_tempdir('c:\windows\temp\writeexcel');
+</PRE>
+</P>
+<P>
+The directory for the temporary file must exist, <CODE>set_tempdir()</CODE> will not create a new directory.
+
+</P>
+<P>
+Note: This method must be called before calling <CODE>addworksheet()</CODE>.
+
+</P>
+<P>
+<HR>
 <H2><A NAME="addworksheet_sheetname_">addworksheet($sheetname)</A></H2>
 <P>
 At least one worksheet should be added to a new workbook. A worksheet is
@@ -556,7 +630,7 @@ in Excel using the <CODE>Tools-&gt;Options-&gt;Colors-&gt;Modify</CODE> dialog.
 
 </P>
 <P>
-The <CODE>set_custom_color()</CODE> workbook method can also be used with a HTML style <CODE>#zzyyzz</CODE> hex value:
+The <CODE>set_custom_color()</CODE> workbook method can also be used with a HTML style <CODE>#rrggbb</CODE> hex value:
 
 </P>
 <P>
@@ -564,7 +638,10 @@ The <CODE>set_custom_color()</CODE> workbook method can also be used with a HTML
     $workbook-&gt;set_custom_color(40, 255,  102,  0   ); # Orange
     $workbook-&gt;set_custom_color(40, 0xFF, 0x66, 0x00); # Same thing
     $workbook-&gt;set_custom_color(40, '#FF6600'       ); # Same thing
-    
+</PRE>
+</P>
+<P>
+<PRE>
     my $font = $workbook-&gt;addformat(color =&gt; 40); # Use the modified colour
 </PRE>
 </P>
@@ -590,9 +667,9 @@ The return value from <CODE>set_custom_color()</CODE> is the index of the colour
 <HR>
 <H2><A NAME="set_palette_xl5_">set_palette_xl5()</A></H2>
 <P>
-Prior to this version (0.36), Spreadsheet::WriteExcel used the Excel 5
-default colour palette. It has been changed to the Excel 97+ palette for
-future compatibility.
+Prior to version 0.36, Spreadsheet::WriteExcel used the Excel 5 default
+colour palette. It was changed to the Excel 97+ palette for forward
+compatibility.
 
 </P>
 <P>
@@ -628,15 +705,17 @@ you wish to refer to a worksheet by its index:
     foreach $worksheet ($workbook-&gt;sheets()) {
        print $worksheet-&gt;get_name();
     }
-    
-    # or:
-    
-    ($workbook-&gt;sheets())[5]-&gt;write('A1', &quot;Hello&quot;);
 </PRE>
 </P>
 <P>
-Note: This functionality was previously available via the <CODE>worksheets()</CODE> method which returned an array ref. This was unnecessarily complicated. The <CODE>worksheets()</CODE> method is still available but deprecated.
-
+<PRE>
+    # or:
+</PRE>
+</P>
+<P>
+<PRE>
+    ($workbook-&gt;sheets())[5]-&gt;write('A1', &quot;Hello&quot;);
+</PRE>
 </P>
 <P>
 <HR>
@@ -762,7 +841,10 @@ with A1 notation, for example:
 <P>
 <PRE>
     use Spreadsheet::WriteExcel::Utility;
-    
+</PRE>
+</P>
+<P>
+<PRE>
     ($row, $col)    = xl_cell_to_rowcol('C2');  # (1, 2)
     $str            = xl_rowcol_to_cell(1, 2);  # C2
 </PRE>
@@ -774,12 +856,16 @@ it is also possible to use A1 notation.
 
 </P>
 <P>
+Note: in Excel it is also possible to use a R1C1 notation. This is not
+supported by Spreadsheet::WriteExcel.
+
+</P>
+<P>
 <HR>
 <H2><A NAME="write_row_column_token_fo">write($row, $column, $token, $format)</A></H2>
 <P>
 Excel distinguishes between data types such as strings, numbers, blanks,
-formulas and hyperlinks. To simplify the process of writing data <CODE>Spreadsheet::WriteExcel</CODE> provides the <CODE>write()</CODE> method as a general alias to several more specific methods for writing to a
-cell in Excel:
+formulas and hyperlinks. To simplify the process of writing data the <CODE>write()</CODE> method acts as a general alias for several more specific methods:
 
 </P>
 <P>
@@ -794,7 +880,7 @@ cell in Excel:
 </PRE>
 </P>
 <P>
-Here are some examples in both row-column and A1 notation:
+The general rule is that if it looks like a <EM>something</EM> then a <EM>something</EM> is written. Here are some examples in both row-column and A1 notation:
 
 </P>
 <P>
@@ -819,7 +905,7 @@ Here are some examples in both row-column and A1 notation:
 </PRE>
 </P>
 <P>
-The general rule is that if it looks like a <EM>something</EM> then a <EM>something</EM> is written. The &quot;looks like&quot; is defined by regular expressions:
+The &quot;looks like&quot; rule is defined by regular expressions:
 
 </P>
 <P>
@@ -831,7 +917,7 @@ The general rule is that if it looks like a <EM>something</EM> then a <EM>someth
 
 </P>
 <P>
-<CODE>write_url()</CODE> if <CODE>$token</CODE> is a http, ftp or mailto URL based on the following regexes: <CODE>$token =~ m|^[fh]tt?p://|</CODE> or  <CODE>$token =~ m|^mailto:|</CODE>.
+<CODE>write_url()</CODE> if <CODE>$token</CODE> is a http, https, ftp or mailto URL based on the following regexes: <CODE>$token =~ m|^[fh]tt?ps?://|</CODE> or  <CODE>$token =~ m|^mailto:|</CODE>.
 
 </P>
 <P>
@@ -887,20 +973,20 @@ string:
 </P>
 <P>
 <PRE>
-    # Write as a number (1209)
+    # Write as a number: 1209
     $worksheet-&gt;write('A1', '01209');
 </PRE>
 </P>
 <P>
 <PRE>
-    # Format as a number (01209)
+    # Format as a number: 01209
     my $format1 = $workbook-&gt;addformat(num_format =&gt; '00000');
     $worksheet-&gt;write('A2', '01209', $format1);
 </PRE>
 </P>
 <P>
 <PRE>
-    # Write as a string (01209)
+    # Write as a string: 01209
     $worksheet-&gt;write_string('A3', '01209');
 </PRE>
 </P>
@@ -911,7 +997,7 @@ back to a number. To get around this you can use the Excel text format <CODE>@</
 </P>
 <P>
 <PRE>
-    # Format as a string (01209)
+    # Format as a string: 01209
     my $format2 = $workbook-&gt;addformat(num_format =&gt; '@');
     $worksheet-&gt;write_string('A4', '01209', $format2);
 </PRE>
@@ -999,6 +1085,12 @@ See also the note about <A HREF="#Cell_notation">Cell notation</A>.
 
 </P>
 <P>
+The 255 character limit will be removed when the module moves to the Excel
+97+ format. In the meantime, you can work around this limit using a
+formula. See the <CODE>long_string.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
+
+</P>
+<P>
 <HR>
 <H2><A NAME="write_formula_row_column_fo">write_formula($row, $column, $formula, $format)</A></H2>
 <P>
@@ -1066,7 +1158,7 @@ without special treatment for undef or empty string values.
 
 </P>
 <P>
-See the note about <A HREF="#Cell_notation">Cell notation</A>. 
+See the note about <A HREF="#Cell_notation">Cell notation</A>.
 
 </P>
 <P>
@@ -1083,9 +1175,15 @@ array itself. The <CODE>write()</CODE> method is then called for each element of
 <PRE>
     @array      = ('awk', 'gawk', 'mawk');
     $array_ref  = \@array;
-    
+</PRE>
+</P>
+<P>
+<PRE>
     $worksheet-&gt;write_row(0, 0, $array_ref);
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # The above example is equivalent to:
     $worksheet-&gt;write(0, 0, $array[0]);
     $worksheet-&gt;write(0, 1, $array[1]);
@@ -1094,7 +1192,7 @@ array itself. The <CODE>write()</CODE> method is then called for each element of
 </P>
 <P>
 Note: For convenience the <CODE>write()</CODE> method behaves in the same way as <CODE>write_row()</CODE> if it is passed an array reference. Therefore the following two method
-calls are equivalent: 
+calls are equivalent:
 
 </P>
 <P>
@@ -1120,7 +1218,10 @@ you to write 2D arrays of data in one go. For example:
                 [13,       14,      15,      16     ],
                 ['shell',  'star',  'crab',  'stone']
             );
-    
+</PRE>
+</P>
+<P>
+<PRE>
     $worksheet-&gt;write_row('A1', \@eec);
 </PRE>
 </P>
@@ -1131,14 +1232,14 @@ Would produce a worksheet as follows:
 <P>
 <PRE>
      -----------------------------------------------------------
-    |   |    A    |    B    |    C    |    D    |    E    | ... 
+    |   |    A    |    B    |    C    |    D    |    E    | ...
      -----------------------------------------------------------
-    | 1 | maggie  | 13      | shell   | ...     |  ...    | ... 
-    | 2 | milly   | 14      | star    | ...     |  ...    | ... 
-    | 3 | molly   | 15      | crab    | ...     |  ...    | ... 
-    | 4 | may     | 16      | stone   | ...     |  ...    | ... 
-    | 5 | ...     | ...     | ...     | ...     |  ...    | ... 
-    | 6 | ...     | ...     | ...     | ...     |  ...    | ... 
+    | 1 | maggie  | 13      | shell   | ...     |  ...    | ...
+    | 2 | milly   | 14      | star    | ...     |  ...    | ...
+    | 3 | molly   | 15      | crab    | ...     |  ...    | ...
+    | 4 | may     | 16      | stone   | ...     |  ...    | ...
+    | 5 | ...     | ...     | ...     | ...     |  ...    | ...
+    | 6 | ...     | ...     | ...     | ...     |  ...    | ...
 </PRE>
 </P>
 <P>
@@ -1180,9 +1281,15 @@ array itself. The <CODE>write()</CODE> method is then called for each element of
 <PRE>
     @array      = ('awk', 'gawk', 'mawk');
     $array_ref  = \@array;
-    
+</PRE>
+</P>
+<P>
+<PRE>
     $worksheet-&gt;write_col(0, 0, $array_ref);
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # The above example is equivalent to:
     $worksheet-&gt;write(0, 0, $array[0]);
     $worksheet-&gt;write(1, 0, $array[1]);
@@ -1206,7 +1313,10 @@ to write 2D arrays of data in one go. For example:
                 [13,       14,      15,      16     ],
                 ['shell',  'star',  'crab',  'stone']
             );
-    
+</PRE>
+</P>
+<P>
+<PRE>
     $worksheet-&gt;write_col('A1', \@eec);
 </PRE>
 </P>
@@ -1217,14 +1327,14 @@ Would produce a worksheet as follows:
 <P>
 <PRE>
      -----------------------------------------------------------
-    |   |    A    |    B    |    C    |    D    |    E    | ... 
+    |   |    A    |    B    |    C    |    D    |    E    | ...
      -----------------------------------------------------------
-    | 1 | maggie  | milly   | molly   | may     |  ...    | ... 
-    | 2 | 13      | 14      | 15      | 16      |  ...    | ... 
-    | 3 | shell   | star    | crab    | stone   |  ...    | ... 
-    | 4 | ...     | ...     | ...     | ...     |  ...    | ... 
-    | 5 | ...     | ...     | ...     | ...     |  ...    | ... 
-    | 6 | ...     | ...     | ...     | ...     |  ...    | ... 
+    | 1 | maggie  | milly   | molly   | may     |  ...    | ...
+    | 2 | 13      | 14      | 15      | 16      |  ...    | ...
+    | 3 | shell   | star    | crab    | stone   |  ...    | ...
+    | 4 | ...     | ...     | ...     | ...     |  ...    | ...
+    | 5 | ...     | ...     | ...     | ...     |  ...    | ...
+    | 6 | ...     | ...     | ...     | ...     |  ...    | ...
 </PRE>
 </P>
 <P>
@@ -1239,7 +1349,7 @@ appropriate row or column value will still be incremented.
 </P>
 <P>
 As noted above the <CODE>write()</CODE> method can be used as a synonym for <CODE>write_row()</CODE> and <CODE>write_row()</CODE> handles nested array refs as columns. Therefore, the following two method
-calls are equivalent although the more explicit call to <CODE>write_col()</CODE> would be preferable for maintainability: 
+calls are equivalent although the more explicit call to <CODE>write_col()</CODE> would be preferable for maintainability:
 
 </P>
 <P>
@@ -1332,7 +1442,7 @@ you have a named range called <CODE>my_name</CODE> in the workbook <CODE>c:\temp
 </PRE>
 </P>
 <P>
-Note, you cannot currently create named ranges with <CODE>Spreadsheet::WriteExcel</CODE>. 
+Note, you cannot currently create named ranges with <CODE>Spreadsheet::WriteExcel</CODE>.
 
 </P>
 <P>
@@ -1399,7 +1509,7 @@ There is no way to force this behaviour through the <CODE>write()</CODE> method.
 </P>
 <P>
 The parameters <CODE>$string</CODE> and the <CODE>$format</CODE> are optional and their position is interchangeable. However, they are
-applied only to the first cell in the range. 
+applied only to the first cell in the range.
 
 </P>
 <P>
@@ -1456,7 +1566,7 @@ The pixels offsets can be calculated using the following relationships:
 </P>
 <P>
 <PRE>
-    Wp = 7We +5 
+    Wp = 7We +5
     Hp = 4/3He
 </PRE>
 </P>
@@ -1476,7 +1586,7 @@ The parameters <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> can be used to sc
 <P>
 <PRE>
     # Scale the inserted image: width x 2.0, height x 0.8
-    $worksheet-&gt;insert_bitmap('A1', 'perl.bmp', 0, 0, 2, 0.8); 
+    $worksheet-&gt;insert_bitmap('A1', 'perl.bmp', 0, 0, 2, 0.8);
 </PRE>
 </P>
 <P>
@@ -1619,17 +1729,29 @@ not the formula itself. In Excel a cell's locked property is on by default.
     # Set some format properties
     my $unlocked  = $workbook-&gt;addformat(locked =&gt; 0);
     my $hidden    = $workbook-&gt;addformat(hidden =&gt; 1);
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # Enable worksheet protection
     $worksheet-&gt;protect();
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # This cell cannot be edited, it is locked by default
     $worksheet-&gt;write('A1', '=1+2');
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # This cell can be edited
     $worksheet-&gt;write('A2', '=1+2', $unlocked);
-    
-    # The formula in this cell isn't visible 
+</PRE>
+</P>
+<P>
+<PRE>
+    # The formula in this cell isn't visible
     $worksheet-&gt;write('A3', '=1+2', $hidden);
 </PRE>
 </P>
@@ -1688,7 +1810,7 @@ The default cell selections is (0, 0), 'A1'.
 <HR>
 <H2><A NAME="set_row_row_height_format_">set_row($row, $height, $format)</A></H2>
 <P>
-This method can be used to specify the height of a row. The <CODE>$format</CODE> parameter is optional, for additional information, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>.
+This method can be used to specify the height and format of a row. The <CODE>$format</CODE> parameter is optional, for additional information, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>.
 
 </P>
 <P>
@@ -1706,26 +1828,30 @@ If you wish to set the format without changing the height you can pass <CODE>und
 </PRE>
 </P>
 <P>
-The <CODE>$format</CODE> parameter will only define a format if <CODE>set_row()</CODE> is called after the cells have been written:
+The <CODE>$format</CODE> parameter will be applied to any cells in the row that don't have a format.
+For example
 
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;write('A1', &quot;Hello&quot;);       # Formatted
-    $worksheet-&gt;set_row(0, undef, $format);
-    $worksheet-&gt;write('B1', &quot;Hello&quot;);       # Not formatted
+    $worksheet-&gt;set_row(0, undef, $format1);    # Set the format for row 1
+    $worksheet-&gt;write('A1', &quot;Hello&quot;);           # Defaults to $format1
+    $worksheet-&gt;write('B1', &quot;Hello&quot;, $format2); # Keeps $format2
 </PRE>
 </P>
 <P>
-This behaviour will be fixed in a future release.
+If you wish to define a row format in this way you should call the method
+before any calls to <CODE>write()</CODE>. If you call it afterwards it will overwrite any format that was
+previously specified.
 
 </P>
 <P>
 <HR>
 <H2><A NAME="set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden)</A></H2>
 <P>
-This method can be used to specify the width of a single column or a range
-of columns. If the method is applied to a single column the value of <CODE>$first_col</CODE> and <CODE>$last_col</CODE> should be the same. It is also possible to specify a column range using the
+This method can be used to specify the width and format of a single column
+or a range of columns. If the method is applied to a single column the
+value of <CODE>$first_col</CODE> and <CODE>$last_col</CODE> should be the same. It is also possible to specify a column range using the
 form of A1 notation used for columns. See the note about <A HREF="#Cell_notation">Cell notation</A>.
 
 </P>
@@ -1759,11 +1885,33 @@ The <CODE>$format</CODE> parameter is optional, for additional information, see 
 </PRE>
 </P>
 <P>
-The <CODE>$format</CODE> parameter will not set the format for individual cells written by
-Spreadsheet::WriteExcel, it only has an effect on cells written after the
-workbook is opened in Excel. This behaviour will be fixed in a future
-release.
+The <CODE>$format</CODE> parameter will be applied to any cells in the column that don't have a
+format. For example
 
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_column('A:A', undef, $format1); # Set the format for col 1
+    $worksheet-&gt;write('A1', &quot;Hello&quot;);               # Defaults to $format1
+    $worksheet-&gt;write('A2', &quot;Hello&quot;, $format2);     # Keeps $format2
+</PRE>
+</P>
+<P>
+If you wish to define a column format in this way you should call the
+method before any calls to <CODE>write()</CODE>. If you call it afterwards it won't have any effect.
+
+</P>
+<P>
+A default row format takes precedence over a default column format
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_row(0, undef,        $format1); # Set the format for row 1
+    $worksheet-&gt;set_column('A:A', undef, $format2); # Set the format for col 1
+    $worksheet-&gt;write('A1', &quot;Hello&quot;);               # Defaults to $format1
+    $worksheet-&gt;write('A2', &quot;Hello&quot;);               # Defaults to $format2
+</PRE>
 </P>
 <P>
 The <CODE>$hidden</CODE> parameter is optional. It should be set to 1 if you wish to hide a column.
@@ -1797,7 +1945,7 @@ this is not the case.
 </P>
 <P>
 You can set one of the <CODE>$row</CODE> and <CODE>$col</CODE> parameters as zero if you do not want either a vertical or horizontal
-split. 
+split.
 
 </P>
 <P>
@@ -1827,7 +1975,6 @@ the first row and to have the scrolling region begin at row twenty:
 </P>
 <P>
 You cannot use A1 notation for the <CODE>$top_row</CODE> and <CODE>$left_col</CODE> parameters.
-    
 
 </P>
 <P>
@@ -1885,7 +2032,11 @@ additionally specify the cells to be merged via the <CODE>merge_cells()</CODE> m
 
 </P>
 <P>
-The main use of the <CODE>merge_cells()</CODE> method is to merge cells vertically. The <CODE>merge_cells()</CODE> method can also be used to merge cells that contain hyperlinks although
+The main use of the <CODE>merge_cells()</CODE> method is to merge cells vertically.
+
+</P>
+<P>
+The <CODE>merge_cells()</CODE> method can also be used to merge cells that contain hyperlinks although
 this can also be achieved via the <CODE>write_url_range()</CODE> method.
 
 </P>
@@ -2071,7 +2222,7 @@ printer supports. Therefore, it is best to stick to standard paper types.
 </P>
 <P>
 If you do not specify a paper type the worksheet will print using the
-printer's default paper. 
+printer's default paper.
 
 </P>
 <P>
@@ -2122,7 +2273,7 @@ the printed page:
 <P>
 All of these methods take a distance in inches as a parameter. Note: 1 inch
 = 25.4mm. ;-) The default left and right margin is 0.75 inch. The default
-top and bottom margin is 1.00 inch. 
+top and bottom margin is 1.00 inch.
 
 </P>
 <P>
@@ -2143,14 +2294,20 @@ The available control character are:
     &amp;L                  Justification       Left
     &amp;C                                      Center
     &amp;R                                      Right
-    
+</PRE>
+</P>
+<P>
+<PRE>
     &amp;P                  Information         Page number
     &amp;N                                      Total number of pages
     &amp;D                                      Date
     &amp;T                                      Time
     &amp;F                                      File name
     &amp;A                                      Worksheet name
-    
+</PRE>
+</P>
+<P>
+<PRE>
     &amp;fontsize           Font                Font size
     &amp;&quot;font,style&quot;                           Font name and style
     &amp;U                                      Single underline
@@ -2158,7 +2315,10 @@ The available control character are:
     &amp;S                                      Strikethrough
     &amp;X                                      Superscript
     &amp;Y                                      Subscript
-    
+</PRE>
+</P>
+<P>
+<PRE>
     &amp;&amp;                  Miscellaneous       Literal ampersand &amp;
 </PRE>
 </P>
@@ -2174,59 +2334,75 @@ For example (with ASCII art representation of the results):
 <P>
 <PRE>
     $worksheet-&gt;set_header('&amp;LHello');
-    
+</PRE>
+</P>
+<P>
+<PRE>
      ---------------------------------------------------------------
     |                                                               |
     | Hello                                                         |
     |                                                               |
-    
-    
+</PRE>
+</P>
+<P>
+<PRE>
     $worksheet-&gt;set_header('&amp;CHello');
-    
+</PRE>
+</P>
+<P>
+<PRE>
      ---------------------------------------------------------------
     |                                                               |
     |                          Hello                                |
     |                                                               |
-    
-    
+</PRE>
+</P>
+<P>
+<PRE>
     $worksheet-&gt;set_header('&amp;RHello');
-    
+</PRE>
+</P>
+<P>
+<PRE>
      ---------------------------------------------------------------
     |                                                               |
     |                                                         Hello |
     |                                                               |
-    
 </PRE>
 </P>
 <P>
 For simple text, if you do not specify any justification the text will be
-centred. However, you must prefix the text with <CODE>&amp;C</CODE> if you specify a font name:
+centred. However, you must prefix the text with <CODE>&amp;C</CODE> if you specify a font name or any other formatting:
 
 </P>
 <P>
 <PRE>
     $worksheet-&gt;set_header('Hello');
-    
+</PRE>
+</P>
+<P>
+<PRE>
      ---------------------------------------------------------------
     |                                                               |
     |                          Hello                                |
     |                                                               |
-    
 </PRE>
 </P>
 <P>
-You can also have text in each of the justification regions:
+You can have text in each of the justification regions:
 
 </P>
 <P>
 <PRE>
     $worksheet-&gt;set_header('&amp;LCiao&amp;CBello&amp;RCielo');
-    
+</PRE>
+</P>
+<P>
+<PRE>
      ---------------------------------------------------------------
     |                                                               |
     | Ciao                     Bello                          Cielo |
     |                                                               |
-    
 </PRE>
 </P>
 <P>
@@ -2238,20 +2414,27 @@ default format:
 <P>
 <PRE>
     $worksheet-&gt;set_header('&amp;CPage &amp;P of &amp;N');
-    
+</PRE>
+</P>
+<P>
+<PRE>
      ---------------------------------------------------------------
     |                                                               |
     |                        Page 1 of 6                            |
     |                                                               |
-    
-    
+</PRE>
+</P>
+<P>
+<PRE>
     $worksheet-&gt;set_header('&amp;CUpdated at &amp;T');
-    
+</PRE>
+</P>
+<P>
+<PRE>
      ---------------------------------------------------------------
     |                                                               |
     |                    Updated at 12:30 PM                        |
     |                                                               |
-    
 </PRE>
 </P>
 <P>
@@ -2326,14 +2509,14 @@ longer than this will not be written and a warning will be generated.
 
 </P>
 <P>
-See, also the <CODE>headers.pl</CODE> program in the <CODE>examples</CODE> directory of the distribution. 
+See, also the <CODE>headers.pl</CODE> program in the <CODE>examples</CODE> directory of the distribution.
 
 </P>
 <P>
 <HR>
 <H2><A NAME="set_footer_">set_footer()</A></H2>
 <P>
-The syntax of the <CODE>set_footer()</CODE> method is the same as the <CODE>set_header()</CODE>, see above.
+The syntax of the <CODE>set_footer()</CODE> method is the same as <CODE>set_header()</CODE>, see above.
 
 </P>
 <P>
@@ -2379,21 +2562,34 @@ specify the columns using A1 column notation, see the note about <A HREF="#Cell_
 </P>
 <P>
 <HR>
-<H2><A NAME="hide_gridlines_">hide_gridlines()</A></H2>
+<H2><A NAME="hide_gridlines_option_">hide_gridlines($option)</A></H2>
 <P>
-This method is used to hide the gridlines on a printed page. 
-
-</P>
-<P>
-Gridlines are the lines that divide the cells on a worksheet. Printed
-gridlines are turned on by default. If you have defined your own cell
-borders you may wish to hide the gridlines on the printed page.
+This method is used to hide the gridlines on the screen and printed page.
+Gridlines are the lines that divide the cells on a worksheet. Screen and
+printed gridlines are turned on by default in an Excel worksheet. If you
+have defined your own cell borders you may wish to hide the default
+gridlines.
 
 </P>
 <P>
 <PRE>
     $worksheet-&gt;hide_gridlines();
 </PRE>
+</P>
+<P>
+The following values of <CODE>$option</CODE> are valid:
+
+</P>
+<P>
+<PRE>
+    0 : Don't hide gridlines
+    1 : Hide printed gridlines only
+    2 : Hide screen and printed gridlines
+</PRE>
+</P>
+<P>
+If you don't supply an argument or use <CODE>undef</CODE> the default option is 1, i.e. only the printed gridlines are hidden.
+
 </P>
 <P>
 <HR>
@@ -2409,20 +2605,20 @@ An Excel worksheet looks something like the following;
 <P>
 <PRE>
      ------------------------------------------
-    |   |   A   |   B   |   C   |   D   |  ... 
+    |   |   A   |   B   |   C   |   D   |  ...
      ------------------------------------------
-    | 1 |       |       |       |       |  ... 
-    | 2 |       |       |       |       |  ... 
-    | 3 |       |       |       |       |  ... 
-    | 4 |       |       |       |       |  ... 
-    |...|  ...  |  ...  |  ...  |  ...  |  ... 
+    | 1 |       |       |       |       |  ...
+    | 2 |       |       |       |       |  ...
+    | 3 |       |       |       |       |  ...
+    | 4 |       |       |       |       |  ...
+    |...|  ...  |  ...  |  ...  |  ...  |  ...
 </PRE>
 </P>
 <P>
 The headers are the letters and numbers at the top and the left of the
 worksheet. Since these headers serve mainly as a indication of position on
 the worksheet they generally do not appear on the printed page. If you wish
-to have them printed you can use the <CODE>print_row_col_headers()</CODE> method : 
+to have them printed you can use the <CODE>print_row_col_headers()</CODE> method :
 
 </P>
 <P>
@@ -2468,19 +2664,18 @@ the page size or margins change.
 </PRE>
 </P>
 <P>
-The print area can be defined using the <CODE>print_area()</CODE> method as described above. 
+The print area can be defined using the <CODE>print_area()</CODE> method as described above.
 
 </P>
 <P>
-A common requirement is to fit the printed output to &quot;n&quot; pages
-wide but have the height be as long as necessary. To achieve this set the <CODE>$height</CODE> to zero or leave it blank:
+A common requirement is to fit the printed output to <EM>n</EM> pages wide but have the height be as long as necessary. To achieve this set
+the <CODE>$height</CODE> to zero or leave it blank:
 
 </P>
 <P>
 <PRE>
     $worksheet1-&gt;fit_to_pages(1, 0); # 1 page wide and as long as necessary
     $worksheet2-&gt;fit_to_pages(1);    # The same
-    
 </PRE>
 </P>
 <P>
@@ -2640,12 +2835,6 @@ Formats can also be passed to the worksheet <CODE>set_row()</CODE> and <CODE>set
 </PRE>
 </P>
 <P>
-However, the <CODE>set_row()</CODE> and <CODE>set_column()</CODE> methods will not set the format for individual cells written by WriteExcel,
-they only have an effect on cells written after the workbook is opened in
-Excel.
-
-</P>
-<P>
 <HR>
 <H2><A NAME="Format_methods_and_Format_proper">Format methods and Format properties</A></H2>
 <P>
@@ -2655,45 +2844,60 @@ properties that can be applied and the equivalent object method:
 </P>
 <P>
 <PRE>
-    Category   Description       Property        Method Name         
-    --------   -----------       --------        -----------         
-    Font       Font type         font            set_font()          
-               Font size         size            set_size()          
-               Font color        color           set_color()         
-               Bold              bold            set_bold()          
-               Italic            italic          set_italic()        
-               Underline         underline       set_underline()     
+    Category   Description       Property        Method Name
+    --------   -----------       --------        -----------
+    Font       Font type         font            set_font()
+               Font size         size            set_size()
+               Font color        color           set_color()
+               Bold              bold            set_bold()
+               Italic            italic          set_italic()
+               Underline         underline       set_underline()
                Strikeout         font_strikeout  set_font_strikeout()
-               Super/Subscript   font_script     set_font_script()   
-               Outline           font_outline    set_font_outline()  
-               Shadow            font_shadow     set_font_shadow()   
-                                                                     
-    Number     Numeric format    num_format      set_num_format()    
-                                                                     
-    Protection Lock cells        locked          set_locked()    
-               Hide formulas     hidden          set_hidden()    
-                                                                     
-    Alignment  Horizontal align  align           set_align()         
-               Vertical align    valign          set_align()         
-               Rotation          rotation        set_rotation()      
-               Text wrap         text_wrap       set_text_wrap()     
-               Justify last      text_justlast   set_text_justlast() 
-               Merge             merge           set_merge()         
-                                                                     
-    Pattern    Cell pattern      pattern         set_pattern()       
-               Background color  bg_color        set_bg_color()      
-               Foreground color  fg_color        set_fg_color()      
-                                                                     
-    Border     Cell border       border          set_border()        
-               Bottom border     bottom          set_bottom()        
-               Top border        top             set_top()           
-               Left border       left            set_left()          
-               Right border      right           set_right()         
-               Border color      border_color    set_border_color()  
-               Bottom color      bottom_color    set_bottom_color()  
-               Top color         top_color       set_top_color()     
-               Left color        left_color      set_left_color()    
-               Right color       right_color     set_right_color()   
+               Super/Subscript   font_script     set_font_script()
+               Outline           font_outline    set_font_outline()
+               Shadow            font_shadow     set_font_shadow()
+</PRE>
+</P>
+<P>
+<PRE>
+    Number     Numeric format    num_format      set_num_format()
+</PRE>
+</P>
+<P>
+<PRE>
+    Protection Lock cells        locked          set_locked()
+               Hide formulas     hidden          set_hidden()
+</PRE>
+</P>
+<P>
+<PRE>
+    Alignment  Horizontal align  align           set_align()
+               Vertical align    valign          set_align()
+               Rotation          rotation        set_rotation()
+               Text wrap         text_wrap       set_text_wrap()
+               Justify last      text_justlast   set_text_justlast()
+               Merge             merge           set_merge()
+</PRE>
+</P>
+<P>
+<PRE>
+    Pattern    Cell pattern      pattern         set_pattern()
+               Background color  bg_color        set_bg_color()
+               Foreground color  fg_color        set_fg_color()
+</PRE>
+</P>
+<P>
+<PRE>
+    Border     Cell border       border          set_border()
+               Bottom border     bottom          set_bottom()
+               Top border        top             set_top()
+               Left border       left            set_left()
+               Right border      right           set_right()
+               Border color      border_color    set_border_color()
+               Bottom color      bottom_color    set_bottom_color()
+               Top color         top_color       set_top_color()
+               Left color        left_color      set_left_color()
+               Right color       right_color     set_right_color()
 </PRE>
 </P>
 <P>
@@ -2815,7 +3019,7 @@ define your formatting and have <CODE>lecxe</CODE> do the hard work for you.
 <HR>
 <H2><A NAME="Working_with_formats">Working with formats</A></H2>
 <P>
-The default format is Arial 10 with all other properties off. 
+The default format is Arial 10 with all other properties off.
 
 </P>
 <P>
@@ -2870,38 +3074,38 @@ The following Format methods are available:
 </P>
 <P>
 <PRE>
-    set_font()          
-    set_size()          
-    set_color()         
-    set_bold()          
-    set_italic()        
-    set_underline()     
+    set_font()
+    set_size()
+    set_color()
+    set_bold()
+    set_italic()
+    set_underline()
     set_font_strikeout()
-    set_font_script()   
-    set_font_outline()  
-    set_font_shadow()   
+    set_font_script()
+    set_font_outline()
+    set_font_shadow()
     set_num_format()
     set_locked()
     set_hidden()
-    set_align()         
-    set_align()         
-    set_rotation()      
-    set_text_wrap()     
-    set_text_justlast() 
-    set_merge()         
-    set_pattern()       
-    set_bg_color()      
-    set_fg_color()      
-    set_border()        
-    set_bottom()        
-    set_top()           
-    set_left()          
-    set_right()         
-    set_border_color()  
-    set_bottom_color()  
-    set_top_color()     
-    set_left_color()    
-    set_right_color()   
+    set_align()
+    set_align()
+    set_rotation()
+    set_text_wrap()
+    set_text_justlast()
+    set_merge()
+    set_pattern()
+    set_bg_color()
+    set_fg_color()
+    set_border()
+    set_bottom()
+    set_top()
+    set_left()
+    set_right()
+    set_border_color()
+    set_bottom_color()
+    set_top_color()
+    set_left_color()
+    set_right_color()
 </PRE>
 </P>
 <P>
@@ -3292,7 +3496,7 @@ numbers.
 </PRE>
 </P>
 <P>
-The number system used for dates is described in <A HREF="#Dates_in_Excel">Dates in Excel</A>. 
+The number system used for dates is described in <A HREF="#Dates_in_Excel">Dates in Excel</A>.
 
 </P>
 <P>
@@ -3411,16 +3615,28 @@ worksheet <CODE>protect()</CODE> method.
 <PRE>
     my $locked  = $workbook-&gt;addformat();
     $locked-&gt;set_locked(1); # A non-op
-    
+</PRE>
+</P>
+<P>
+<PRE>
     my $unlocked = $workbook-&gt;addformat();
     $locked-&gt;set_locked(0);
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # Enable worksheet protection
     $worksheet-&gt;protect();
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # This cell cannot be edited.
     $worksheet-&gt;write('A1', '=1+2', $locked);
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # This cell can be edited.
     $worksheet-&gt;write('A2', '=1+2', $unlocked);
 </PRE>
@@ -3451,11 +3667,17 @@ been protected, see the worksheet <CODE>protect()</CODE> method.
 <PRE>
     my $hidden = $workbook-&gt;addformat();
     $hidden-&gt;set_hidden();
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # Enable worksheet protection
     $worksheet-&gt;protect();
-    
-    # The formula in this cell isn't visible 
+</PRE>
+</P>
+<P>
+<PRE>
+    # The formula in this cell isn't visible
     $worksheet-&gt;write('A1', '=1+2', $hidden);
 </PRE>
 </P>
@@ -3770,7 +3992,7 @@ as a simple alias for the colour index:
 </P>
 <P>
 <PRE>
-    black     =&gt;    8 
+    black     =&gt;    8
     blue      =&gt;   12
     brown     =&gt;   16
     cyan      =&gt;   15
@@ -3783,7 +4005,7 @@ as a simple alias for the colour index:
     purple    =&gt;   20
     red       =&gt;   10
     silver    =&gt;   22
-    white     =&gt;    9 
+    white     =&gt;    9
     yellow    =&gt;   13
 </PRE>
 </P>
@@ -3902,7 +4124,7 @@ erroneously but deliberately treated as a leap year. Therefore you must add
 an extra day to dates after 28 February 1900. The reason for this anomaly
 is explained at <A
 HREF="http://support.microsoft.com/support/kb/articles/Q181/3/70.asp">http://support.microsoft.com/support/kb/articles/Q181/3/70.asp</A>
- 
+
 
 </P>
 <P>
@@ -3936,7 +4158,7 @@ above.
 </P>
 <P>
 The date and time functions are based on functions provided by the <CODE>Date::Calc</CODE> and <CODE>Date::Manip</CODE> modules. These modules are very useful if you plan to manipulate dates in
-different formats. 
+different formats.
 
 </P>
 <P>
@@ -4014,7 +4236,10 @@ with A1 notation, for example:
 <P>
 <PRE>
     use Spreadsheet::WriteExcel::Utility;
-    
+</PRE>
+</P>
+<P>
+<PRE>
     ($row, $col) = xl_cell_to_rowcol('C2');  # (1, 2)
     $str         = xl_rowcol_to_cell(1, 2);  # C2
 </PRE>
@@ -4664,9 +4889,10 @@ features and options of the module.
     headers.pl          Examples of worksheet headers and footers.
     write_array.pl      Example of writing 1D or 2D arrays of data.
     chess.pl            An example of formatting using properties.
-    colors.pl            Demo of the colour palette and named colours.
+    colors.pl           Demo of the colour palette and named colours.
     images.pl           Adding bitmap images to worksheets.
     stats_ext.pl        Same as stats.pl with external references.
+    long_string.pl      Workaround long string limitation with a formula.
     cgi.pl              A simple CGI program.
     mod_perl.pl         A simple mod_perl program.
     hyperlink1.pl       Shows how to create web hyperlinks.
@@ -4740,6 +4966,12 @@ Note: the maximum row reference in a formula is the Excel 5 row limit of
 
 </P>
 <P>
+The 255 character limit will be removed when the module moves to the Excel
+97+ format. In the meantime, you can work around this limit using a
+formula. See the <CODE>long_string.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
+
+</P>
+<P>
 The minimum file size is 6K due to the OLE overhead. The maximum file size
 is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by
 using Takanori Kawai's OLE::Storage_Lite module <A
@@ -4751,10 +4983,15 @@ see the <CODE>bigfile.pl</CODE> example in the <CODE>examples</CODE> directory o
 <HR>
 <H1><A NAME="REQUIREMENTS">REQUIREMENTS</A></H1>
 <P>
-This module requires Perl 5.005 (or later) and Parse::RecDescent: <A
-HREF="http://search.cpan.org/search?dist=Parse-RecDescent">http://search.cpan.org/search?dist=Parse-RecDescent</A>
+This module requires Perl 5.005 (or later), Parse::RecDescent and
+File::Temp:
 
-
+</P>
+<P>
+<PRE>
+    <A HREF="http://search.cpan.org/search?dist=Parse-RecDescent">http://search.cpan.org/search?dist=Parse-RecDescent</A>
+    <A HREF="http://search.cpan.org/search?dist=File-Temp">http://search.cpan.org/search?dist=File-Temp</A>
+</PRE>
 </P>
 <P>
 <HR>
@@ -4803,12 +5040,13 @@ The file cannot be opened for writing. The directory that you are writing
 to may be protected or the file may be in use by another program.
 
 </P>
-<DT><A NAME="item_Unable">Unable to create tmp files via IO::File-&gt;new_tmpfile().</A><DD>
+<DT><A NAME="item_Unable">Unable to create tmp files via File::Temp::tempfile()...</A><DD>
 <P>
 This is a <CODE>-w</CODE> warning. You will see it if you are using Spreadsheet::WriteExcel in an
 environment where temporary files cannot be created, in which case all data
 will be stored in memory. The warning is for information only: it does not
-affect execution but it may affect the speed of execution for large files.
+affect creation but it will affect the speed of execution for large files.
+See the <CODE>set_tempdir</CODE> workbook method.
 
 </P>
 <DT><A NAME="item_Maximum">Maximum file size, 7087104, exceeded.</A><DD>
@@ -4828,7 +5066,8 @@ HREF="http://search.cpan.org/search?dist=Parse-RecDescent">http://search.cpan.or
 <DT><A NAME="item_Couldn">Couldn't parse formula ...</A><DD>
 <P>
 There are a large number of warnings which relate to badly formed formulas
-and functions. See the <A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A> section for suggestions on how to avoid these errors.
+and functions. See the <A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A> section for suggestions on how to avoid these errors. You should also check
+the formula in Excel to ensure that it is valid.
 
 </P>
 <DT><A NAME="item_Required">Required floating point format not supported on this platform.</A><DD>
@@ -5027,7 +5266,7 @@ HREF="http://search.cpan.org/search?dist=Spreadsheet-ParseExcel">http://search.c
 Spreadsheet::ParseExcel's interface but uses xlHtml (see below) to do the
 conversion: <A
 HREF="http://search.cpan.org/search?dist=Spreadsheet-ParseExcel_XLHTML">http://search.cpan.org/search?dist=Spreadsheet-ParseExcel_XLHTML</A>
-Spreadsheet::ParseExcel_XLHTML 
+Spreadsheet::ParseExcel_XLHTML
 
 </P>
 <P>
@@ -5035,7 +5274,7 @@ Spreadsheet::ParseExcel_XLHTML
 HTML Converter&quot; project at <A
 HREF="http://www.xlhtml.org/">http://www.xlhtml.org/</A> and the OLE
 Filters Project at <A
-HREF="http://atena.com/libole2.php.">http://atena.com/libole2.php.</A> 
+HREF="http://atena.com/libole2.php.">http://atena.com/libole2.php.</A>
 
 </P>
 <P>
@@ -5063,7 +5302,7 @@ HREF="http://search.cpan.org/search?dist=HTML-TableExtract">http://search.cpan.o
 <P>
 * XML::Excel converts Excel files to XML using Spreadsheet::ParseExcel <A
 HREF="http://search.cpan.org/search?dist=XML-Excel.">http://search.cpan.org/search?dist=XML-Excel.</A>
- 
+
 
 </P>
 <P>
@@ -5141,7 +5380,6 @@ The roadmap is as follows:
 </P>
 <UL>
 <LI><A NAME="item_Add">Add formula caching to speed up the writing of formulas.</A>
-<LI><A NAME="item_Add">Add a user definable temp file directory for IIS users.</A>
 <LI><A NAME="item_Move">Move to Excel97/2000 format as standard. This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. This is a priority feature.</A>
 </UL>
 <P>
@@ -5166,7 +5404,8 @@ added:
 </UL>
 <P>
 If there is some feature of an Excel file that you really, really need then
-you should use Win32::OLE with Excel on Windows.
+you should use Win32::OLE with Excel on Windows. If you are on Unix you
+could consider connecting to a Windows server via Docserver <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A> or SOAP.
 
 </P>
 <P>
@@ -5245,9 +5484,9 @@ The following people contributed code, examples or Excel information:
 
 </P>
 <P>
-Andrew Benham, Bill Young, Cedric Bouvier, Daniel Rentz, Ian Penman,
-Pierre-Jean Vouette, Marco Geri, Sam Kington, Takanori Kawai, Tom
-O'Sullivan.
+Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz,
+Ian Penman, Pierre-Jean Vouette, Marco Geri, Sam Kington, Takanori Kawai,
+Tom O'Sullivan.
 
 </P>
 <P>
@@ -5264,6 +5503,10 @@ Thanks to Damian Conway for the excellent Parse::RecDescent.
 
 </P>
 <P>
+Thanks to Tim Jenness for the File::Temp.
+
+</P>
+<P>
 Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 </P>
@@ -5276,16 +5519,22 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Had I the heavens' embroidered cloths,
-    Enwrought with golden and silver light,
-    The blue and the dim and the dark cloths
-    Of night and light and the half-light,
-    I would spread the cloths under your feet:
-    But I, being poor, have only my dreams;
-    I have spread my dreams under your feet;
-    Tread softly because you tread on my dreams. 
-    
-        -- W. B. Yeats
+    got me a movie
+    i want you to know
+    slicing up eyeballs
+    i want you to know
+    girlie so groovie
+    i want you to know
+    don't know about you
+    but i am un chien andalusia
+    wanna grow
+    up to be
+    be a debaser
+</PRE>
+</P>
+<P>
+<PRE>
+        -- Black Francis
 </PRE>
 </P>
 <P>

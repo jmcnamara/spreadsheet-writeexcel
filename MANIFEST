@@ -63,6 +63,7 @@ WriteExcel/examples/hyperlink1.pl
 WriteExcel/examples/hyperlink2.pl
 WriteExcel/examples/images.pl
 WriteExcel/examples/lecxe.pl
+WriteExcel/examples/long_string.pl
 WriteExcel/examples/merge1.pl
 WriteExcel/examples/merge2.pl
 WriteExcel/examples/merge3.pl

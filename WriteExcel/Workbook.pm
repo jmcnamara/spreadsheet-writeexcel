@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.13';
+$VERSION = '0.14';
 
 ###############################################################################
 #
@@ -42,6 +42,7 @@ sub new {
 
     $self->{_filename}          = $_[0] || '';
     $self->{_parser}            = $parser;
+    $self->{_tempdir}           = undef;
     $self->{_1904}              = 0;
     $self->{_activesheet}       = 0;
     $self->{_firstsheet}        = 0;
@@ -82,8 +83,8 @@ sub new {
         };
         close TMP;
     }
-    # Warn if tmpfiles can't be used.
-    $self->_tmpfile_warning();
+
+    # Set colour palette.
     $self->set_palette_xl97();
 
     return $self;
@@ -189,6 +190,7 @@ sub addworksheet {
                         \$self->{_firstsheet},
                         $self->{_url_format},
                         $self->{_parser},
+                        $self->{_tempdir},
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
@@ -261,7 +263,7 @@ sub get_1904 {
 sub set_custom_color {
 
     my $self    = shift;
-    
+
 
     # Match a HTML #xxyyzz style parameter
     if (defined $_[1] and $_[1] =~ /^#(\w\w)(\w\w)(\w\w)/ ) {
@@ -285,17 +287,17 @@ sub set_custom_color {
     # Check that the colour components are in the right range
     if ( ($red   < 0 or $red   > 255) ||
          ($green < 0 or $green > 255) ||
-         ($blue  < 0 or $blue  > 255) )  
+         ($blue  < 0 or $blue  > 255) )
     {
         carp "Color component outside range: 0 <= color <= 255";
         return 0;
     }
 
     $index -=8; # Adjust colour index (wingless dragonfly)
-    
+
     # Set the RGB value
     $$aref[$index] = [$red, $green, $blue, 0];
-    
+
     return $index +8;
 }
 
@@ -448,20 +450,18 @@ sub set_palette_xl5 {
 
 ###############################################################################
 #
-# _tmpfile_warning()
+# set_tempdir()
 #
-# Check that tmp files can be created for use in Worksheet.pm. A CGI, mod_perl
-# or IIS might not have permission to create tmp files. The test is here rather
-# than in Worksheet.pm so that only one warning is given.
+# Change the default temp directory used by _initialize() in Worksheet.pm.
 #
-sub _tmpfile_warning {
+sub set_tempdir {
 
-    my $fh = IO::File->new_tmpfile();
+    my $self = shift;
 
-    if ((not defined $fh) && ($^W)) {
-        carp("Unable to create tmp files via IO::File->new_tmpfile(). " .
-             "Storing data in memory")
-    }
+    croak "$_[0] is not a valid directory"                 unless -d $_[0];
+    croak "set_tempdir must be called before addworksheet" if $self->sheets();
+
+    $self->{_tempdir} = $_[0];
 }
 
 
