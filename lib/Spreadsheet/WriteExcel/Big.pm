@@ -1,6 +1,5 @@
 package Spreadsheet::WriteExcel::Big;
 
-
 ###############################################################################
 #
 # WriteExcel::Big
@@ -23,7 +22,7 @@ use Spreadsheet::WriteExcel::WorkbookBig;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::WorkbookBig Exporter);
 
-$VERSION = '1.01'; # May 2000
+$VERSION = '0.32'; # May 2000
 
 ###############################################################################
 #

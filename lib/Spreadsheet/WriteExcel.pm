@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '1.01'; # Via con me (bis)
+$VERSION = '2.01'; # Begin again with Berryman
 
 
 
@@ -60,12 +60,9 @@ __END__
 
 Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
-
-
-
 =head1 VERSION
 
-This document refers to version 1.01 of Spreadsheet::WriteExcel, released May 24, 2004.
+This document refers to version 2.01 of Spreadsheet::WriteExcel, released May 27, 2004.
 
 
 
@@ -104,7 +101,7 @@ To write a string, a formatted string, a number and a formula to the first works
 
 The Spreadsheet::WriteExcel module can be used to create a cross-platform Excel binary file. Multiple worksheets can be added to a workbook and formatting can be applied to cells. Text, numbers, formulas, hyperlinks and images can be written to the cells.
 
-The Excel file produced by this module is compatible with Excel 5, 95, 97, 2000 and 2002.
+The Excel file produced by this module is compatible with 97, 2000, 2002 and 2003.
 
 The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.
 
@@ -148,7 +145,6 @@ The Spreadsheet::WriteExcel module provides an object oriented interface to a ne
     add_worksheet()
     add_format()
     set_custom_color()
-    set_palette_xl5()
     sheets()
     set_1904()
     set_codepage()
@@ -173,7 +169,7 @@ Here are some other examples of using C<new()> with filenames:
     my $workbook3 = Spreadsheet::WriteExcel->new("c:\\tmp\\filename.xls");
     my $workbook4 = Spreadsheet::WriteExcel->new('c:\tmp\filename.xls');
 
-The last two examples demonstrates how to create a file on DOS or Windows where it is necessary to either escape the directory separator C<\> or to use single quotes to ensure that it isn't interpolated. For more information see C<perlfaq5: Why can't I use "C:\temp\foo" in DOS paths?>.
+The last two examples demonstrates how to create a file on DOS or Windows where it is necessary to either escape the directory separator C<\> or to use single quotes to ensure that it isn't interpolated. For more information  see C<perlfaq5: Why can't I use "C:\temp\foo" in DOS paths?>.
 
 The C<new()> constructor returns a Spreadsheet::WriteExcel object that you can use to add worksheets and store data. It should be noted that although C<my> is not specifically required it defines the scope of the new workbook variable and, in the majority of cases, ensures that the workbook is closed properly without explicitly calling the C<close()> method.
 
@@ -296,8 +292,6 @@ If C<$sheetname> is not specified the default Excel convention will be followed,
 
 The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<: * ? / \> and it must be less than 32 characters. In addition, you cannot use the same C<$sheetname> for more than one worksheet.
 
-This method was previously called C<addworksheet()>. The old method name is still supported but deprecated.
-
 
 
 
@@ -309,8 +303,6 @@ The C<add_format()> method can be used to create new Format objects which are us
     $format2 = $workbook->add_format();       # Set properties later
 
 See the L<CELL FORMATTING> section for more details about Format properties and how to set them.
-
-This method was previously called C<addformat()>. The old method name is still supported but deprecated.
 
 
 
@@ -358,22 +350,6 @@ The return value from C<set_custom_color()> is the index of the colour that was 
                                         pattern  => 1,
                                         border   => 1
                                       );
-
-
-
-
-=head2 set_palette_xl5()
-
-Prior to version 0.36, Spreadsheet::WriteExcel used the Excel 5 default colour palette. It was changed to the Excel 97+ palette for forward compatibility.
-
-However, if you have programs that rely on the colours and indices of the Excel 5 palette you can revert to the previous default by using the C<set_palette_xl5()> method:
-
-    $workbook->set_palette_xl5();
-
-
-A comparison of the colour components in the Excel 5 and Excel 97+ colour palettes is shown in C<rgb5-97.txt> in the C<doc> directory of the distro.
-
-See also L<COLOURS IN EXCEL>.
 
 
 
@@ -451,6 +427,8 @@ The following methods are available through a new worksheet:
     write()
     write_number()
     write_string()
+    write_unicode()
+    write_unicode_le()
     keep_leading_zeros()
     write_blank()
     write_row()
@@ -619,7 +597,9 @@ Write a string to the cell specified by C<$row> and C<$column>:
     $worksheet->write_string(0, 0, "Your text here" );
     $worksheet->write_string('A2', "or here" );
 
-The maximum string size is 255 characters. The C<$format> parameter is optional.
+The maximum string size is 32767 characters. However the maximum string segment that Excel can display in a cell is 1000. All 32767 characters can be displayed in the formula bar.
+
+The C<$format> parameter is optional.
 
 In general it is sufficient to use the C<write()> method. However, you may sometimes wish to use the C<write_string()> method to write data that looks like a number but that you don't want treated as a number. For example, zip codes or phone numbers:
 
@@ -634,7 +614,125 @@ However, if the user edits this string Excel may convert it back to a number. To
 
 See also the note about L<Cell notation>.
 
-The 255 character limit is removed in the 2.xx versions of this module which support the Excel 97+ format and 32k strings.
+
+
+
+=head2 write_unicode($row, $column, $string, $format)
+
+
+This method is used to write Unicode strings to a cell in Excel. It is functionally the same as the C<write_string()> method except that the string should be in Unicode format.
+
+The Unicode format required by Excel is UTF-16. No other Unicode format is supported by Excel.
+
+Additionally C<Spreadsheet::WriteExcel> requires that the 16-bit characters are in big-endian order. This is generally referred to as UTF-16BE. To write UTF-16 strings in little-endian format use the C<write_unicode_le()> method.
+
+
+The following is a simple example showing how to write some Unicode strings:
+
+    #!/usr/bin/perl -w
+
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+    use Unicode::Map();
+
+    my $workbook  = Spreadsheet::WriteExcel->new('unicode.xls');
+    my $worksheet = $workbook->addworksheet();
+
+    # Increase the column width for clarity
+    $worksheet->set_column('A:A', 25);
+
+
+    # Write a Unicode character
+    #
+    my $smiley = pack "n", 0x263a;
+
+    # Increase the font size for legibility.
+    my $big_font = $workbook->addformat(size => 72);
+
+    $worksheet->write_unicode('A3', $smiley, $big_font);
+
+
+
+    # Write a phrase in Cyrillic using a hex-encoded string
+    #
+    my $uni_str = pack "H*", "042d0442043e0020044404400430043704300020043d" .
+                             "043000200440044304410441043a043e043c0021";
+
+    $worksheet->write_unicode('A5', $uni_str);
+
+
+
+    # Map a string to UTF-16BE using an external module.
+    #
+    my $map   = Unicode::Map->new("ISO-8859-1");
+    my $utf16 = $map->to_unicode("Hello world!");
+
+    $worksheet->write_unicode('A7', $utf16);
+
+
+The following is an example of creating an Excel file with some Japanese text. You will need to have a Unicode font installed, such as C<Arial Unicode MS>, to view the results:
+
+
+    #!/usr/bin/perl -w
+
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+
+    my $workbook  = Spreadsheet::WriteExcel->new('unicode.xls');
+    my $worksheet = $workbook->addworksheet();
+
+
+    # It is only required to specify a Unicode font via addformat() if
+    # you are using Excel 97. For Excel 2000+ the text will display
+    # with the default font (if you have Unicode fonts installed).
+    #
+    my $uni_font  = $workbook->addformat(font => 'Arial Unicode MS');
+
+
+    my $kanji     = pack 'n*', 0x65e5, 0x672c;
+    my $katakana  = pack 'n*', 0xff86, 0xff8e, 0xff9d;
+    my $hiragana  = pack 'n*', 0x306b, 0x307b, 0x3093;
+
+
+    $worksheet->write_unicode('A1', $kanji,    $uni_font);
+    $worksheet->write_unicode('A2', $katakana, $uni_font);
+    $worksheet->write_unicode('A3', $hiragana, $uni_font);
+
+
+    $worksheet->write('B1', 'Kanji');
+    $worksheet->write('B2', 'Katakana');
+    $worksheet->write('B3', 'Hiragana');
+
+
+
+
+Note: UTF-8 data is not supported by Excel or Spreadsheet::WriteExcel. UTF-8 strings can be converted to the required UTF-16BE format using one of the many Unicode modules on CPAN. For example C<Unicode::Map> and C<Unicode::String>: http://search.cpan.org/author/MSCHWARTZ/Unicode-Map-0.112/Map.pm and http://search.cpan.org/author/GAAS/Unicode-String-2.06/String.pm
+
+For a full list of the Perl Unicode modules see: http://search.cpan.org/search?query=unicode&mode=all
+
+
+=head2 write_unicode_le($row, $column, $string, $format)
+
+This method is used to write Unicode strings to a cell in Excel.
+
+The string should be comprised of 16-bit characters in little-endian format. This is generally referred to as UTF-16LE.
+
+    my $smiley = pack "v", 0x263a;
+
+    $worksheet->write_unicode_le('A3', $smiley);
+
+
+UTF-16 data can be changed from little-endian to big-endian format (and vide-versa) as follows:
+
+    $utf16 = pack "n*", unpack "v*", $utf16;
+
+
+To write UTF-16 strings in big-endian format use the C<write_unicode()> method.
+
+Note, it is slightly faster to write little-endian data via write_unicode_le() than it is to write big-endian data via write_unicode().
 
 
 
@@ -888,7 +986,7 @@ Excel requires that worksheet names containing spaces or non alphanumeric charac
 
 Links to network files are also supported. MS/Novell Network files normally begin with two back slashes as follows C<\\NETWORK\etc>. In order to generate this in a single or double quoted string you will have to escape the backslashes,  C<'\\\\NETWORK\etc'>.
 
-If you are using double quote strings then you should be careful to escape anything that looks like a metacharacter. For more information see C<perlfaq5: Why can't I use "C:\temp\foo" in DOS paths?>.
+If you are using double quote strings then you should be careful to escape anything that looks like a metacharacter. For more information  see C<perlfaq5: Why can't I use "C:\temp\foo" in DOS paths?>.
 
 Finally, you can avoid most of these quoting problems by using forward slashes. These are translated internally to backslashes:
 
@@ -1005,7 +1103,7 @@ Since the C<$pattern> is interpolated each time that it is used it is worth usin
 
     $worksheet->repeat_formula('B1', $formula, $format, qr/A1/, 'A2');
 
-Care should be taken with the values that are substituted. The formula returned by C<repeat_formula()> contains several other tokens in addition to those in the formula and these might also match the pattern that you are trying to replace. In particular you should avoid substituting a single 0, 1, 2 or 3. Either substitute an explicit token such as C<A1> or else use a number that won't give a false match. For example, say you wanted to change C<SIN(A1)> to C<SIN(A2)>:
+Care should be taken with the values that are substituted. The formula returned by C<repeat_formula()> contains several other tokens in addition to those in the formula and these might also match the  pattern that you are trying to replace. In particular you should avoid substituting a single 0, 1, 2 or 3. Either substitute an explicit token such as C<A1> or else use a number that won't give a false match. For example, say you wanted to change C<SIN(A1)> to C<SIN(A2)>:
 
     my $formula = $worksheet->store_formula('=SIN(A1)');
 
@@ -1030,6 +1128,8 @@ See also the C<repeat.pl> program in the C<examples> directory of the distro.
 
 =head2 write_comment($row, $column, $string)
 
+B<NOTE: this method is not available in this release. Use the 1.xx versions of this module if you need this feature>.
+
 
 The C<write_comment()> method is used to add a comment to a cell. A cell comment is indicated in Excel by a small red triangle in the upper right-hand corner of the cell. Moving the cursor over the red triangle will cause the comment to appear.
 
@@ -1041,14 +1141,7 @@ The following example shows how to add a comment to a cell:
 
 The cell comment can be up to 30,000 characters in length.
 
-No formatting of the text or the text box is possible with the Excel 5 version of this method.
 
-Note: the C<write_comment()> method was previously supplied as an external example program. If you are currently using that method you will get a warning about subroutines being redefined:
-
-    Subroutine write_comment redefined at ... line ...
-    Subroutine _store_comment  redefined at ... line ...
-
-You can safely delete the user defined C<write_comment()> code from your old programs and use the module defined method instead.
 
 
 
@@ -1222,7 +1315,7 @@ If you wish to set the format without changing the height you can pass C<undef> 
 
     $worksheet->set_row(0, undef, $format);
 
-The C<$format> parameter will be applied to any cells in the row that don't have a format. For example
+The C<$format> parameter will be applied to any cells in the row that don't  have a format. For example
 
     $worksheet->set_row(0, undef, $format1);    # Set the format for row 1
     $worksheet->write('A1', "Hello");           # Defaults to $format1
@@ -1271,7 +1364,7 @@ As usual the C<$format> parameter is optional, for additional information, see L
 
     $worksheet->set_column(0, 0, undef, $format);
 
-The C<$format> parameter will be applied to any cells in the column that don't have a format. For example
+The C<$format> parameter will be applied to any cells in the column that don't  have a format. For example
 
     $worksheet->set_column('A:A', undef, $format1); # Set format for col 1
     $worksheet->write('A1', "Hello");               # Defaults to $format1
@@ -1402,7 +1495,7 @@ The full possibilities of this method are shown in the C<merge3.pl>, C<merge4.pl
 
 The C<merge_range()> method doesn't work with Excel versions before Excel 97.
 
-Note, the C<merge_range()> method replaces the C<merge_cells()> method as a simpler and safer way of generating a merged range. C<merge_cells()> is still available but it is deprecated and no longer documented.
+
 
 
 =head2 set_zoom($scale)
@@ -1914,6 +2007,8 @@ The following table shows the Excel format categories, the formatting properties
                Text wrap         text_wrap       set_text_wrap()
                Justify last      text_justlast   set_text_justlast()
                Merge             merge           set_merge()
+               Indentation       indent          set_indent()
+               Shrink to fit     shrink          set_shrink()
 
     Pattern    Cell pattern      pattern         set_pattern()
                Background color  bg_color        set_bg_color()
@@ -1969,10 +2064,10 @@ The provision of two ways of setting properties might lead you to wonder which i
 As a result the Perl/Tk style of adding properties was added to, hopefully, facilitate developers who need to define a lot of formatting. In fact the Tk style of defining properties is also supported:
 
     my %font    = (
-                    -font  => 'Arial',
-                    -size  => 12,
-                    -color => 'blue',
-                    -bold  => 1,
+                    -font      => 'Arial',
+                    -size      => 12,
+                    -color     => 'blue',
+                    -bold      => 1,
                   );
 
 An additional advantage of working with hashes of properties is that it allows you to share formatting between workbook objects
@@ -2036,6 +2131,8 @@ The following Format methods are available:
     set_text_wrap()
     set_text_justlast()
     set_merge()
+    set_indent()
+    set_shrink()
     set_pattern()
     set_bg_color()
     set_fg_color()
@@ -2490,15 +2587,55 @@ Excel will adjust the height of the row to accommodate the wrapped text. A simil
 =head2 set_rotation()
 
     Default state:      Text rotation is off
-    Default action:     Rotation style 1
-    Valid args:         0 No rotation
-                        1 Letters run from top to bottom
-                        2 90° anticlockwise
-                        3 90° clockwise
+    Default action:     None
+    Valid args:         Integers in the range -90 to 90 and 270
+
+Set the rotation of the text in a cell. The rotation can be any angle in the range -90 to 90 degrees.
+
+    my $format = $workbook->addformat();
+    $format->set_rotation(30);
+    $worksheet->write(0, 0, "This text is rotated", $format);
 
 
-Set the rotation of the text in a cell. See the 'Alignment' worksheet created by formats.pl. Note, fractional rotations aren't possible with the Excel 5 format.
+The angle 270 is also supported. This indicates text where the letters run from top to bottom.
 
+
+
+=head2 set_indent()
+
+
+    Default state:      Text indentation is off
+    Default action:     Indent text 1 level
+    Valid args:         Positive integers
+
+
+This method can be used to indent text. The argument, which should be an integer, is taken as the level of indentation:
+
+
+    my $format = $workbook->addformat();
+    $format->set_indent(2);
+    $worksheet->write(0, 0, "This text is indented", $format);
+
+
+Indentation is a horizontal alignment property. It will override any other horizontal properties but it can be used in conjunction with vertical properties.
+
+
+
+
+=head2 set_shrink()
+
+
+    Default state:      Text shrinking is off
+    Default action:     Turn "shrink to fit" on
+    Valid args:         1
+
+
+This method can be used to shrink text so that it fits in a cell.
+
+
+    my $format = $workbook->addformat();
+    $format->set_shrink();
+    $worksheet->write(0, 0, "Honey, I shrunk the text!", $format);
 
 
 
@@ -2677,9 +2814,7 @@ If the default palette does not provide a required colour you can override one o
 
     $worksheet->write_blank('A1', $format);
 
-Spreadsheet::WriteExcel uses the Excel 97/2000 default colour palette. However, for backward compatibility the Excel 5 palette can be specified instead using the C<set_palette_xl5()> workbook method.
-
-The default Excel colour palette is shown in C<palette.html> in the C<doc> directory of the distro. You can generate an Excel version of the palette using C<colors.pl> in the C<examples> directory.
+The default Excel 97 colour palette is shown in C<palette.html> in the C<doc> directory  of the distro. You can generate an Excel version of the palette using C<colors.pl> in the C<examples> directory.
 
 A comparison of the colour components in the Excel 5 and Excel 97+ colour palettes is shown in C<rgb5-97.txt> in the C<doc> directory.
 
@@ -3294,83 +3429,81 @@ different features and options of the module.
 
     Getting started
     ===============
-    simple.pl           An example of some of the basic features.
-    regions.pl          Demonstrates multiple worksheets.
-    stats.pl            Basic formulas and functions.
-    formats.pl          Creates a demo of the available formatting.
-    demo.pl             Creates a demo of some of the features.
     bug_report.pl       A template for submitting bug reports.
+    demo.pl             Creates a demo of some of the features.
+    formats.pl          Creates a demo of the available formatting.
+    regions.pl          Demonstrates multiple worksheets.
+    simple.pl           An example of some of the basic features.
+    stats.pl            Basic formulas and functions.
 
     Advanced
     ========
-    sales.pl            An example of a simple sales spreadsheet.
-    stocks.pl           Demonstrates conditional formatting.
-    headers.pl          Examples of worksheet headers and footers.
-    write_array.pl      Example of writing 1D or 2D arrays of data.
+    bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
+    cgi.pl              A simple CGI program.
     chess.pl            An example of formatting using properties.
     colors.pl           Demo of the colour palette and named colours.
-    images.pl           Adding bitmap images to worksheets.
-    comments.pl         Add cell comments to Excel 5 worksheets.
-    sendmail.pl         Send an Excel email attachment using Mail::Sender.
-    stats_ext.pl        Same as stats.pl with external references.
-    repeat.pl           Example of writing repeated formulas.
-    long_string.pl      Workaround long string limitation with a formula.
-    cgi.pl              A simple CGI program.
-    mod_perl.pl         A simple mod_perl program.
+    copyformat.pl       Example of copying a cell format.
+    diag_border.pl      A simple example of diagonal cell borders.
+    easter_egg.pl       Expose the Excel97 flight simulator. A must see.
+    headers.pl          Examples of worksheet headers and footers.
     hyperlink1.pl       Shows how to create web hyperlinks.
     hyperlink2.pl       Examples of internal and external hyperlinks.
+    images.pl           Adding bitmap images to worksheets.
+    indent.pl           An example of cell indentation.
     merge1.pl           A simple example of cell merging.
     merge2.pl           A simple example of cell merging with formatting.
     merge3.pl           Add hyperlinks to merged cells.
     merge4.pl           An advanced example of merging with formatting.
     merge5.pl           An advanced example of merging with formatting.
+    mod_perl.pl         A simple mod_perl program.
     outline.pl          An example of outlines and grouping.
-    textwrap.pl         Demonstrates text wrapping options.
     panes.pl            An examples of how to create panes.
     protection.pl       Example of cell locking and formula hiding.
-    copyformat.pl       Example of copying a cell format.
+    repeat.pl           Example of writing repeated formulas.
+    sales.pl            An example of a simple sales spreadsheet.
+    sendmail.pl         Send an Excel email attachment using Mail::Sender.
+    stats_ext.pl        Same as stats.pl with external references.
+    stocks.pl           Demonstrates conditional formatting.
+    textwrap.pl         Demonstrates text wrapping options.
+    unicode.pl          Simple example of using Unicode strings.
+    unicode_japan.pl    Write Japanese Unicode strings.
+    unicode_list.pl     List the chars in a Unicode font.
     win32ole.pl         A sample Win32::OLE example for comparison.
-    easter_egg.pl       Expose the Excel97 flight simulator. A must see.
+    write_array.pl      Example of writing 1D or 2D arrays of data.
 
 
     Utility
     =======
-    convertA1.pl        Helper functions for dealing with A1 notation.
-    lecxe.pl            Convert Excel to WriteExcel using Win32::OLE.
     csv2xls.pl          Program to convert a CSV file to an Excel file.
-    tab2xls.pl          Program to convert a tab separated file to xls.
     datecalc1.pl        Convert Unix/Perl time to Excel time.
     datecalc2.pl        Calculate an Excel date using Date::Calc.
-    writemany.pl        Write an 2d array of values in one go.
+    lecxe.pl            Convert Excel to WriteExcel using Win32::OLE.
+    tab2xls.pl          Program to convert a tab separated file to xls.
 
 
     Developer
     =========
+    convertA1.pl        Helper functions for dealing with A1 notation.
     function_locale.pl  Add non-English function names to Formula.pm.
     filehandle.pl       Examples of working with filehandles.
     writeA1.pl          Example of how to extend the module.
-    bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
+    writemany.pl        Write an 2d array of values in one go.
 
 
 
 
 =head1 LIMITATIONS
 
-The following limits are imposed by Excel or the version of the BIFF file that has been implemented:
+The following limits are imposed by Excel:
 
-    Description                          Limit   Source
-    -----------------------------------  ------  -------
-    Maximum number of chars in a string  255     Excel 5
-    Maximum number of columns            256     Excel All versions
-    Maximum number of rows in Excel 5    16384   Excel 5
-    Maximum number of rows in Excel 97   65536   Excel 97
-    Maximum chars in a sheet name        31      Excel All versions
-    Maximum chars in a header/footer     254     Excel All versions
+    Description                          Limit
+    -----------------------------------  ------
+    Maximum number of chars in a string  32767
+    Maximum number of columns            256
+    Maximum number of rows               65536
+    Maximum chars in a sheet name        31
+    Maximum chars in a header/footer     254
 
-
-Note: the maximum row reference in a formula is the Excel 5 row limit of 16384.
-
-The 255 character limit is removed in the 2.xx versions of this module which support the Excel 97+ format and 32k strings.
 
 The minimum file size is 6K due to the OLE overhead. The maximum file size is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by using Takanori Kawai's OLE::Storage_Lite module http://search.cpan.org/search?dist=OLE-Storage_Lite see the C<bigfile.pl> example in the C<examples> directory of the distro.
 
@@ -3398,7 +3531,7 @@ This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-1.01/WriteExcel/doc/install.html
+http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.01/WriteExcel/doc/install.html
 
 
 
@@ -3429,7 +3562,7 @@ A filename must be given in the constructor.
 
 =item Can't open filename. It may be in use or protected.
 
-The file cannot be opened for writing. The directory that you are writing to may be protected or the file may be in use by another program.
+The file cannot be opened for writing. The directory that you are writing to  may be protected or the file may be in use by another program.
 
 =item Unable to create tmp files via File::Temp::tempfile()...
 
@@ -3626,6 +3759,8 @@ Another approach is to use Spreadsheet::WriteExcel::FromXML. This uses a DTD to 
 
 Formulas are formulae.
 
+This version of the module doesn't support the write_comment() method. This will be fixed soon.
+
 XML data can cause Excel files created by Spreadsheet::WriteExcel to become corrupt. See L<WORKING WITH XML> for further details.
 
 If you do not add a format to each cell of a C<merge_cells()> range it will cause Excel97 to crash, use the safer C<merge_range()> method instead.
@@ -3634,7 +3769,7 @@ Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE".
 
 Spreadsheet::ParseExcel: All formulas created by Spreadsheet::WriteExcel are read as having a value of zero. This is because Spreadsheet::WriteExcel only stores the formula and not the calculated result.
 
-OpenOffice: Numerical formats are not displayed due to some missing records in Spreadsheet::WriteExcel. URLs are not displayed as links.
+OpenOffice: Some formatting is not displayed correctly.
 
 Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as links.
 
@@ -3649,9 +3784,37 @@ If you wish to submit a bug report run the C<bug_report.pl> program in the C<exa
 
 =head1 TO DO
 
+The roadmap is as follows:
+
+=over 4
+
+=item * Add write_comment().
+
+=item * Add AutoFilters.
+
+
+=back
+
 You can keep up to date with future releases by registering as a user with Freshmeat http://freshmeat.net/ and subscribing to Spreadsheet::WriteExcel at the project page http://freshmeat.net/projects/writeexcel/ You will then receive mailed updates when a new version is released. Alternatively you can keep an eye on news://comp.lang.perl.announce
 
 Also, here are some of the most requested features that probably won't get added:
+
+=over 4
+
+=item * Graphs.
+
+The format is documented but it would require too much work to implement. It would also require too much work to design a useable interface to the hundreds of features in an Excel graph. So that's two too much works. Nevertheless, I do hope to *try* implement graphs. However, it is a long term goal. It won't be available for at least 6 months, even if you read this in 6 months time.
+
+=item * Macros.
+
+This would solve the previous problem neatly. However, the format of Excel macros isn't documented.
+
+=item * Some feature that you really need. ;-)
+
+
+=back
+
+If there is some feature of an Excel file that you really, really need then you should use Win32::OLE with Excel on Windows. If you are on Unix you could consider connecting to a Windows server via Docserver or SOAP, see L<WRITING EXCEL FILES>.
 
 
 
@@ -3709,14 +3872,21 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 John McNamara jmcnamara@cpan.org
 
 
-    Via, via, vieni via di qui,
-    niente più ti lega a questi luoghi,
-    neanche questi fiori azzurri...
-    Via, via, neanche questo tempo grigio
-    pieno di musiche e di uomini
-    che ti son' piaciuti
+    Filling her compact & delicious body
+    with chicken páprika, she glanced at me
+    twice.
+    Fainting with interest, I hungered back
+    and only the fact of her husband & four other people
+    kept me from springing on her
 
-        -- Paolo Conte
+    or falling at her little feet and crying
+    'You are the hottest one for years of night
+    Henry's dazed eyes
+    have enjoyed, Brilliance.' I advanced upon
+    (despairing) my spumoni.--Sir Bones: is stuffed,
+    de world, wif feeding girls.
+
+        -- John Berryman
 
 
 

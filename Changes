@@ -1,17 +1,63 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+2.01 May 27 2004 - Major
+
+    This version is a MAJOR revs ion to Spreadsheet::WriteExcel. The
+    format of the Excel file that it produces has been updated from
+    Excel 5 to Excel 97. This allows support for long, 32k character
+    strings and Unicode.
+
+    DUE TO THE MAJOR INTERNAL CHANGES IT IS RECOMMENDED THAT YOU TEST
+    THIS UPGRADE FULLY BEFORE DEPLOYING IT.
+
+    Also note that this version can be 1.5 to 2 times slower than
+    previous versions and the write_comment() method has been
+    temporarily removed. These issues will be fixed in later releases.
+
+
+    + Changed the default Excel format to Excel 97.
+
+    + Added support for strings up to 32767 character.
+
+    + Added support for Unicode strings.
+
+    + Improved speed in relation to pre-release versions.
+      However, it is still slower than the 1.xx versions.
+
+    + Improved OpenOffice support.
+
+    + Added more examples: diag_border.pl, indent.pl,
+      unicode.pl, unicode_japan.pl, unicode_list.pl
+
+    + Changed the distro dir structure.
+
+    - Temporarily removed write_comment() support since the Excel 5
+      version isn't compatible with Excel 97+.
+
+
 1.01 May 24 2004 - Minor
 
     ! Small non-bug fix to write_comment().
 
+
 0.43 April 28 2004 - Minor
 
-    ! Fixed lonstanding bug where page setup features didn't
+    ! Fixed longstanding bug where page setup features didn't
       show up in OpenOffice.
 
     ! Fixed localised @_ bug when using threaded perls.
       Thanks Tamas Gulacsi and Stephan Loescher.
+
+
+0.43 April 28 2004 - Minor
+
+    ! Fixed longstanding bug where page setup features didn't
+      show up in OpenOffice.
+
+    ! Fixed localised @_ bug when using threaded perls.
+      Thanks Tamas Gulacsi and Stephan Loescher.
+
 
 0.42 August 26 2003 - Minor
 

@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '1.01';
+$VERSION = '0.09';
 
 ###############################################################################
 #
@@ -52,13 +52,14 @@ sub _store_OLE_file {
 
     my $self = shift;
 
-    my $OLE  = OLE::Storage_Lite::PPS::File->newFile(
+    my $tmp;
+    my $OLE = OLE::Storage_Lite::PPS::File->newFile(
                                            OLE::Storage_Lite::Asc2Ucs('Book'));
 
-    $OLE->append($self->{_data});
+
+    $OLE->append($tmp) while $tmp = $self->get_data();
 
     foreach my $worksheet (@{$self->{_worksheets}}) {
-        my $tmp;
         $OLE->append($tmp) while $tmp = $worksheet->get_data();
     }
 

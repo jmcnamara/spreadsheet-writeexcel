@@ -4,7 +4,7 @@
 
 BEGIN { $| = 1; print "1..2\n"; }
 END {print "not ok 1\n" unless $loaded;}
-use WriteExcel;
+use Spreadsheet::WriteExcel;
 $loaded = 1;
 print "ok 1\n";
 

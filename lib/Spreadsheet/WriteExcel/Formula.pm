@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '1.01';
+$VERSION = '0.08';
 
 ###############################################################################
 #
@@ -56,6 +56,8 @@ sub new {
                     _byte_order     => $_[1],
                     _workbook       => "",
                     _ext_sheets     => {},
+                    _ext_refs       => {},
+                    _ext_ref_count  => 0,
                  };
 
     bless $self, $class;
@@ -232,7 +234,7 @@ sub parse_formula {
             $self->parse_tokens(@tokens);
             return @tokens;
         }
-        else {
+        else{
             # Return byte stream to Worksheet::write_formula()
             return $self->parse_tokens(@tokens);
         }
@@ -504,17 +506,20 @@ sub _convert_number {
 #
 sub _convert_string {
 
-    my $self = shift;
-    my $str  = shift;
+    my $self     = shift;
+    my $str      = shift;
+    my $encoding = 0;
 
     $str =~ s/^"//;   # Remove leading  "
     $str =~ s/"$//;   # Remove trailing "
     $str =~ s/""/"/g; # Substitute Excel's escaped double quote "" for "
 
     my $length = length($str);
+
+    # TODO string length
     die "String in formula has more than 255 chars\n" if $length > 255;
 
-    return pack("CC", $ptg{ptgStr}, $length) . $str;
+    return pack("CCC", $ptg{ptgStr}, $length, $encoding) . $str;
 }
 
 
@@ -609,9 +614,9 @@ sub _convert_range2d {
     # Split the range into 2 cell refs
     my ($cell1, $cell2) = split ':', $range;
 
-    # A range such as A:D is equivalent to A1:D16384, so add rows as required
+    # A range such as A:D is equivalent to A1:D65536, so add rows as required
     $cell1 .= '1'     if $cell1 !~ /\d/;
-    $cell2 .= '16384' if $cell2 !~ /\d/;
+    $cell2 .= '65536' if $cell2 !~ /\d/;
 
     # Convert the cell references
     my ($row1, $col1) = $self->_cell_to_packed_rowcol($cell1);
@@ -646,7 +651,7 @@ sub _convert_range3d {
 
     my $self      = shift;
     my $token     = shift;
-    my $class     = shift;
+    my $class = shift;
     my $ptgArea;
 
     # Split the ref at the ! symbol
@@ -658,9 +663,9 @@ sub _convert_range3d {
     # Split the range into 2 cell refs
     my ($cell1, $cell2) = split ':', $range;
 
-    # A range such as A:D is equivalent to A1:D16384, so add rows as required
+    # A range such as A:D is equivalent to A1:D65536, so add rows as required
     $cell1 .= '1'     if $cell1 !~ /\d/;
-    $cell2 .= '16384' if $cell2 !~ /\d/;
+    $cell2 .= '65536' if $cell2 !~ /\d/;
 
     # Convert the cell references
     my ($row1, $col1) = $self->_cell_to_packed_rowcol($cell1);
@@ -721,10 +726,19 @@ sub _pack_ext_ref {
         $sheet2 = $sheet1;
     }
 
-    # References are stored relative to 0xFFFF (-1).
-    my $offset = 0xFFFF - $sheet1;
+    my $key = "$sheet1:$sheet2";
+    my $index;
 
-    return pack("vdvv",$offset, 0x00, $sheet1, $sheet2);
+    if (exists $self->{_ext_refs}->{$key}) {
+        $index = $self->{_ext_refs}->{$key};
+    }
+    else {
+        $index = $self->{_ext_ref_count};
+        $self->{_ext_refs}->{$key} = $index;
+        $self->{_ext_ref_count}++;
+    }
+
+    return pack("v",$index);
 }
 
 
@@ -754,15 +768,75 @@ sub _get_sheet_index {
 # set_ext_sheets()
 #
 # This semi-public method is used to update the hash of sheet names. It is
-# updated by the add_worksheet() method of the Workbook class.
+# updated by the addworksheet() method of the Workbook class.
 #
 sub set_ext_sheets {
 
-    my $self  = shift;
-    my $key   = shift;
-    my $value = shift;
+    my $self        = shift;
+    my $worksheet   = shift;
+    my $index       = shift;
 
-    $self->{_ext_sheets}->{$key} = $value;
+    #my $ref         = "$index:$index";
+
+    # The _ext_sheets hash is used to translate between worksheet names
+    # and their index
+    $self->{_ext_sheets}->{$worksheet} = $index;
+
+
+    # 2D sheet refs such as '=Sheet1:Sheet2!A1' can only be added after all
+    # worksheets have been added.
+    #return 0 if $index < $self->{_ext_ref_count}; TODO
+
+
+    # The _ext_refs hash is used to correlate the external references used in
+    # formulas with the index stored in the Workbook EXTERNSHEET record.
+    #$self->{_ext_refs}->{$ref} = $index;
+    #$self->{_ext_ref_count}++;
+
+    # No errors
+    #return 1;
+}
+
+
+###############################################################################
+#
+# get_ext_sheets()
+#
+# This semi-public method is used to update the hash of sheet names. It is
+# updated by the addworksheet() method of the Workbook class.
+#
+# TODO
+#
+sub get_ext_sheets {
+
+    my $self  = shift;
+
+    # TODO
+    my %refs = %{$self->{_ext_refs}};
+    return %refs;
+
+    #my @refs = sort {$refs{$a} <=> $refs{$b}} keys %refs;
+
+    #foreach my $ref (@refs) {
+    #    $ref = [split /:/, $ref];
+    #}
+
+    #return @refs;
+}
+
+
+###############################################################################
+#
+# get_ext_ref_count()
+#
+# TODO This semi-public method is used to update the hash of sheet names. It is
+# updated by the addworksheet() method of the Workbook class.
+#
+sub get_ext_ref_count {
+
+    my $self  = shift;
+
+    return $self->{_ext_ref_count};
 }
 
 
@@ -859,14 +933,14 @@ sub _cell_to_packed_rowcol {
     my ($row, $col, $row_rel, $col_rel) = $self->_cell_to_rowcol($cell);
 
     die "Column $cell greater than IV in formula\n" if $col >= 256;
-    die "Row $cell greater than 16384 in formula\n" if $row >= 16384;
+    die "Row $cell greater than 65536 in formula\n" if $row >= 65536;
 
     # Set the high bits to indicate if row or col are relative.
-    $row    |= $col_rel << 14;
-    $row    |= $row_rel << 15;
+    $col    |= $col_rel << 14;
+    $col    |= $row_rel << 15;
 
     $row     = pack('v', $row);
-    $col     = pack('C', $col);
+    $col     = pack('v', $col);
 
     return ($row, $col);
 }

@@ -305,6 +305,23 @@ sub borders {
 
         $worksheet->write((2*($i+1)), 3, "Border", $format);
     }
+
+    $worksheet->write(18, 0, "Diag type", $heading);
+    $worksheet->write(18, 1, "Index", $heading);
+    $worksheet->write(18, 3, "Style", $heading);
+
+    for my $i (1..3){
+        my $format = $workbook->add_format();
+        $format->set_diag_type($i);
+        $format->set_diag_border(1);
+        $format->set_diag_color('red');
+        $format->set_align('center');
+
+        $worksheet->write((2*($i+9)), 0, $i,                    $center);
+        $worksheet->write((2*($i+9)), 1, sprintf("0x%02X", 1),  $center);
+
+        $worksheet->write((2*($i+9)), 3, "Border", $format);
+    }
 }
 
 
@@ -374,6 +391,8 @@ sub alignment {
     my $format13 = $workbook->add_format();
     my $format14 = $workbook->add_format();
     my $format15 = $workbook->add_format();
+    my $format16 = $workbook->add_format();
+    my $format17 = $workbook->add_format();
 
     $format02->set_align('top');
     $format03->set_align('bottom');
@@ -388,31 +407,38 @@ sub alignment {
     $format11->set_align('justify');
     $format12->set_merge();
 
-    $format13->set_rotation(1);
-    $format14->set_rotation(2);
-    $format15->set_rotation(3);
+    $format13->set_rotation(45);
+    $format14->set_rotation(-45);
+    $format15->set_rotation(270);
 
-    $worksheet->write(0, 0, 'Vertical',   $heading);
-    $worksheet->write(0, 1, 'top',        $format02);
-    $worksheet->write(0, 2, 'bottom',     $format03);
-    $worksheet->write(0, 3, 'vcenter',    $format04);
-    $worksheet->write(0, 4, 'vjustify',   $format05);
-    $worksheet->write(0, 5, "text\nwrap", $format06);
+    $format16->set_shrink();
+    $format17->set_indent(1);
 
-    $worksheet->write(2, 0, 'Horizontal', $heading);
-    $worksheet->write(2, 1, 'left',       $format07);
-    $worksheet->write(2, 2, 'right',      $format08);
-    $worksheet->write(2, 3, 'center',     $format09);
-    $worksheet->write(2, 4, 'fill',       $format10);
-    $worksheet->write(2, 5, 'justify',    $format11);
+    $worksheet->write(0, 0, 'Vertical',     $heading);
+    $worksheet->write(0, 1, 'top',          $format02);
+    $worksheet->write(0, 2, 'bottom',       $format03);
+    $worksheet->write(0, 3, 'vcenter',      $format04);
+    $worksheet->write(0, 4, 'vjustify',     $format05);
+    $worksheet->write(0, 5, "text\nwrap",   $format06);
 
-    $worksheet->write(2, 6, 'merge',      $format12);
-    $worksheet->write_blank(2, 7,         $format12);
+    $worksheet->write(2, 0, 'Horizontal',   $heading);
+    $worksheet->write(2, 1, 'left',         $format07);
+    $worksheet->write(2, 2, 'right',        $format08);
+    $worksheet->write(2, 3, 'center',       $format09);
+    $worksheet->write(2, 4, 'fill',         $format10);
+    $worksheet->write(2, 5, 'justify',      $format11);
 
-    $worksheet->write(4, 0, 'Rotation', $heading);
-    $worksheet->write(4, 1, 'Rotate 1', $format13);
-    $worksheet->write(4, 2, 'Rotate 2', $format14);
-    $worksheet->write(4, 3, 'Rotate 3', $format15);
+    $worksheet->write(3, 1, 'merge',        $format12);
+    $worksheet->write(3, 2, '',             $format12);
+
+    $worksheet->write(2, 3, 'Shrink ' x 3,  $format16);
+    $worksheet->write(2, 4, 'Indent',       $format17);
+
+
+    $worksheet->write(5, 0, 'Rotation',     $heading);
+    $worksheet->write(5, 1, 'Rotate 45',    $format13);
+    $worksheet->write(6, 1, 'Rotate -45',   $format14);
+    $worksheet->write(7, 1, 'Rotate 270',   $format15);
 }
 
 

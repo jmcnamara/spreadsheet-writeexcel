@@ -47,7 +47,6 @@
 		<LI><A HREF="#add_worksheet_sheetname_">add_worksheet($sheetname)</A></LI>
 		<LI><A HREF="#add_format_properties_">add_format(%properties)</A></LI>
 		<LI><A HREF="#set_custom_color_index_red_">set_custom_color($index, $red, $green, $blue)</A></LI>
-		<LI><A HREF="#set_palette_xl5_">set_palette_xl5()</A></LI>
 		<LI><A HREF="#sheets_0_1_">sheets(0, 1, ...)</A></LI>
 		<LI><A HREF="#set_1904_">set_1904()</A></LI>
         <LI><A HREF="#set_codepage_codepage_">set_codepage($codepage)</A></LI></code>
@@ -60,6 +59,8 @@
 		<LI><A HREF="#write_row_column_token_fo">write($row, $column, $token, $format)</A></LI>
 		<LI><A HREF="#write_number_row_column_num">write_number($row, $column, $number, $format)</A></LI>
 		<LI><A HREF="#write_string_row_column_str">write_string($row, $column, $string, $format)</A></LI>
+		<LI><A HREF="#write_unicode_row_column_st">write_unicode($row, $column, $string, $format)</A></LI>
+		<LI><A HREF="#write_unicode_le_row_column_">write_unicode_le($row, $column, $string, $format)</A></LI>
 		<LI><A HREF="#keep_leading_zeros_">keep_leading_zeros()</A></LI>
 		<LI><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></LI>
 		<LI><A HREF="#write_row_row_column_array_">write_row($row, $column, $array_ref, $format)</A></LI>
@@ -105,7 +106,7 @@
 		<LI><A HREF="#fit_to_pages_width_height_">fit_to_pages($width, $height)</A></LI>
 		<LI><A HREF="#set_print_scale_scale_">set_print_scale($scale)</A></LI>
 		<LI><A HREF="#set_h_pagebreaks_breaks_">set_h_pagebreaks(@breaks)</A></LI>
-        <LI><A HREF="#set_v_pagebreaks_breaks_">set_v_pagebreaks(@breaks)</A></LI></code>
+		<LI><A HREF="#set_v_pagebreaks_breaks_">set_v_pagebreaks(@breaks)</A></LI>
 	</UL>
 
 	<LI><A HREF="#CELL_FORMATTING">CELL FORMATTING</A></LI>
@@ -137,6 +138,8 @@
 		<LI><A HREF="#set_merge_">set_merge()</A></LI>
 		<LI><A HREF="#set_text_wrap_">set_text_wrap()</A></LI>
 		<LI><A HREF="#set_rotation_">set_rotation()</A></LI>
+		<LI><A HREF="#set_indent_">set_indent()</A></LI>
+		<LI><A HREF="#set_shrink_">set_shrink()</A></LI>
 		<LI><A HREF="#set_text_justlast_">set_text_justlast()</A></LI>
 		<LI><A HREF="#set_pattern_">set_pattern()</A></LI>
 		<LI><A HREF="#set_bg_color_">set_bg_color()</A></LI>
@@ -198,8 +201,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.43 of Spreadsheet::WriteExcel, released
-April 28, 2004.
+This document refers to version 2.01 of Spreadsheet::WriteExcel, released
+May 27, 2004.
 
 </P>
 <P>
@@ -262,8 +265,8 @@ images can be written to the cells.
 
 </P>
 <P>
-The Excel file produced by this module is compatible with Excel 5, 95, 97,
-2000 and 2002.
+The Excel file produced by this module is compatible with 97, 2000, 2002
+and 2003.
 
 </P>
 <P>
@@ -344,7 +347,6 @@ workbook.
     add_worksheet()
     add_format()
     set_custom_color()
-    set_palette_xl5()
     sheets()
     set_1904()
     set_codepage()
@@ -635,10 +637,6 @@ same <CODE>$sheetname</CODE> for more than one worksheet.
 
 </P>
 <P>
-This method was previously called <CODE>addworksheet()</CODE>. The old method name is still supported but deprecated.
-
-</P>
-<P>
 <HR>
 <H2><A NAME="add_format_properties_">add_format(%properties)</A></H2>
 <P>
@@ -655,10 +653,6 @@ via a hash of property values or later via method calls.
 </P>
 <P>
 See the <A HREF="#CELL_FORMATTING">CELL FORMATTING</A> section for more details about Format properties and how to set them.
-
-</P>
-<P>
-This method was previously called <CODE>addformat()</CODE>. The old method name is still supported but deprecated.
 
 </P>
 <P>
@@ -734,34 +728,6 @@ The return value from <CODE>set_custom_color()</CODE> is the index of the colour
                                         border   =&gt; 1
                                       );
 </PRE>
-</P>
-<P>
-<HR>
-<H2><A NAME="set_palette_xl5_">set_palette_xl5()</A></H2>
-<P>
-Prior to version 0.36, Spreadsheet::WriteExcel used the Excel 5 default
-colour palette. It was changed to the Excel 97+ palette for forward
-compatibility.
-
-</P>
-<P>
-However, if you have programs that rely on the colours and indices of the
-Excel 5 palette you can revert to the previous default by using the <CODE>set_palette_xl5()</CODE> method:
-
-</P>
-<P>
-<PRE>
-    $workbook-&gt;set_palette_xl5();
-</PRE>
-</P>
-<P>
-A comparison of the colour components in the Excel 5 and Excel 97+ colour
-palettes is shown in <CODE>rgb5-97.txt</CODE> in the <CODE>doc</CODE> directory of the distro.
-
-</P>
-<P>
-See also <A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A>.
-
 </P>
 <P>
 <HR>
@@ -888,6 +854,8 @@ The following methods are available through a new worksheet:
     write()
     write_number()
     write_string()
+    write_unicode()
+    write_unicode_le()
     keep_leading_zeros()
     write_blank()
     write_row()
@@ -1169,7 +1137,13 @@ Write a string to the cell specified by <CODE>$row</CODE> and <CODE>$column</COD
 </PRE>
 </P>
 <P>
-The maximum string size is 255 characters. The <CODE>$format</CODE> parameter is optional.
+The maximum string size is 32767 characters. However the maximum string
+segment that Excel can display in a cell is 1000. All 32767 characters can
+be displayed in the formula bar.
+
+</P>
+<P>
+The <CODE>$format</CODE> parameter is optional.
 
 </P>
 <P>
@@ -1200,8 +1174,205 @@ See also the note about <A HREF="#Cell_notation">Cell notation</A>.
 
 </P>
 <P>
-The 255 character limit is removed in the 2.xx versions of this module
-which support the Excel 97+ format and 32k strings.
+<HR>
+<H2><A NAME="write_unicode_row_column_st">write_unicode($row, $column, $string, $format)</A></H2>
+<P>
+This method is used to write Unicode strings to a cell in Excel. It is
+functionally the same as the <CODE>write_string()</CODE> method except that the string should be in Unicode format.
+
+</P>
+<P>
+The Unicode format required by Excel is UTF-16. No other Unicode format is
+supported by Excel.
+
+</P>
+<P>
+Additionally <CODE>Spreadsheet::WriteExcel</CODE> requires that the 16-bit characters are in big-endian order. This is
+generally referred to as UTF-16BE. To write UTF-16 strings in little-endian
+format use the <CODE>write_unicode_le()</CODE> method.
+
+</P>
+<P>
+The following is a simple example showing how to write some Unicode
+strings:
+
+</P>
+<P>
+<PRE>
+    #!/usr/bin/perl -w
+</PRE>
+</P>
+<P>
+<PRE>
+    use strict;
+    use Spreadsheet::WriteExcel;
+    use Unicode::Map();
+</PRE>
+</P>
+<P>
+<PRE>
+    my $workbook  = Spreadsheet::WriteExcel-&gt;new('unicode.xls');
+    my $worksheet = $workbook-&gt;addworksheet();
+</PRE>
+</P>
+<P>
+<PRE>
+    # Increase the column width for clarity
+    $worksheet-&gt;set_column('A:A', 25);
+</PRE>
+</P>
+<P>
+<PRE>
+    # Write a Unicode character
+    #
+    my $smiley = pack &quot;n&quot;, 0x263a;
+</PRE>
+</P>
+<P>
+<PRE>
+    # Increase the font size for legibility.
+    my $big_font = $workbook-&gt;addformat(size =&gt; 72);
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write_unicode('A3', $smiley, $big_font);
+</PRE>
+</P>
+<P>
+<PRE>
+    # Write a phrase in Cyrillic using a hex-encoded string
+    #
+    my $uni_str = pack &quot;H*&quot;, &quot;042d0442043e0020044404400430043704300020043d&quot; .
+                             &quot;043000200440044304410441043a043e043c0021&quot;;
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write_unicode('A5', $uni_str);
+</PRE>
+</P>
+<P>
+<PRE>
+    # Map a string to UTF-16BE using an external module.
+    #
+    my $map   = Unicode::Map-&gt;new(&quot;ISO-8859-1&quot;);
+    my $utf16 = $map-&gt;to_unicode(&quot;Hello world!&quot;);
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write_unicode('A7', $utf16);
+</PRE>
+</P>
+<P>
+The following is an example of creating an Excel file with some Japanese
+text. You will need to have a Unicode font installed, such as <CODE>Arial Unicode MS</CODE>, to view the results:
+
+</P>
+<P>
+<PRE>
+    #!/usr/bin/perl -w
+</PRE>
+</P>
+<P>
+<PRE>
+    use strict;
+    use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>
+    my $workbook  = Spreadsheet::WriteExcel-&gt;new('unicode.xls');
+    my $worksheet = $workbook-&gt;addworksheet();
+</PRE>
+</P>
+<P>
+<PRE>
+    # It is only required to specify a Unicode font via addformat() if
+    # you are using Excel 97. For Excel 2000+ the text will display
+    # with the default font (if you have Unicode fonts installed).
+    #
+    my $uni_font  = $workbook-&gt;addformat(font =&gt; 'Arial Unicode MS');
+</PRE>
+</P>
+<P>
+<PRE>
+    my $kanji     = pack 'n*', 0x65e5, 0x672c;
+    my $katakana  = pack 'n*', 0xff86, 0xff8e, 0xff9d;
+    my $hiragana  = pack 'n*', 0x306b, 0x307b, 0x3093;
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write_unicode('A1', $kanji,    $uni_font);
+    $worksheet-&gt;write_unicode('A2', $katakana, $uni_font);
+    $worksheet-&gt;write_unicode('A3', $hiragana, $uni_font);
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write('B1', 'Kanji');
+    $worksheet-&gt;write('B2', 'Katakana');
+    $worksheet-&gt;write('B3', 'Hiragana');
+</PRE>
+</P>
+<P>
+Note: UTF-8 data is not supported by Excel or Spreadsheet::WriteExcel.
+UTF-8 strings can be converted to the required UTF-16BE format using one of
+the many Unicode modules on CPAN. For example <CODE>Unicode::Map</CODE> and <CODE>Unicode::String</CODE>: <A
+HREF="http://search.cpan.org/author/MSCHWARTZ/Unicode-Map-0.112/Map.pm">http://search.cpan.org/author/MSCHWARTZ/Unicode-Map-0.112/Map.pm</A>
+and <A
+HREF="http://search.cpan.org/author/GAAS/Unicode-String-2.06/String.pm">http://search.cpan.org/author/GAAS/Unicode-String-2.06/String.pm</A>
+
+
+</P>
+<P>
+For a full list of the Perl Unicode modules see: <A
+HREF="http://search.cpan.org/search?query=unicode&mode=all">http://search.cpan.org/search?query=unicode&mode=all</A>
+
+
+</P>
+<P>
+<HR>
+<H2><A NAME="write_unicode_le_row_column_">write_unicode_le($row, $column, $string, $format)</A></H2>
+<P>
+This method is used to write Unicode strings to a cell in Excel.
+
+</P>
+<P>
+The string should be comprised of 16-bit characters in little-endian
+format. This is generally referred to as UTF-16LE.
+
+</P>
+<P>
+<PRE>
+    my $smiley = pack &quot;v&quot;, 0x263a;
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write_unicode_le('A3', $smiley);
+</PRE>
+</P>
+<P>
+UTF-16 data can be changed from little-endian to big-endian format (and
+vide-versa) as follows:
+
+</P>
+<P>
+<PRE>
+    $utf16 = pack &quot;n*&quot;, unpack &quot;v*&quot;, $utf16;
+</PRE>
+</P>
+<P>
+To write UTF-16 strings in big-endian format use the <CODE>write_unicode()</CODE> method.
+
+</P>
+<P>
+Note, it is slightly faster to write little-endian data via
+<CODE>write_unicode_le()</CODE> than it is to write big-endian data via
+<CODE>write_unicode().</CODE>
 
 </P>
 <P>
@@ -1942,6 +2113,10 @@ See also the <CODE>repeat.pl</CODE> program in the <CODE>examples</CODE> directo
 <HR>
 <H2><A NAME="write_comment_row_column_st">write_comment($row, $column, $string)</A></H2>
 <P>
+<STRONG>NOTE: this method is not available in this release. Use the 1.xx versions of this module if you need this feature</STRONG>.
+
+</P>
+<P>
 The <CODE>write_comment()</CODE> method is used to add a comment to a cell. A cell comment is indicated in
 Excel by a small red triangle in the upper right-hand corner of the cell.
 Moving the cursor over the red triangle will cause the comment to appear.
@@ -1959,27 +2134,6 @@ The following example shows how to add a comment to a cell:
 </P>
 <P>
 The cell comment can be up to 30,000 characters in length.
-
-</P>
-<P>
-No formatting of the text or the text box is possible with the Excel 5
-version of this method.
-
-</P>
-<P>
-Note: the <CODE>write_comment()</CODE> method was previously supplied as an external example program. If you are
-currently using that method you will get a warning about subroutines being
-redefined:
-
-</P>
-<P>
-<PRE>
-    Subroutine write_comment redefined at ... line ...
-    Subroutine _store_comment  redefined at ... line ...
-</PRE>
-</P>
-<P>
-You can safely delete the user defined <CODE>write_comment()</CODE> code from your old programs and use the module defined method instead.
 
 </P>
 <P>
@@ -2668,10 +2822,6 @@ The full possibilities of this method are shown in the <CODE>merge3.pl</CODE>, <
 </P>
 <P>
 The <CODE>merge_range()</CODE> method doesn't work with Excel versions before Excel 97.
-
-</P>
-<P>
-Note, the <CODE>merge_range()</CODE> method replaces the <CODE>merge_cells()</CODE> method as a simpler and safer way of generating a merged range. <CODE>merge_cells()</CODE> is still available but it is deprecated and no longer documented.
 
 </P>
 <P>
@@ -3499,6 +3649,8 @@ properties that can be applied and the equivalent object method:
                Text wrap         text_wrap       set_text_wrap()
                Justify last      text_justlast   set_text_justlast()
                Merge             merge           set_merge()
+               Indentation       indent          set_indent()
+               Shrink to fit     shrink          set_shrink()
 </PRE>
 </P>
 <P>
@@ -3603,10 +3755,10 @@ Tk style of defining properties is also supported:
 <P>
 <PRE>
     my %font    = (
-                    -font  =&gt; 'Arial',
-                    -size  =&gt; 12,
-                    -color =&gt; 'blue',
-                    -bold  =&gt; 1,
+                    -font      =&gt; 'Arial',
+                    -size      =&gt; 12,
+                    -color     =&gt; 'blue',
+                    -bold      =&gt; 1,
                   );
 </PRE>
 </P>
@@ -3708,6 +3860,8 @@ The following Format methods are available:
     set_text_wrap()
     set_text_justlast()
     set_merge()
+    set_indent()
+    set_shrink()
     set_pattern()
     set_bg_color()
     set_fg_color()
@@ -4420,18 +4574,75 @@ similar effect can be obtained without newlines using the <CODE>set_align('vjust
 <P>
 <PRE>
     Default state:      Text rotation is off
-    Default action:     Rotation style 1
-    Valid args:         0 No rotation
-                        1 Letters run from top to bottom
-                        2 90° anticlockwise
-                        3 90° clockwise
+    Default action:     None
+    Valid args:         Integers in the range -90 to 90 and 270
 </PRE>
 </P>
 <P>
-Set the rotation of the text in a cell. See the 'Alignment' worksheet
-created by formats.pl. Note, fractional rotations aren't possible with the
-Excel 5 format.
+Set the rotation of the text in a cell. The rotation can be any angle in
+the range -90 to 90 degrees.
 
+</P>
+<P>
+<PRE>
+    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_rotation(30);
+    $worksheet-&gt;write(0, 0, &quot;This text is rotated&quot;, $format);
+</PRE>
+</P>
+<P>
+The angle 270 is also supported. This indicates text where the letters run
+from top to bottom.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_indent_">set_indent()</A></H2>
+<P>
+<PRE>
+    Default state:      Text indentation is off
+    Default action:     Indent text 1 level
+    Valid args:         Positive integers
+</PRE>
+</P>
+<P>
+This method can be used to indent text. The argument, which should be an
+integer, is taken as the level of indentation:
+
+</P>
+<P>
+<PRE>
+    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_indent(2);
+    $worksheet-&gt;write(0, 0, &quot;This text is indented&quot;, $format);
+</PRE>
+</P>
+<P>
+Indentation is a horizontal alignment property. It will override any other
+horizontal properties but it can be used in conjunction with vertical
+properties.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_shrink_">set_shrink()</A></H2>
+<P>
+<PRE>
+    Default state:      Text shrinking is off
+    Default action:     Turn &quot;shrink to fit&quot; on
+    Valid args:         1
+</PRE>
+</P>
+<P>
+This method can be used to shrink text so that it fits in a cell.
+
+</P>
+<P>
+<PRE>
+    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_shrink();
+    $worksheet-&gt;write(0, 0, &quot;Honey, I shrunk the text!&quot;, $format);
+</PRE>
 </P>
 <P>
 <HR>
@@ -4708,13 +4919,7 @@ colour:
 </PRE>
 </P>
 <P>
-Spreadsheet::WriteExcel uses the Excel 97/2000 default colour palette.
-However, for backward compatibility the Excel 5 palette can be specified
-instead using the <CODE>set_palette_xl5()</CODE> workbook method.
-
-</P>
-<P>
-The default Excel colour palette is shown in <CODE>palette.html</CODE> in the <CODE>doc</CODE> directory of the distro. You can generate an Excel version of the palette
+The default Excel 97 colour palette is shown in <CODE>palette.html</CODE> in the <CODE>doc</CODE> directory of the distro. You can generate an Excel version of the palette
 using <CODE>colors.pl</CODE> in the <CODE>examples</CODE> directory.
 
 </P>
@@ -5750,100 +5955,91 @@ features and options of the module.
 <PRE>
     Getting started
     ===============
-    simple.pl           An example of some of the basic features.
-    regions.pl          Demonstrates multiple worksheets.
-    stats.pl            Basic formulas and functions.
-    formats.pl          Creates a demo of the available formatting.
-    demo.pl             Creates a demo of some of the features.
     bug_report.pl       A template for submitting bug reports.
+    demo.pl             Creates a demo of some of the features.
+    formats.pl          Creates a demo of the available formatting.
+    regions.pl          Demonstrates multiple worksheets.
+    simple.pl           An example of some of the basic features.
+    stats.pl            Basic formulas and functions.
 </PRE>
 </P>
 <P>
 <PRE>
     Advanced
     ========
-    sales.pl            An example of a simple sales spreadsheet.
-    stocks.pl           Demonstrates conditional formatting.
-    headers.pl          Examples of worksheet headers and footers.
-    write_array.pl      Example of writing 1D or 2D arrays of data.
+    bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
+    cgi.pl              A simple CGI program.
     chess.pl            An example of formatting using properties.
     colors.pl           Demo of the colour palette and named colours.
-    images.pl           Adding bitmap images to worksheets.
-    comments.pl         Add cell comments to Excel 5 worksheets.
-    sendmail.pl         Send an Excel email attachment using Mail::Sender.
-    stats_ext.pl        Same as stats.pl with external references.
-    repeat.pl           Example of writing repeated formulas.
-    long_string.pl      Workaround long string limitation with a formula.
-    cgi.pl              A simple CGI program.
-    mod_perl.pl         A simple mod_perl program.
+    copyformat.pl       Example of copying a cell format.
+    diag_border.pl      A simple example of diagonal cell borders.
+    easter_egg.pl       Expose the Excel97 flight simulator. A must see.
+    headers.pl          Examples of worksheet headers and footers.
     hyperlink1.pl       Shows how to create web hyperlinks.
     hyperlink2.pl       Examples of internal and external hyperlinks.
+    images.pl           Adding bitmap images to worksheets.
+    indent.pl           An example of cell indentation.
     merge1.pl           A simple example of cell merging.
     merge2.pl           A simple example of cell merging with formatting.
     merge3.pl           Add hyperlinks to merged cells.
     merge4.pl           An advanced example of merging with formatting.
     merge5.pl           An advanced example of merging with formatting.
+    mod_perl.pl         A simple mod_perl program.
     outline.pl          An example of outlines and grouping.
-    textwrap.pl         Demonstrates text wrapping options.
     panes.pl            An examples of how to create panes.
     protection.pl       Example of cell locking and formula hiding.
-    copyformat.pl       Example of copying a cell format.
+    repeat.pl           Example of writing repeated formulas.
+    sales.pl            An example of a simple sales spreadsheet.
+    sendmail.pl         Send an Excel email attachment using Mail::Sender.
+    stats_ext.pl        Same as stats.pl with external references.
+    stocks.pl           Demonstrates conditional formatting.
+    textwrap.pl         Demonstrates text wrapping options.
+    unicode.pl          Simple example of using Unicode strings.
+    unicode_japan.pl    Write Japanese Unicode strings.
+    unicode_list.pl     List the chars in a Unicode font.
     win32ole.pl         A sample Win32::OLE example for comparison.
-    easter_egg.pl       Expose the Excel97 flight simulator. A must see.
+    write_array.pl      Example of writing 1D or 2D arrays of data.
 </PRE>
 </P>
 <P>
 <PRE>
     Utility
     =======
-    convertA1.pl        Helper functions for dealing with A1 notation.
-    lecxe.pl            Convert Excel to WriteExcel using Win32::OLE.
     csv2xls.pl          Program to convert a CSV file to an Excel file.
-    tab2xls.pl          Program to convert a tab separated file to xls.
     datecalc1.pl        Convert Unix/Perl time to Excel time.
     datecalc2.pl        Calculate an Excel date using Date::Calc.
-    writemany.pl        Write an 2d array of values in one go.
+    lecxe.pl            Convert Excel to WriteExcel using Win32::OLE.
+    tab2xls.pl          Program to convert a tab separated file to xls.
 </PRE>
 </P>
 <P>
 <PRE>
     Developer
     =========
+    convertA1.pl        Helper functions for dealing with A1 notation.
     function_locale.pl  Add non-English function names to Formula.pm.
     filehandle.pl       Examples of working with filehandles.
     writeA1.pl          Example of how to extend the module.
-    bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
+    writemany.pl        Write an 2d array of values in one go.
 </PRE>
 </P>
 <P>
 <HR>
 <H1><A NAME="LIMITATIONS">LIMITATIONS</A></H1>
 <P>
-The following limits are imposed by Excel or the version of the BIFF file
-that has been implemented:
+The following limits are imposed by Excel:
 
 </P>
 <P>
 <PRE>
-    Description                          Limit   Source
-    -----------------------------------  ------  -------
-    Maximum number of chars in a string  255     Excel 5
-    Maximum number of columns            256     Excel All versions
-    Maximum number of rows in Excel 5    16384   Excel 5
-    Maximum number of rows in Excel 97   65536   Excel 97
-    Maximum chars in a sheet name        31      Excel All versions
-    Maximum chars in a header/footer     254     Excel All versions
+    Description                          Limit
+    -----------------------------------  ------
+    Maximum number of chars in a string  32767
+    Maximum number of columns            256
+    Maximum number of rows               65536
+    Maximum chars in a sheet name        31
+    Maximum chars in a header/footer     254
 </PRE>
-</P>
-<P>
-Note: the maximum row reference in a formula is the Excel 5 row limit of
-16384.
-
-</P>
-<P>
-The 255 character limit is removed in the 2.xx versions of this module
-which support the Excel 97+ format and 32k strings.
-
 </P>
 <P>
 The minimum file size is 6K due to the OLE overhead. The maximum file size
@@ -5885,7 +6081,7 @@ See the INSTALL or install.html docs that come with the distribution or:
 </P>
 <P>
 <A
-HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-1.01/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-1.01/WriteExcel/doc/install.html</A>
+HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.01/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.01/WriteExcel/doc/install.html</A>
 
 
 </P>
@@ -6325,6 +6521,11 @@ Formulas are formulae.
 
 </P>
 <P>
+This version of the module doesn't support the <CODE>write_comment()</CODE>
+method. This will be fixed soon.
+
+</P>
+<P>
 XML data can cause Excel files created by Spreadsheet::WriteExcel to become
 corrupt. See <A HREF="#WORKING_WITH_XML">WORKING WITH XML</A> for further details.
 
@@ -6346,8 +6547,7 @@ only stores the formula and not the calculated result.
 
 </P>
 <P>
-OpenOffice: Numerical formats are not displayed due to some missing records
-in Spreadsheet::WriteExcel. URLs are not displayed as links.
+OpenOffice: Some formatting is not displayed correctly.
 
 </P>
 <P>
@@ -6374,6 +6574,14 @@ If you wish to submit a bug report run the <CODE>bug_report.pl</CODE> program in
 <HR>
 <H1><A NAME="TO_DO">TO DO</A></H1>
 <P>
+The roadmap is as follows:
+
+</P>
+<UL>
+<LI><A NAME="item_Add">Add write_comment().</A>
+<LI><A NAME="item_Add">Add AutoFilters.</A>
+</UL>
+<P>
 You can keep up to date with future releases by registering as a user with
 Freshmeat <A HREF="http://freshmeat.net/">http://freshmeat.net/</A> and
 subscribing to Spreadsheet::WriteExcel at the project page <A
@@ -6386,6 +6594,31 @@ HREF="news://comp.lang.perl.announce">news://comp.lang.perl.announce</A>
 <P>
 Also, here are some of the most requested features that probably won't get
 added:
+
+</P>
+<UL>
+<LI><A NAME="item_Graphs">Graphs.</A>
+<P>
+The format is documented but it would require too much work to implement.
+It would also require too much work to design a useable interface to the
+hundreds of features in an Excel graph. So that's two too much works.
+Nevertheless, I do hope to *try* implement graphs. However, it is a long
+term goal. It won't be available for at least 6 months, even if you read
+this in 6 months time.
+
+</P>
+<LI><A NAME="item_Macros">Macros.</A>
+<P>
+This would solve the previous problem neatly. However, the format of Excel
+macros isn't documented.
+
+</P>
+<LI><A NAME="item_Some">Some feature that you really need. ;-)</A>
+</UL>
+<P>
+If there is some feature of an Excel file that you really, really need then
+you should use Win32::OLE with Excel on Windows. If you are on Unix you
+could consider connecting to a Windows server via Docserver or SOAP, see <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A>.
 
 </P>
 <P>
@@ -6515,17 +6748,27 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Via, via, vieni via di qui,
-    niente più ti lega a questi luoghi,
-    neanche questi fiori azzurri...
-    Via, via, neanche questo tempo grigio
-    pieno di musiche e di uomini
-    che ti son' piaciuti
+    Filling her compact &amp; delicious body
+    with chicken páprika, she glanced at me
+    twice.
+    Fainting with interest, I hungered back
+    and only the fact of her husband &amp; four other people
+    kept me from springing on her
 </PRE>
 </P>
 <P>
 <PRE>
-        -- Paolo Conte
+    or falling at her little feet and crying
+    'You are the hottest one for years of night
+    Henry's dazed eyes
+    have enjoyed, Brilliance.' I advanced upon
+    (despairing) my spumoni.--Sir Bones: is stuffed,
+    de world, wif feeding girls.
+</PRE>
+</P>
+<P>
+<PRE>
+        -- John Berryman
 </PRE>
 </P>
 <P>

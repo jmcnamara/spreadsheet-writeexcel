@@ -1,7 +1,7 @@
 ======================================================================
 NAME
 
-    Spreadsheet::WriteExcel - Write formatted text and numbers to a
+    Spreadsheet::WriteExcel - Write formatted text and numbers to a 
     cross-platform Excel binary file.
 
 ======================================================================
@@ -23,10 +23,10 @@ INSTALLATION
         http://search.cpan.org/search?dist=Spreadsheet-WriteExcel
         http://theoryx5.uwinnipeg.ca/mod_perl/cpan-search?idinfo=154
         ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/J/JM/JMCNAMARA/
-
+        
     Unzip the module as follows or use winzip:
 
-        tar -zxvf Spreadsheet-WriteExcel-0.xx.tar.gz
+           tar -zxvf Spreadsheet-WriteExcel-0.xx.tar.gz
 
     The module can be installed using the standard Perl procedure:
 
@@ -59,7 +59,7 @@ INSTALLATION
         PPM> quit
         C:\>
 
-    If this fails try the following:
+        If this fails try the following:
 
         PPM>install http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
 
@@ -115,7 +115,7 @@ UPDATES
 
     You will then receive mailed updates when a new version is
     released.
-
+    
     Alternatively you can keep an eye on news://comp.lang.perl.announce
 
 ======================================================================

@@ -47,7 +47,7 @@ my @dates       = qw(
                         dates   => \@dates
                     );
 
-$VERSION        = '1.01';
+$VERSION        = '0.01';
 
 
 

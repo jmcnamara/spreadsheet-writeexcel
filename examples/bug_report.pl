@@ -85,7 +85,7 @@ Here is some code that demonstrates the problem.
     use Spreadsheet::WriteExcel;
 
     my $workbook  = Spreadsheet::WriteExcel->new("reload.xls");
-    my $worksheet = $workbook->addworksheet();
+    my $worksheet = $workbook->add_worksheet();
 
     $worksheet->write(0, 0, "Hi Excel!");
 

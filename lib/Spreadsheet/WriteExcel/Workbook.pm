@@ -21,10 +21,11 @@ use Spreadsheet::WriteExcel::Worksheet;
 use Spreadsheet::WriteExcel::Format;
 
 
+
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '1.01';
+$VERSION = '0.19';
 
 ###############################################################################
 #
@@ -59,6 +60,19 @@ sub new {
     $self->{_formats}           = [];
     $self->{_palette}           = [];
 
+    $self->{_using_tmpfile}     = 1;
+    $self->{_filehandle}        = "";
+    $self->{_temp_file}         = "";
+
+    $self->{_str_total}         = 0;
+    $self->{_str_unique}        = 0;
+    $self->{_str_table}         = {};
+    $self->{_str_array}         = [];
+    $self->{_str_block_sizes}   = [];
+
+    $self->{_ext_ref_count}     = 0;
+    $self->{_ext_refs}          = {};
+
     bless $self, $class;
 
     # Add the default format for hyperlinks
@@ -83,7 +97,7 @@ sub new {
                   $self->{_filename} .
                   ". It may be in use or protected";
             return undef;
-        }
+    }
         $fh->close;
     }
 
@@ -91,7 +105,142 @@ sub new {
     # Set colour palette.
     $self->set_palette_xl97();
 
+    $self->_initialize();
     return $self;
+}
+
+
+###############################################################################
+#
+# _initialize()
+#
+# Open a tmp file to store the majority of the Worksheet data. If this fails,
+# for example due to write permissions, store the data in memory. This can be
+# slow for large files.
+#
+# TODO: Move this and other methods shared with Worksheet up into BIFFWriter.
+#
+sub _initialize {
+
+    my $self = shift;
+    my $fh;
+    my $tmp_dir;
+
+    # The following code is complicated by Windows limitations. Porters can
+    # choose a more direct method.
+
+
+
+    # In the default case we use IO::File->new_tmpfile(). This may fail, in
+    # particular with IIS on Windows, so we allow the user to specify a temp
+    # directory via File::Temp.
+    #
+    if (defined $self->{_tempdir}) {
+
+        # Delay loading File:Temp to reduce the module dependencies.
+        eval { require File::Temp };
+        die "The File::Temp module must be installed in order ".
+            "to call set_tempdir().\n" if $@;
+
+
+        # Trap but ignore File::Temp errors.
+        eval { $fh = File::Temp::tempfile(DIR => $self->{_tempdir}) };
+
+        # Store the failed tmp dir in case of errors.
+        $tmp_dir = $self->{_tempdir} || File::Spec->tmpdir if not $fh;
+    }
+    else {
+
+        $fh = IO::File->new_tmpfile();
+
+        # Store the failed tmp dir in case of errors.
+        $tmp_dir = "POSIX::tmpnam() directory" if not $fh;
+    }
+
+
+    # Check if the temp file creation was successful. Else store data in memory.
+    if ($fh) {
+
+        # binmode file whether platform requires it or not.
+        binmode($fh);
+
+        # Store filehandle
+        $self->{_filehandle} = $fh;
+    }
+    else {
+
+        # Set flag to store data in memory if XX::tempfile() failed.
+        $self->{_using_tmpfile} = 0;
+
+        if ($^W) {
+            my $dir = $self->{_tempdir} || File::Spec->tmpdir();
+
+            warn "Unable to create temp files in $tmp_dir. Data will be ".
+                 "stored in memory. Refer to set_tempdir() in the ".
+                 "Spreadsheet::WriteExcel documentation.\n" ;
+        }
+    }
+}
+
+
+###############################################################################
+#
+# _append(), overloaded.
+#
+# Store Worksheet data in memory using the base class _append() or to a
+# temporary file, the default.
+#
+sub _append {
+
+    my $self = shift;
+
+    if ($self->{_using_tmpfile}) {
+        my $data = join('', @_);
+
+        # Add CONTINUE records if necessary
+        $data = $self->_add_continue($data) if length($data) > $self->{_limit};
+
+        # Protect print() from -l on the command line.
+        local $\ = undef;
+
+        print {$self->{_filehandle}} $data;
+        $self->{_datasize} += length($data);
+    }
+    else {
+        $self->SUPER::_append(@_);
+    }
+}
+
+
+###############################################################################
+#
+# get_data().
+#
+# Retrieves data from memory in one chunk, or from disk in $buffer
+# sized chunks.
+#
+sub get_data {
+
+    my $self   = shift;
+    my $buffer = 4096;
+    my $tmp;
+
+    # Return data stored in memory
+    if (defined $self->{_data}) {
+        $tmp           = $self->{_data};
+        $self->{_data} = undef;
+        my $fh         = $self->{_filehandle};
+        seek($fh, 0, 0) if $self->{_using_tmpfile};
+        return $tmp;
+    }
+
+    # Return data stored on disk
+    if ($self->{_using_tmpfile}) {
+        return $tmp if read($self->{_filehandle}, $tmp, $buffer);
+    }
+
+    # No data to return
+    return undef;
 }
 
 
@@ -179,21 +328,31 @@ sub worksheets {
 #
 sub add_worksheet {
 
-    my $self      = shift;
-    my $name      = $_[0] || "";
+    my $self     = shift;
+    my $name     = $_[0] || "";
+    my $encoding = $_[1] || 0;
+    my $limit    = $encoding ? 62 : 31;
 
-    # Check that sheetname is <= 31 chars (Excel limit).
-    croak "Sheetname $name must be <= 31 chars" if length $name > 31;
+
+    # Check that sheetname is <= 31 (1 or 2 byte chars). Excel limit.
+    croak "Sheetname $name must be <= 31 chars" if length $name > $limit;
 
     # Check that sheetname doesn't contain any invalid characters
     croak 'Invalid Excel character [:*?/\\] in worksheet name: ' . $name
-          if $name =~ m{[:*?/\\]};
+          if $encoding == 0 and $name =~ m{[:*?/\\]};
+
+    # Check that unicode sheetname has an even number of bytes
+    croak 'Odd number of bytes in Unicode worksheet name:' . $name
+          if $encoding == 1 and length($name) % 2;
 
 
     my $index     = @{$self->{_worksheets}};
     my $sheetname = $self->{_sheetname};
 
-    if ($name eq "" ) { $name = $sheetname . ($index+1) }
+    if ($name eq "" ) {
+        $name     = $sheetname . ($index+1);
+        $encoding = 0;
+    }
 
     # Check that the worksheet name doesn't already exist: a fatal Excel error.
     foreach my $tmp (@{$self->{_worksheets}}) {
@@ -208,19 +367,23 @@ sub add_worksheet {
     # language.
     #
     my @init_data = (
-                        $name,
-                        $index,
+                         $name,
+                         $index,
+                         $encoding,
                         \$self->{_activesheet},
                         \$self->{_firstsheet},
-                        $self->{_url_format},
-                        $self->{_parser},
-                        $self->{_tempdir},
+                         $self->{_url_format},
+                         $self->{_parser},
+                         $self->{_tempdir},
+                        \$self->{_str_total},
+                        \$self->{_str_unique},
+                        \$self->{_str_table},
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
-    $self->{_worksheets}->[$index] = $worksheet;    # Store ref for iterator
-    $self->{_sheetnames}->[$index] = $name;         # Store EXTERNSHEET names
-    $self->{_parser}->set_ext_sheets($name, $index);# Store names in Formula.pm
+    $self->{_worksheets}->[$index] = $worksheet;     # Store ref for iterator
+    $self->{_sheetnames}->[$index] = $name;          # Store EXTERNSHEET names
+    $self->{_parser}->set_ext_sheets($name, $index); # Store names in Formula.pm
     return $worksheet;
 }
 
@@ -429,79 +592,6 @@ sub set_palette_xl97 {
 
 ###############################################################################
 #
-# set_palette_xl5()
-#
-# Sets the colour palette to the Excel 5 default.
-#
-sub set_palette_xl5 {
-
-    my $self = shift;
-
-    $self->{_palette} = [
-                            [0x00, 0x00, 0x00, 0x00],   # 8
-                            [0xff, 0xff, 0xff, 0x00],   # 9
-                            [0xff, 0x00, 0x00, 0x00],   # 10
-                            [0x00, 0xff, 0x00, 0x00],   # 11
-                            [0x00, 0x00, 0xff, 0x00],   # 12
-                            [0xff, 0xff, 0x00, 0x00],   # 13
-                            [0xff, 0x00, 0xff, 0x00],   # 14
-                            [0x00, 0xff, 0xff, 0x00],   # 15
-                            [0x80, 0x00, 0x00, 0x00],   # 16
-                            [0x00, 0x80, 0x00, 0x00],   # 17
-                            [0x00, 0x00, 0x80, 0x00],   # 18
-                            [0x80, 0x80, 0x00, 0x00],   # 19
-                            [0x80, 0x00, 0x80, 0x00],   # 20
-                            [0x00, 0x80, 0x80, 0x00],   # 21
-                            [0xc0, 0xc0, 0xc0, 0x00],   # 22
-                            [0x80, 0x80, 0x80, 0x00],   # 23
-                            [0x80, 0x80, 0xff, 0x00],   # 24
-                            [0x80, 0x20, 0x60, 0x00],   # 25
-                            [0xff, 0xff, 0xc0, 0x00],   # 26
-                            [0xa0, 0xe0, 0xe0, 0x00],   # 27
-                            [0x60, 0x00, 0x80, 0x00],   # 28
-                            [0xff, 0x80, 0x80, 0x00],   # 29
-                            [0x00, 0x80, 0xc0, 0x00],   # 30
-                            [0xc0, 0xc0, 0xff, 0x00],   # 31
-                            [0x00, 0x00, 0x80, 0x00],   # 32
-                            [0xff, 0x00, 0xff, 0x00],   # 33
-                            [0xff, 0xff, 0x00, 0x00],   # 34
-                            [0x00, 0xff, 0xff, 0x00],   # 35
-                            [0x80, 0x00, 0x80, 0x00],   # 36
-                            [0x80, 0x00, 0x00, 0x00],   # 37
-                            [0x00, 0x80, 0x80, 0x00],   # 38
-                            [0x00, 0x00, 0xff, 0x00],   # 39
-                            [0x00, 0xcf, 0xff, 0x00],   # 40
-                            [0x69, 0xff, 0xff, 0x00],   # 41
-                            [0xe0, 0xff, 0xe0, 0x00],   # 42
-                            [0xff, 0xff, 0x80, 0x00],   # 43
-                            [0xa6, 0xca, 0xf0, 0x00],   # 44
-                            [0xdd, 0x9c, 0xb3, 0x00],   # 45
-                            [0xb3, 0x8f, 0xee, 0x00],   # 46
-                            [0xe3, 0xe3, 0xe3, 0x00],   # 47
-                            [0x2a, 0x6f, 0xf9, 0x00],   # 48
-                            [0x3f, 0xb8, 0xcd, 0x00],   # 49
-                            [0x48, 0x84, 0x36, 0x00],   # 50
-                            [0x95, 0x8c, 0x41, 0x00],   # 51
-                            [0x8e, 0x5e, 0x42, 0x00],   # 52
-                            [0xa0, 0x62, 0x7a, 0x00],   # 53
-                            [0x62, 0x4f, 0xac, 0x00],   # 54
-                            [0x96, 0x96, 0x96, 0x00],   # 55
-                            [0x1d, 0x2f, 0xbe, 0x00],   # 56
-                            [0x28, 0x66, 0x76, 0x00],   # 57
-                            [0x00, 0x45, 0x00, 0x00],   # 58
-                            [0x45, 0x3e, 0x01, 0x00],   # 59
-                            [0x6a, 0x28, 0x13, 0x00],   # 60
-                            [0x85, 0x39, 0x6a, 0x00],   # 61
-                            [0x4a, 0x32, 0x85, 0x00],   # 62
-                            [0x42, 0x42, 0x42, 0x00],   # 63
-                        ];
-
-    return 0;
-}
-
-
-###############################################################################
-#
 # set_tempdir()
 #
 # Change the default temp directory used by _initialize() in Worksheet.pm.
@@ -563,8 +653,6 @@ sub _store_workbook {
     # Add Workbook globals
     $self->_store_bof(0x0005);
     $self->_store_codepage();
-    $self->_store_externs();    # For print area and repeat rows
-    $self->_store_names();      # For print area and repeat rows
     $self->_store_window1();
     $self->_store_1904();
     $self->_store_all_fonts();
@@ -572,12 +660,25 @@ sub _store_workbook {
     $self->_store_all_xfs();
     $self->_store_all_styles();
     $self->_store_palette();
+
+    # Calculate the offsets required by the BOUNDSHEET records
     $self->_calc_sheet_offsets();
 
-    # Add BOUNDSHEET records
+    # Add BOUNDSHEET records. For BIFF 7+ TODO ....
     foreach my $sheet (@{$self->{_worksheets}}) {
-        $self->_store_boundsheet($sheet->{_name}, $sheet->{_offset});
+        $self->_store_boundsheet($sheet->{_name},
+                                 $sheet->{_offset},
+                                 $sheet->{_name_encoding});
     }
+
+    # NOTE: If any records are added between here and EOF the
+    # _calc_sheet_offsets() should be updated to include the new length.
+    if ($self->{_ext_ref_count}) {
+        $self->_store_supbook();
+        $self->_store_externsheet();
+        $self->_store_names();
+    }
+    $self->_store_shared_strings();
 
     # End Workbook globals
     $self->_store_eof();
@@ -603,7 +704,10 @@ sub _store_OLE_file {
     # Write Worksheet data if data <~ 7MB
     if ($OLE->set_size($self->{_biffsize})) {
         $OLE->write_header();
-        $OLE->write($self->{_data});
+
+        while (my $tmp = $self->get_data()) {
+            $OLE->write($tmp);
+        }
 
         foreach my $sheet (@{$self->{_worksheets}}) {
             while (my $tmp = $sheet->get_data()) {
@@ -631,14 +735,20 @@ sub _store_OLE_file {
 #
 # _calc_sheet_offsets()
 #
-# Calculate offsets for Worksheet BOF records.
+# Calculate Worksheet BOF offsets records for use in the BOUNDSHEET records.
 #
 sub _calc_sheet_offsets {
 
     my $self    = shift;
-    my $BOF     = 11;
+    my $BOF     = 12;
     my $EOF     = 4;
     my $offset  = $self->{_datasize};
+
+    # Add the length of the SST and associated CONTINUEs
+    $offset += $self->_calculate_shared_string_sizes();
+
+    # Add the length of the SUPBOOK, EXTERNSHEET and NAME records
+    $offset += $self->_calculate_extern_sizes();
 
     foreach my $sheet (@{$self->{_worksheets}}) {
         $offset += $BOF + length($sheet->{_name});
@@ -808,42 +918,29 @@ sub _store_all_styles {
 
 ###############################################################################
 #
-# _store_externs()
-#
-# Write the EXTERNCOUNT and EXTERNSHEET records. These are used as indexes for
-# the NAME records.
-#
-sub _store_externs {
-
-    my $self = shift;
-
-    # Create EXTERNCOUNT with number of worksheets
-    $self->_store_externcount(scalar @{$self->{_worksheets}});
-
-    # Create EXTERNSHEET for each worksheet
-    foreach my $sheetname (@{$self->{_sheetnames}}) {
-        $self->_store_externsheet($sheetname);
-    }
-}
-
-
-###############################################################################
-#
 # _store_names()
 #
 # Write the NAME record to define the print area and the repeat rows and cols.
 #
 sub _store_names {
 
-    my $self = shift;
+    my $self        = shift;
+    my $index       = 0;
+    my %ext_refs    = %{$self->{_ext_refs}};
 
     # Create the print area NAME records
     foreach my $worksheet (@{$self->{_worksheets}}) {
+
+        my $key = "$index:$index";
+        my $ref = $ext_refs{$key};
+        $index++;
+
         # Write a Name record if the print area has been defined
         if (defined $worksheet->{_print_rowmin}) {
             $self->_store_name_short(
                 $worksheet->{_index},
                 0x06, # NAME type
+                $ref,
                 $worksheet->{_print_rowmin},
                 $worksheet->{_print_rowmax},
                 $worksheet->{_print_colmin},
@@ -852,6 +949,7 @@ sub _store_names {
         }
     }
 
+    $index = 0;
 
     # Create the print title NAME records
     foreach my $worksheet (@{$self->{_worksheets}}) {
@@ -860,6 +958,9 @@ sub _store_names {
         my $rowmax = $worksheet->{_title_rowmax};
         my $colmin = $worksheet->{_title_colmin};
         my $colmax = $worksheet->{_title_colmax};
+        my $key    = "$index:$index";
+        my $ref    = $ext_refs{$key};
+        $index++;
 
         # Determine if row + col, row, col or nothing has been defined
         # and write the appropriate record
@@ -870,6 +971,7 @@ sub _store_names {
             $self->_store_name_long(
                 $worksheet->{_index},
                 0x07, # NAME type
+                $ref,
                 $rowmin,
                 $rowmax,
                 $colmin,
@@ -881,6 +983,7 @@ sub _store_names {
             $self->_store_name_short(
                 $worksheet->{_index},
                 0x07, # NAME type
+                $ref,
                 $rowmin,
                 $rowmax,
                 0x00,
@@ -892,14 +995,15 @@ sub _store_names {
             $self->_store_name_short(
                 $worksheet->{_index},
                 0x07, # NAME type
+                $ref,
                 0x0000,
-                0x3fff,
+                0xffff,
                 $colmin,
                 $colmax
             );
         }
         else {
-            # Print title hasn't been defined.
+            # Nothing left to do
         }
     }
 }
@@ -960,15 +1064,20 @@ sub _store_boundsheet {
     my $self      = shift;
 
     my $record    = 0x0085;               # Record identifier
-    my $length    = 0x07 + length($_[0]); # Number of bytes to follow
+    my $length    = 0x08 + length($_[0]); # Number of bytes to follow
 
     my $sheetname = $_[0];                # Worksheet name
     my $offset    = $_[1];                # Location of worksheet BOF
+    my $encoding  = $_[2];                # Location of worksheet BOF
     my $grbit     = 0x0000;               # Sheet identifier
     my $cch       = length($sheetname);   # Length of sheet name
 
-    my $header    = pack("vv",  $record, $length);
-    my $data      = pack("VvC", $offset, $grbit, $cch);
+
+    $cch /= 2 if $encoding;
+    $sheetname = pack 'n*', unpack 'v*', $sheetname if $encoding;
+
+    my $header    = pack("vv",   $record, $length);
+    my $data      = pack("VvCC", $offset, $grbit, $cch, $encoding);
 
     $self->_append($header, $data, $sheetname);
 }
@@ -1009,14 +1118,15 @@ sub _store_num_format {
     my $self      = shift;
 
     my $record    = 0x041E;                 # Record identifier
-    my $length    = 0x03 + length($_[0]);   # Number of bytes to follow
+    my $length    = 0x05 + length($_[0]);   # Number of bytes to follow
 
     my $format    = $_[0];                  # Custom format string
     my $ifmt      = $_[1];                  # Format index code
     my $cch       = length($format);        # Length of format string
+    my $encoding     = 0;
 
     my $header    = pack("vv", $record, $length);
-    my $data      = pack("vC", $ifmt, $cch);
+    my $data      = pack("vvC", $ifmt, $cch, $encoding);
 
     $self->_append($header, $data, $format);
 }
@@ -1046,28 +1156,23 @@ sub _store_1904 {
 
 ###############################################################################
 #
-# _store_externcount($count)
+# _store_supbook()
 #
-# Write BIFF record EXTERNCOUNT to indicate the number of external sheet
-# references in the workbook.
+# Write BIFF record SUPBOOK to indicate that the workbook contains external
+# references, in our case, formula, print area and print title refs.
 #
-# Excel only stores references to external sheets that are used in NAME.
-# The workbook NAME record is required to define the print area and the repeat
-# rows and columns.
-#
-# A similar method is used in Worksheet.pm for a slightly different purpose.
-#
-sub _store_externcount {
+sub _store_supbook {
 
-    my $self     = shift;
+    my $self        = shift;
 
-    my $record   = 0x0016;          # Record identifier
-    my $length   = 0x0002;          # Number of bytes to follow
+    my $record      = 0x01AE;                   # Record identifier
+    my $length      = 0x0004;                   # Number of bytes to follow
 
-    my $cxals    = $_[0];           # Number of external references
+    my $ctabs       = @{$self->{_worksheets}};  # Number of worksheets
+    my $StVirtPath  = 0x0401;                   # Encoded workbook filename
 
-    my $header   = pack("vv", $record, $length);
-    my $data     = pack("v",  $cxals);
+    my $header      = pack("vv", $record, $length);
+    my $data        = pack("vv", $ctabs, $StVirtPath);
 
     $self->_append($header, $data);
 }
@@ -1075,30 +1180,44 @@ sub _store_externcount {
 
 ###############################################################################
 #
-# _store_externsheet($sheetname)
+# _store_externsheet()
 #
 #
 # Writes the Excel BIFF EXTERNSHEET record. These references are used by
-# formulas. NAME record is required to define the print area and the repeat
+# formulas. TODO NAME record is required to define the print area and the repeat
 # rows and columns.
-#
-# A similar method is used in Worksheet.pm for a slightly different purpose.
 #
 sub _store_externsheet {
 
     my $self        = shift;
 
-    my $record      = 0x0017;               # Record identifier
-    my $length      = 0x02 + length($_[0]); # Number of bytes to follow
+    my $record      = 0x0017;                   # Record identifier
+    my $length;                                 # Number of bytes to follow
 
-    my $sheetname   = $_[0];                # Worksheet name
-    my $cch         = length($sheetname);   # Length of sheet name
-    my $rgch        = 0x03;                 # Filename encoding
 
-    my $header      = pack("vv",  $record, $length);
-    my $data        = pack("CC", $cch, $rgch);
+    # Get the external refs
+    my %ext_refs = %{$self->{_ext_refs}};
+    my @ext_refs = sort {$ext_refs{$a} <=> $ext_refs{$b}} keys %ext_refs;
 
-    $self->_append($header, $data, $sheetname);
+    # Change the external refs from stringified "1:1" to [1, 1]
+    foreach my $ref (@ext_refs) {
+        $ref = [split /:/, $ref];
+    }
+
+
+    my $cxti        = scalar @ext_refs;         # Number of Excel XTI structures
+    my $rgxti       = '';                       # Array of XTI structures
+
+    # Write the XTI structs
+    foreach my $ext_ref (@ext_refs) {
+        $rgxti .= pack("vvv", 0, $ext_ref->[0], $ext_ref->[1])
+    }
+
+
+    my $data        = pack("v", $cxti) . $rgxti;
+    my $header      = pack("vv", $record, length $data);
+
+    $self->_append($header, $data);
 }
 
 
@@ -1115,29 +1234,25 @@ sub _store_name_short {
     my $self            = shift;
 
     my $record          = 0x0018;       # Record identifier
-    my $length          = 0x0024;       # Number of bytes to follow
+    my $length          = 0x001b;       # Number of bytes to follow
 
     my $index           = shift;        # Sheet index
     my $type            = shift;
+    my $ext_ref         = shift;        # TODO
 
     my $grbit           = 0x0020;       # Option flags
     my $chKey           = 0x00;         # Keyboard shortcut
     my $cch             = 0x01;         # Length of text name
-    my $cce             = 0x0015;       # Length of text definition
+    my $cce             = 0x000b;       # Length of text definition
+    my $unknown01       = 0x0000;       #
     my $ixals           = $index +1;    # Sheet index
-    my $itab            = $ixals;       # Equal to ixals
+    my $unknown02       = 0x00;         #
     my $cchCustMenu     = 0x00;         # Length of cust menu text
     my $cchDescription  = 0x00;         # Length of description text
     my $cchHelptopic    = 0x00;         # Length of help topic text
     my $cchStatustext   = 0x00;         # Length of status bar text
     my $rgch            = $type;        # Built-in name type
-
-    my $unknown03       = 0x3b;
-    my $unknown04       = 0xffff-$index;
-    my $unknown05       = 0x0000;
-    my $unknown06       = 0x0000;
-    my $unknown07       = 0x1087;
-    my $unknown08       = 0x8005;
+    my $unknown03       = 0x3b;         #
 
     my $rowmin          = $_[0];        # Start row
     my $rowmax          = $_[1];        # End row
@@ -1145,30 +1260,26 @@ sub _store_name_short {
     my $colmax          = $_[3];        # end column
 
 
-    my $header          = pack("vv",  $record, $length);
-    my $data            = pack("v", $grbit);
-    $data              .= pack("C", $chKey);
-    $data              .= pack("C", $cch);
-    $data              .= pack("v", $cce);
-    $data              .= pack("v", $ixals);
-    $data              .= pack("v", $itab);
-    $data              .= pack("C", $cchCustMenu);
-    $data              .= pack("C", $cchDescription);
-    $data              .= pack("C", $cchHelptopic);
-    $data              .= pack("C", $cchStatustext);
-    $data              .= pack("C", $rgch);
-    $data              .= pack("C", $unknown03);
-    $data              .= pack("v", $unknown04);
-    $data              .= pack("v", $unknown05);
-    $data              .= pack("v", $unknown06);
-    $data              .= pack("v", $unknown07);
-    $data              .= pack("v", $unknown08);
-    $data              .= pack("v", $index);
-    $data              .= pack("v", $index);
-    $data              .= pack("v", $rowmin);
-    $data              .= pack("v", $rowmax);
-    $data              .= pack("C", $colmin);
-    $data              .= pack("C", $colmax);
+    my $header          = pack("vv", $record, $length);
+    my $data            = pack("v",  $grbit);
+    $data              .= pack("C",  $chKey);
+    $data              .= pack("C",  $cch);
+    $data              .= pack("v",  $cce);
+    $data              .= pack("v",  $unknown01);
+    $data              .= pack("v",  $ixals);
+    $data              .= pack("C",  $unknown02);
+    $data              .= pack("C",  $cchCustMenu);
+    $data              .= pack("C",  $cchDescription);
+    $data              .= pack("C",  $cchHelptopic);
+    $data              .= pack("C",  $cchStatustext);
+    $data              .= pack("C",  $rgch);
+    $data              .= pack("C",  $unknown03);
+    $data              .= pack("v",  $ext_ref);
+
+    $data              .= pack("v",  $rowmin);
+    $data              .= pack("v",  $rowmax);
+    $data              .= pack("v",  $colmin);
+    $data              .= pack("v",  $colmax);
 
     $self->_append($header, $data);
 }
@@ -1189,31 +1300,28 @@ sub _store_name_long {
     my $self            = shift;
 
     my $record          = 0x0018;       # Record identifier
-    my $length          = 0x003d;       # Number of bytes to follow
+    my $length          = 0x002a;       # Number of bytes to follow
 
     my $index           = shift;        # Sheet index
     my $type            = shift;
+    my $ext_ref         = shift;        # TODO
 
     my $grbit           = 0x0020;       # Option flags
     my $chKey           = 0x00;         # Keyboard shortcut
     my $cch             = 0x01;         # Length of text name
-    my $cce             = 0x002e;       # Length of text definition
+    my $cce             = 0x001a;       # Length of text definition
+    my $unknown01       = 0x0000;       #
     my $ixals           = $index +1;    # Sheet index
-    my $itab            = $ixals;       # Equal to ixals
+    my $unknown02       = 0x00;         #
     my $cchCustMenu     = 0x00;         # Length of cust menu text
     my $cchDescription  = 0x00;         # Length of description text
     my $cchHelptopic    = 0x00;         # Length of help topic text
     my $cchStatustext   = 0x00;         # Length of status bar text
     my $rgch            = $type;        # Built-in name type
 
-    my $unknown01       = 0x29;
-    my $unknown02       = 0x002b;
-    my $unknown03       = 0x3b;
-    my $unknown04       = 0xffff-$index;
-    my $unknown05       = 0x0000;
-    my $unknown06       = 0x0000;
-    my $unknown07       = 0x1087;
-    my $unknown08       = 0x8008;
+    my $unknown03       = 0x29;
+    my $unknown04       = 0x0017;
+    my $unknown05       = 0x3b;
 
     my $rowmin          = $_[0];        # Start row
     my $rowmax          = $_[1];        # End row
@@ -1221,48 +1329,39 @@ sub _store_name_long {
     my $colmax          = $_[3];        # end column
 
 
-    my $header          = pack("vv",  $record, $length);
-    my $data            = pack("v", $grbit);
-    $data              .= pack("C", $chKey);
-    $data              .= pack("C", $cch);
-    $data              .= pack("v", $cce);
-    $data              .= pack("v", $ixals);
-    $data              .= pack("v", $itab);
-    $data              .= pack("C", $cchCustMenu);
-    $data              .= pack("C", $cchDescription);
-    $data              .= pack("C", $cchHelptopic);
-    $data              .= pack("C", $cchStatustext);
-    $data              .= pack("C", $rgch);
-    $data              .= pack("C", $unknown01);
-    $data              .= pack("v", $unknown02);
+    my $header          = pack("vv", $record, $length);
+    my $data            = pack("v",  $grbit);
+    $data              .= pack("C",  $chKey);
+    $data              .= pack("C",  $cch);
+    $data              .= pack("v",  $cce);
+    $data              .= pack("v",  $unknown01);
+    $data              .= pack("v",  $ixals);
+    $data              .= pack("C",  $unknown02);
+    $data              .= pack("C",  $cchCustMenu);
+    $data              .= pack("C",  $cchDescription);
+    $data              .= pack("C",  $cchHelptopic);
+    $data              .= pack("C",  $cchStatustext);
+    $data              .= pack("C",  $rgch);
+
     # Column definition
-    $data              .= pack("C", $unknown03);
-    $data              .= pack("v", $unknown04);
-    $data              .= pack("v", $unknown05);
-    $data              .= pack("v", $unknown06);
-    $data              .= pack("v", $unknown07);
-    $data              .= pack("v", $unknown08);
-    $data              .= pack("v", $index);
-    $data              .= pack("v", $index);
-    $data              .= pack("v", 0x0000);
-    $data              .= pack("v", 0x3fff);
-    $data              .= pack("C", $colmin);
-    $data              .= pack("C", $colmax);
+    $data              .= pack("C",  $unknown03);
+    $data              .= pack("v",  $unknown04);
+    $data              .= pack("C",  $unknown05);
+    $data              .= pack("v",  $ext_ref);
+    $data              .= pack("v",  0x0000);
+    $data              .= pack("v",  0xffff);
+    $data              .= pack("v",  $colmin);
+    $data              .= pack("v",  $colmax);
+
     # Row definition
-    $data              .= pack("C", $unknown03);
-    $data              .= pack("v", $unknown04);
-    $data              .= pack("v", $unknown05);
-    $data              .= pack("v", $unknown06);
-    $data              .= pack("v", $unknown07);
-    $data              .= pack("v", $unknown08);
-    $data              .= pack("v", $index);
-    $data              .= pack("v", $index);
-    $data              .= pack("v", $rowmin);
-    $data              .= pack("v", $rowmax);
-    $data              .= pack("C", 0x00);
-    $data              .= pack("C", 0xff);
+    $data              .= pack("C",  $unknown05);
+    $data              .= pack("v",  $ext_ref);
+    $data              .= pack("v",  $rowmin);
+    $data              .= pack("v",  $rowmax);
+    $data              .= pack("v",  0x00);
+    $data              .= pack("v",  0xff);
     # End of data
-    $data              .= pack("C", 0x10);
+    $data              .= pack("C",  0x10);
 
     $self->_append($header, $data);
 }
@@ -1312,6 +1411,434 @@ sub _store_codepage {
     my $data            = pack("v",  $cv);
 
     $self->_append($header, $data);
+}
+
+
+
+
+###############################################################################
+###############################################################################
+###############################################################################
+
+
+
+###############################################################################
+#
+# _calculate_extern_sizes()
+#
+# We need to calculate the space required by the SUPBOOK, EXTERNSHEET and NAME
+# records so that it can be added to the BOUNDSHEET offsets.
+#
+sub _calculate_extern_sizes {
+
+    my $self   = shift;
+
+
+    my %ext_refs        = $self->{_parser}->get_ext_sheets();
+    my $ext_ref_count   = scalar keys %ext_refs;
+    my $length          = 0;
+    my $index           = 0;
+
+    foreach my $worksheet (@{$self->{_worksheets}}) {
+
+        my $rowmin      = $worksheet->{_title_rowmin};
+        my $colmin      = $worksheet->{_title_colmin};
+        my $key         = "$index:$index";
+        $index++;
+
+
+        # Print area NAME records
+        if (defined $worksheet->{_print_rowmin}) {
+            $ext_refs{$key} = $ext_ref_count++ if not exists $ext_refs{$key};
+
+            $length += 31 ;
+        }
+
+
+        # Print title  NAME records
+        if (defined $rowmin and defined $colmin) {
+            $ext_refs{$key} = $ext_ref_count++ if not exists $ext_refs{$key};
+
+            $length += 46;
+        }
+        elsif (defined $rowmin or defined $colmin) {
+            $ext_refs{$key} = $ext_ref_count++ if not exists $ext_refs{$key};
+
+            $length += 31;
+        }
+        else {
+            # TODO
+        }
+
+
+    }
+
+
+    # TODO
+    $self->{_ext_ref_count} = $ext_ref_count;
+    $self->{_ext_refs}      = {%ext_refs};
+
+
+
+    # If there are no external refs then we don't write, SUPBOOK, EXTERNSHEET
+    # and NAME. Therefore the length is 0.
+
+    return $length = 0 if $ext_ref_count == 0;
+
+
+
+    # The SUPBOOK record is 8 bytes
+    $length += 8;
+
+    # The EXTERNSHEET record is 6 bytes + 6 bytes for each external ref
+    $length += 6 * (1 + $ext_ref_count);
+
+    return $length;
+}
+
+
+###############################################################################
+#
+# _calculate_shared_string_sizes()
+#
+# Handling of the SST continue blocks is complicated by the need to include an
+# additional continuation byte depending on whether the string is split between
+# blocks or whether it starts at the beginning of the block. (There are also
+# additional complications that will arise later when/if Rich Strings are
+# supported). As such we cannot use the simple CONTINUE mechanism provided by
+# the _add_continue() method in BIFFwriter.pm. Thus we have to make two passes
+# through the strings data. The first is to calculate the required block sizes
+# and the second, in _store_shared_strings(), is to write the actual strings.
+# The first pass through the data is also used to calculate the size of the SST
+# and CONTINUE records for use in setting the BOUNDSHEET record offsets. The
+# downside of this is that the same algorithm repeated in _store_shared_strings.
+#
+sub _calculate_shared_string_sizes {
+
+    my $self    = shift;
+
+    my @strings;
+    $#strings = $self->{_str_unique} -1; # Pre-extend array
+
+    while (my $key = each %{$self->{_str_table}}) {
+        $strings[$self->{_str_table}->{$key}] = $key;
+    }
+
+    # The SST data could be very large, free some memory (maybe).
+    $self->{_str_table} = undef;
+    $self->{_str_array} = [@strings];
+
+
+    # Iterate through the strings to calculate the CONTINUE block sizes.
+    #
+    # The SST blocks requires a specialised CONTINUE block, so we have to
+    # ensure that the maximum data block size is less than the limit used by
+    # _add_continue() in BIFFwriter.pm. For simplicity we use the same size
+    # for the SST and CONTINUE records:
+    #   8228 : Maximum Excel97 block size
+    #     -4 : Length of block header
+    #     -8 : Length of additional SST header information
+    #     -8 : Arbitrary number to keep within _add_continue() limit
+    # = 8208
+    #
+    my $continue_limit = 8208;
+    my $block_length   = 0;
+    my $written        = 0;
+    my @block_sizes;
+    my $continue       = 0;
+
+    for my $string (@strings) {
+
+        my $string_length = length $string;
+        my $encoding      = unpack "xx C", $string;
+        my $split_string  = 0;
+
+
+        # Block length is the total length of the strings that will be
+        # written out in a single SST or CONTINUE block.
+        #
+        $block_length += $string_length;
+
+
+        # We can write the string if it doesn't cross a CONTINUE boundary
+        if ($block_length < $continue_limit) {
+            $written += $string_length;
+            next;
+        }
+
+
+        # Deal with the cases where the next string to be written will exceed
+        # the CONTINUE boundary. If the string is very long it may need to be
+        # written in more than one CONTINUE record.
+        #
+        while ($block_length >= $continue_limit) {
+
+            # We need to avoid the case where a string is continued in the first
+            # n bytes that contain the string header information.
+            #
+            my $header_length   = 3; # Min string + header size -1
+            my $space_remaining = $continue_limit -$written -$continue;
+
+
+            # Unicode data should only be split on char (2 byte) boundaries.
+            # Therefore, in some cases we need to reduce the amount of available
+            # space by 1 byte to ensure the correct alignment.
+            my $align = 0;
+
+            # Only applies to Unicode strings
+            if ($encoding == 1) {
+                # Min string + header size -1
+                $header_length = 4;
+
+                if ($space_remaining > $header_length) {
+                    # String contains 3 byte header => split on odd boundary
+                    if (not $split_string and $space_remaining % 2 != 1) {
+                        $space_remaining--;
+                        $align = 1;
+                    }
+                    # Split section without header => split on even boundary
+                    elsif ($split_string and $space_remaining % 2 == 1) {
+                        $space_remaining--;
+                        $align = 1;
+                    }
+
+                    $split_string = 1;
+                }
+            }
+
+
+            if ($space_remaining > $header_length) {
+                # Write as much as possible of the string in the current block
+                $written      += $space_remaining;
+
+                # Reduce the current block length by the amount written
+                $block_length -= $continue_limit -$continue -$align;
+
+                # Store the max size for this block
+                push @block_sizes, $continue_limit -$align;
+
+                # If the current string was split then the next CONTINUE block
+                # should have the string continue flag (grbit) set unless the
+                # split string fits exactly into the remaining space.
+                #
+                if ($block_length > 0) {
+                    $continue = 1;
+                }
+                else {
+                    $continue = 0;
+                }
+
+            }
+            else {
+                # Store the max size for this block
+                push @block_sizes, $written +$continue;
+
+                # Not enough space to start the string in the current block
+                $block_length -= $continue_limit -$space_remaining -$continue;
+                $continue = 0;
+
+            }
+
+            # If the string (or substr) is small enough we can write it in the
+            # new CONTINUE block. Else, go through the loop again to write it in
+            # one or more CONTINUE blocks
+            #
+            if ($block_length < $continue_limit) {
+                $written = $block_length;
+            }
+            else {
+                $written = 0;
+            }
+        }
+    }
+
+    # Store the max size for the last block unless it is empty
+    push @block_sizes, $written +$continue if $written +$continue;
+
+
+    $self->{_str_block_sizes} = [@block_sizes];
+
+
+    # Calculate the total length of the SST and associated CONTINUEs (if any).
+    # The SST record will have a length even if it contains no strings.
+    # This length is required to set the offsets in the BOUNDSHEET records since
+    # they must be written before the SST records
+    #
+    my $length  = 12;
+    $length    +=     shift @block_sizes if    @block_sizes; # SST
+    $length    += 4 + shift @block_sizes while @block_sizes; # CONTINUEs
+
+    return $length;
+}
+
+
+###############################################################################
+#
+# _store_shared_strings()
+#
+# Write all of the workbooks strings into an indexed array.
+#
+# See the comments in _calculate_shared_string_sizes() for more information.
+#
+# The Excel documentation says that the SST record should be followed by an
+# EXTSST record. The EXTSST record is a hash table that is used to optimise
+# access to SST. However, despite the documentation it doesn't seem to be
+# required so we will ignore it.
+#
+sub _store_shared_strings {
+
+    my $self                = shift;
+
+    my @strings = @{$self->{_str_array}};
+
+
+    my $record              = 0x00FC;   # Record identifier
+    my $length              = 0x0008;   # Number of bytes to follow
+    my $total               = 0x0000;
+
+    # Iterate through the strings to calculate the CONTINUE block sizes
+    my $continue_limit = 8208;
+    my $block_length   = 0;
+    my $written        = 0;
+    my $continue       = 0;
+
+    # The SST and CONTINUE block sizes have been pre-calculated by
+    # _calculate_shared_string_sizes()
+    my @block_sizes    = @{$self->{_str_block_sizes}};
+
+
+    # The SST record is required even if it contains no strings. Thus we will
+    # always have a length
+    #
+    if (@block_sizes) {
+        $length = 8 + shift @block_sizes;
+    }
+    else {
+        # No strings
+        $length = 8;
+    }
+
+    # Write the SST block header information
+    my $header      = pack("vv", $record, $length);
+    my $data        = pack("VV", $self->{_str_total}, $self->{_str_unique});
+    $self->_append($header, $data);
+
+
+    # Iterate through the strings and write them out
+    for my $string (@strings) {
+
+        my $string_length = length $string;
+        my $encoding      = unpack "xx C", $string;
+        my $split_string  = 0;
+
+
+        # Block length is the total length of the strings that will be
+        # written out in a single SST or CONTINUE block.
+        #
+        $block_length += $string_length;
+
+
+        # We can write the string if it doesn't cross a CONTINUE boundary
+        if ($block_length < $continue_limit) {
+            $self->_append($string);
+            $written += $string_length;
+            next;
+        }
+
+
+        # Deal with the cases where the next string to be written will exceed
+        # the CONTINUE boundary. If the string is very long it may need to be
+        # written in more than one CONTINUE record.
+        #
+        while ($block_length >= $continue_limit) {
+
+            # We need to avoid the case where a string is continued in the first
+            # n bytes that contain the string header information.
+            #
+            my $header_length   = 3; # Min string + header size -1
+            my $space_remaining = $continue_limit -$written -$continue;
+
+
+            # Unicode data should only be split on char (2 byte) boundaries.
+            # Therefore, in some cases we need to reduce the amount of available
+            # space by 1 byte to ensure the correct alignment.
+            my $align = 0;
+
+            # Only applies to Unicode strings
+            if ($encoding == 1) {
+                # Min string + header size -1
+                $header_length = 4;
+
+                if ($space_remaining > $header_length) {
+                    # String contains 3 byte header => split on odd boundary
+                    if (not $split_string and $space_remaining % 2 != 1) {
+                        $space_remaining--;
+                        $align = 1;
+                    }
+                    # Split section without header => split on even boundary
+                    elsif ($split_string and $space_remaining % 2 == 1) {
+                        $space_remaining--;
+                        $align = 1;
+                    }
+
+                    $split_string = 1;
+                }
+            }
+
+
+            if ($space_remaining > $header_length) {
+                # Write as much as possible of the string in the current block
+                my $tmp = substr $string, 0, $space_remaining;
+                $self->_append($tmp);
+
+                # The remainder will be written in the next block(s)
+                $string = substr $string, $space_remaining;
+
+                # Reduce the current block length by the amount written
+                $block_length -= $continue_limit -$continue -$align;
+
+                # If the current string was split then the next CONTINUE block
+                # should have the string continue flag (grbit) set unless the
+                # split string fits exactly into the remaining space.
+                #
+                if ($block_length > 0) {
+                    $continue = 1;
+                }
+                else {
+                    $continue = 0;
+                }
+            }
+            else {
+                # Not enough space to start the string in the current block
+                $block_length -= $continue_limit -$space_remaining -$continue;
+                $continue = 0;
+            }
+
+            # Write the CONTINUE block header
+            if (@block_sizes) {
+                $record  = 0x003C;
+                $length  = shift @block_sizes;
+
+                $header  = pack("vv", $record, $length);
+                $header .= pack("C", $encoding) if $continue;
+
+                $self->_append($header);
+            }
+
+            # If the string (or substr) is small enough we can write it in the
+            # new CONTINUE block. Else, go through the loop again to write it in
+            # one or more CONTINUE blocks
+            #
+            if ($block_length < $continue_limit) {
+                $self->_append($string);
+
+                $written = $block_length;
+            }
+            else {
+                $written = 0;
+            }
+        }
+    }
 }
 
 

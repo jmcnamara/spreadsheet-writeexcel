@@ -14,7 +14,7 @@ package Spreadsheet::WriteExcel::Format;
 
 use Exporter;
 use strict;
-
+use Carp; # TODO required?
 
 
 
@@ -24,7 +24,7 @@ use strict;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '1.01';
+$VERSION = '0.08';
 
 ###############################################################################
 #
@@ -79,7 +79,15 @@ sub new {
                     _left_color     => 0x40,
                     _right_color    => 0x40,
 
+                    _indent         => 0,
+                    _shrink         => 0,
                     _merge_range    => 0,
+                    _reading_order  => 0,
+
+                    _diag_type      => 0,
+                    _diag_color     => 0x40,
+                    _diag_border    => 0,
+
                  };
 
     bless  $self, $class;
@@ -120,7 +128,7 @@ sub get_xf {
 
     use integer;    # Avoid << shift bug in Perl 5.6.0 on HP-UX
 
-    my $self      = shift;
+    my $self = shift;
 
     my $record;     # Record identifier
     my $length;     # Number of bytes to follow
@@ -129,10 +137,11 @@ sub get_xf {
     my $ifmt;       # Index to FORMAT record
     my $style;      # Style and other options
     my $align;      # Alignment
+    my $indent;     #
     my $icv;        # fg and bg pattern colors
-    my $fill;       # Fill and border line style
     my $border1;    # Border line style and color
-    my $border2;    # Border color
+    my $border2;    # Border TODO
+    my $border3;    # Border TODO
 
 
     # Set the type of the XF record and some of the attributes.
@@ -152,12 +161,16 @@ sub get_xf {
 
     my $atr_alc     = ($self->{_text_h_align}   != 0  ||
                        $self->{_text_v_align}   != 2  ||
-                       $self->{_text_wrap}      != 0) ? 1 : 0;
+                       $self->{_shrink}         != 0  ||
+                       $self->{_merge_range}    != 0  ||
+                       $self->{_text_wrap}      != 0  ||
+                       $self->{_indent}         != 0) ? 1 : 0;
 
     my $atr_bdr     = ($self->{_bottom}         != 0  ||
                        $self->{_top}            != 0  ||
                        $self->{_left}           != 0  ||
-                       $self->{_right}          != 0) ? 1: 0;
+                       $self->{_right}          != 0  ||
+                       $self->{_diag_type}      != 0) ? 1: 0;
 
     my $atr_pat     = ($self->{_fg_color}       != 0x40  ||
                        $self->{_bg_color}       != 0x41  ||
@@ -165,6 +178,9 @@ sub get_xf {
 
     my $atr_prot    = ($self->{_hidden}         != 0  ||
                        $self->{_locked}         != 1) ? 1 : 0;
+
+    # TODO
+    $self->{_diag_border} = 1 if !$self->{_diag_border} and $self->{_diag_type};
 
 
     # Reset the default colours for the non-font properties
@@ -174,13 +190,15 @@ sub get_xf {
     $self->{_top_color}    = 0x40 if $self->{_top_color}    == 0x7FFF;
     $self->{_left_color}   = 0x40 if $self->{_left_color}   == 0x7FFF;
     $self->{_right_color}  = 0x40 if $self->{_right_color}  == 0x7FFF;
+    $self->{_diag_color}   = 0x40 if $self->{_diag_color}   == 0x7FFF;
 
 
     # Zero the default border colour if the border has not been set.
-    $self->{_bottom_color} = 0 if $self->{_bottom} == 0;
-    $self->{_top_color}    = 0 if $self->{_top}    == 0;
-    $self->{_right_color}  = 0 if $self->{_right}  == 0;
-    $self->{_left_color}   = 0 if $self->{_left}   == 0;
+    $self->{_bottom_color} = 0 if $self->{_bottom}    == 0;
+    $self->{_top_color}    = 0 if $self->{_top}       == 0;
+    $self->{_right_color}  = 0 if $self->{_right}     == 0;
+    $self->{_left_color}   = 0 if $self->{_left}      == 0;
+    $self->{_diag_color}   = 0 if $self->{_diag_type} == 0;
 
 
     # The following 2 logical statements take care of special cases in relation
@@ -208,8 +226,13 @@ sub get_xf {
     }
 
 
+    # Set default alignment if indent is set.
+    $self->{_text_h_align} = 1 if $self->{_indent} and
+                                  $self->{_text_h_align} == 0;
+
+
     $record         = 0x00E0;
-    $length         = 0x0010;
+    $length         = 0x0014;
 
     $ifnt           = $self->{_font_index};
     $ifmt           = $self->{_num_format};
@@ -220,37 +243,47 @@ sub get_xf {
     $align         |= $self->{_text_v_align}  << 4;
     $align         |= $self->{_text_justlast} << 7;
     $align         |= $self->{_rotation}      << 8;
-    $align         |= $atr_num                << 10;
-    $align         |= $atr_fnt                << 11;
-    $align         |= $atr_alc                << 12;
-    $align         |= $atr_bdr                << 13;
-    $align         |= $atr_pat                << 14;
-    $align         |= $atr_prot               << 15;
 
+
+
+    $indent         = $self->{_indent};
+    $indent        |= $self->{_shrink}        << 4;
+    $indent        |= $self->{_merge_range}   << 5;
+    $indent        |= $self->{_reading_order} << 6;
+    $indent        |= $atr_num                << 10;
+    $indent        |= $atr_fnt                << 11;
+    $indent        |= $atr_alc                << 12;
+    $indent        |= $atr_bdr                << 13;
+    $indent        |= $atr_pat                << 14;
+    $indent        |= $atr_prot               << 15;
+
+
+    $border1        = $self->{_left};
+    $border1       |= $self->{_right}         << 4;
+    $border1       |= $self->{_top}           << 8;
+    $border1       |= $self->{_bottom}        << 12;
+
+    $border2        = $self->{_left_color};
+    $border2       |= $self->{_right_color}   << 7;
+    $border2       |= $self->{_diag_type}     << 14;
+
+
+    $border3       |= $self->{_top_color};
+    $border3       |= $self->{_bottom_color}  << 7;
+    $border3       |= $self->{_diag_color}    << 14;
+    $border3       |= $self->{_diag_border}   << 21;
+    $border3       |= $self->{_pattern}       << 26;
 
     $icv            = $self->{_fg_color};
     $icv           |= $self->{_bg_color}      << 7;
 
 
-    $fill           = $self->{_pattern};
-    $fill          |= $self->{_bottom}        << 6;
-    $fill          |= $self->{_bottom_color}  << 9;
 
-
-    $border1        = $self->{_top};
-    $border1       |= $self->{_left}          << 3;
-    $border1       |= $self->{_right}         << 6;
-    $border1       |= $self->{_top_color}     << 9;
-
-
-    $border2        = $self->{_left_color};
-    $border2       |= $self->{_right_color}   << 7;
-
-
-    my $header      = pack("vv",       $record, $length);
-    my $data        = pack("vvvvvvvv", $ifnt, $ifmt, $style, $align,
-                                       $icv, $fill,
-                                       $border1, $border2);
+    my $header      = pack("vv",        $record, $length);
+    my $data        = pack("vvvvvvvVv", $ifnt, $ifmt, $style,
+                                        $align, $indent,
+                                        $border1, $border2, $border3,
+                                        $icv);
 
     return($header . $data);
 }
@@ -288,6 +321,7 @@ sub get_font {
     my $reserved;   # Reserved
     my $cch;        # Length of font name
     my $rgch;       # Font name
+    my $encoding = 0;
 
 
     $dyHeight   = $self->{_size} * 20;
@@ -301,7 +335,7 @@ sub get_font {
 
     $cch        = length($rgch);
     $record     = 0x31;
-    $length     = 0x0F + $cch;
+    $length     = 0x10 + $cch;
     $reserved   = 0x00;
 
     $grbit      = 0x00;
@@ -311,10 +345,10 @@ sub get_font {
     $grbit     |= 0x20 if $self->{_font_shadow};
 
 
-    my $header  = pack("vv",         $record, $length);
-    my $data    = pack("vvvvvCCCCC", $dyHeight, $grbit, $icv, $bls,
-                                     $sss, $uls, $bFamily,
-                                     $bCharSet, $reserved, $cch);
+    my $header  = pack("vv",          $record, $length);
+    my $data    = pack("vvvvvCCCCCC", $dyHeight, $grbit, $icv, $bls,
+                                      $sss, $uls, $bFamily,
+                                      $bCharSet, $reserved, $cch, $encoding);
 
     return($header . $data. $self->{_font});
 }
@@ -331,7 +365,7 @@ sub get_font_key {
 
     # The following elements are arranged to increase the probability of
     # generating a unique key. Elements that hold a large range of numbers
-    # eg. _color are placed between two binary elements such as _italic
+    # e.g. _color are placed between two binary elements such as _italic
     #
     my $key = "$self->{_font}$self->{_size}";
     $key   .= "$self->{_font_script}$self->{_underline}";
@@ -529,6 +563,35 @@ sub set_border_color {
 
 ###############################################################################
 #
+# set_rotation($angle)
+#
+# TODO
+#
+sub set_rotation {
+
+    my $self     = shift;
+    my $rotation = $_[0];
+
+    # Argument should be a number
+    return if $rotation !~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/;
+
+    if ($rotation == 270) {
+        $rotation = 255;
+    }
+    elsif ($rotation >= -90 or $rotation <= 90) {
+        $rotation = -$rotation +90 if $rotation < 0;
+    }
+    else {
+        carp "Rotation $rotation outside range: -90 <= angle <= 90";
+        $rotation = 0;
+    }
+
+    $self->{_rotation} = $rotation;
+}
+
+
+###############################################################################
+#
 # set_properties()
 #
 # Convert hashes of properties to method calls.
@@ -541,7 +604,7 @@ sub set_properties {
 
     while (my($key, $value) = each(%properties)) {
 
-        # Strip leading "-" from Tk style properties eg. -color => 'red'.
+        # Strip leading "-" from Tk style properties e.g. -color => 'red'.
         $key =~ s/^-//;
 
 
@@ -580,10 +643,10 @@ sub AUTOLOAD {
     # Ignore calls to DESTROY
     return if $AUTOLOAD =~ /::DESTROY$/;
 
-    # Check for a valid method names, ie. "set_xxx_yyy".
+    # Check for a valid method names, i.e. "set_xxx_yyy".
     $AUTOLOAD =~ /.*::set(\w+)/ or die "Unknown method: $AUTOLOAD\n";
 
-    # Match the attribute, ie. "_xxx_yyy".
+    # Match the attribute, i.e. "_xxx_yyy".
     my $attribute = $1;
 
     # Check that the attribute exists
@@ -620,9 +683,9 @@ sub AUTOLOAD {
                              my $value = shift;
 
                              $value = 1 if not defined $value;
-                             $self->{$attribute} = $value;
+    $self->{$attribute} = $value;
                            };
-    }
+}
 
 
     $self->{$attribute} = $value;

@@ -24,14 +24,14 @@ use strict;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '1.01';
+$VERSION = '0.05';
 
 ###############################################################################
 #
 # Class data.
 #
 my $byte_order   = '';
-my $BIFF_version = 0x0500;
+my $BIFF_version = 0x0600;
 
 
 ###############################################################################
@@ -48,7 +48,7 @@ sub new {
                     _byte_order    => '',
                     _data          => '',
                     _datasize      => 0,
-                    _limit         => 2080,
+                    _limit         => 8224,
                  };
 
     bless $self, $class;
@@ -142,7 +142,7 @@ sub _store_bof {
 
     my $self    = shift;
     my $record  = 0x0809;        # Record identifier
-    my $length  = 0x0008;        # Number of bytes to follow
+    my $length  = 0x0010;        # Number of bytes to follow
 
     my $version = $BIFF_version;
     my $type    = $_[0];
@@ -150,11 +150,14 @@ sub _store_bof {
     # According to the SDK $build and $year should be set to zero.
     # However, this throws a warning in Excel 5. So, use these
     # magic numbers.
-    my $build   = 0x096C;
-    my $year    = 0x07C9;
+    my $build   = 0x0DBB;
+    my $year    = 0x07CC;
+
+    my $bfh     = 0x00000041;
+    my $sfo     = 0x00000006;
 
     my $header  = pack("vv",   $record, $length);
-    my $data    = pack("vvvv", $version, $type, $build, $year);
+    my $data    = pack("vvvvVV", $version, $type, $build, $year, $bfh, $sfo);
 
     $self->_prepend($header, $data);
 }
@@ -220,6 +223,26 @@ sub _add_continue {
     return $tmp ;
 }
 
+###############################################################################
+#
+# For debugging
+#
+sub _hexout {
+
+    my $self = shift;
+
+    print +(caller(1))[3], "\n";
+
+    my $data = join '', @_;
+
+    my @bytes = unpack("H*", $data) =~ /../g;
+
+    while (@bytes > 16) {
+        print join " ", splice @bytes, 0, 16;
+        print "\n";
+    }
+    print join " ", @bytes, "\n\n";
+}
 
 
 
@@ -247,6 +270,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMIV, John McNamara.
+© MM-MMIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

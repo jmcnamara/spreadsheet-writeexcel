@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '1.01';
+$VERSION = '0.19';
 
 ###############################################################################
 #
@@ -38,15 +38,21 @@ sub new {
     my $self                    = Spreadsheet::WriteExcel::BIFFwriter->new();
     my $rowmax                  = 65536; # 16384 in Excel 5
     my $colmax                  = 256;
-    my $strmax                  = 255;
+    #my $strmax                  = 1023; # TODO
+    my $strmax                  = 0;
 
     $self->{_name}              = $_[0];
     $self->{_index}             = $_[1];
-    $self->{_activesheet}       = $_[2];
-    $self->{_firstsheet}        = $_[3];
-    $self->{_url_format}        = $_[4];
-    $self->{_parser}            = $_[5];
-    $self->{_tempdir}           = $_[6];
+    $self->{_name_encoding}     = $_[2];
+    $self->{_activesheet}       = $_[3];
+    $self->{_firstsheet}        = $_[4];
+    $self->{_url_format}        = $_[5];
+    $self->{_parser}            = $_[6];
+    $self->{_tempdir}           = $_[7];
+
+    $self->{_str_total}         = $_[8];
+    $self->{_str_unique}        = $_[9];
+    $self->{_str_table}         = $_[10];
 
     $self->{_ext_sheets}        = [];
     $self->{_using_tmpfile}     = 1;
@@ -235,15 +241,6 @@ sub _close {
     # Prepend the sheet protection
     $self->_store_protect();
 
-    # Prepend EXTERNSHEET references
-    for (my $i = $num_sheets; $i > 0; $i--) {
-        my $sheetname = @{$sheetnames}[$i-1];
-        $self->_store_externsheet($sheetname);
-    }
-
-    # Prepend the EXTERNCOUNT of external references.
-    $self->_store_externcount($num_sheets);
-
     # Prepend the page setup
     $self->_store_setup();
 
@@ -300,6 +297,7 @@ sub _close {
     ################################################
 
     # Append
+    #$self->_dev_note(); # TODO
     $self->_store_window2();
     $self->_store_zoom();
     $self->_store_panes(@{$self->{_panes}}) if @{$self->{_panes}};
@@ -1146,52 +1144,9 @@ sub write_col {
 #
 sub write_comment {
 
-    my $self      = shift;
+    # Not available in this release
+    return -4;
 
-    # Check for a cell reference in A1 notation and substitute row and column
-    if ($_[0] =~ /^\D/) {
-        @_ = $self->_substitute_cellref(@_);
-    }
-
-
-    if (@_ < 3) { return -1 } # Check the number of args
-
-    my $row       = $_[0];
-    my $col       = $_[1];
-    my $str       = $_[2];
-    my $strlen    = length($_[2]);
-    my $str_error = 0;
-    my $str_max   = 30831;
-    my $note_max  = 2048;
-
-
-    # Check that row and col are valid and store max and min values
-    return -2 if $self->_check_dimensions($row, $col);
-
-
-    # String must be <= 30831 chars
-    if ($strlen > $str_max) {
-        $str       = substr($str, 0, $str_max);
-        $strlen    = $str_max;
-        $str_error = -3;
-    }
-
-    # A comment can be up to 30831 chars broken into segments of 2048 chars.
-    # The first NOTE record contains the total string length. Each subsequent
-    # NOTE record contains the length of that segment.
-    #
-    my $comment = substr($str, 0, $note_max, '');
-    $self->_store_comment($row, $col, $comment, $strlen); # First NOTE
-
-    # Subsequent NOTE records
-    while ($str) {
-        $comment = substr($str, 0, $note_max, '');
-        $strlen  = length($comment);
-        # Row is -1 to indicate a continuation NOTE
-        $self->_store_comment(-1, 0, $comment, $strlen);
-    }
-
-    return $str_error;
 }
 
 
@@ -1510,31 +1465,44 @@ sub write_string {
 
     if (@_ < 3) { return -1 }                    # Check the number of args
 
-    my $record  = 0x0204;                        # Record identifier
-    my $length  = 0x0008 + length($_[2]);        # Bytes to follow
+    my $record      = 0x00FD;                        # Record identifier
+    my $length      = 0x000A;                        # Bytes to follow
 
-    my $row     = $_[0];                         # Zero indexed row
-    my $col     = $_[1];                         # Zero indexed column
-    my $strlen  = length($_[2]);
-    my $str     = $_[2];
-    my $xf      = _XF($self, $row, $col, $_[3]); # The cell format
-
-    my $str_error = 0;
+    my $row         = $_[0];                         # Zero indexed row
+    my $col         = $_[1];                         # Zero indexed column
+    my $strlen      = length($_[2]);
+    my $str         = $_[2];
+    my $xf          = _XF($self, $row, $col, $_[3]); # The cell format
+    my $encoding    = 0x0;
+    my $str_error   = 0;
 
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
 
-    if ($strlen > $self->{_xls_strmax}) { # LABEL must be < 255 chars
-        $str       = substr($str, 0, $self->{_xls_strmax});
-        $length    = 0x0008 + $self->{_xls_strmax};
-        $strlen    = $self->{_xls_strmax};
+    # TODO
+    if ($strlen > 32767) {
+        $str       = substr($str, 0, 32767);
         $str_error = -3;
     }
 
-    my $header    = pack("vv",   $record, $length);
-    my $data      = pack("vvvv", $row, $col, $xf, $strlen);
 
-    $self->_append($header, $data, $str);
+    # TODO
+    my $str_header  = pack("vC", length($str), $encoding);
+    $str            = $str_header . $str;
+
+
+    if (not exists ${$self->{_str_table}}->{$str}) {
+        ${$self->{_str_table}}->{$str} = ${$self->{_str_unique}}++;
+    }
+
+
+    ${$self->{_str_total}}++;
+
+
+    my $header = pack("vv",   $record, $length);
+    my $data   = pack("vvvV", $row, $col, $xf, ${$self->{_str_table}}->{$str});
+
+    $self->_append($header, $data);
 
     return $str_error;
 }
@@ -2368,8 +2336,8 @@ sub _check_dimensions {
 sub _store_dimensions {
 
     my $self      = shift;
-    my $record    = 0x0000;         # Record identifier
-    my $length    = 0x000A;         # Number of bytes to follow
+    my $record    = 0x0200;         # Record identifier
+    my $length    = 0x000E;         # Number of bytes to follow
     my $row_min;                    # First row
     my $row_max;                    # Last row plus 1
     my $col_min;                    # First column
@@ -2395,7 +2363,7 @@ sub _store_dimensions {
 
 
     my $header    = pack("vv",    $record, $length);
-    my $data      = pack("vvvvv", $row_min, $row_max,
+    my $data      = pack("VVvvv", $row_min, $row_max,
                                   $col_min, $col_max, $reserved);
     $self->_prepend($header, $data);
 }
@@ -2413,12 +2381,17 @@ sub _store_window2 {
 
     my $self           = shift;
     my $record         = 0x023E;     # Record identifier
-    my $length         = 0x000A;     # Number of bytes to follow
+    my $length         = 0x0012;     # Number of bytes to follow
 
     my $grbit          = 0x00B6;     # Option flags
     my $rwTop          = 0x0000;     # Top row visible in window
     my $colLeft        = 0x0000;     # Leftmost column visible in window
-    my $rgbHdr         = 0x00000000; # Row/column heading and gridline color
+    my $rgbHdr         = 0x00000040; # Row/column heading and gridline color
+
+    my $wScaleSLV      = 0x0000;     #
+    my $wSclaeNormal   = 0x0000;     #
+    my $reserved       = 0x00000000; #
+
 
     # The options flags that comprise $grbit
     my $fDspFmla       = 0;                          # 0 - bit
@@ -2445,8 +2418,9 @@ sub _store_window2 {
     $grbit            |= $fSelected      << 9;
     $grbit            |= $fPaged         << 10;
 
-    my $header  = pack("vv",   $record, $length);
-    my $data    = pack("vvvV", $grbit, $rwTop, $colLeft, $rgbHdr);
+    my $header  = pack("vv",      $record, $length);
+    my $data    = pack("vvvVvvV", $grbit, $rwTop, $colLeft, $rgbHdr,
+                                  $wScaleSLV, $wSclaeNormal, $reserved );
 
     $self->_append($header, $data);
 }
@@ -2810,10 +2784,11 @@ sub _store_header {
 
     my $str     = $self->{_header};     # header string
     my $cch     = length($str);         # Length of header string
-    $length     = 1 + $cch;
+    my $encoding = 0x0;
+    $length     = 3 + $cch;
 
     my $header    = pack("vv",  $record, $length);
-    my $data      = pack("C",   $cch);
+    my $data      = pack("vC",  $cch, $encoding);
 
     $self->_prepend($header, $data, $str);
 }
@@ -2834,10 +2809,11 @@ sub _store_footer {
 
     my $str     = $self->{_footer};     # Footer string
     my $cch     = length($str);         # Length of footer string
-    $length     = 1 + $cch;
+    my $encoding = 0x0;
+    $length     = 3 + $cch;
 
     my $header    = pack("vv",  $record, $length);
-    my $data      = pack("C",   $cch);
+    my $data      = pack("vC",  $cch, $encoding);
 
     $self->_prepend($header, $data, $str);
 }
@@ -3249,7 +3225,7 @@ sub _store_hbreak {
 
     my $record  = 0x001b;               # Record identifier
     my $cbrk    = scalar @breaks;       # Number of page breaks
-    my $length  = ($cbrk + 1) * 2;      # Bytes to follow
+    my $length  = 2 + 6*$cbrk;          # Bytes to follow
 
 
     my $header  = pack("vv",  $record, $length);
@@ -3257,7 +3233,7 @@ sub _store_hbreak {
 
     # Append each page break
     foreach my $break (@breaks) {
-        $data .= pack("v", $break);
+        $data .= pack("vvv", $break, 0x0000, 0x00ff);
     }
 
     $self->_prepend($header, $data);
@@ -3282,7 +3258,7 @@ sub _store_vbreak {
 
     my $record  = 0x001a;               # Record identifier
     my $cbrk    = scalar @breaks;       # Number of page breaks
-    my $length  = ($cbrk + 1) * 2;      # Bytes to follow
+    my $length  = 2 + 6*$cbrk;          # Bytes to follow
 
 
     my $header  = pack("vv",  $record, $length);
@@ -3290,7 +3266,7 @@ sub _store_vbreak {
 
     # Append each page break
     foreach my $break (@breaks) {
-        $data .= pack("v", $break);
+        $data .= pack("vvv", $break, 0x0000, 0xffff);
     }
 
     $self->_prepend($header, $data);
@@ -3477,11 +3453,11 @@ sub _position_image {
 
 
     # Initialise end cell to the same as the start cell
-    $col_end = $col_start;
-    $row_end = $row_start;
+    $col_end    = $col_start;
+    $row_end    = $row_start;
 
-    $width   = $width  + $x1 -1;
-    $height  = $height + $y1 -1;
+    $width      = $width  + $x1 -1;
+    $height     = $height + $y1 -1;
 
 
     # Subtract the underlying cell widths to find the end cell of the image
@@ -3512,8 +3488,8 @@ sub _position_image {
 
     $self->_store_obj_picture(  $col_start, $x1,
                                 $row_start, $y1,
-                                $col_end,   $x2,
-                                $row_end,   $y2
+                                $col_end, $x2,
+                                $row_end, $y2
                              );
 }
 
@@ -3789,39 +3765,151 @@ sub _store_zoom {
 
 ###############################################################################
 #
-# _store_comment
+# write_unicode ($row, $col, $string, $format)
 #
-# Store the Excel 5 NOTE record. This format is not compatible with the Excel 7
-# record.
+# Write a Unicode string to the specified row and column (zero indexed).
+# $format is optional.
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#         -3 : long string truncated to 255 chars
 #
-sub _store_comment {
+sub write_unicode {
 
-    my $self      = shift;
-    if (@_ < 3) { return -1 }
+    my $self = shift;
 
-    my $record    = 0x001C;                 # Record identifier
-    my $length ;                            # Bytes to follow
-
-    my $row       = $_[0];                  # Zero indexed row
-    my $col       = $_[1];                  # Zero indexed column
-    my $str       = $_[2];
-    my $strlen    = $_[3];
-
-    # The length of the first record is the total length of the NOTE.
-    # Therefore, it can be greater than 2048.
-    #
-    if ($strlen > 2048) {
-        $length = 0x06 + 2048;
-    }
-    else{
-        $length = 0x06 + $strlen;
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
     }
 
+    if (@_ < 3) { return -1 }                    # Check the number of args
 
-    my $header    = pack("vv",  $record, $length);
-    my $data      = pack("vvv", $row, $col, $strlen);
+    my $record      = 0x00FD;                        # Record identifier
+    my $length      = 0x000A;                        # Bytes to follow
 
-    $self->_append($header, $data, $str);
+    my $row         = $_[0];                         # Zero indexed row
+    my $col         = $_[1];                         # Zero indexed column
+    my $strlen      = length($_[2]);
+    my $str         = $_[2];
+    my $xf          = _XF($self, $row, $col, $_[3]); # The cell format
+    my $encoding    = 0x1;
+    my $str_error   = 0;
+
+    # Check that row and col are valid and store max and min values
+    return -2 if $self->_check_dimensions($row, $col);
+
+    # TODO
+    if ($strlen > 32766) {
+        $str       = substr($str, 0, 32766);
+        $str_error = -3;
+    }
+
+
+    my $num_bytes = length $str;
+    my $num_chars = int($num_bytes / 2);
+
+
+    # TODO
+    croak "Uneven number of bytes in Unicode string" if $num_bytes % 2;
+
+
+    # Change from UTF16 big-endian to little endian
+    $str = pack "n*", unpack "v*", $str;
+
+
+    # TODO
+    my $str_header  = pack("vC", $num_chars, $encoding);
+    $str            = $str_header . $str;
+
+
+    if (not exists ${$self->{_str_table}}->{$str}) {
+        ${$self->{_str_table}}->{$str} = ${$self->{_str_unique}}++;
+    }
+
+
+    ${$self->{_str_total}}++;
+
+
+    my $header = pack("vv",   $record, $length);
+    my $data   = pack("vvvV", $row, $col, $xf, ${$self->{_str_table}}->{$str});
+
+    $self->_append($header, $data);
+
+    return $str_error;
+}
+
+
+
+###############################################################################
+#
+# write_unicode_le ($row, $col, $string, $format)
+#
+# Write a Unicode string to the specified row and column (zero indexed).
+# $format is optional.
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#         -3 : long string truncated to 255 chars
+#
+sub write_unicode_le {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    if (@_ < 3) { return -1 }                    # Check the number of args
+
+    my $record      = 0x00FD;                        # Record identifier
+    my $length      = 0x000A;                        # Bytes to follow
+
+    my $row         = $_[0];                         # Zero indexed row
+    my $col         = $_[1];                         # Zero indexed column
+    my $strlen      = length($_[2]);
+    my $str         = $_[2];
+    my $xf          = _XF($self, $row, $col, $_[3]); # The cell format
+    my $encoding    = 0x1;
+    my $str_error   = 0;
+
+    # Check that row and col are valid and store max and min values
+    return -2 if $self->_check_dimensions($row, $col);
+
+    # TODO
+    if ($strlen > 32766) {
+        $str       = substr($str, 0, 32766);
+        $str_error = -3;
+    }
+
+
+    my $num_bytes = length $str;
+    my $num_chars = int($num_bytes / 2);
+
+
+    # TODO
+    croak "Uneven number of bytes in Unicode string" if $num_bytes % 2;
+
+    # TODO
+    my $str_header  = pack("vC", $num_chars, $encoding);
+    $str            = $str_header . $str;
+
+
+    if (not exists ${$self->{_str_table}}->{$str}) {
+        ${$self->{_str_table}}->{$str} = ${$self->{_str_unique}}++;
+    }
+
+
+    ${$self->{_str_total}}++;
+
+
+    my $header = pack("vv",   $record, $length);
+    my $data   = pack("vvvV", $row, $col, $xf, ${$self->{_str_table}}->{$str});
+
+    $self->_append($header, $data);
+
+    return $str_error;
 }
 
 
