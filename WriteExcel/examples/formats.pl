@@ -4,6 +4,8 @@
 #
 # Examples of formatting using the Spreadsheet::WriteExcel module
 #
+# Dec 2000, John McNamara, jmcnamara@cpan.org
+#
 
 use strict;
 use Spreadsheet::WriteExcel;
@@ -27,7 +29,7 @@ numeric_formats();
 borders();
 patterns();
 alignment();
-
+misc();
 
 # Note: this is required
 $workbook->close();
@@ -41,7 +43,7 @@ sub intro {
 
     my $worksheet = $workbook->addworksheet('Introduction');
 
-    $worksheet->set_col_width(0, 0, 60);
+    $worksheet->set_column(0, 0, 60);
 
     my $format = $workbook->addformat();
     $format->set_bold();
@@ -49,9 +51,9 @@ sub intro {
     $format->set_color('blue');
     $format->set_align('center');
     
-    $worksheet->write(2, 0, 'This workbook demonstrates some of', $format);
-    $worksheet->write(3, 0, 'formatting options provided by the', $format);
-    $worksheet->write(4, 0, 'Spreadsheet::WriteExcel module.',    $format);
+    $worksheet->write(2, 0, 'This workbook demonstrates some of',  $format);
+    $worksheet->write(3, 0, 'the formatting options provided by',  $format);
+    $worksheet->write(4, 0, 'the Spreadsheet::WriteExcel module.', $format);
 }
 
 
@@ -61,7 +63,7 @@ sub intro {
 #
 sub named_colors {
 
-    my @colors  = qw(aqua black blue fuschia gray green lime navy
+    my @colors  = qw(aqua black blue fuchsia gray green lime navy
                      orange purple red silver white yellow);
 
     my @indices =   ( 0x0F, 0x08, 0x0C, 0x0E, 0x17, 0x11, 0x0B,
@@ -69,7 +71,7 @@ sub named_colors {
 
     my $worksheet = $workbook->addworksheet('Named colors');
 
-    $worksheet->set_col_width(0, 3, 15);
+    $worksheet->set_column(0, 3, 15);
 
     $worksheet->write(0, 0, "Index", $heading);
     $worksheet->write(0, 1, "Index", $heading);
@@ -97,7 +99,7 @@ sub standard_colors {
 
     my $worksheet = $workbook->addworksheet('Standard colors');
 
-    $worksheet->set_col_width(0, 3, 15);
+    $worksheet->set_column(0, 3, 15);
 
     $worksheet->write(0, 0, "Index", $heading);
     $worksheet->write(0, 1, "Index", $heading);
@@ -105,7 +107,6 @@ sub standard_colors {
 
     for my $i (8..63){
         my $format = $workbook->addformat();
-        #$format->set_bold();
         $format->set_color($i);
         $format->set_align('center');
         
@@ -124,8 +125,8 @@ sub numeric_formats {
 
     my $worksheet = $workbook->addworksheet('Numeric formats');
 
-    $worksheet->set_col_width(0, 4, 15);
-    $worksheet->set_col_width(5, 5, 45);
+    $worksheet->set_column(0, 4, 15);
+    $worksheet->set_column(5, 5, 45);
     
     $worksheet->write(0, 0, "Index",       $heading);
     $worksheet->write(0, 1, "Index",       $heading);
@@ -149,15 +150,15 @@ sub numeric_formats {
     push @formats, [ 0x0b, 1234.567,   0,         '0.00E+00' ];
     push @formats, [ 0x0c, 0.75,       0,         '# ?/?' ];
     push @formats, [ 0x0d, 0.3125,     0,         '# ??/??' ];
-    push @formats, [ 0x0e, 36831.0153, 0,         'm/d/yy' ];
-    push @formats, [ 0x0f, 36831.0153, 0,         'd-mmm-yy' ];
-    push @formats, [ 0x10, 36831.0153, 0,         'd-mmm' ];
-    push @formats, [ 0x11, 36831.0153, 0,         'mmm-yy' ];
-    push @formats, [ 0x12, 36831.0153, 0,         'h:mm AM/PM' ];
-    push @formats, [ 0x13, 36831.0153, 0,         'h:mm:ss AM/PM' ];
-    push @formats, [ 0x14, 36831.0153, 0,         'h:mm' ];
-    push @formats, [ 0x15, 36831.0153, 0,         'h:mm:ss' ];
-    push @formats, [ 0x16, 36831.0153, 0,         'm/d/yy h:mm' ];
+    push @formats, [ 0x0e, 36870.016,  0,         'm/d/yy' ];
+    push @formats, [ 0x0f, 36870.016,  0,         'd-mmm-yy' ];
+    push @formats, [ 0x10, 36870.016,  0,         'd-mmm' ];
+    push @formats, [ 0x11, 36870.016,  0,         'mmm-yy' ];
+    push @formats, [ 0x12, 36870.016,  0,         'h:mm AM/PM' ];
+    push @formats, [ 0x13, 36870.016,  0,         'h:mm:ss AM/PM' ];
+    push @formats, [ 0x14, 36870.016,  0,         'h:mm' ];
+    push @formats, [ 0x15, 36870.016,  0,         'h:mm:ss' ];
+    push @formats, [ 0x16, 36870.016,  0,         'm/d/yy h:mm' ];
     push @formats, [ 0x25, 1234.567,   -1234.567, '(#,##0_);(#,##0)' ];
     push @formats, [ 0x26, 1234.567,   -1234.567, '(#,##0_);[Red](#,##0)' ];
     push @formats, [ 0x27, 1234.567,   -1234.567, '(#,##0.00_);(#,##0.00)' ];
@@ -166,16 +167,16 @@ sub numeric_formats {
     push @formats, [ 0x2a, 1234.567,   -1234.567, '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)' ];
     push @formats, [ 0x2b, 1234.567,   -1234.567, '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)' ];
     push @formats, [ 0x2c, 1234.567,   -1234.567, '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)' ];
-    push @formats, [ 0x2d, 36831.0153, 0,         'mm:ss' ];
+    push @formats, [ 0x2d, 36870.016,  0,         'mm:ss' ];
     push @formats, [ 0x2e, 3.0153,     0,         '[h]:mm:ss' ];
-    push @formats, [ 0x2f, 36831.0153, 0,         'mm:ss.0' ];
+    push @formats, [ 0x2f, 36870.016,  0,         'mm:ss.0' ];
     push @formats, [ 0x30, 1234.567,   0,         '##0.0E+0' ];
     push @formats, [ 0x31, 1234.567,   0,         '@' ];
 
     my $i; # RFC 120
     foreach my $format (@formats){
         my $style = $workbook->addformat();
-        $style->set_format($$format[0]);
+        $style->set_num_format($$format[0]);
 
         $i++;
         $worksheet->write($i, 0, $$format[0],                    $center);
@@ -200,8 +201,8 @@ sub fonts {
 
     my $worksheet = $workbook->addworksheet('Fonts');
 
-    $worksheet->set_col_width(0, 0, 30);
-    $worksheet->set_col_width(1, 1, 10);
+    $worksheet->set_column(0, 0, 30);
+    $worksheet->set_column(1, 1, 10);
 
     $worksheet->write(0, 0, "Font name",   $heading);
     $worksheet->write(0, 1, "Font size",   $heading);
@@ -246,8 +247,8 @@ sub borders {
 
     my $worksheet = $workbook->addworksheet('Borders');
 
-    $worksheet->set_col_width(0, 4, 10);
-    $worksheet->set_col_width(5, 5, 40);
+    $worksheet->set_column(0, 4, 10);
+    $worksheet->set_column(5, 5, 40);
 
     $worksheet->write(0, 0, "Index", $heading);
     $worksheet->write(0, 1, "Index", $heading);
@@ -278,8 +279,8 @@ sub patterns {
 
     my $worksheet = $workbook->addworksheet('Patterns');
 
-    $worksheet->set_col_width(0, 4, 10);
-    $worksheet->set_col_width(5, 5, 50);
+    $worksheet->set_column(0, 4, 10);
+    $worksheet->set_column(5, 5, 50);
 
     $worksheet->write(0, 0, "Index", $heading);
     $worksheet->write(0, 1, "Index", $heading);
@@ -316,7 +317,8 @@ sub alignment {
 
     my $worksheet = $workbook->addworksheet('Alignment');
 
-    $worksheet->set_col_width(0, 7, 12);
+    $worksheet->set_column(0, 7, 12);
+    $worksheet->set_row(0, 40);
     $worksheet->set_selection(7, 0);
 
     my $format01 = $workbook->addformat();
@@ -334,10 +336,6 @@ sub alignment {
     my $format13 = $workbook->addformat();
     my $format14 = $workbook->addformat();
     my $format15 = $workbook->addformat();
-
-    # This is a kludge to set the row height
-    #$format01->set_size(30);
-    #$worksheet->write_blank(0, 8, $format01);
 
     $format02->set_align('top');
     $format03->set_align('bottom');
@@ -377,5 +375,41 @@ sub alignment {
     $worksheet->write(4, 1, 'Rotate 1', $format13);
     $worksheet->write(4, 2, 'Rotate 2', $format14);
     $worksheet->write(4, 3, 'Rotate 3', $format15);
+}
+
+
+######################################################################
+#
+# Demonstrate other miscellaneous features.
+#
+sub misc {
+
+    my $worksheet = $workbook->addworksheet('Miscellaneous');
+
+    $worksheet->set_column(2, 2, 25);
+
+    my $format01 = $workbook->addformat();
+    my $format02 = $workbook->addformat();
+    my $format03 = $workbook->addformat();
+    my $format04 = $workbook->addformat();
+    my $format05 = $workbook->addformat();
+    my $format06 = $workbook->addformat();
+    my $format07 = $workbook->addformat();
+
+    $format01->set_underline(0x01);
+    $format02->set_underline(0x02);
+    $format03->set_underline(0x21);
+    $format04->set_underline(0x22);
+    $format05->set_font_strikeout();
+    $format06->set_font_outline();
+    $format07->set_font_shadow();
+
+    $worksheet->write(1,  2, 'Underline  0x01',          $format01);
+    $worksheet->write(3,  2, 'Underline  0x02',          $format02);
+    $worksheet->write(5,  2, 'Underline  0x21',          $format03);
+    $worksheet->write(7,  2, 'Underline  0x22',          $format04);
+    $worksheet->write(9,  2, 'Strikeout',                $format05);
+    $worksheet->write(11, 2, 'Outline (Macintosh only)', $format06);
+    $worksheet->write(13, 2, 'Shadow (Macintosh only)',  $format07);
 }
 

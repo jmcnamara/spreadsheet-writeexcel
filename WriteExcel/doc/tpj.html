@@ -1,0 +1,511 @@
+<html>
+<head>
+
+<META name=vscategory content="Perl">
+
+<META name=vsisbn content="">
+<META name=vstitle content="Spreadsheet::WriteExcel">
+<META name=vsauthor content="John McNamara">
+<META name=searchdescription content="">
+<META name=vsimprint  content="The Perl Journal">
+<META name=vspublisher content="Earthweb">
+<META name=vspubdate content="Fall 2000">
+
+<!-- always update the article title and issue -->
+<title>Spreadsheet::WriteExcel - The Perl Journal, Fall 2000</title>
+<style type="text/css">   
+
+
+
+   <!--
+   
+   pre  {
+        font-family : courier new, sans-serif;
+        font-size : 10pt;
+        color : #0066cc;
+   }
+
+   tt  {
+        font-family : courier new, sans-serif;
+        font-size : 10pt;
+        color : #0066cc;
+   }
+   
+         
+   -->
+   </style>
+
+<!-- BEGIN HEADER -->
+
+<body bgcolor="#FFFFFF" link="#003399" alink="#FF0000" vlink="#003399" topmargin=0 leftmargin=0 marginheight=0 marginwidth=25>
+
+
+
+<hr>
+The following article appeared in <a href="http://www.itknowledge.com/tpj/">The Perl Journal</a>, Fall 2000. It is reprinted here by kind permission of Jon Orwant and The Perl Journal.
+<br>
+Copyright (c) 2000, The Perl Journal.
+<hr>
+<!-- the article goes here -->
+<h2 align="center">Spreadsheet::WriteExcel</h2>
+<h4><i>John McNamara</i></h4>
+<!-- packages described, if necessary -->
+<div align="center">
+<table border="1" cellspacing="0" cellpadding="5">
+<tr><td align="middle" bgcolor="#cccc99"><b>Resources:</b></td></tr>
+  <tr>
+    <td>    
+    Spreadsheet::WriteExcel    ................................................................... CPAN<br>
+    OLE::Storage ................................................................................... CPAN<br>
+    Win32::OLE ..................................................................................... CPAN<br>
+    XML spces for Excel    ................. http://msdn.microsoft.com/library/officedev/<br>
+    Gnumeric ............................................................... http://www.gnumeric.org<br>
+    HTML::TableExtract ........................................................................ CPAN<br>
+    Excel SDK newsgroup .............................. news://microsoft.public.excel.sdk<br>
+    OLE Compound File ..... http://user.cs.tu-berlin.de/~schwartz/pmh/guide.html<br>
+    Herbert ........................................ http://user.cs.tu-berlin.de/~schwartz/pmh/<br>
+    Filters .................................................. http://arturo.directmail.org/filtersweb/<br>
+    xlHtml ....................................................................... http://www.xlhtml.org/    </td>  </tr>
+</table>
+</div>
+
+<p>One of Perl's great strengths is the ability to filter data from one format into another. Data goes in one end of a Perl program and miraculously comes out the other end as something more useful. Your Sybase file goes into Perl counselling and after a few short sessions comes out feeling like a brand new Oracle file.</p>
+
+<p>However, not all file formats are readily accessible. Certain proprietary file formats, and in particular binary files, can be difficult to handle. One such format is the Microsoft Excel spreadsheet file.</p>
+
+<p>Excel is the spreadsheet application at the heart of the Microsoft Office suite. It is a popular tool for data analysis and reporting, and even though it is only available on Windows and Macintosh platforms there is often a requirement to produce Excel compatible files on Unix platforms. (Several rumors and some evidence of a Linux port of Microsoft Office have recently come to light on Slashdot.)</p>
+
+<p>This article describes Spreadsheet::WriteExcel, a cross-platform Perl module designed to write data in the Microsoft Excel binary format. It highlights the fact that although Perl is most often associated with text files, it can readily handle binary files as well. This article also looks at alternative methods for producing Excel files and suggests some methods for reading them.</p>
+
+<h3>Using Spreadsheet::WriteExcel</h3>
+
+<p>A single Excel file is generally referred to as a <i>workbook</i>. A workbook is composed of one or more <i>worksheets</i>, which are pages of data in rows and columns. Each row and column position within a workbook is referred to as a <i>cell</i>.</p>
+
+<p>Spreadsheet::WriteExcel creates a new workbook to which you can add new worksheets. You can then write text and numbers to the cells of these worksheets. The following Perl program is a simple example:</p>
+
+<pre>
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+    # Create a new Excel workbook called perl.xls
+
+    my $workbook = Spreadsheet::WriteExcel-&gt;new("perl.xls");
+
+    my $worksheet = $workbook-&gt;addworksheet();
+
+    # Write some text and some numbers
+    # Row and column are zero indexed
+    $worksheet-&gt;write(0, 0, "The Perl Journal");
+    $worksheet-&gt;write(1, 0, "One"            );
+    $worksheet-&gt;write(2, 0, "Two"            );
+    $worksheet-&gt;write(3, 0,  3               );
+    $worksheet-&gt;write(4, 0,  4.0000001        );
+</pre>
+
+<p><FONT face="verdana" size="-2"><B>Figure 1:</B> Example file Written with Spreadsheet::WriteExcel</FONT><BR>
+<IMG src="tpj0503-0004-01.gif" width="372" height="234" border="0"></P>
+
+<p>What is happening here is that we are using the Spreadsheet::WriteExcel module to create a variable that acts like an Excel workbook. We add a single worksheet to this workbook and then write some text and numbers. Figure 1 shows how the resulting file looks when opened in Excel.</p>
+
+<p>The Spreadsheet::WriteExcel module provides an object-oriented interface to a new Excel workbook. This workbook is an object (a variable) that acts as a container for worksheet objects (more variables), which themselves provide methods (functions) for writing to their cells.</p>
+
+<p>The primary method of the module is the <tt>new()</tt> constructor, which takes a filename as its argument and creates a new Excel workbook:</p>
+
+<pre>
+    $workbook = Spreadsheet::WriteExcel-&gt;new($filename);
+</pre>
+
+<p>The workbook is then used to create new worksheets using the <tt>addworksheet()</tt> method:</p>
+
+<pre>
+    $worksheet = $workbook-&gt;addworksheet($sheetname);
+</pre>
+
+<p>If no <tt>$sheetname</tt> is specified, the general Excel convention for worksheet naming will be followed: Sheet1, Sheet2, and so on. The worksheets are stored in an array called <tt>@worksheets</tt> which can be accessed through the workbook object.</p>
+
+<p>In a multi-sheet workbook you can select which worksheet is initially visible with the <tt>activate()</tt> method.</p>
+
+<p>The worksheet objects provide the following methods for writing to cells:</p>
+
+<pre>
+    write($row, $column, $token)
+    write_number($row, $column, $number)
+    write_string($row, $column, $string)
+</pre>
+
+<p>The <tt>write()</tt> method is an alias for one of the other two write methods. It calls <tt>write_number()</tt> if <tt>$token</tt> looks like a number according to the following regex:</p>
+
+<pre>
+    $token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
+</pre>
+
+<p>Otherwise it calls <tt>write_string()</tt>. If you know in advance what type of data needs to be written, you can call the specific method, and otherwise you can just use <tt>write()</tt>.</p>
+
+<p>Here is another example that demonstrates some of these features:</p>
+
+<pre>
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+    # Create a new Excel workbook
+    my $workbook = Spreadsheet::WriteExcel-&gt;new("regions.xls");
+
+    # Add some worksheets
+    my $north = $workbook-&gt;addworksheet("North");
+    my $south = $workbook-&gt;addworksheet("South");
+    my $east  = $workbook-&gt;addworksheet("East");
+    my $west  = $workbook-&gt;addworksheet("West");
+
+    # Add a caption to each worksheet
+    foreach my $worksheet (@{$workbook-&gt;{worksheets}}) {
+       $worksheet-&gt;write(0, 0, "Sales");
+    }
+
+    # Write some data
+    $north-&gt;write(0, 1, 200000);
+    $south-&gt;write(0, 1, 100000);
+    $east-&gt;write (0, 1, 150000);
+    $west-&gt;write (0, 1, 100000);
+
+    # Set the active worksheet
+    $south-&gt;activate();
+</pre>
+
+<p>The output from this program is shown in Figure 2.</p>
+
+<p><FONT face="verdana" size="-2"><B>Figure 2:</B> A multiple worksheet example</FONT><BR>
+<IMG src="tpj0503-0004-02.gif" width="438" height="252" border="0"></P>
+
+<p>You can also create a new Excel file using the special Perl filehandle -, which redirects the output to STDOUT. This is useful for CGI programs generating data with a content-type of <tt>application/vnd.ms-excel</tt>.</p>
+
+<pre>
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+    # Send the content type
+    print "Content-type: application/vnd.ms-excel\n\n";
+
+    # Redirect the output to STDOUT
+    my $workbook  = Spreadsheet::WriteExcel-&gt;new("-");
+
+    my $worksheet = $workbook-&gt;addworksheet();
+    $worksheet-&gt;write(0, 0, "The Perl Journal");
+</pre>
+
+<p>The Spreadsheet::WriteExcel module also provides a <tt>close()</tt> method which can be used to close the Excel file explicitly. As usual, the file will be closed automatically when the object reference goes out of scope or when the program ends.</p>
+
+<p>Finally, the following is a slightly more useful example - a Perl program that converts a tab-delimited file into an Excel file:</p>
+
+<pre>
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+    # Check for valid number of arguments
+    if (($#ARGV < 1) || ($#ARGV > 2)) {
+       die("Usage: tab2xls tabfile.txt newfile.xls\n");
+    };
+
+    # Open the tab-delimited file
+    open (TABFILE, $ARGV[0]) or die "$ARGV[0]: $!";
+
+    # Create a new Excel workbook
+    my $workbook  = Spreadsheet::WriteExcel-&gt;new($ARGV[1]);
+    my $worksheet = $workbook-&gt;addworksheet();
+    # Row and column are zero indexed
+    my $row = 0;
+
+    while (&lt;TABFILE&gt;) {
+       chomp;
+       # Split on single tab
+       my @Fld = split('\t', $_);
+
+       my $col = 0;
+       foreach my $token (@Fld) {
+           $worksheet-&gt;write($row, $col, $token);
+           $col++;
+       }
+       $row++;
+    }
+</pre>
+
+<h3>How the Spreadsheet::WriteExcel Module Works</h3>
+
+<p>We'll now turn to the structure of the module, discussing the Excel format, a history of the module's development, and the glory of Perl's pack builtin.</p>
+
+<h3>The Excel Binary Interchange File Format</h3>
+
+<p>Excel data is stored in the <i>Binary Interchange File Format</i>, also known as BIFF. Details of this format are given in the Excel SDK, the "Excel Developer's Kit" from Microsoft Press. It is also included in the MSDN CD library, but is no longer available on the MSDN web site. Issues relating to the Excel SDK are discussed, occasionally, on the newsgroup microsoft.public.excel.sdk.</p>
+
+<p>The BIFF portion of the Excel file is composed of contiguous binary records that have different functions and hold different types of data. Each BIFF record is composed of the following three parts:</p>
+
+<table bgcolor="#cccc99" width="400" border="0" align="center">
+<tr valign="top">
+    <td>Record name</td>
+    <td>A hexadecimal identifier (2 bytes)</td>
+</tr>
+<tr valign="top">
+    <td>Record length</td>
+    <td>The length of following data (2 bytes)</td>
+</tr>
+<tr valign="top">
+    <td>Record data</td>
+    <td>The data, which can be of variable length</td>
+</tr>
+</table>
+
+<p>The BIFF data is stored along with other data in an OLE Compound File. This is a structured storage format that acts like a filesystem within a file. A Compound File is composed of <i>storages</i> and <i>streams</i> which, to follow the file system analogy, are like directories and files. This is shown schematically in Figure 3.</p>
+
+
+<p><FONT face="verdana" size="-2"><B>Figure 3:</B> The compound File system used to store Excel data.</FONT><BR>
+<IMG src="tpj0503-0004-03.gif" width="210" height="173" border="0"></P>
+
+<p>One effect of the file system structure is that the BIFF data within the Compound Files is often fragmented, and the files occasionally contain lost blocks of data. The location of the data within a Compound File is controlled by a file allocation table (FAT).</p>
+
+<p>The documentation for the OLE::Storage module contains one of the few descriptions of the OLE Compound File in the public domain, at <a href="http://user.cs.tu-berlin.de/~schwartz/pmh/guide.html" target="resource window">http://user.cs.tu-berlin.de/~schwartz/pmh/guide.html</a>. The source code for the Gnumeric spreadsheet Excel plugin also contains information relevant to the Excel BIFF format and the OLE container at <a href="http://www.gnumeric.org/" target="resource window">http://www.gnumeric.org/</a>.</p>
+
+<h3>A Brief History of Time Wasted</h3>
+
+<p>Spreadsheet::WriteExcel started life as a C program written to convert the numerical output of a Fortran Finite Element Analysis program into an Excel spreadsheet. The prototype version produced a tab-delimited file that Excel digested without problem. However, I thought a native binary file would be nicer. Therein lies a true tale of human vanity.</p>
+
+<p>The SDK documentation for Excel 5 lists 127 binary records that can be included in a file, but never says which records are required. By a painful process of trial and error, I removed binary records from a standard Excel file until I reached a minimum configuration that would load without crashing the application. This process has a nice name: reverse engineering. The memory of this drudgery came back to me two years later when I came across the following article in MSDN: "Records needed to make a BIFF5 file Microsoft Excel can use, Q147732", at <a href="http://support.microsoft.com/support/kb/articles/Q147/7/32.asp" target="resource window">http://support.microsoft.com/support/kb/articles/Q147/7/32.asp</a>.</p>
+
+<h3>Everything went fine until Excel 97.</h3>
+
+<p>Excel 4 files are pure BIFF files. Excel 5 files aren't. They're Compound Files with BIFF files embedded inside. However, Excel 5 will also accept a pure BIFF file for backward compatibility. Excel 97 will not. The Fortran to Excel filter that had worked so successfully with Excel 5 caused Excel 97 to choke and die.</p>
+
+<p>The solution was to open a Compound Document stream using a C++ interface and write the BIFF records into it. In C++ on Windows this is relatively easy; for a brief example, see "How to Create a BIFF5 File, Q150447", http://support.microsoft.com/support/kb/articles/Q150/4/47.ASP.</p>
+
+<p>In Perl, or in C for that matter, this approach is more difficult since the OLE interface is closely tied to C++. The only cross-platform resource available for use with Perl is the OLE::Storage module, which is an interface to OLE documents. However, it doesn't provide any facility for writing into a document stream.</p>
+
+<p>The first version of the Spreadsheet::WriteExcel exploited a backward compatibility feature in Excel to avoid using the OLE container. However, this limited the file to a single worksheet, and features like formatting weren't possible.</p>
+
+<p>So it was back to the hex editor, although this time I was also armed with the OLE::Storage documentation and the Gnumeric source code. The current version of Spreadsheet::WriteExcel supports the OLE container, paving the way for the addition of other Excel features. At the moment the main thrust of the work is toward adding formatting for cells, rows, and columns.</p>
+
+<p>The addition of the OLE container meant that the files produced by this module are also compatible with the Linux/Unix spreadsheet applications Star Office, Gnumeric, and XESS.</p>
+
+<h3>The <font face="courier new">pack</font> Programming Language</h3>
+
+<p>Perl contains several mini-languages each with its own syntax: <tt>format</tt>, pod, regexen, <tt>sprintf</tt>, and <tt>pack</tt>. The <tt>pack</tt> function is described in <tt>perlfunc</tt> as follows: "pack(template, list) takes an array or list of values and packs it into a binary structure, returning the string containing the structure." This function is ideal for writing the BIFF records contained in an Excel file. For example, consider how pack is used to write the BOF binary record in the following subroutine from Spreadsheet::WriteExcel:</p>
+
+<pre>
+    sub _store_bof {
+
+        my $self    = shift;
+        my $name    = 0x0809;        # Record identifier
+        my $length  = 0x0008;        # Number of bytes to follow
+
+        my $version = $BIFF_version; # 0x0500 for Excel 5
+        my $type    = $_[0];         # 0x05 = workbook, 0x10 = worksheet
+
+        my $build   = 0x096C;
+        my $year    = 0x07C9;
+
+        my $header  = pack("vv",   $name, $length);
+        my $data    = pack("vvvv", $version, $type, $build, $year);
+
+        $self-&gt;_prepend($header, $data);
+    }
+</pre>
+
+<p>The string written to the Excel file looks like this in hexadecimal:</p>
+<pre>    09 08 08 00 00 00 10 00 00 00 00 00</pre>
+
+<p>The <tt>v</tt> template produces a two-byte integer in little-endian order regardless of the native byte order of the underlying hardware. Since the majority of the BIFF and OLE data in an Excel file is composed of little-endian integers, it's possible to write a cross-platform binary file with very little effort. The complementary function for reading fixed format structures is <tt>unpack</tt>. Perl is most often associated with text processing, but has features that handle binary data in a relatively straightforward manner.</p>
+
+<p>One problem I encountered was with the binary representation of a floating-point number, since Excel requires a 64-bit IEEE float. <tt>pack</tt> provides the <tt>d</tt> template for a double precision float, but its format depends on the native hardware. If Spreadsheet::WriteExcel cannot generate the required number format, it will <tt>croak()</tt> with an error message. During installation, <tt>make test</tt> will also catch this. Nobody has reported a problem yet, probably because the owners of PDPs or Crays are involved in real computing and aren't interested in such fripperies as Microsoft Excel.</p>
+
+<p>There is one feature of writing binary files that traps everyone at least once. Consider the following example, which writes the Excel end-of-file record identifier, <tt>0x000A</tt>. What file size is printed out?</p>
+
+<pre>
+    #!/usr/bin/perl -w
+
+    use strict;
+
+    open (TMP, "+&gt; testfile.tmp") or die "testfile.tmp: $!";
+    print TMP pack("v", 0x000A);
+    seek (TMP,0,1);
+    my $filesize = -s TMP;
+
+    print  "Filesize is $filesize bytes.\n";
+</pre>
+
+<p>The answer depends on your operating system. On Unix the answer is 2, and on Windows the answer is 3. This is because <tt>0x0A</tt> is the newline character, <tt>\n</tt>, which your Windows's I/O libraries will translate to <tt>0x0D</tt> <tt>0x0A</tt> or <tt>\r\n</tt>. This is a "feature" of Windows, not Perl. To write a binary file with exactly the data you want and nothing else, you need to use the <tt>binmode()</tt> function on the filehandle.</p>
+
+<h3>The Structure of the Module</h3>
+
+<p>Spreadsheet::WriteExcel was designed with a object-oriented interface so that it most closely represents Excel's own interface. The fact that Excel relies heavily on an object-oriented model can be seen from the Excel object hierarchy, and from its interaction with Visual Basic for Applications (VBA). The Excel object hierarchy is shown in the help file that comes with Excel VBA under the entry "Microsoft Excel Objects". The main strand of the hierarchy of interest is:</p>
+
+<pre>
+    Application-&gt;Workbook-&gt;Worksheet
+</pre>
+
+<p>For us, "Application" means Excel. In other contexts it might mean Word or PowerPoint.</p>
+
+<p>Spreadsheet::WriteExcel mimics this hierarchy with five classes, each split into its own packages. For ease of development, each package is contained in its own module.</p>
+
+<pre>
+    WriteExcel  - The main module
+    Workbook    - A container for worksheets
+    Worksheet   - Provides the write methods
+    BIFFwriter  - Writes data in BIFF format
+    OLEwriter   - Write data into an OLE storage
+</pre>
+
+<p>From the user's point of view, these are seen as follows:</p>
+
+<pre>
+    WriteExcel-&gt;Workbook-&gt;Worksheet
+</pre>
+
+<p>The interaction of these packages is shown as low-tech UML in Figure 4. Only the documented public methods are included.</p>
+
+<p><FONT face="verdana" size="-2"><B>Figure 4:</B> The structure of the Spreadsheet::WriteExcel module.</FONT><BR>
+<IMG src="tpj0503-0004-04.gif" width="488" height="442" border="0"></P>
+
+<p>The relationships can be described as follows: WriteExcel is a Workbook. Workbook is a container for Worksheets, and it uses the OLEwriter class. Workbook and Worksheet are both derived from the abstract base class BIFFwriter.</p>
+
+<h3>Alternative Ways of Writing to Excel</h3>
+
+<p>Depending on your requirements, background, and general sensibilities, you may prefer one of the following methods for storing data in Excel.</p>
+
+<blockquote>&#149;    CSV (comma separated variables) or text. If the file extension is <tt>csv</tt>, Excel will open and convert this format automatically.</blockquote>
+
+<blockquote>&#149;    HTML tables. This is an easy way to add formatting.</blockquote>
+
+<blockquote>&#149;    DBI or ODBC. Connect to an Excel file as a database.</blockquote>
+
+<blockquote>&#149;    Win32::OLE module and office automation. This is discussed in more detail in a later section.</blockquote>
+
+<blockquote>&#149;    XML and HTML. There are XML and HTML specifications available for Excel Workbooks. The HTML specification goes beyond single tables and allows you access to all of Excel's features. However, there are no modules currently available to write Excel files in these formats. Interested parties should look at <a href="http://msdn.microsoft.com/library/officedev/ofxml2k/ofxml2k.htm" target="resource window">http://msdn.microsoft.com/library/officedev/ofxml2k/ofxml2k.htm</a>.</blockquote>
+
+<p>Other sources of information: the Gnumeric source code (<a href="http://www.gnumeric.org/" target="resource window">http://www.gnumeric.org/</a>) and the soon to be GPL'ed Star Office.</p>
+
+<h3>Reading from Excel</h3>
+
+<p>Despite the title of the Spreadsheet::WriteExcel module, the most commonly asked questions that I receive are about reading Excel files. The following are some suggestions:</p>
+
+<blockquote>&#149;    HTML tables. If the files are saved from Excel as a HTML table the data can be accessed using HTML::TableExtract, <a href="http://search.cpan.org/search?dist=HTML-TableExtract" target="resource window">http://search.cpan.org/search?dist=HTML-TableExtract</a>.</blockquote>
+
+<blockquote>&#149;    DBI or ODBC.</blockquote>
+
+<blockquote>&#149;    OLE::Storage, formerly known as LAOLA. This is a Perl interface to OLE file formats. In particular, the distribution contains an Excel to HTML converter called Herbert, <a href="http://user.cs.tu-berlin.de/~schwartz/pmh/" target="resource window">http://user.cs.tu-berlin.de/~schwartz/pmh/</a>. There is also an open source C/C++ project based on the LAOLA work. Try the Filters Project at <a href="http://arturo.directmail.org/filtersweb/" target="resource window">http://arturo.directmail.org/filtersweb/</a> and the xlHtml Project at <a href="http://www.xlhtml.org/" target="resource window">http://www.xlhtml.org/</a>. The xlHtml filter is more complete than Herbert.</blockquote>
+
+<blockquote>&#149;    Win32::OLE module and office automation.</blockquote>
+
+<h3>Win32::OLE</h3>
+
+<p>As is often said, only <tt>perl</tt> can parse Perl. Similarly, only Excel can grok and spew Excel. Tackling the binary file head on is fine up to a certain point. After that it's best to leave the dirty work to Excel.</p>
+
+<p>By far the most powerful method of accessing an Excel file for either reading or writing is through OLE and OLE Automation. Automation is the process by which OLE objects, such as Excel, act as servers and allow other applications to control their functionality. When applied to the Microsoft Office suite of applications, this process is known as Office Automation.</p>
+
+<p>The following is a textual description of how you might use Automation with Excel:</p>
+
+<p>
+&#149; Request Excel to start<br>
+&#149; Request Excel to write some cells<br>
+&#149; Request Excel to save the file<br>
+&#149; Request Excel to close</p>
+
+<p>To do this in Perl requires a Windows platform, the Win32::OLE module, and an installed copy of Excel. Here is an example:</p>
+
+<pre>
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Cwd;
+    use Win32::OLE;
+
+    my $application = Win32::OLE-&gt;new("Excel.Application");
+    my $workbook    = $application-&gt;Workbooks-&gt;Add;
+    my $worksheet   = $workbook-&gt;Worksheets(1);
+
+    $worksheet-&gt;Cells(1,1)-&gt;{Value} = "The Perl Journal";
+    $worksheet-&gt;Cells(2,1)-&gt;{Value} = "One";
+    $worksheet-&gt;Cells(3,1)-&gt;{Value} = "Two";
+    $worksheet-&gt;Cells(4,1)-&gt;{Value} =  3;
+    $worksheet-&gt;Cells(5,1)-&gt;{Value} =  4.0000001;
+
+    # Add some formatting
+    $worksheet-&gt;Cells(1,1)-&gt;Font-&gt;{Bold}       = "True";
+    $worksheet-&gt;Cells(1,1)-&gt;Font-&gt;{Size}       = 16;
+    $worksheet-&gt;Cells(1,1)-&gt;Font-&gt;{ColorIndex} = 3;
+    $worksheet-&gt;Columns("A:A")-&gt;{ColumnWidth}  = 25;
+
+    # Get current directory using Cwd.pm
+    my $dir = cwd();
+
+    $workbook-&gt;SaveAs($dir . '/perl_ole.xls');
+    $workbook-&gt;Close;
+</pre>
+
+<p><FONT face="verdana" size="-2"><B>Figure 5:</B> An example file written with Win32::OLE and Excel.</FONT><BR>
+<IMG src="tpj0503-0004-05.gif" width="427" height="242" border="0"></P>
+
+<p>The result is shown in Figure 5. Without the formatting code, this program produces an Excel file which is almost identical to the one shown in Figure 1.</p>
+
+<p>There are some issues that we've skirted here, particularly in relation to starting and stopping an OLE server. A more detailed introduction to the Win32::OLE module is given by Jan Dubois in <a href="/tpj/issues/vol3_2/ewtoc.html">TPJ #10</a> at <a href="http://www.itknowledge.com/tpj/issues/vol3_2/tpj0302-0008.html" target="resource window">http://www.itknowledge.com/tpj/issues/vol3_2/tpj0302-0008.html</a>.</p>
+
+<p>For additional examples see <a href="http://www.activestate.com/Products/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html" target="resource window">http://www.activestate.com/Products/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html</a> and <a href="http://www.activestate.com/Products/ActivePerl/docs/site/lib/Win32/OLE.html" target="resource window">http://www.activestate.com/Products/ActivePerl/docs/site/lib/Win32/OLE.html</a>.</p>
+
+<p>As a brief diversion, the following program uses Win32::OLE to expose the flight simulator Easter Egg in Excel 97 SR2.</p>
+
+<pre>
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Win32::OLE;
+
+    my $application = Win32::OLE-&gt;new("Excel.Application");
+    my $workbook    = $application-&gt;Workbooks-&gt;Add;
+    my $worksheet   = $workbook-&gt;Worksheets(1);
+
+    $application-&gt;{Visible} = 1;
+
+    $worksheet-&gt;Range("L97:X97")-&gt;Select;
+    $worksheet-&gt;Range("M97")-&gt;Activate;
+
+    my $message =  "Hold down Shift and Ctrl and click the ".
+                   "Chart Wizard icon on the toolbar.\n\n".
+                   "Use the mouse motion and buttons to control ".
+                   "movement. Try to find the monolith. ".
+                   "Close this dialog first.";
+
+    $application-&gt;InputBox($message);
+</pre>
+
+<h3>Obtaining Spreadsheet::WriteExcel</h3>
+
+<p>The latest version of the module will always be available at CPAN, at <a href="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel" target="resource window">http://search.cpan.org/search?dist=Spreadsheet-WriteExcel</a>.</p>
+
+<p>ActivePerl users can download and install the module using PPM as follows:</p>
+
+<pre>
+    C:\&gt; <b>ppm</b>
+    PPM&gt; <b>set repository tmp http://homepage.eircom.net/~jmcnamara/perl</b>
+    PPM&gt; <b>install Spreadsheet-WriteExcel</b>
+    PPM&gt; <b>quit</b>
+    C:\&gt;
+</pre>
+
+<b>_ _END_ _</b><br><br>
+
+<hr>
+
+<i>John McNamara</i> (<a href="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</a>) <i>works as a software developer for Tecnomen Ltd. Apart from the usual things that engage us all, his main interest in life is the Saab 900 series. He lives in Limerick, Ireland.</i>
+
+<hr>
+
+
+
+
+</body>
+</html>
+

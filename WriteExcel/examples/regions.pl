@@ -1,11 +1,12 @@
 #!/usr/bin/perl -w
 
-######################################################################
+###############################################################################
 #
-# Example of how to use the WriteExcel module
+# Example of how to use the WriteExcel module to write a basic multiple
+# worksheet Excel file.
 #
-
-#!/usr/bin/perl -w
+# Dec 2000, John McNamara, jmcnamara@cpan.org
+#
 
 use strict;
 use Spreadsheet::WriteExcel;
@@ -18,12 +19,12 @@ my $north = $workbook->addworksheet("North");
 my $south = $workbook->addworksheet("South");
 my $east  = $workbook->addworksheet("East");
 my $west  = $workbook->addworksheet("West");
-    
+
 # Add a Format
 my $format = $workbook->addformat();
 $format->set_bold();
 $format->set_color('blue');
-    
+
 # Add a caption to each worksheet
 foreach my $worksheet (@{$workbook->worksheets()}) {
    $worksheet->write(0, 0, "Sales", $format);
@@ -39,7 +40,7 @@ $west->write (0, 1, 100000);
 $south->activate();
 
 # Set the width of the first column 
-$south->set_col_width(0, 0, 20);
+$south->set_column(0, 0, 20);
 
 # Set the active cell
 $south->set_selection(0, 1);

@@ -1,8 +1,8 @@
-package Spreadsheet::BIFFwriter;
+package Spreadsheet::WriteExcel::BIFFwriter;
 
-######################################################################
+###############################################################################
 #
-# BIFFwriter - Abstract base class for Excel workbooks and worksheets.
+# BIFFwriter - An abstract base class for Excel workbooks and worksheets.
 #
 #
 # Used in conjuction with Spreadsheet::WriteExcel
@@ -23,9 +23,9 @@ use strict;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
-######################################################################
+###############################################################################
 #
 # Class data.
 #
@@ -33,7 +33,7 @@ my $byte_order   = '';
 my $BIFF_version = 0x0500;
 
 
-######################################################################
+###############################################################################
 #
 # new()
 #
@@ -55,7 +55,7 @@ sub new {
 }
 
 
-######################################################################
+###############################################################################
 #
 # _set_byte_order()
 #
@@ -90,7 +90,7 @@ sub _set_byte_order {
 }
 
 
-######################################################################
+###############################################################################
 #
 # _prepend($data)
 #
@@ -106,7 +106,7 @@ sub _prepend {
 }
 
 
-######################################################################
+###############################################################################
 #
 # _append($data)
 #
@@ -122,7 +122,7 @@ sub _append {
 }
 
 
-######################################################################
+###############################################################################
 #
 # _store_bof($type)
 #
@@ -135,7 +135,7 @@ sub _append {
 sub _store_bof {
 
     my $self    = shift;
-    my $name    = 0x0809;        # Record identifier
+    my $record  = 0x0809;        # Record identifier
     my $length  = 0x0008;        # Number of bytes to follow
 
     my $version = $BIFF_version;
@@ -147,14 +147,14 @@ sub _store_bof {
     my $build   = 0x096C;
     my $year    = 0x07C9;
 
-    my $header  = pack("vv",   $name, $length);
+    my $header  = pack("vv",   $record, $length);
     my $data    = pack("vvvv", $version, $type, $build, $year);
 
     $self->_prepend($header, $data);
 }
 
 
-######################################################################
+###############################################################################
 #
 # _store_eof()
 #
@@ -163,10 +163,10 @@ sub _store_bof {
 sub _store_eof {
 
     my $self      = shift;
-    my $name      = 0x000A; # Record identifier
+    my $record    = 0x000A; # Record identifier
     my $length    = 0x0000; # Number of bytes to follow
 
-    my $header    = pack("vv", $name, $length);
+    my $header    = pack("vv", $record, $length);
 
     $self->_append($header);
 }
@@ -180,7 +180,7 @@ __END__
 
 =head1 NAME
 
-BIFFwriter - Abstract base class for Excel workbooks and worksheets.
+BIFFwriter - An abstract base class for Excel workbooks and worksheets.
 
 =head1 SYNOPSIS
 

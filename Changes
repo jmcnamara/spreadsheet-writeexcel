@@ -1,38 +1,52 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.23 Dec 10 2000
+    Minor
+    Added customisable numeric formats.
+    Added set_row() method.
+    Added set_1904() method.
+    Added extra examples including contributions. Thanks to all.
+    Moved secondary modules to WriteExcel namespace to clean-up
+    Spreadsheet namespace which is now shared with ParseExcel.
+    Fixed class data bug, thanks Cedric Bouvier.
+    Fixed Excel crashing!! bug in STYLE, thanks Rich Sorden.
+    Tidied up internal storage of FONTs and XFs.
+    Renamed set_col_width() method to set_column().
+    Renamed set_format() method to set_num_format().
+
 0.22 Oct 22 2000:
-Major
-Added Format.pm and the facility for cell formatting.
+    Major
+    Added Format.pm and the facility for cell formatting.
 
 0.21 Oct 1 2000:
-Minor
-Replaced direct access to worksheets array with a workbook method;
-worksheets(). Added set_selection() and set_col_width() worksheet
-methods. Replaced the missings thats, including the that that were
-in the icebox. Added MS Access bug warning; thanks Harold Bamford.
+    Minor
+    Replaced direct access to worksheets array with a workbook method;
+    worksheets(). Added set_selection() and set_col_width() worksheet
+    methods. Replaced the missings thats, including the that that were
+    in the icebox. Added MS Access bug warning; thanks Harold Bamford.
 
 0.20 Aug 27 2000:
-Major
-Added multiple worksheets and OLE wrapper. Now compatible with
-Star Office, Gnumeric and XESS.
+    Major
+    Added multiple worksheets and OLE wrapper. Now compatible with
+    Star Office, Gnumeric and XESS.
 
 0.11 Aug 25 2000:
-Minor
-Changes to documentation. Explanation of how to use WriteExcel
-in CGI's. Thanks Daniel Gardner.
+    Minor
+    Changes to documentation. Explanation of how to use WriteExcel
+    in CGI's. Thanks Daniel Gardner.
 
 0.10 May 13 2000:
-Minor
-Bug in close() and DESTROY sequence fixed, thanks John Wren.
-Biff version number fixed, thanks Aurthur@ais, and then unfixed.
-Shakey test and distro fixed, thanks to many.
+    Minor
+    Bug in close() and DESTROY sequence fixed, thanks John Wren.
+    Biff version number fixed, thanks Aurthur@ais, and then unfixed.
+    Shakey test and distro fixed, thanks to many.
 
 0.09 Feb 1 2000:
-Minor
-Code for writing DIMENSIONS updated to account for bug when reading
-files with QuickView.
-Renamed xl_write methods to write.
+    Minor
+    Code for writing DIMENSIONS updated to account for bug when
+    reading files with QuickView.
+    Renamed xl_write methods to write.
 
 0.08 Jan 16 2000:
-First CPAN release. Spreadsheet::WriteExcel - Write text and numbers
-to minimal Excel binary file.
+    First CPAN release. Spreadsheet::WriteExcel - Write text and
+    numbers to minimal Excel binary file.

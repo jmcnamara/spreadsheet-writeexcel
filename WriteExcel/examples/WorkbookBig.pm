@@ -1,4 +1,15 @@
-package Spreadsheet::WriteExcel::Workbook;
+package Spreadsheet::WriteExcel::WorkbookBig;
+
+
+###############################################################################
+#
+# Example of how to use extend the  Spreadsheet::WriteExcel 7MB limit with
+# OLE::Storage_Lite http://search.cpan.org/search?dist=OLE-Storage_Lite
+#
+# Nov 2000, Kawai, Takanori (Hippo2000)
+#   Mail: GCD00051@nifty.ne.jp
+#   http://member.nifty.ne.jp/hippo2000
+
 
 ###############################################################################
 #
@@ -17,7 +28,9 @@ require Exporter;
 use strict;
 use Spreadsheet::WriteExcel::BIFFwriter;
 use Spreadsheet::WriteExcel::Worksheet;
-use Spreadsheet::WriteExcel::OLEwriter;
+#use Spreadsheet::WriteExcel::OLEwriter;    # BIG Commented out
+use OLE::Storage_Lite;                      # BIG Added
+use IO::File;                               # BIG Added
 use Spreadsheet::WriteExcel::Format;
 
 use vars qw($VERSION @ISA);
@@ -36,12 +49,14 @@ sub new {
     my $class       = shift;
     my $filename    = $_[0] || '';
     my $self        = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $ole_writer  = Spreadsheet::WriteExcel::OLEwriter->new($filename);
+    # BIG Commented out    
+    #my $ole_writer  = Spreadsheet::WriteExcel::OLEwriter->new($filename);
     my $tmp_sheet   = Spreadsheet::WriteExcel::Worksheet->new('', 0, 0);
     my $tmp_format  = Spreadsheet::WriteExcel::Format->new();
 
     $self->{_store_in_memory}   = $_[1] || 0;
-    $self->{_OLEwriter}         = $ole_writer;
+    #$self->{_OLEwriter}         = $ole_writer; # BIG Commented out
+    $self->{_Filename}          = $filename;    # BIG Added
     $self->{_1904}              = 0;
     $self->{_activesheet}       = 0;
     $self->{_firstsheet}        = 0;
@@ -73,7 +88,7 @@ sub close {
     return if $self->{_fileclosed}; # Prevent calling close() twice
 
     $self->_store_workbook();
-    $self->{_OLEwriter}->close();
+    # $self->{_OLEwriter}->close(); # BIG Commented out
     $self->{_fileclosed} = 1;
 }
 
@@ -285,7 +300,7 @@ sub _calc_sheet_offsets {
 sub _store_workbook {
 
     my $self = shift;
-    my $OLE  = $self->{_OLEwriter};
+    #my $OLE  = $self->{_OLEwriter}; # BIG Commented out
 
     # Call the finalization methods for each worksheet
     foreach my $sheet (@{$self->{_worksheets}}) {
@@ -310,17 +325,38 @@ sub _store_workbook {
     # End Workbook globals
     $self->_store_eof();
 
+    # BIG Commented out
     # Write Worksheet data if data <~ 7MB
-    if ($OLE->set_size($self->{_biffsize})) {
-        $OLE->write_header();
-        $OLE->write($self->{_data});
+    #if ($OLE->set_size($self->{_biffsize})) {
+    #    $OLE->write_header();
+    #    $OLE->write($self->{_data});
 
-        foreach my $sheet (@{$self->{_worksheets}}) {
-            while (my $tmp = $sheet->get_data()) {
-                $OLE->write($tmp);
-            }
+    #    foreach my $sheet (@{$self->{_worksheets}}) {
+    #        while (my $tmp = $sheet->get_data()) {
+    #            $OLE->write($tmp);
+    #        }
+    #    }
+    #}
+    
+    # BIG added
+    my $sData = $self->{_data};
+    foreach my $sheet (@{$self->{_worksheets}}) {
+        while (my $tmp = $sheet->get_data()) {
+                $sData .= $tmp;
         }
-    }
+    }    
+    
+    my @aLtime = localtime();
+    splice(@aLtime, 6);
+    my $oF = OLE::Storage_Lite::PPS::File->new(
+                OLE::Storage_Lite::Asc2Ucs('Workbook'), 
+            $sData);
+    my $oDt = OLE::Storage_Lite::PPS::Root->new(
+            \@aLtime,
+            \@aLtime,
+            [$oF,]);
+    return $oDt->save($self->{_Filename});
+    
 }
 
 

@@ -1,8 +1,8 @@
-package Spreadsheet::Format;
+package Spreadsheet::WriteExcel::Format;
 
-######################################################################
+###############################################################################
 #
-# Format - Class for defining Excel formatting.
+# Format - A class for defining Excel formatting.
 #
 #
 # Used in conjuction with Spreadsheet::WriteExcel
@@ -23,17 +23,9 @@ use Carp;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
-######################################################################
-#
-# Class data.
-#
-my $xf_index   = 15;
-my $font_index = 4;
-
-
-######################################################################
+###############################################################################
 #
 # new()
 #
@@ -41,12 +33,12 @@ my $font_index = 4;
 #
 sub new {
 
-    my $class  = $_[0];
+    my $class  = shift;
 
     my $self   = {
-                    _xf_index       => $xf_index,
+                    _xf_index       => $_[0] || 0,
 
-                    _font_index     => $font_index,
+                    _font_index     => 0,
                     _font           => 'Arial',
                     _size           => 10,
                     _bold           => 0x0190,
@@ -60,8 +52,7 @@ sub new {
                     _font_family    => 0,
                     _font_charset   => 0,
 
-                    _format         => 0,
-                    _format_index   => 0,
+                    _num_format     => 0,
 
                     _text_h_align   => 0,
                     _text_wrap      => 0,
@@ -85,19 +76,16 @@ sub new {
                     _right_color    => 0x0,
                  };
 
-    $xf_index++;
-    $font_index++;
-
     bless  $self, $class;
     return $self;
 }
 
 
-######################################################################
+###############################################################################
 #
 # copy($format)
 #
-# Copy the attributes of another Spreadsheet::Format object.
+# Copy the attributes of another Spreadsheet::WriteExcel::Format object.
 #
 sub copy {
     my $self  = shift;
@@ -116,7 +104,7 @@ sub copy {
 }
 
 
-######################################################################
+###############################################################################
 #
 # get_xf($style)
 #
@@ -127,7 +115,7 @@ sub get_xf {
     my $self      = shift;
 
     my $record;     # Record identifier
-    my $rec_length; # Number of bytes to follow
+    my $length;     # Number of bytes to follow
 
     my $ifnt;       # Index to FONT record
     my $ifmt;       # Index to FORMAT record
@@ -138,20 +126,25 @@ sub get_xf {
     my $border1;    # Border line style and color
     my $border2;    # Border color
 
-    # TODO add some tests for these flags
-    my $atr_num     = 0;
-    my $atr_fnt     = 0;
-    my $atr_alc     = 0;
-    my $atr_bdr     = 0;
-    my $atr_pat     = 0;
+    # Flags to indicate if attributes have been set
+    my $atr_num     = ($self->{_num_format} != 0);
+    my $atr_fnt     = ($self->{_font_index} != 0);
+    my $atr_alc     =  $self->{_text_wrap};
+    my $atr_bdr     = ($self->{_bottom}   ||
+                       $self->{_top}      ||
+                       $self->{_left}     ||
+                       $self->{_right});
+    my $atr_pat     = ($self->{_fg_color} ||
+                       $self->{_bg_color} ||
+                       $self->{_pattern});
     my $atr_prot    = 0;
 
 
     $record         = 0x00E0;
-    $rec_length     = 0x0010;
+    $length         = 0x0010;
 
     $ifnt           = $self->{_font_index};
-    $ifmt           = $self->{_format};
+    $ifmt           = $self->{_num_format};
     $style          = $_[0];
 
 
@@ -187,7 +180,7 @@ sub get_xf {
     $border2       |= $self->{_right_color}   << 7;
 
 
-    my $header      = pack("vv",       $record, $rec_length);
+    my $header      = pack("vv",       $record, $length);
     my $data        = pack("vvvvvvvv", $ifnt, $ifmt, $style, $align,
                                        $icv, $fill,
                                        $border1, $border2);
@@ -196,7 +189,7 @@ sub get_xf {
 }
 
 
-######################################################################
+###############################################################################
 #
 # get_font()
 #
@@ -207,7 +200,7 @@ sub get_font {
     my $self      = shift;
 
     my $record;     # Record identifier
-    my $rec_length; # Record length
+    my $length;     # Record length
 
     my $dyHeight;   # Height of font (1/20 of a point)
     my $grbit;      # Font attributes
@@ -233,7 +226,7 @@ sub get_font {
 
     $cch        = length($rgch);
     $record     = 0x31;
-    $rec_length = 0x0F + $cch;
+    $length     = 0x0F + $cch;
     $reserved   = 0x00;
 
     $grbit      = 0x00;
@@ -243,7 +236,7 @@ sub get_font {
     $grbit     |= 0x20 if $self->{_font_shadow};
 
 
-    my $header  = pack("vv",         $record, $rec_length);
+    my $header  = pack("vv",         $record, $length);
     my $data    = pack("vvvvvCCCCC", $dyHeight, $grbit, $icv, $bls,
                                      $sss, $uls, $bFamily,
                                      $bCharSet, $reserved, $cch);
@@ -251,10 +244,36 @@ sub get_font {
     return($header . $data. $self->{_font});
 }
 
-
-######################################################################
+###############################################################################
 #
-# get_xf_index(), used by Workbook
+# get_font_key()
+#
+# Returns a unique hash key for a font. Used by Workbook->_store_all_fonts()
+#
+sub get_font_key {
+
+    my $self    = shift;
+    
+    # The following elements are arranged to increase the probability of
+    # generating a unique key. Elements that hold a large range of numbers
+    # eg. _color are placed between two binary elements such as _italic
+    #
+    my $key = "$self->{_font}$self->{_size}";
+    $key   .= "$self->{_font_script}$self->{_underline}";
+    $key   .= "$self->{_font_strikeout}$self->{_bold}$self->{_font_outline}";
+    $key   .= "$self->{_font_family}$self->{_font_charset}";
+    $key   .= "$self->{_font_shadow}$self->{_color}$self->{_italic}";
+    $key    =~ s/ /_/g; # Convert the key to a single word
+
+    return $key;
+}
+
+
+###############################################################################
+#
+# get_xf_index()
+#
+# Returns the used by Worksheet->_XF()
 #
 sub get_xf_index {
     my $self   = shift;
@@ -263,7 +282,7 @@ sub get_xf_index {
 }
 
 
-######################################################################
+###############################################################################
 #
 # _get_color()
 #
@@ -296,6 +315,7 @@ sub _get_color {
     #         3. The default color if string is unrecognised,
     #         4. The default color if arg is outside range,
     #         5. An integer in the valid range
+    #
     return 0x7FFF if not $_[0];
     return $colors{lc($_[0])} if exists $colors{lc($_[0])};
     return 0x7FFF if ($_[0] =~ m/\D/);
@@ -304,7 +324,7 @@ sub _get_color {
 }
 
 
-######################################################################
+###############################################################################
 #
 # Set cell alignment.
 #
@@ -330,11 +350,10 @@ sub set_align {
     $self->set_text_v_align(1) if ($location eq 'vcenter');
     $self->set_text_v_align(2) if ($location eq 'bottom');
     $self->set_text_v_align(3) if ($location eq 'vjustify');
-
 }
 
 
-######################################################################
+###############################################################################
 #
 # set_bold()
 #
@@ -356,7 +375,7 @@ sub set_bold {
 }
 
 
-######################################################################
+###############################################################################
 #
 # set_border($style)
 #
@@ -374,7 +393,7 @@ sub set_border {
 }
 
 
-######################################################################
+###############################################################################
 #
 # set_border_color($color)
 #
@@ -392,7 +411,20 @@ sub set_border_color {
 }
 
 
-######################################################################
+###############################################################################
+#
+# set_format()
+#
+# Backward compatible alias for set_num_format(). set_format() was a poor
+# choice of method name. It is now deprecated and will disappear.
+#
+sub set_format {
+    my $self = shift;
+    $self->set_num_format(@_);
+}
+
+
+###############################################################################
 #
 # AUTOLOAD. Deus ex machina.
 #
@@ -419,7 +451,7 @@ sub AUTOLOAD {
     if ($AUTOLOAD =~ /.*::set\w+color$/) {
         $value =  _get_color($_[0]); # For "set_xxx_color" methods
     }
-    elsif ( not defined($_[0])) {
+    elsif (not defined($_[0])) {
         $value = 1; # Default is 1
     }
     else {
@@ -429,6 +461,7 @@ sub AUTOLOAD {
     $self->{$attribute} = $value;
 }
 
+
 1;
 
 
@@ -437,7 +470,7 @@ __END__
 
 =head1 NAME
 
-Format - Class for defining Excel formatting.
+Format - A class for defining Excel formatting.
 
 =head1 SYNOPSIS
 
