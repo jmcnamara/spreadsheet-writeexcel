@@ -1,5 +1,10 @@
 Revision history for Perl extension Spreadsheet::WriteExcel.
 
+0.20
+Major
+Added multiple worksheets and OLE wrapper. Now compatible with
+Star Office, Gnumeric and XESS.
+
 0.11 Aug 25 2000:
 Minor
 Changes to documentation. Explanation of how to use WriteExcel

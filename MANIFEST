@@ -1,8 +1,13 @@
 WriteExcel.pm
+Workbook.pm
+Worksheet.pm
+OLEwriter.pm
+BIFFwriter.pm
+
 CHANGES
 MANIFEST
 README
-INSTALL
+
 Makefile.PL
 test.pl
 example.pl

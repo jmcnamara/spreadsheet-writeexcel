@@ -1,26 +1,46 @@
 NAME
-    Spreadsheet::WriteExcel - Write text and numbers to minimal
-    Excel binary file.
+    Spreadsheet::WriteExcel - Write text and numbers to a cross- 
+    platform Excel binary file.
 
 DESCRIPTION
     This module can be used to write numbers and text in the native
-    Excel binary file format. This is a minimal implementation of an
-    Excel file; no formatting can be applied to cells and only a
-    single worksheet can be written to a workbook.
-    
+    Excel binary file format. Multiple worksheets can be added to a
+    workbook. Formatting of cells is not yet supported.
+
+    The Excel file produced by this module is compatible with Excel 5,
+    95, 97 and 2000.
+
+    The module will work on the majority of Windows, UNIX and
+    Macintosh platforms. Generated files are also compatible with the
+    Linux/UNIX spreadsheet applications Star Office, Gnumeric and
+    XESS.
+
     This module cannot be used to read an Excel file. Look at the main
     documentation for some suggestions.
 
-    This module is intended to be cross-platform, however, this is 
-    not guaranteed. See the section on portability in the main
-    documentation.
-
 INSTALLATION
-    See the separate INSTALL text file.
+    The module can be installed using the standard Perl procedure:
+
+        perl Makefile.PL
+        make
+        make test
+        make install    # You may need to be root
+        make clean      # or make realclean
+
+    Windows users without a working "make" can get nmake from:
+        ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
+
+    ActivePerl users can use PPM as follows:
+
+        C:\> ppm
+        PPM> set repository tmp http://homepage.eircom.net/~jmcnamara/perl
+        PPM> install Spreadsheet-WriteExcel
+        PPM> quit
+        C:\>
 
 VERSION
-    This document refers to version 0.11 of Spreadsheet::WriteExcel,
-    released Aug 25, 2000.
+    This document refers to version 0.20 of Spreadsheet::WriteExcel,
+    released Aug 27, 2000.
 
 AUTHOR
     John McNamara (jmcnamara@cpan.org)

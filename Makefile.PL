@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 
     @if5005 = (
         'AUTHOR'    => 'John McNamara (jmcnamara@cpan.org)',
-        'ABSTRACT'  => 'Write to minimal Excel binary file',
+        'ABSTRACT'  => 'Write cross platform Excel binary file',
     ) if $] ge '5.005';
 
     WriteMakefile(
