@@ -1,9 +1,17 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+2.02 May 28 2004 - Minor
+
+    + Fixed internal version numbers to keep CPAN.pm happy.
+      Thanks to David Dyck.
+
+    + Minor changes to demo.pl merge5.pl and the html docs.
+
+
 2.01 May 27 2004 - Major
 
-    This version is a MAJOR revs ion to Spreadsheet::WriteExcel. The
+    This version is a MAJOR revision to Spreadsheet::WriteExcel. The
     format of the Excel file that it produces has been updated from
     Excel 5 to Excel 97. This allows support for long, 32k character
     strings and Unicode.
@@ -39,15 +47,6 @@ Revision history for Perl module Spreadsheet::WriteExcel.
 1.01 May 24 2004 - Minor
 
     ! Small non-bug fix to write_comment().
-
-
-0.43 April 28 2004 - Minor
-
-    ! Fixed longstanding bug where page setup features didn't
-      show up in OpenOffice.
-
-    ! Fixed localised @_ bug when using threaded perls.
-      Thanks Tamas Gulacsi and Stephan Loescher.
 
 
 0.43 April 28 2004 - Minor

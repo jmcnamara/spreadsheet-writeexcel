@@ -1,7 +1,7 @@
 ======================================================================
 NAME
 
-    Spreadsheet::WriteExcel - Write formatted text and numbers to a 
+    Spreadsheet::WriteExcel - Write formatted text and numbers to a
     cross-platform Excel binary file.
 
 ======================================================================
@@ -12,12 +12,12 @@ DESCRIPTION
     workbook and formatting can be applied to cells. Text, numbers,
     formulas, hyperlinks and images can be written to the cells.
 
-    The Excel file produced by this module is compatible with Excel 5,
-    95, 97, 2000 and 2002.
+    TThe Excel file produced by this module is compatible with 97,
+    2000, 2002 and 2003.
 
     The module will work on the majority of Windows, UNIX and
     Macintosh platforms. Generated files are also compatible with the
-    Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.
+    spreadsheet applications Gnumeric and OpenOffice.
     The generated files are not compatible with MS Access.
 
     This module cannot be used to read an Excel file. See
@@ -57,9 +57,11 @@ SYNOPSIS
 ======================================================================
 REQUIREMENTS
 
-    This module requires Perl 5.005 (or later) and Parse::RecDescent:
-    http://search.cpan.org/search?dist=Parse-RecDescent
+    This module requires Perl 5.005 (or later), Parse::RecDescent
+    and File::Temp:
 
+    http://search.cpan.org/search?dist=Parse-RecDescent/
+    http://search.cpan.org/search?dist=File-Temp/
 
 ======================================================================
 INSTALLATION
