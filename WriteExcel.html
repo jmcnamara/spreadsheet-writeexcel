@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>Spreadsheet::WriteExcel - Write text and numbers to a cross-platform Excel binary file.</TITLE>
+<TITLE>Spreadsheet::WriteExcel - Write formatted text and numbers to a cross-platform Excel binary file.</TITLE>
 <LINK REV="made" HREF="mailto:">
 </HEAD>
 
@@ -19,6 +19,7 @@
 
 		<LI><A HREF="#new_">new()</A></LI>
 		<LI><A HREF="#addworksheet_sheetname_">addworksheet($sheetname)</A></LI>
+		<LI><A HREF="#addformat_">addformat()</A></LI>
 		<LI><A HREF="#close_">close()</A></LI>
 		<LI><A HREF="#worksheets_">worksheets()</A></LI>
 	</UL>
@@ -26,13 +27,39 @@
 	<LI><A HREF="#WORKSHEET_METHODS">WORKSHEET METHODS</A></LI>
 	<UL>
 
-		<LI><A HREF="#write_row_column_token_">write($row, $column, $token)</A></LI>
-		<LI><A HREF="#write_number_row_column_num">write_number($row, $column, $number)</A></LI>
-		<LI><A HREF="#write_string_row_column_str">write_string($row, $column, $string)</A></LI>
+		<LI><A HREF="#write_row_column_token_fo">write($row, $column, $token, $format)</A></LI>
+		<LI><A HREF="#write_number_row_column_num">write_number($row, $column, $number, $format)</A></LI>
+		<LI><A HREF="#write_string_row_column_str">write_string($row, $column, $string, $format)</A></LI>
+		<LI><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></LI>
 		<LI><A HREF="#activate_">activate()</A></LI>
 		<LI><A HREF="#set_first_sheet_">set_first_sheet()</A></LI>
 		<LI><A HREF="#set_selection_first_row_first">set_selection($first_row, $first_col, $last_row, $last_col);</A></LI>
-		<LI><A HREF="#set_col_width_first_col_last_">set_col_width($first_col, $last_col, $width);</A></LI>
+		<LI><A HREF="#set_col_width_first_col_last_">set_col_width($first_col, $last_col, $width, $format);</A></LI>
+	</UL>
+
+	<LI><A HREF="#FORMAT_METHODS">FORMAT METHODS</A></LI>
+	<UL>
+
+		<LI><A HREF="#copy_format_">copy($format)</A></LI>
+		<LI><A HREF="#set_font_fontname_">set_font($fontname)</A></LI>
+		<LI><A HREF="#set_size_">set_size()</A></LI>
+		<LI><A HREF="#set_color_">set_color()</A></LI>
+		<LI><A HREF="#set_bold_">set_bold()</A></LI>
+		<LI><A HREF="#set_italic_">set_italic()</A></LI>
+		<LI><A HREF="#set_underline_">set_underline()</A></LI>
+		<LI><A HREF="#set_strikeout_">set_strikeout()</A></LI>
+		<LI><A HREF="#set_script_">set_script()</A></LI>
+		<LI><A HREF="#set_outline_">set_outline()</A></LI>
+		<LI><A HREF="#set_shadow_">set_shadow()</A></LI>
+		<LI><A HREF="#set_format_format_code_">set_format($format_code)</A></LI>
+		<LI><A HREF="#set_align_">set_align()</A></LI>
+		<LI><A HREF="#set_rotation_">set_rotation()</A></LI>
+		<LI><A HREF="#set_text_wrap_">set_text_wrap()</A></LI>
+		<LI><A HREF="#set_text_justlast_">set_text_justlast()</A></LI>
+		<LI><A HREF="#set_pattern_">set_pattern()</A></LI>
+		<LI><A HREF="#set_fg_color_">set_fg_color()</A></LI>
+		<LI><A HREF="#set_border_">set_border()</A></LI>
+		<LI><A HREF="#set_border_color_">set_border_color()</A></LI>
 	</UL>
 
 	<LI><A HREF="#EXAMPLES">EXAMPLES</A></LI>
@@ -54,24 +81,24 @@
 <P>
 <H1><A NAME="NAME">NAME</A></H1>
 <P>
-Spreadsheet::WriteExcel - Write text and numbers to a cross-platform Excel
-binary file.
+Spreadsheet::WriteExcel - Write formatted text and numbers to a
+cross-platform Excel binary file.
 
 </P>
 <P>
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.21 of Spreadsheet::WriteExcel, released
-October 1, 2000.
+This document refers to version 0.22 of Spreadsheet::WriteExcel, released
+October 22, 2000.
 
 </P>
 <P>
 <HR>
 <H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
 <P>
-To write a string and a number to the first worksheet in an Excel workbook
-called perl.xls:
+To write a string, a number and a formatted string to the first worksheet
+in an Excel workbook called perl.xls:
 
 </P>
 <P>
@@ -81,16 +108,23 @@ called perl.xls:
 <P>
 <PRE>    $row1 = $col1 = 0;
     $row2 = 1;
+    $row3 = 2;
 </PRE>
 </P>
 <P>
 <PRE>    my $workbook = Spreadsheet::WriteExcel-&gt;new(&quot;perl.xls&quot;);
-    $worksheet  = $workbook-&gt;addworksheet();
+    $worksheet   = $workbook-&gt;addworksheet();
+    $format      = $workbook-&gt;addformat();
+    
+    $format-&gt;set_bold();
+    $format-&gt;set_color('red');
+    $format-&gt;set_align('center');
 </PRE>
 </P>
 <P>
 <PRE>    $worksheet-&gt;write($row1, $col1, &quot;Hi Excel!&quot;);
     $worksheet-&gt;write($row2, $col1, 1.2345);
+    $worksheet-&gt;write($row3, $col1, &quot;Hi Excel!&quot;, $format);
 </PRE>
 </P>
 <P>
@@ -99,7 +133,7 @@ called perl.xls:
 <P>
 The Spreadsheet::WriteExcel module can be used to write numbers and text in
 the native Excel binary file format. Multiple worksheets can be added to a
-workbook. Formatting of cells is not yet supported.
+workbook and formatting can be applied to cells.
 
 </P>
 <P>
@@ -111,7 +145,13 @@ and 2000.
 The module will work on the majority of Windows, UNIX and Macintosh
 platforms. Generated files are also compatible with the Linux/UNIX
 spreadsheet applications Star Office, Gnumeric and XESS. The generated
-files are not compatible with MS Access. 
+files are not compatible with MS Access.
+
+</P>
+<P>
+An article describing Spreadsheet::WriteExcel appears in Issue #19 of The
+Perl Journal, <A
+HREF="http://www.itknowledge.com/tpj/">http://www.itknowledge.com/tpj/</A>
 
 </P>
 <P>
@@ -121,6 +161,11 @@ files are not compatible with MS Access.
 The Spreadsheet::WriteExcel module provides an object oriented interface to
 a new Excel workbook.The following methods are available through a new
 workbook.
+
+</P>
+<P>
+If you are unfamiliar with object oriented interfaces or the way that they
+are implemented in Perl have a look at <CODE>perlobj</CODE> and <CODE>perltoot</CODE> in the main Perl documentation.
 
 </P>
 <P>
@@ -181,6 +226,23 @@ Sheet1, Sheet2, etc.
 </P>
 <P>
 <HR>
+<H2><A NAME="addformat_">addformat()</A></H2>
+<P>
+The <CODE>addformat()</CODE> method can be used to create new Format objects which are used to apply
+formatting to a cell:
+
+</P>
+<P>
+<PRE>    $format1 = $workbook-&gt;addformat();
+    $format2 = $workbook-&gt;addformat();
+</PRE>
+</P>
+<P>
+See the <A HREF="#FORMAT_METHODS">FORMAT METHODS</A> section for details.
+
+</P>
+<P>
+<HR>
 <H2><A NAME="close_">close()</A></H2>
 <P>
 The <CODE>close()</CODE> method can be called to explicitly close an Excel file. Otherwise the file
@@ -195,6 +257,9 @@ when the program ends.
 <P>
 In general it is only necessary to explicitly close a file if you want to
 perform some other operation on it such as copying or checking the size.
+HOWEVER, there is a bug in the current implementation that sometimes causes
+a file of 0 bytes to be written. This can be avoided by explicitly calling
+the <CODE>close()</CODE> method for the WriteExcel object. See the <A HREF="#BUGS">BUGS</A> section.
 
 </P>
 <P>
@@ -203,7 +268,7 @@ perform some other operation on it such as copying or checking the size.
 <P>
 The <CODE>worksheets()</CODE> method returns a reference to the array of worksheets in a workbook. This
 can be useful if you want to repeat an operation on each worksheet in a
-workbook or where you wish to refer to a worksheet by its index:
+workbook or if you wish to refer to a worksheet by its index:
 
 </P>
 <P>
@@ -225,12 +290,18 @@ References are explained in detail in <CODE>perlref</CODE> and <CODE>perlreftut<
 <HR>
 <H1><A NAME="WORKSHEET_METHODS">WORKSHEET METHODS</A></H1>
 <P>
-The following methods are available through to a new worksheet.
+The following methods are available through a new worksheet. A new
+worksheet is created by calling the <CODE>addworksheet()</CODE> method from a Workbook object:
 
 </P>
 <P>
+<PRE>    $worksheet1 = $workbook-&gt;addworksheet();
+    $worksheet2 = $workbook-&gt;addworksheet();
+</PRE>
+</P>
+<P>
 <HR>
-<H2><A NAME="write_row_column_token_">write($row, $column, $token)</A></H2>
+<H2><A NAME="write_row_column_token_fo">write($row, $column, $token, $format)</A></H2>
 <P>
 The  <CODE>write()</CODE> method calls <CODE>write_number()</CODE> if <CODE>$token</CODE> matches the following regex:
 
@@ -251,8 +322,24 @@ Otherwise it calls <CODE>write_string()</CODE>:
 </PRE>
 </P>
 <P>
+The <CODE>$format</CODE> argument is optional. It should be a valid Format object, see <A HREF="#FORMAT_METHODS">FORMAT METHODS</A>:
+
+</P>
+<P>
+<PRE>    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_bold();
+    $format-&gt;set_color('red');
+    $format-&gt;set_align('center');
+</PRE>
+</P>
+<P>
+<PRE>    $worksheet-&gt;write(4, 0, &quot;Hello&quot;, $format ); # Formatted string
+</PRE>
+</P>
+<P>
 It should be noted that <CODE>$row</CODE> and <CODE>$column</CODE> are zero indexed cell locations for the <CODE>write</CODE> methods. Thus, Cell A1 is (0, 0) and Cell AD2000 is (1999, 29). Cells can
-be written to in any order. They can also be overwritten.
+be written to in any order but for forward compatibility it is probably
+best to write them in row-column order when possible.
 
 </P>
 <P>
@@ -268,7 +355,7 @@ The <CODE>write</CODE> methods return:
 </P>
 <P>
 <HR>
-<H2><A NAME="write_number_row_column_num">write_number($row, $column, $number)</A></H2>
+<H2><A NAME="write_number_row_column_num">write_number($row, $column, $number, $format)</A></H2>
 <P>
 Write an integer or a float to the cell specified by <CODE>$row</CODE> and <CODE>$column</CODE>:
 
@@ -279,8 +366,12 @@ Write an integer or a float to the cell specified by <CODE>$row</CODE> and <CODE
 </PRE>
 </P>
 <P>
+The <CODE>$format</CODE> argument is optional.
+
+</P>
+<P>
 <HR>
-<H2><A NAME="write_string_row_column_str">write_string($row, $column, $string)</A></H2>
+<H2><A NAME="write_string_row_column_str">write_string($row, $column, $string, $format)</A></H2>
 <P>
 Write a string to the cell specified by <CODE>$row</CODE> and <CODE>$column</CODE>:
 
@@ -290,7 +381,23 @@ Write a string to the cell specified by <CODE>$row</CODE> and <CODE>$column</COD
 </PRE>
 </P>
 <P>
-The maximum string size is 255 characters.
+The maximum string size is 255 characters. The <CODE>$format</CODE> argument is optional.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="write_blank_row_column_form">write_blank($row, $column, $format)</A></H2>
+<P>
+Write a blank cell specified by <CODE>$row</CODE> and <CODE>$column</CODE>:
+
+</P>
+<P>
+<PRE>    $worksheet-&gt;write_blank(0, 0, $format);
+</PRE>
+</P>
+<P>
+This method is useful for adding formatting to a cell that doesn't contain
+a string or number value.
 
 </P>
 <P>
@@ -369,7 +476,7 @@ The default is cell (0, 0).
 </P>
 <P>
 <HR>
-<H2><A NAME="set_col_width_first_col_last_">set_col_width($first_col, $last_col, $width);</A></H2>
+<H2><A NAME="set_col_width_first_col_last_">set_col_width($first_col, $last_col, $width, $format);</A></H2>
 <P>
 This method can be used to specify the width of a single column or a range
 of columns. If the method is applied to a single column the value of <CODE>$first_col</CODE> and <CODE>$last_col</CODE> should be the same:
@@ -383,7 +490,625 @@ of columns. If the method is applied to a single column the value of <CODE>$firs
 <P>
 The width corresponds to the column width value that is specified in Excel.
 It is approximately equal to the length of a string in the default font of
-Arial 10.
+Arial 10. The <CODE>$format</CODE> argument is optional, for additional information, see <A HREF="#FORMAT_METHODS">FORMAT METHODS</A>.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="FORMAT_METHODS">FORMAT METHODS</A></H1>
+<P>
+This section describes the methods that are available through a Format
+object. Format objects are created by calling the Workbook <CODE>addformat()</CODE> method as follows:
+
+</P>
+<P>
+<PRE>    my $heading1 = $workbook-&gt;addformat();
+    my $heading2 = $workbook-&gt;addformat();
+</PRE>
+</P>
+<P>
+The format object holds all the formatting properties that can be applied
+to a cell, a row or a column. The following table shows the Excel format
+categories, the formatting properties that can be applied and the relevant
+object method to do so:
+
+</P>
+<P>
+<PRE>    Category        Property            Method Name
+    --------        --------            -----------
+    Font            Font type           set_font()
+                    Font size           set_size()
+                    Font color          set_color()
+                    Bold                set_bold()
+                    Italic              set_italic()
+                    Underline           set_underline()
+                    Strikeout           set_font_strikeout()
+                    Super/Subscript     set_font_script()
+                    Outline             set_font_outline()
+                    Shadow              set_font_shadow()
+</PRE>
+</P>
+<P>
+<PRE>    Number          Numeric format      set_format()
+    
+    Alignment       Horizontal align    set_align()
+                    Vertical align      set_align()
+                    Rotation            set_rotation()
+                    Text wrap           set_text_wrap()
+                    Justify last        set_text_justlast()
+</PRE>
+</P>
+<P>
+<PRE>    Pattern         Cell pattern        set_pattern()
+                    Background color    set_bg_color()
+                    Foreground color    set_fg_color()
+    
+    Border          Cell border         set_border()
+                    Bottom border       set_bottom()
+                    Top border          set_top()
+                    Left border         set_left()
+                    Right border        set_right()
+                    Border color        set_border_color()
+                    Bottom color        set_bottom_color()
+                    Top color           set_top_color()
+                    Left color          set_left_color()
+                    Right color         set_right_color()
+</PRE>
+</P>
+<P>
+The default format is Arial 10 with all other properties off. In general a
+method call without an argument will turn a property on, for example:
+
+</P>
+<P>
+<PRE>    my $format1 = $workbook-&gt;addformat();
+    $format1-&gt;set_bold();  # Turns bold on
+    $format1-&gt;set_bold(1); # Also turns bold on
+    $format1-&gt;set_bold(0); # Turns bold off
+</PRE>
+</P>
+<P>
+More than one property can be applied to a format:
+
+</P>
+<P>
+<PRE>    my $format2 = $workbook-&gt;addformat();
+    $format2-&gt;set_bold();
+    $format2-&gt;set_italic();
+    $format2-&gt;set_color('red');
+</PRE>
+</P>
+<P>
+Once a Format object has been constructed it can be passed as an argument
+to the Worksheet <CODE>write</CODE> methods as follows:
+
+</P>
+<P>
+<PRE>    $worksheet-&gt;write(0, 0, &quot;One&quot;, $format);
+    $worksheet-&gt;write_string(1, 0, &quot;Two&quot;, $format);
+    $worksheet-&gt;write_number(2, 0, 3, $format);
+    $worksheet-&gt;write_blank(3, 0, $format);
+</PRE>
+</P>
+<P>
+Formats can also be passed to the Worksheet <CODE>set_col_width()</CODE> method to define the default property for a column.
+
+</P>
+<P>
+<PRE>    $worksheet-&gt;set_col_width(0, 0, 15, $format);
+</PRE>
+</P>
+<P>
+However, this will not currently set the property for cells in the column
+written by WriteExcel, it only applies to cells written after the workbook
+is opened in Excel.
+
+</P>
+<P>
+<PRE>    $worksheet-&gt;set_col_width(0, 0, 15, $format);
+</PRE>
+</P>
+<P>
+NOTE: It is important to understand that a Format is applied to a cell not
+in its current state but in its final state. Consider the following
+example:
+
+</P>
+<P>
+<PRE>    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_bold();
+    $format-&gt;set_color('red');
+    $worksheet-&gt;write(0, 0, &quot;Cell A1&quot;, $format);
+    $format-&gt;set_color('green');
+    $worksheet-&gt;write(0, 1, &quot;Cell B1&quot;, $format);
+</PRE>
+</P>
+<P>
+Cell A1 is assigned the Format <CODE>$format</CODE> which is initially set to the colour red. However, the colour is
+subsequently set to green. When Excel displays Cell A1 it will display the
+final state of the Format which in this case will be the colour green.
+
+</P>
+<P>
+The Format object methods are described in more detail in the following
+sections. In addition, there is a Perl program in the WriteExcel
+distribution called <CODE>formats.pl</CODE>. If you run this program it creates an Excel workbook called <CODE>formats.xls</CODE> that contains examples of all possible format types.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="copy_format_">copy($format)</A></H2>
+<P>
+This is the only method of a Format object that doesn't apply directly to a
+property. It is used to copy all of the properties from one Format object
+to another:
+
+</P>
+<P>
+<PRE>    my $lorry1 = $workbook-&gt;addformat();
+    $lorry1-&gt;set_bold();
+    $lorry1-&gt;set_italic();
+    $lorry1-&gt;set_color('red');    # lorry1 is bold, italic and red
+</PRE>
+</P>
+<P>
+<PRE>    my $lorry2 = $workbook-&gt;addformat();
+    $lorry2-&gt;copy($lorry1);
+    $lorry2-&gt;set_color('yellow'); # lorry2 is bold, italic and yellow
+</PRE>
+</P>
+<P>
+This can be useful when you are setting up several complex but similar
+formats. Note, this is not a copy constructor, both objects must exist
+prior to copying.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_font_fontname_">set_font($fontname)</A></H2>
+<P>
+<PRE>    Default state:      Font is Arial
+    Default action:     None
+    Valid args:         Any valid font name
+</PRE>
+</P>
+<P>
+Excel can only display fonts that are installed on the system that it is
+running on. Therefore it is best to stick to the fonts that come as
+standard such as 'Arial', 'Times New Roman' and 'Courier New'. For examples
+see the Fonts worksheet created by formats.pl
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_size_">set_size()</A></H2>
+<P>
+<PRE>    Default state:      Font size is 10
+    Default action:     Set font size to 1
+    Valid args:         Integer values from 1 to as big as your screen.
+</PRE>
+</P>
+<P>
+Excel adjusts the height of a row to accommodate the largest font size in
+the row. Since it is not currently possible to set the row height directly
+you can use this as a workaround to set the row height as follows:
+
+</P>
+<P>
+<PRE>    # This is a kludge to set the row height
+    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_size(30);
+    $worksheet-&gt;write_blank($row, $some_unused_cell, $format);
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_color_">set_color()</A></H2>
+<P>
+<PRE>    Default state:      Excels default color, usually black
+    Default action:     Set the default color
+    Valid args:         Integers form 6..63 or the following strings:
+                        'aqua'
+                        'black'
+                        'blue'
+                        'fuchsia'
+                        'gray'
+                        'green'
+                        'lime'
+                        'navy'
+                        'orange'
+                        'purple'
+                        'red'
+                        'silver'
+                        'white'
+                        'yellow'
+</PRE>
+</P>
+<P>
+The <CODE>set_color()</CODE> method is used to set the colour of the font in a cell. To set the colour
+of a cell use the <CODE>set_fg_color()</CODE> method.
+
+</P>
+<P>
+<PRE>    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_color('red');
+    $worksheet-&gt;write(0, 0, &quot;wheelbarrow&quot;, $format);
+</PRE>
+</P>
+<P>
+For additional examples see the 'Named colors' and 'Standard colors'
+worksheets created by formats.pl
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_bold_">set_bold()</A></H2>
+<P>
+<PRE>    Default state:      bold is off
+    Default action:     Turn bold on
+    Valid args:         0, 1*
+</PRE>
+</P>
+<P>
+* Actually values in the range 100..1000 are also valid. 400 is normal, 700
+is bold and 1000 is very bold indeed. It is probably best to set the value
+to 1 and use normal bold.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_italic_">set_italic()</A></H2>
+<P>
+<PRE>    Default state:      Italic is off
+    Default action:     Turn italic on
+    Valid args:         0, 1
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_underline_">set_underline()</A></H2>
+<P>
+<PRE>    Default state:      Underline is off
+    Default action:     Turn on single underline
+    Valid args:         0  = No underline
+                        1  = Single underline
+                        2  = Double underline
+                        33 = Single accounting underline
+                        34 = Double accounting underline
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_strikeout_">set_strikeout()</A></H2>
+<P>
+<PRE>    Default state:      Strikeout is off
+    Default action:     Turn strikeout on
+    Valid args:         0, 1
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_script_">set_script()</A></H2>
+<P>
+<PRE>    Default state:      Super/Subscript is off
+    Default action:     Turn Superscript on
+    Valid args:         0  = Normal
+                        1  = Superscript
+                        2  = Subscript
+</PRE>
+</P>
+<P>
+This format will not be very useful until multiple formats can be applied
+to a string.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_outline_">set_outline()</A></H2>
+<P>
+<PRE>    Default state:      Outline is off
+    Default action:     Turn outline on
+    Valid args:         0, 1
+</PRE>
+</P>
+<P>
+Macintosh only.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_shadow_">set_shadow()</A></H2>
+<P>
+<PRE>    Default state:      Shadow is off
+    Default action:     Turn shadow on
+    Valid args:         0, 1
+</PRE>
+</P>
+<P>
+Macintosh only.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_format_format_code_">set_format($format_code)</A></H2>
+<P>
+<PRE>    Default state:      General format
+    Default action:     Format index 1
+    Valid args:         See the following table
+</PRE>
+</P>
+<P>
+This method is used to define the way that a number is displayed in Excel.
+For example <CODE>36831.0153</CODE> can be displayed as an integer, a floating point number, a date or a
+currency value. User defined numerical formats are not supported in this
+version. Only the built-in formats are available as shown in the following
+table:
+
+</P>
+<P>
+<PRE>    Index   Index   Format String
+    0       0x00    General
+    1       0x01    0
+    2       0x02    0.00
+    3       0x03    #,##0
+    4       0x04    #,##0.00
+    5       0x05    ($#,##0_);($#,##0)
+    6       0x06    ($#,##0_);[Red]($#,##0)
+    7       0x07    ($#,##0.00_);($#,##0.00)
+    8       0x08    ($#,##0.00_);[Red]($#,##0.00)
+    9       0x09    0%
+    10      0x0a    0.00%
+    11      0x0b    0.00E+00
+    12      0x0c    # ?/?
+    13      0x0d    # ??/??
+    14      0x0e    m/d/yy
+    15      0x0f    d-mmm-yy
+    16      0x10    d-mmm
+    17      0x11    mmm-yy
+    18      0x12    h:mm AM/PM
+    19      0x13    h:mm:ss AM/PM
+    20      0x14    h:mm
+    21      0x15    h:mm:ss
+    22      0x16    m/d/yy h:mm
+    ..      ....    ...........
+    37      0x25    (#,##0_);(#,##0)
+    38      0x26    (#,##0_);[Red](#,##0)
+    39      0x27    (#,##0.00_);(#,##0.00)
+    40      0x28    (#,##0.00_);[Red](#,##0.00)
+    41      0x29    _(* #,##0_);_(* (#,##0);_(* &quot;-&quot;_);_(@_)
+    42      0x2a    _($* #,##0_);_($* (#,##0);_($* &quot;-&quot;_);_(@_)
+    43      0x2b    _(* #,##0.00_);_(* (#,##0.00);_(* &quot;-&quot;??_);_(@_)
+    44      0x2c    _($* #,##0.00_);_($* (#,##0.00);_($* &quot;-&quot;??_);_(@_)
+    45      0x2d    mm:ss
+    46      0x2e    [h]:mm:ss
+    47      0x2f    mm:ss.0
+    48      0x30    ##0.0E+0
+    49      0x31    @
+</PRE>
+</P>
+<P>
+In Excel 5 the dollar sign appears as a dollar sign. In Excel 97-2000 it
+appears as the defined local currency symbol.
+
+</P>
+<P>
+Also, the red negative numeric formats display slightly differently in
+Excel 5 and Excel 97-2000.
+
+</P>
+<P>
+Dates in this implementation of the Excel file are in the 1900 format. That
+is to say, the integer part of the number stores the number of days since
+1900 while the fractional part stores the percentage of the day. If someone
+writes a robust and documented program for conversion between UNIX/Perl
+time and the 1900 system please send it along for inclusion in the
+WriteExcel distro.
+
+</P>
+<P>
+Numeric formats 23 to 36 are not documented by Microsoft and may differ in
+international versions. Try them and see what you get.
+
+</P>
+<P>
+The <CODE>set_format()</CODE> method is used as follows:
+
+</P>
+<P>
+<PRE>    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_format(0x0f);
+    $worksheet-&gt;write(0, 0, 36831.0153, $format); # Displays 01-Nov-00
+</PRE>
+</P>
+<P>
+For examples see the 'Numerical formats' worksheet created by formats.pl.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_align_">set_align()</A></H2>
+<P>
+<PRE>    Default state:      Alignment is off
+    Default action:     Left alignment
+    Valid args:         'left'              Horizontal
+                        'center'
+                        'right'
+                        'fill'
+                        'justify'
+                        'merge'
+                    
+                        'top'               Vertical
+                        'vcenter'
+                        'bottom'
+                        'vjustify'
+</PRE>
+</P>
+<P>
+This method is used to set the horizontal and vertical text alignment
+within a cell. Vertical and horizontal alignments can be combined. The
+method is used as follows:
+
+</P>
+<P>
+<PRE>    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_align('center');
+    $format-&gt;set_align('vcenter');
+    $worksheet-&gt;write(0, 0, &quot;X&quot;, $format);
+</PRE>
+</P>
+<P>
+Text can be aligned across two or more adjacent cells using the <CODE>merge</CODE> property. Only one cell should contain the text, the other cells should be
+blank:
+
+</P>
+<P>
+<PRE>    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_align('merge');
+</PRE>
+</P>
+<P>
+<PRE>    $worksheet-&gt;write(1, 1, 'Merged cells', $format);
+    $worksheet-&gt;write_blank(1, 2, $format);
+</PRE>
+</P>
+<P>
+For further examples see the 'Alignment' worksheet created by formats.pl.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_rotation_">set_rotation()</A></H2>
+<P>
+<PRE>    Default state:      Text rotation is off
+    Default action:     Rotation style 1
+    Valid args:         0 No rotation
+                        1 Letters run from top to bottom
+                        2 90° anticlockwise
+                        3 90° clockwise
+</PRE>
+</P>
+<P>
+See the 'Alignment' worksheet created by formats.pl.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_text_wrap_">set_text_wrap()</A></H2>
+<P>
+<PRE>    Default state:      Text wrap is off
+    Default action:     Turn text wrap on
+    Valid args:         0, 1
+</PRE>
+</P>
+<P>
+Here is an example using the text wrap property, the escape character <CODE>\n</CODE> is used to indicate the end of line:
+
+</P>
+<P>
+<PRE>    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_text_wrap();
+    $worksheet-&gt;write(0, 0, &quot;It's\na bum\nwrap&quot;, $format);
+</PRE>
+</P>
+<P>
+Excel will adjusts the height of the row to accommodate the wrapped text.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_text_justlast_">set_text_justlast()</A></H2>
+<P>
+<PRE>    Default state:      Justify last is off
+    Default action:     Turn Justify last on
+    Valid args:         0, 1
+</PRE>
+</P>
+<P>
+Only applies to Far Eastern versions of Excel.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_pattern_">set_pattern()</A></H2>
+<P>
+<PRE>    Default state:      Pattern is off
+    Default action:     Solid fill is on
+    Valid args:         0 .. 31
+</PRE>
+</P>
+<P>
+Examples of the available patterns are shown in the 'Patterns' worksheet
+created by formats.pl. However, it is unlikely that you will ever need
+anything other than Pattern 1 which is a solid fill of the foreground
+color.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_fg_color_">set_fg_color()</A></H2>
+<P>
+<PRE>    Also applies to:    set_bg_color
+    
+    Default state:      Color is off
+    Default action:     Undefined
+    Valid args:         See set_color()
+</PRE>
+</P>
+<P>
+Here is an example of how to set the color in a cell:
+
+</P>
+<P>
+<PRE>    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_pattern(0x1);
+    $format-&gt;set_fg_color('green');
+    $worksheet-&gt;write(0, 0, &quot;Ray&quot;, $format);
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_border_">set_border()</A></H2>
+<P>
+<PRE>    Also applies to:    set_bottom()
+                        set_top()
+                        set_left()
+                        set_right()
+                        
+    Default state:      Border is off
+    Default action:     Set border type 1
+    Valid args:         0 No border
+                        1 Thin single border
+                        2 Medium single border
+                        3 Dashed border
+                        4 Dotted border
+                        5 Thick single border
+                        6 Double line border
+                        7 Hair border
+</PRE>
+</P>
+<P>
+A cell comprises a border on the bottom, top, left and right. These can be
+set to the same value using <CODE>set_border()</CODE> or individually using the relevant method calls shown above. Examples of
+the available border styles are shown in the 'Borders' worksheet created by
+formats.pl.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_border_color_">set_border_color()</A></H2>
+<P>
+<PRE>    Also applies to:    set_bottom_color()
+                        set_top_color()
+                        set_left_color()
+                        set_right_color()
+                        
+    Default state:      Color is off
+    Default action:     Undefined
+    Valid args:         See set_color()
+</PRE>
+</P>
+<P>
+Set the colour of the cell borders..
 
 </P>
 <P>
@@ -408,12 +1133,16 @@ of the Spreadsheet::WriteExcel module:
     my $south = $workbook-&gt;addworksheet(&quot;South&quot;);
     my $east  = $workbook-&gt;addworksheet(&quot;East&quot;);
     my $west  = $workbook-&gt;addworksheet(&quot;West&quot;);
-</PRE>
-</P>
-<P>
-<PRE>    # Add a caption to each worksheet
+    
+    # Add a Format
+    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_bold();
+    $format-&gt;set_color('blue');
+    
+    
+    # Add a caption to each worksheet
     foreach my $worksheet (@{$workbook-&gt;worksheets()}) {
-       $worksheet-&gt;write(0, 0, &quot;Sales&quot;);
+       $worksheet-&gt;write(0, 0, &quot;Sales&quot;, $format);
     }
     
     # Write some data
@@ -456,7 +1185,7 @@ The following example converts a tab separated file called <CODE>tab.txt</CODE> 
         chomp;
         # Split on single tab
         my @Fld = split('\t', $_);
-    
+        
         my $col = 0;
         foreach my $token (@Fld) {
             $worksheet-&gt;write($row, $col, $token);
@@ -465,6 +1194,11 @@ The following example converts a tab separated file called <CODE>tab.txt</CODE> 
         $row++;
     }
 </PRE>
+</P>
+<P>
+For an example of the range of fromatting options that are available with
+WriteExcel see the <CODE>formats.pl</CODE> program in the main distribution.
+
 </P>
 <P>
 <HR>
@@ -511,7 +1245,7 @@ should give (or in reverse order):
 </P>
 <P>
 In general, if you don't know whether your system supports a 64 bit IEEE
-float or not, it probably does. If your system doesn't WriteExcel will <CODE>croak()</CODE> with the message given in the Diagnostics section.
+float or not, it probably does. If your system doesn't, WriteExcel will <CODE>croak()</CODE> with the message given in the Diagnostics section.
 
 </P>
 <P>
@@ -588,9 +1322,10 @@ public domain.
 
 </P>
 <P>
-Another useful source is the filters project <A
+For a open source implementation of the OLE library see the 'cole' library
+at <A
 HREF="http://arturo.directmail.org/filtersweb/">http://arturo.directmail.org/filtersweb/</A>
- 
+
 
 </P>
 <P>
@@ -600,8 +1335,7 @@ container, <A HREF="http://www.gnumeric.org/">http://www.gnumeric.org/</A>
 
 </P>
 <P>
-The soon to be GPLed source code for Star Office should also be of
-interest, <A
+In addition the source code for Star Office is available at <A
 HREF="http://www.openoffice.org/">http://www.openoffice.org/</A>
 
 </P>
@@ -646,6 +1380,21 @@ relation to reading Excel files. To read data from Excel files try:
 
 </P>
 <P>
+* Spreadsheet::ParseExcel. This is a wrapper around the OLE::Storage module
+which makes it easy to extract data from an Excel file. <A
+HREF="http://search.cpan.org/search?dist=Spreadsheet-ParseExcel">http://search.cpan.org/search?dist=Spreadsheet-ParseExcel</A>
+
+
+</P>
+<P>
+* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats. In
+particular, the distro contains an Excel to HTML converter called Herbert,
+<A
+HREF="http://user.cs.tu-berlin.de/~schwartz/pmh/">http://user.cs.tu-berlin.de/~schwartz/pmh/</A>
+
+
+</P>
+<P>
 * DBI, ADO or ODBC. Connect to an Excel file as a database. Using the
 appropriate driver Excel will behave like a database.
 
@@ -655,19 +1404,6 @@ appropriate driver Excel will behave like a database.
 can be accessed using HTML::TableExtract <A
 HREF="http://search.cpan.org/search?dist=HTML-TableExtract">http://search.cpan.org/search?dist=HTML-TableExtract</A>
 
-
-</P>
-<P>
-* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats. In
-particular, the distro contains an Excel to HTML converter called Herbert,
-<A
-HREF="http://user.cs.tu-berlin.de/~schwartz/pmh/">http://user.cs.tu-berlin.de/~schwartz/pmh/</A>
-There is also an open source C/C++ project based on the LAOLA work. Try the
-Filters Project at <A
-HREF="http://arturo.directmail.org/filtersweb/">http://arturo.directmail.org/filtersweb/</A>
-and the xlHtml Project at <A
-HREF="http://www.xlhtml.org/">http://www.xlhtml.org/</A> The xlHtml filter
-is more complete than Herbert.
 
 </P>
 <P>
@@ -681,9 +1417,17 @@ HREF="http://www.activestate.com/Products/ActivePerl/docs/site/lib/Win32/OLE.htm
 
 </P>
 <P>
+* There is also an open source C/C++ project based on the LAOLA work. Try
+the Filters Project at <A
+HREF="http://arturo.directmail.org/filtersweb/">http://arturo.directmail.org/filtersweb/</A>
+and the xlHtml filter at the xlHtml Project at <A
+HREF="http://www.xlhtml.org/">http://www.xlhtml.org/</A>
+
+</P>
+<P>
 If your main platform is UNIX but you have the resources to set up a
 separate Win32/MSOffice server, you can convert office documents to text,
-postscript or PDF using Win32:OLE. For a demonstration of how to do this
+postscript or PDF using Win32::OLE. For a demonstration of how to do this
 using Perl see Docserver: <A
 HREF="http://search.cpan.org/search?mode=module&query=docserver">http://search.cpan.org/search?mode=module&query=docserver</A>
 
@@ -693,19 +1437,26 @@ HREF="http://search.cpan.org/search?mode=module&query=docserver">http://search.c
 If you wish to view Excel files on a UNIX/Linux platform check out the
 excellent Gnumeric spreadsheet application at <A
 HREF="http://www.gnumeric.org/gnumeric">http://www.gnumeric.org/gnumeric</A>
-
+or Star Office at <A
+HREF="http://www.openoffice.org/">http://www.openoffice.org/</A>
 
 </P>
 <P>
-If you wish to view Excel files on Windows platforms which don't have Excel
-installed you can use the free Microsoft Excel Viewer <A
-HREF="http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm">http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm</A>
+If you wish to view Excel files on a Windows platform which doesn't have
+Excel installed you can use the free Microsoft Excel Viewer <A
+HREF="http://officeupdate.microsoft.com/2000/downloaddetails/xlviewer.htm">http://officeupdate.microsoft.com/2000/downloaddetails/xlviewer.htm</A>
 
 
 </P>
 <P>
 <HR>
 <H1><A NAME="BUGS">BUGS</A></H1>
+<P>
+There is a bug in the sequencing of the DESTROY methods of the contained
+objects in WriteExcel. This results in a file size of 0 bytes when the <CODE>addworksheet()</CODE> or <CODE>addformat()</CODE> methods are called in subroutines, ie. outside of the main scope of the
+program. This can be avoided by explicitly calling the <CODE>close()</CODE> method for the WriteExcel object.
+
+</P>
 <P>
 The Excel files that are produced by this module are not compatible with MS
 Access. Use DBI or ODBC instead.
@@ -716,29 +1467,16 @@ The lack of a portable way of writing a little-endian 64 bit IEEE float.
 
 </P>
 <P>
-QuickView: If you wish to write files are fully compatible with QuickView
-it is necessary to write the cells in a sequential row by row order.
+QuickView: If you wish to write files that are fully compatible with
+QuickView it is necessary to write the cells in a sequential row by row
+order.
 
 </P>
 <P>
 <HR>
 <H1><A NAME="TO_DO">TO DO</A></H1>
 <P>
-This module will be extended to include the following, probably in this
-order:
-
-</P>
-<P>
-<PRE>    1. Cell and font formatting
-    2. Row and column formatting
-    3. Unlimited file size
-    4. Document summary information
-    5. Formulas (maybe)
-</PRE>
-</P>
-<P>
-Items 1. and 2. should be ready be Nov 1 2000 unless you are reading this
-in December 2000.
+Read a book, see a film or two.
 
 </P>
 <P>
@@ -763,28 +1501,21 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 
 </P>
 <P>
-<PRE>        I have eaten
-        the plums
-        that were in
-        the icebox
-</PRE>
-</P>
-<P>
-<PRE>        and which
-        you were probably
-        saving
-        for breakfast
-</PRE>
-</P>
-<P>
-<PRE>        Forgive me
-        they were delicious
-        so sweet
-        and so cold
-</PRE>
-</P>
-<P>
-<PRE>        - William Carlos Williams
+<PRE>        I have known the inexorable sadness of pencils,
+        Neat in their boxes, dolor of pad and paper weight,
+        All the misery of manila folders and mucilage,
+        Desolation in immaculate public places.
+        Lonely reception room, lavatory, switch-board,
+        The unalterable pathos of basin and pitcher,
+        Ritual of multigraph, paper clip, comma,
+        Endless duplication of lives and objects.
+        And I have seen dust from the walls of institutions,
+        Finer than flour, alive, more dangerous than silica,
+        Sift, almost invisible, through long afternoons of tedium,
+        Dropping a fine film on nails and delicate eyebrows,
+        Glazing the pale hair, the duplicate grey standard faces.
+        
+        - Theodore Roethke
 </PRE>
 </P>
 <P>
@@ -794,6 +1525,7 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free
 software. It may be used, redistributed and/or modified under the same
 terms as Perl itself.
+
 </P>
 
 </BODY>

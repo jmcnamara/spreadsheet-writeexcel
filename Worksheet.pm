@@ -17,12 +17,20 @@ require Exporter;
 use strict;
 use Carp;
 use Spreadsheet::BIFFwriter;
+use Spreadsheet::Format;
 
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::BIFFwriter);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
+
+######################################################################
+#
+# Class data.
+#
+my $active_sheet = 0;
+my $first_sheet  = 0;
 
 ######################################################################
 #
@@ -41,10 +49,8 @@ sub new {
 
     $self->{ name}           = $_[0];
     $self->{_index}          = $_[1];
-    $self->{_activesheet}    = $_[2];
-    $self->{_firstsheet}     = $_[3];
-    $self->{store_in_memory} = $_[4];
-    
+    $self->{store_in_memory} = $_[2];
+
     $self->{_filehandle}     = "";
     $self->{_fileclosed}     = 0;
     $self->{_offset}         = 0;
@@ -79,7 +85,7 @@ sub _initialize {
     if (not $self->{store_in_memory}) {
         # Open tmp file for storing Worksheet data
         my $fh = IO::File->new_tmpfile();
-        
+
         if (not defined $fh) {
             croak "Can't open tmp file to store worksheet data.";
         }
@@ -104,7 +110,7 @@ sub _initialize {
 sub _close {
 
     my $self = shift;
-    
+
     # Prepend the COLINFO records if they exist
     if (@{$self->{_colinfo}}){
         while (@{$self->{_colinfo}}) {
@@ -113,12 +119,12 @@ sub _close {
         }
         $self->_store_defcol();
     }
-    
+
     # Prepend in reverse order!!
     $self->_store_dimensions();
     $self->_store_window2();
     $self->_store_bof(0x0010);
-    
+
     # Append
     $self->_store_selection(@{$self->{_selection}});
     $self->_store_eof();
@@ -135,14 +141,14 @@ sub _close {
 sub _append {
 
     my $self = shift;
-    
+
     if ($self->{store_in_memory}) {
         $self->SUPER::_append(@_);
     }
     else {
         my $data    = join('', @_);
         print {$self->{_filehandle}} $data;
-        $self->{_datasize} += length($data);        
+        $self->{_datasize} += length($data);
     }
 }
 
@@ -190,9 +196,20 @@ sub activate {
 
     my $self = shift;
 
-    ${$self->{_activesheet}} = $self->{_index};
+    $active_sheet = $self->{_index};
 }
 
+
+######################################################################
+#
+# get_active_sheet()
+#
+# Returns class data to Workbook
+#
+sub get_active_sheet {
+
+    return $active_sheet;
+}
 
 ######################################################################
 #
@@ -206,7 +223,19 @@ sub set_first_sheet {
 
     my $self = shift;
 
-    ${$self->{_firstsheet}} = $self->{_index};
+    $first_sheet = $self->{_index};
+}
+
+
+######################################################################
+#
+# get_first_sheet()
+#
+# Returns class data to Workbook
+#
+sub get_first_sheet {
+
+    return $first_sheet;
 }
 
 
@@ -239,6 +268,23 @@ sub set_selection {
     $self->{_selection} = [ @_ ];
 }
 
+######################################################################
+#
+# _XF()
+#
+# Returns an index to the XF record in the workbook
+#
+sub _XF {
+
+    my $self = shift;
+
+    if (ref($self)) {
+        return $self->get_xf_index();
+    }
+    else {
+        return 0x0F;
+    }
+}
 
 
 ######################################################################
@@ -287,7 +333,7 @@ sub _store_window2 {
     my $colLeft = 0x0000;     # Leftmost column visible in window
     my $rgbHdr  = 0x00000000; # Row/column heading and gridline color
 
-    if (${$self->{_activesheet}} == $self->{_index}) {
+    if ($active_sheet == $self->{_index}) {
         $grbit = 0x06B6;
     }
 
@@ -321,7 +367,7 @@ sub _store_defcol {
 
 ######################################################################
 #
-# _store_colinfo($firstcol, $lastcol, $width)
+# _store_colinfo($firstcol, $lastcol, $width, $format, $hidden)
 #
 # Write BIFF record COLINFO to define column widths
 #
@@ -338,11 +384,11 @@ sub _store_colinfo {
     my $colLast  = $_[1] || 0;   # Last formatted column
     my $coldx    = $_[2] || 0;   # Col width
 
-    $coldx       += 0.72;        # Fudge. Excel subtracts 0.71 !?
+    $coldx       += 0.72;        # Fudge. Excel subtracts 0.72 !?
     $coldx       *= 256;         # Convert to units of 1/256 of a char
 
 
-    my $ixfe     = $_[3] || 0xF; # XF
+    my $ixfe     = _XF($_[3]);   # XF
     my $grbit    = $_[4] || 0;   # Option flags
     my $reserved = 0x00;         # Reserved
 
@@ -353,9 +399,28 @@ sub _store_colinfo {
     $self->_prepend($header, $data);
 }
 
+
+######################################################################
+# TODO
+# _store_row()
+#
+# Write BIFF record ROW to define row properties
+#
+#sub _store_row {
+#
+#
+#    my $self     = shift;
+#    my $name     = 0x0208;       # Record identifier
+#    my $length   = 0x0010;       # Number of bytes to follow
+#
+#
+#    $self->_prepend($header, $data);
+#}
+
+
 ######################################################################
 #
-# _store_selection($first_row, $first_col, $last_row,  $last_col)
+# _store_selection($first_row, $first_col, $last_row, $last_col)
 #
 # Write BIFF record SELECTION.
 #
@@ -370,22 +435,22 @@ sub _store_selection {
     my $colAct   = $_[1];               # Active column
     my $irefAct  = 0;                   # Active cell ref
     my $cref     = 1;                   # Number of refs
-    
+
     my $rwFirst  = $_[0];               # First row in reference
     my $colFirst = $_[1];               # First col in reference
     my $rwLast   = $_[2] || $rwFirst;   # Last row in reference
     my $colLast  = $_[3] || $colFirst;  # Last col in reference
 
     # Swap last row/col for first row/col as necessary
-    if ($rwFirst > $rwLast) { 
+    if ($rwFirst > $rwLast) {
         ($rwFirst, $rwLast) = ($rwLast, $rwFirst);
     }
 
-    if ($colFirst > $colLast) { 
+    if ($colFirst > $colLast) {
         ($colFirst, $colLast) = ($colLast, $colFirst);
     }
 
-  
+
     my $header   = pack("vv",           $name, $length);
     my $data     = pack("CvvvvvvCC",    $pnn, $rwAct, $colAct,
                                         $irefAct, $cref,
@@ -398,11 +463,11 @@ sub _store_selection {
 
 ######################################################################
 #
-# write ($row, $col, $token)
+# write ($row, $col, $token, $format)
 #
 # Parse $token as a number or string and call write_number()
 # or write_string() accordingly. $row and $column are zero
-# indexed.
+# indexed. $format is optional.
 #
 # Returns: return value of called subroutine
 #
@@ -423,11 +488,11 @@ sub write {
 
 ######################################################################
 #
-# write_number($row, $col, $num)
+# write_number($row, $col, $num, $format)
 #
 # Write a double to the specified row and column (zero indexed).
 # An integer can be written as a double. Excel will display an
-# integer.
+# integer. $format is optional.
 #
 # Returns  0 : normal termination
 #         -1 : insufficient number of arguments
@@ -438,13 +503,13 @@ sub write_number {
     my $self      = shift;
     if (@_ < 3) { return -1 }
 
-    my $name      = 0x0203; # Record identifier
-    my $length    = 0x000E; # Number of bytes to follow
+    my $name      = 0x0203;     # Record identifier
+    my $length    = 0x000E;     # Number of bytes to follow
 
-    my $row       = $_[0];  # Zero indexed row
-    my $col       = $_[1];  # Zero indexed column
-    my $xf        = 0x0000; # The cell format - not implemented yet
+    my $row       = $_[0];      # Zero indexed row
+    my $col       = $_[1];      # Zero indexed column
     my $num       = $_[2];
+    my $xf        = _XF($_[3]); # The cell format
 
     if ($row >= $self->{_xls_rowmax}) { return -2 }
     if ($col >= $self->{_xls_colmax}) { return -2 }
@@ -467,10 +532,11 @@ sub write_number {
 
 ######################################################################
 #
-# write_string ($row, $col, $string)
+# write_string ($row, $col, $string, $format)
 #
 # Write a string to the specified row and column (zero indexed).
 # NOTE: there is an Excel 5 defined limit of 255 characters.
+# $format is optional.
 # Returns  0 : normal termination
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
@@ -481,14 +547,15 @@ sub write_string {
     my $self      = shift;
     if (@_ < 3) { return -1 }
 
-    my $name      = 0x0204; # Record identifier
+    my $name      = 0x0204;     # Record identifier
     my $length    = 0x0008 + length($_[2]); # Bytes to follow
 
-    my $row       = $_[0];  # Zero indexed row
-    my $col       = $_[1];  # Zero indexed column
-    my $xf        = 0x0000; # The cell format - not implemented yet
+    my $row       = $_[0];      # Zero indexed row
+    my $col       = $_[1];      # Zero indexed column
     my $strlen    = length($_[2]);
     my $str       = $_[2];
+    my $xf        = _XF($_[3]); # The cell format
+
     my $str_error = 0;
 
     if ($row >= $self->{_xls_rowmax}) { return -2 }
@@ -512,6 +579,46 @@ sub write_string {
 
     return $str_error;
 }
+
+######################################################################
+#
+# write_blank($row, $col, $format)
+#
+# Write a blank cell to the specified row and column (zero indexed).
+# A blank cell is used to specify formatting without adding a string
+# or a number. $format is optional.
+#
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#
+sub write_blank {
+
+    my $self      = shift;
+    if (@_ < 2) { return -1 }
+
+    my $name      = 0x0201;     # Record identifier
+    my $length    = 0x0006;     # Number of bytes to follow
+
+    my $row       = $_[0];      # Zero indexed row
+    my $col       = $_[1];      # Zero indexed column
+    my $xf        = _XF($_[2]); # The cell format
+
+    if ($row >= $self->{_xls_rowmax}) { return -2 }
+    if ($col >= $self->{_xls_colmax}) { return -2 }
+    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
+    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
+    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
+    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+
+    my $header    = pack("vv",  $name, $length);
+    my $data      = pack("vvv", $row, $col, $xf);
+
+    $self->_append($header, $data);
+
+    return 0;
+}
+
 
 1;
 

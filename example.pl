@@ -18,10 +18,15 @@ my $north = $workbook->addworksheet("North");
 my $south = $workbook->addworksheet("South");
 my $east  = $workbook->addworksheet("East");
 my $west  = $workbook->addworksheet("West");
-
+    
+# Add a Format
+my $format = $workbook->addformat();
+$format->set_bold();
+$format->set_color('blue');
+    
 # Add a caption to each worksheet
 foreach my $worksheet (@{$workbook->worksheets()}) {
-   $worksheet->write(0, 0, "Sales");
+   $worksheet->write(0, 0, "Sales", $format);
 }
 
 # Write some data

@@ -3,6 +3,7 @@ Workbook.pm
 Worksheet.pm
 OLEwriter.pm
 BIFFwriter.pm
+Format.pm
 
 CHANGES
 MANIFEST
@@ -12,4 +13,5 @@ Makefile.PL
 test.pl
 example.pl
 tab2xls.pl
+formats.pl
 WriteExcel.html

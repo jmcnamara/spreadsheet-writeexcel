@@ -1,5 +1,9 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.22 Oct 22 2000:
+Major
+Added Format.pm and the facility for cell formatting.
+
 0.21 Oct 1 2000:
 Minor
 Replaced direct access to worksheets array with a workbook method;
