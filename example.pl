@@ -15,17 +15,18 @@ my $excel = Spreadsheet::WriteExcel->new("perl.xls");
 # General syntax is sub(row, column, token)
 # Row and column are zero indexed 
 
-# Write some numbers
-$excel->xl_write_number(0, 2, 3);       # Writes 3
-$excel->xl_write_number(1, 2, 3.00000); # Writes 3
-$excel->xl_write_number(2, 2, 3.00001); # Writes 3.00001
-$excel->xl_write_number(3, 2, 3.14159); # TeX revison no.?
-
 # Write some text
-$excel->xl_write_string(0, 0, "Hi Excel!");
+$excel->write_string(0, 0, "Hi Excel!");
+
+# Write some numbers
+$excel->write_number(2, 0, 3);       # Writes 3
+$excel->write_number(2, 1, 3.00000); # Writes 3
+$excel->write_number(2, 2, 3.00001); # Writes 3.00001
+$excel->write_number(2, 3, 3.14159); # TeX revison no.?
+
 
 # Write numbers or text
-$excel->xl_write(0, 4, 207E9);    # writes a number
-$excel->xl_write(1, 4, "207E9");  # writes a number
-$excel->xl_write(2, 4, "207 E9"); # writes a string
+$excel->write(4, 0, 207E9);    # writes a number
+$excel->write(4, 1, "207E9");  # writes a number
+$excel->write(4, 2, "207 E9"); # writes a string
 

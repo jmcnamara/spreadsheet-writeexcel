@@ -19,6 +19,7 @@
 		<LI><A HREF="#Overview">Overview</A></LI>
 		<LI><A HREF="#Constructor_and_initialization">Constructor and initialization</A></LI>
 		<LI><A HREF="#Object_methods">Object methods</A></LI>
+		<LI><A HREF="#Example">Example</A></LI>
 		<LI><A HREF="#Limits">Limits</A></LI>
 		<LI><A HREF="#The_Excel_BIFF_binary_format">The Excel &quot;BIFF&quot; binary format</A></LI>
 	</UL>
@@ -27,6 +28,8 @@
 	<LI><A HREF="#DIAGNOSTICS">DIAGNOSTICS</A></LI>
 	<LI><A HREF="#ALTERNATIVES">ALTERNATIVES</A></LI>
 	<LI><A HREF="#BUGS">BUGS</A></LI>
+	<LI><A HREF="#TO_DO">TO DO</A></LI>
+	<LI><A HREF="#ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></LI>
 	<LI><A HREF="#AUTHOR">AUTHOR</A></LI>
 	<LI><A HREF="#COPYRIGHT">COPYRIGHT</A></LI>
 </UL>
@@ -44,15 +47,15 @@ file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.08 of Spreadsheet::WriteExcel, released
-Jan 16, 2000.
+This document refers to version 0.09 of Spreadsheet::WriteExcel, released
+Feb 1, 2000.
 
 </P>
 <P>
 <HR>
 <H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
 <P>
-To write a string and a number in an Excel file called perl.xls:
+To write a string and a number to an Excel file called perl.xls:
 
 </P>
 <P>
@@ -69,8 +72,8 @@ To write a string and a number in an Excel file called perl.xls:
 </PRE>
 </P>
 <P>
-<PRE>    $excel-&gt;xl_write($row1, $col1, &quot;Hi Excel!&quot;);
-    $excel-&gt;xl_write($row2, $col1, 1.2345);
+<PRE>    $excel-&gt;write($row1, $col1, &quot;Hi Excel!&quot;);
+    $excel-&gt;write($row2, $col1, 1.2345);
 </PRE>
 </P>
 <P>
@@ -78,8 +81,8 @@ Or explicitly, without the overhead of parsing:
 
 </P>
 <P>
-<PRE>    $excel-&gt;xl_write_string($row1, $col1, &quot;Hi Excel!&quot;);
-    $excel-&gt;xl_write_number($row2, $col1, 1.2345);
+<PRE>    $excel-&gt;write_string($row1, $col1, &quot;Hi Excel!&quot;);
+    $excel-&gt;write_number($row2, $col1, 1.2345);
 </PRE>
 </P>
 <P>
@@ -89,49 +92,6 @@ to. Alternatively you can close it as follows:
 </P>
 <P>
 <PRE>    $excel-&gt;close();
-</PRE>
-</P>
-<P>
-The following example converts a tab separated file called <CODE>tab.txt</CODE> into an Excel file called <CODE>tab.xls</CODE>.
-
-</P>
-<P>
-<PRE>    #!/usr/bin/perl -w
-</PRE>
-</P>
-<P>
-<PRE>    use strict;
-    use Spreadsheet::WriteExcel;
-</PRE>
-</P>
-<P>
-<PRE>    open (TABFILE, &quot;tab.txt&quot;) or die &quot;tab.txt: $!&quot;;
-</PRE>
-</P>
-<P>
-<PRE>    my $row = 0;
-    my $col;
-</PRE>
-</P>
-<P>
-<PRE>    my $excel = Spreadsheet::WriteExcel-&gt;new(&quot;tab.xls&quot;);
-</PRE>
-</P>
-<P>
-<PRE>    while (&lt;TABFILE&gt;) {
-        chomp;
-        my @Fld = split('\t', $_);
-        my $token;
-</PRE>
-</P>
-<P>
-<PRE>        $col = 0;
-        foreach $token (@Fld) {
-           $excel-&gt;xl_write($row, $col, $token);
-           $col++;
-        }
-        $row++;
-    }
 </PRE>
 </P>
 <P>
@@ -176,20 +136,20 @@ The following are the methods provided by WriteExcel:
 
 </P>
 <P>
-<PRE>    xl_write(row, column, token)
-    xl_write_number(row, column, number)
-    xl_write_string(row, column, string)
+<PRE>    write(row, column, token)
+    write_number(row, column, number)
+    write_string(row, column, string)
     close()
 </PRE>
 </P>
 <P>
 Row and column are zero indexed cell locations; thus, Cell A1 is (0,0) and
 Cell AD2000 is (1999,29). Cells can be written to in any order. They can
-also be overwritten.
+also be overwritten. (QuickView users refer to the bugs section.)
 
 </P>
 <P>
-The method <CODE>xl_write()</CODE> calls <CODE>xl_write_number()</CODE> if
+The method <CODE>write()</CODE> calls <CODE>write_number()</CODE> if
 ``token'' matches the following regex:
 
 </P>
@@ -198,11 +158,11 @@ The method <CODE>xl_write()</CODE> calls <CODE>xl_write_number()</CODE> if
 </PRE>
 </P>
 <P>
-Otherwise it calls <CODE>xl_write_string().</CODE>
+Otherwise it calls <CODE>write_string().</CODE>
 
 </P>
 <P>
-The write methods return:
+The <CODE>write</CODE> methods return:
 
 </P>
 <P>
@@ -222,6 +182,53 @@ The <CODE>close()</CODE> method can be called to explicitly close the Excel file
 will be closed automatically when the object reference goes out of scope or
 the program ends.
 
+</P>
+<P>
+Note: The write* methods were previously named xl_write*. The older method
+names are still available but deprecated.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="Example">Example</A></H2>
+<P>
+The following example converts a tab separated file called <CODE>tab.txt</CODE> into an Excel file called <CODE>tab.xls</CODE>.
+
+</P>
+<P>
+<PRE>    #!/usr/bin/perl -w
+</PRE>
+</P>
+<P>
+<PRE>    use strict;
+    use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>    open (TABFILE, &quot;tab.txt&quot;) or die &quot;tab.txt: $!&quot;;
+</PRE>
+</P>
+<P>
+<PRE>    my $excel = Spreadsheet::WriteExcel-&gt;new(&quot;tab.xls&quot;);
+    my $row = 0;
+    my $col;
+</PRE>
+</P>
+<P>
+<PRE>    while (&lt;TABFILE&gt;) {
+        chomp;
+        my @Fld = split('\t', $_);
+</PRE>
+</P>
+<P>
+<PRE>        $col = 0;
+        foreach my $token (@Fld) {
+           $excel-&gt;write($row, $col, $token);
+           $col++;
+        }
+        $row++;
+    }
+</PRE>
 </P>
 <P>
 <HR>
@@ -345,17 +352,38 @@ may prefer one of the following methods of getting data into Excel:
 
 </P>
 <P>
-* LAOLA. This is a Perl interface to OLE file formats, see CPAN.
-
-</P>
-<P>
 * ODBC. Connect to an Excel file as a database.
 
 </P>
 <P>
-* Office automation via the Win32::OLE module. This is very flexible and
-gives you access to multiple worksheets, formatting, and Excel's built-in
+* Win32::OLE module and office automation. This is very flexible and gives
+you access to multiple worksheets, formatting, and Excel's built-in
 functions.
+
+</P>
+<P>
+To read data from Excel files try:
+
+</P>
+<P>
+* ODBC.
+
+</P>
+<P>
+* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats,
+see CPAN.
+
+</P>
+<P>
+* Win32::OLE. 
+
+</P>
+<P>
+Also, if you wish to view Excel files on Windows platforms which don't have
+Excel installed you can use the free Microsoft Excel Viewer. At the time of
+writing this was at: <A
+HREF="http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm">http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm</A>
+
 
 </P>
 <P>
@@ -367,22 +395,55 @@ bit IEEE float. This is to-do.
 
 </P>
 <P>
-<HR>
-<H1><A NAME="AUTHOR">AUTHOR</A></H1>
-<P>
-John McNamara (<CODE>john.exeng@abanet.it</CODE>)
+QuickView: Excel files written with Version 0.08 are not displayed
+correctly in MS or JASC QuickView. This is partially fixed in Version 0.09
+onwards. However, if you wish to write files that are fully compatible with
+QuickView it is necessary to write the cells in a sequential row by row
+order. This does not apply to Excel or to Excel Viewer.
 
 </P>
 <P>
-``Life, friends is boring. We must not say so.'' - John Berryman.
+<HR>
+<H1><A NAME="TO_DO">TO DO</A></H1>
+<P>
+If possible, this module will be extended to include multiple worksheets,
+and formatting for rows, columns and cells.
 
+</P>
+<P>
+<HR>
+<H1><A NAME="ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></H1>
+<P>
+The following people contributed to the debugging and testing of
+WriteExcel.pm:
+
+</P>
+<P>
+Mike Blazer.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="AUTHOR">AUTHOR</A></H1>
+<P>
+John McNamara <A
+HREF="mailto:john.exeng@abanet.it">john.exeng@abanet.it</A>
+
+</P>
+<P>
+<PRE>    I saw two shooting stars last night,
+    I wished on them but they were only satellites. 
+    It is wrong to wish on space hardware, 
+    I wish, I wish, I wish you'd care.
+          - Billy Bragg
+</PRE>
 </P>
 <P>
 <HR>
 <H1><A NAME="COPYRIGHT">COPYRIGHT</A></H1>
 <P>
-Copyright (c) 1999-2000, John McNamara. All Rights Reserved. This module is
-free software. It may be used, redistributed and/or modified under the same
+Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free
+software. It may be used, redistributed and/or modified under the same
 terms as Perl itself.
 </P>
 

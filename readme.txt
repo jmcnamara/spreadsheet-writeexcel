@@ -12,9 +12,15 @@ DESCRIPTION
     guaranteed. See the section on portability in the main
     documentation.
 
+CHANGES
+    Minor.
+    Code for writing DIMENSIONS updated to account for bug when
+    reading file with QuickView. Renamed xl_write methods to write.
+    
+
 VERSION
-    This document refers to version 0.08 of Spreadsheet::WriteExcel,
-    released Jan 16, 2000.
+    This document refers to version 0.09 of Spreadsheet::WriteExcel,
+    released Feb 1, 2000.
 
 AUTHOR
     John McNamara (john.exeng@abanet.it)

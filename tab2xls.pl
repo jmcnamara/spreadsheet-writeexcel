@@ -36,7 +36,7 @@ while (<TABFILE>) {
     $col = 0;
     foreach $token (@Fld) {
         # Write number or string as necessary
-        $excel->xl_write($row, $col, $token);
+        $excel->write($row, $col, $token);
         $col++;
     }
     $row++;

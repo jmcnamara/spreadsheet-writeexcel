@@ -18,7 +18,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 
 @ISA = qw(Exporter);
-$VERSION = '0.08'; # 16 Jan 2000, Berryman
+$VERSION = '0.09'; # 27 Jan 2000, Bragg
 
 
 ######################################################################
@@ -27,14 +27,23 @@ $VERSION = '0.08'; # 16 Jan 2000, Berryman
 #
 
 sub new {
-    my $class = $_[0];
-    my $self  = {
+    my $class  = $_[0];
+    my $rowmax = 65536;
+    my $colmax = 256;
+    my $strmax = 255;
+    
+    my $self   = {
                     _xlsfilename   => $_[1] || "",
                     _filehandle    => "",
                     _byte_order    => "",
-                    _maxrow        => 65536,
-                    _maxcol        => 256,
-                    _maxstr        => 255,
+                    _xls_rowmax    => $rowmax,
+                    _xls_colmax    => $colmax,
+                    _xls_strmax    => $strmax,
+                    _dim_rowmin    => $rowmax +1,
+                    _dim_rowmax    => 0,
+                    _dim_colmin    => $colmax +1,
+                    _dim_colmax    => 0,
+                    _dim_offset    => 0,
                  };
 
     bless $self, $class;
@@ -58,16 +67,15 @@ sub _initialize {
     }
 
     # Open file for writing and reading (to read size)
-    my $fh = FileHandle->new("+>$xlsfile");
+    my $fh = FileHandle->new("+> $xlsfile");
     if (not defined $fh) {
         croak "Can't open $xlsfile. It may be in use by Excel.";
     }
 
     # Use binmode if "\n" is encoded as 2 bytes
     print $fh "\n";
-    $fh->flush();
-    if (-s $fh == 2) { binmode($fh) }
     seek($fh, 0, 0);
+    if (-s $fh == 2) { binmode($fh) }
 
     # Store filehandle
     $self->{_filehandle} = $fh;
@@ -94,8 +102,8 @@ sub _initialize {
     }
 
     # Write binary header information
-    $self->_xl_write_bof();
-    $self->_xl_write_dimensions();
+    $self->_write_bof();
+    $self->_write_dimensions();
 }
 
 
@@ -116,20 +124,20 @@ sub close {
 
 sub DESTROY {
     my $self = shift;
-    $self->_xl_write_eof();
+    $self->_write_eof();
     CORE::close($self->{_filehandle});
 }
 
 
 ######################################################################
 #
-# _xl_write_bof()
+# _write_bof()
 #
 # Writes Excel BOF record to indicate the beginning of a file
 # in the compound document format.
 #
 
-sub _xl_write_bof {
+sub _write_bof {
     my $self      = shift;
     my $name      = 0x0809; # Record identifier
     my $length    = 0x0008; # Number of bytes to follow
@@ -148,77 +156,92 @@ sub _xl_write_bof {
 
 ######################################################################
 #
-# _xl_write_eof()
-#
-# Writes Excel EOF record to indicate the end of a file in the
-# compound document format.
-#
-
-sub _xl_write_eof {
-    my $self      = shift;
-    my $name      = 0x000A; # Record identifier
-    my $length    = 0x0000; # Number of bytes to follow
-
-    my $header    = pack("vv", $name, $length);
-
-    print {$self->{_filehandle}} $header;
-}
-
-
-######################################################################
-#
-# _xl_write_dimensions()
+# _write_dimensions()
 #
 # Writes Excel DIMENSIONS to define the area in which there is data.
-# Setting these values doesn't have an effect in this implementation.
+# The initial default values are overwritten before closing the file.
 #
 
-sub _xl_write_dimensions {
+sub _write_dimensions {
     my $self      = shift;
-    my $name      = 0x0000; # Record identifier
-    my $length    = 0x000A; # Number of bytes to follow
-    my $row_min   = 0;      # First row
-    my $row_max   = 1;      # Last row plus 1
-    my $col_min   = 0;      # First column
-    my $col_max   = 1;      # Last column plus 1
-    my $reserved  = 0x0000; # Reserved by Excel
+    my $name      = 0x0000;          # Record identifier
+    my $length    = 0x000A;          # Number of bytes to follow
+    my $row_min   = ($_[0] || 0);    # First row
+    my $row_max   = ($_[1] || 0) +1; # Last row plus 1
+    my $col_min   = ($_[2] || 0);    # First column
+    my $col_max   = ($_[3] || 0) +1; # Last column plus 1
+    my $reserved  = 0x0000;          # Reserved by Excel
 
     my $header    = pack("vv",    $name, $length);
     my $data      = pack("vvvvv", $row_min, $row_max,
                                   $col_min, $col_max, $reserved);
 
+    # Store offset of DIMENSIONS record
+    $self->{_dim_offset} = tell($self->{_filehandle});
+    
     print {$self->{_filehandle}} $header . $data;
 }
 
 
 ######################################################################
 #
-# xl_write ($row, $col, $token)
+# _write_eof()
 #
-# Parse $token as a number or string and call xl_write_number()
-# or xl_write_string() accordingly. $row and $column are zero
+# Writes Excel EOF record to indicate the end of a file in the
+# compound document format. Rewrite DIMENSIONS record.
+#
+
+sub _write_eof {
+    my $self      = shift;
+    my $row_min   = $self->{_dim_rowmin};
+    my $row_max   = $self->{_dim_rowmax};
+    my $col_min   = $self->{_dim_colmin};
+    my $col_max   = $self->{_dim_colmax};
+
+    if ($row_min == $self->{_xls_rowmax} +1) { $row_min = 0 };
+    if ($col_min == $self->{_xls_colmax} +1) { $col_min = 0 };
+
+    my $name      = 0x000A; # Record identifier
+    my $length    = 0x0000; # Number of bytes to follow
+
+    my $header    = pack("vv", $name, $length);
+
+    print {$self->{_filehandle}} $header;
+
+    # Rewrite DIMENSIONS record with correct range
+    seek($self->{_filehandle}, $self->{_dim_offset}, 0);
+    $self->_write_dimensions($row_min, $row_max, $col_min, $col_max);
+}
+
+
+######################################################################
+#
+# write ($row, $col, $token)
+#
+# Parse $token as a number or string and call write_number()
+# or write_string() accordingly. $row and $column are zero
 # indexed.
 #
 # Returns: return value of called subroutine
 #
 
-sub xl_write {
+sub write {
     my $self  = shift;
     my $token = $_[2];
 
     # Match number or string
     if ($token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/){
-        return $self->xl_write_number(@_);
+        return $self->write_number(@_);
     }
     else {
-        return $self->xl_write_string(@_);
+        return $self->write_string(@_);
     }
 }
 
 
 ######################################################################
 #
-# xl_write_number($row, $col, $num)
+# write_number($row, $col, $num)
 #
 # Write a double to the specified row and column (zero indexed).
 # An integer can be written as a double. Excel will display an
@@ -229,21 +252,24 @@ sub xl_write {
 #         -2 : row or column out of range
 #
 
-sub xl_write_number {
+sub write_number {
     my $self      = shift;
     if (@_ < 3) { return -1 }
-    
+
     my $name      = 0x0203; # Record identifier
     my $length    = 0x000E; # Number of bytes to follow
 
     my $row       = $_[0];  # Zero indexed row
     my $col       = $_[1];  # Zero indexed column
-
-    if ($row >= $self->{_maxrow}) { return -2 }
-    if ($col >= $self->{_maxcol}) { return -2 }
-
     my $xf        = 0x0000; # The cell format - not implemented here
     my $num       = $_[2];
+
+    if ($row >= $self->{_xls_rowmax}) { return -2 }
+    if ($col >= $self->{_xls_colmax}) { return -2 }
+    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
+    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
+    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
+    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
 
     my $header    = pack("vv",  $name, $length);
     my $data      = pack("vvv", $row, $col, $xf);
@@ -258,7 +284,7 @@ sub xl_write_number {
 
 ######################################################################
 #
-# xl_write_string ($row, $col, $string)
+# write_string ($row, $col, $string)
 #
 # Write a string to the specified row and column (zero indexed).
 # NOTE: there is an Excel 5 defined limit of 255 characters.
@@ -268,12 +294,12 @@ sub xl_write_number {
 #         -3 : long string truncated to 255 chars
 #
 
-sub xl_write_string {
+sub write_string {
     my $self      = shift;
     if (@_ < 3) { return -1 }
 
     my $name      = 0x0204; # Record identifier
-    my $length    = 0x0008 + length($_[2]); # Num. of bytes to follow
+    my $length    = 0x0008 + length($_[2]); # Bytes to follow
 
     my $row       = $_[0];  # Zero indexed row
     my $col       = $_[1];  # Zero indexed column
@@ -282,12 +308,17 @@ sub xl_write_string {
     my $str       = $_[2];
     my $str_error = 0;
 
-    if ($row >= $self->{_maxrow}) { return -2 }
-    if ($col >= $self->{_maxcol}) { return -2 }
-    if ($strlen > $self->{_maxstr}) { # LABEL restricted to 255 chars
-        $str       = substr($str, 0, $self->{_maxstr});
-        $length    = 0x0008 + $self->{_maxstr};
-        $strlen    = $self->{_maxstr};
+    if ($row >= $self->{_xls_rowmax}) { return -2 }
+    if ($col >= $self->{_xls_colmax}) { return -2 }
+    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
+    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
+    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
+    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+
+    if ($strlen > $self->{_xls_strmax}) { # LABEL must be < 255 chars
+        $str       = substr($str, 0, $self->{_xls_strmax});
+        $length    = 0x0008 + $self->{_xls_strmax};
+        $strlen    = $self->{_xls_strmax};
         $str_error = -3;
     }
 
@@ -298,7 +329,29 @@ sub xl_write_string {
     return $str_error;
 }
 
+
+#####################################################################
+#
+# Routines to map older version method names to new method names
+
+sub xl_write {
+    my $self  = shift;
+    return $self->write(@_);
+}
+
+sub xl_write_string {
+    my $self  = shift;
+    return $self->write_string(@_);
+}
+
+sub xl_write_number {
+    my $self  = shift;
+    return $self->write_number(@_);
+}
+
+
 1;
+
 __END__
 
 
@@ -308,11 +361,11 @@ Spreadsheet::WriteExcel - Write text and numbers to minimal Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.08 of Spreadsheet::WriteExcel, released Jan 16, 2000.
+This document refers to version 0.09 of Spreadsheet::WriteExcel, released Jan 27, 2000.
 
 =head1 SYNOPSIS
 
-To write a string and a number in an Excel file called perl.xls:
+To write a string and a number to an Excel file called perl.xls:
 
     use Spreadsheet::WriteExcel;
 
@@ -321,45 +374,17 @@ To write a string and a number in an Excel file called perl.xls:
 
     $excel = Spreadsheet::WriteExcel->new("perl.xls");
 
-    $excel->xl_write($row1, $col1, "Hi Excel!");
-    $excel->xl_write($row2, $col1, 1.2345);
+    $excel->write($row1, $col1, "Hi Excel!");
+    $excel->write($row2, $col1, 1.2345);
 
 Or explicitly, without the overhead of parsing:
 
-    $excel->xl_write_string($row1, $col1, "Hi Excel!");
-    $excel->xl_write_number($row2, $col1, 1.2345);
+    $excel->write_string($row1, $col1, "Hi Excel!");
+    $excel->write_number($row2, $col1, 1.2345);
 
 The file is closed when the program ends or when it is no longer referred to. Alternatively you can close it as follows:
 
     $excel->close();
-
-The following example converts a tab separated file called C<tab.txt> into an Excel file called C<tab.xls>.
-
-    #!/usr/bin/perl -w
-
-    use strict;
-    use Spreadsheet::WriteExcel;
-
-    open (TABFILE, "tab.txt") or die "tab.txt: $!";
-
-    my $row = 0;
-    my $col;
-
-    my $excel = Spreadsheet::WriteExcel->new("tab.xls");
-
-    while (<TABFILE>) {
-        chomp;
-        my @Fld = split('\t', $_);
-        my $token;
-
-        $col = 0;
-        foreach $token (@Fld) {
-           $excel->xl_write($row, $col, $token);
-           $col++;
-        }
-        $row++;
-    }
-
 
 =head1 DESCRIPTION
 
@@ -382,20 +407,20 @@ This will create a workbook called "filename.xls" with a single worksheet called
 
 The following are the methods provided by WriteExcel:
 
-    xl_write(row, column, token)
-    xl_write_number(row, column, number)
-    xl_write_string(row, column, string)
+    write(row, column, token)
+    write_number(row, column, number)
+    write_string(row, column, string)
     close()
 
-Row and column are zero indexed cell locations; thus, Cell A1 is (0,0) and Cell AD2000 is (1999,29). Cells can be written to in any order. They can also be overwritten.
+Row and column are zero indexed cell locations; thus, Cell A1 is (0,0) and Cell AD2000 is (1999,29). Cells can be written to in any order. They can also be overwritten. (QuickView users refer to the bugs section.)
 
-The method xl_write() calls xl_write_number() if "token" matches the following regex:
+The method write() calls write_number() if "token" matches the following regex:
 
     $token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
 
-Otherwise it calls xl_write_string().
+Otherwise it calls write_string().
 
-The write methods return:
+The C<write> methods return:
 
     0 for success
    -1 for insufficient number of arguments
@@ -406,6 +431,35 @@ The write methods return:
 See also the section about limits.
 
 The C<close()> method can be called to explicitly close the Excel file. Otherwise the file will be closed automatically when the object reference goes out of scope or the program ends.
+
+Note: The write* methods were previously named xl_write*. The older method names are still available but deprecated.
+
+=head2 Example
+
+The following example converts a tab separated file called C<tab.txt> into an Excel file called C<tab.xls>.
+
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+    open (TABFILE, "tab.txt") or die "tab.txt: $!";
+
+    my $excel = Spreadsheet::WriteExcel->new("tab.xls");
+    my $row = 0;
+    my $col;
+
+    while (<TABFILE>) {
+        chomp;
+        my @Fld = split('\t', $_);
+
+        $col = 0;
+        foreach my $token (@Fld) {
+           $excel->write($row, $col, $token);
+           $col++;
+        }
+        $row++;
+    }
 
 =head2 Limits
 
@@ -476,22 +530,49 @@ Depending on your requirements, background and general sensibilities you may pre
 
 * HTML tables. This is an easy way of adding formatting.
 
-* LAOLA. This is a Perl interface to OLE file formats, see CPAN.
-
 * ODBC. Connect to an Excel file as a database.
 
-* Office automation via the Win32::OLE module. This is very flexible and gives you access to multiple worksheets, formatting, and Excel's built-in functions.
+* Win32::OLE module and office automation. This is very flexible and gives you access to multiple worksheets, formatting, and Excel's built-in functions.
+
+
+To read data from Excel files try:
+
+* ODBC.
+
+* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats, see CPAN.
+
+* Win32::OLE. 
+
+
+Also, if you wish to view Excel files on Windows platforms which don't have Excel installed you can use the free Microsoft Excel Viewer. At the time of writing this was at:
+http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm
 
 =head1 BUGS
 
 The main bug is the lack of a portable way of writing a little-endian 64 bit IEEE float. This is to-do.
 
+QuickView: Excel files written with Version 0.08 are not displayed correctly in MS or JASC QuickView. This is partially fixed in Version 0.09 onwards. However, if you wish to write files that are fully compatible with QuickView it is necessary to write the cells in a sequential row by row order. This does not apply to Excel or to Excel Viewer.
+
+=head1 TO DO
+
+If possible, this module will be extended to include multiple worksheets, and formatting for rows, columns and cells.
+
+=head1 ACKNOWLEDGEMENTS
+
+The following people contributed to the debugging and testing of WriteExcel.pm:
+
+Mike Blazer.
+
 =head1 AUTHOR
 
-John McNamara (C<john.exeng@abanet.it>)
+John McNamara john.exeng@abanet.it
 
-"Life, friends is boring. We must not say so." - John Berryman.
+    I saw two shooting stars last night,
+    I wished on them but they were only satellites. 
+    It is wrong to wish on space hardware, 
+    I wish, I wish, I wish you'd care.
+          - Billy Bragg
 
 =head1 COPYRIGHT
 
-Copyright (c) 1999-2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
+Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
