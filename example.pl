@@ -5,6 +5,8 @@
 # Example of how to use the WriteExcel module
 #
 
+#!/usr/bin/perl -w
+
 use strict;
 use Spreadsheet::WriteExcel;
 
@@ -18,7 +20,7 @@ my $east  = $workbook->addworksheet("East");
 my $west  = $workbook->addworksheet("West");
 
 # Add a caption to each worksheet
-foreach my $worksheet (@{$workbook->{worksheets}}) {
+foreach my $worksheet (@{$workbook->worksheets()}) {
    $worksheet->write(0, 0, "Sales");
 }
 
@@ -30,3 +32,9 @@ $west->write (0, 1, 100000);
 
 # Set the active worksheet
 $south->activate();
+
+# Set the width of the first column 
+$south->set_col_width(0, 0, 20);
+
+# Set the active cell
+$south->set_selection(0, 1);

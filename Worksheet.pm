@@ -1,14 +1,13 @@
-package Spreadsheet::Worksheet; #Version 0.01
+package Spreadsheet::Worksheet;
 
 ######################################################################
 #
 # Worksheet - A writer class for Excel Worksheets.
 #
+#
 # Used in conjuction with Spreadsheet::WriteExcel
 #
-# BETA VERSION OF MULTI-SHEET WORKBOOK
-#
-# Copyright 1999-2000, John McNamara, jmcnamara@cpan.org
+# Copyright 2000, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -19,9 +18,11 @@ use strict;
 use Carp;
 use Spreadsheet::BIFFwriter;
 
-use vars qw(@ISA);
+
+use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::BIFFwriter);
 
+$VERSION = '0.02';
 
 ######################################################################
 #
@@ -54,6 +55,8 @@ sub new {
     $self->{_dim_rowmax}     = 0;
     $self->{_dim_colmin}     = $colmax +1;
     $self->{_dim_colmax}     = 0;
+    $self->{_colinfo}        = [];
+    $self->{_selection}      = [0, 0];
 
 
     bless $self, $class;
@@ -66,7 +69,7 @@ sub new {
 #
 # _initialize()
 #
-# In not storing all data in memory open a tmp file for the main
+# If not storing all data in memory open a tmp file for the main
 # Worksheet data.
 #
 sub _initialize {
@@ -78,7 +81,7 @@ sub _initialize {
         my $fh = IO::File->new_tmpfile();
         
         if (not defined $fh) {
-            croak "Can't open tmp file for option store_to_disk.";
+            croak "Can't open tmp file to store worksheet data.";
         }
 
         # binmode file whether platform requires it or not
@@ -102,11 +105,22 @@ sub _close {
 
     my $self = shift;
     
+    # Prepend the COLINFO records if they exist
+    if (@{$self->{_colinfo}}){
+        while (@{$self->{_colinfo}}) {
+            my $arrayref = pop @{$self->{_colinfo}};
+            $self->_store_colinfo(@$arrayref);
+        }
+        $self->_store_defcol();
+    }
+    
     # Prepend in reverse order!!
     $self->_store_dimensions();
     $self->_store_window2();
     $self->_store_bof(0x0010);
+    
     # Append
+    $self->_store_selection(@{$self->{_selection}});
     $self->_store_eof();
 }
 
@@ -123,11 +137,12 @@ sub _append {
     my $self = shift;
     
     if ($self->{store_in_memory}) {
-        $self->SUPER::_append($_[0]);
+        $self->SUPER::_append(@_);
     }
     else {
-        print {$self->{_filehandle}} $_[0];
-        $self->{_datasize} += length($_[0]);        
+        my $data    = join('', @_);
+        print {$self->{_filehandle}} $data;
+        $self->{_datasize} += length($data);        
     }
 }
 
@@ -197,6 +212,37 @@ sub set_first_sheet {
 
 ######################################################################
 #
+# set_col_width()
+#
+# Set the width of a single column or a range of columns: see also the
+# sub _store_colinfo
+#
+sub set_col_width {
+
+    my $self = shift;
+
+    push @{$self->{_colinfo}}, [ @_ ];
+}
+
+
+######################################################################
+#
+# set_selection()
+#
+# Set which cell or cells are selected in a worksheet: see also the
+# sub _store_selection
+#
+sub set_selection {
+
+    my $self = shift;
+
+    $self->{_selection} = [ @_ ];
+}
+
+
+
+######################################################################
+#
 # BIFF RECORDS
 #
 
@@ -228,7 +274,7 @@ sub _store_dimensions {
 #
 # _store_window2()
 #
-# Write WinDow2
+# Write BIFF record Window2.
 #
 sub _store_window2 {
 
@@ -249,6 +295,104 @@ sub _store_window2 {
     my $data    = pack("vvvV", $grbit, $rwTop, $colLeft, $rgbHdr);
 
     $self->_prepend($header, $data);
+}
+
+
+######################################################################
+#
+# _store_defcol()
+#
+# Write BIFF record DEFCOLWIDTH if COLINFO records are in use.
+#
+sub _store_defcol {
+
+    my $self     = shift;
+    my $name     = 0x0055;      # Record identifier
+    my $length   = 0x0002;      # Number of bytes to follow
+
+    my $colwidth = 0x0008;      # Default column width
+
+    my $header   = pack("vv", $name, $length);
+    my $data     = pack("v",  $colwidth);
+
+    $self->_prepend($header, $data);
+}
+
+
+######################################################################
+#
+# _store_colinfo($firstcol, $lastcol, $width)
+#
+# Write BIFF record COLINFO to define column widths
+#
+# Note: The SDK says the record length is 0x0B but Excel writes a 0x0C
+# length record.
+#
+sub _store_colinfo {
+
+    my $self     = shift;
+    my $name     = 0x007D;       # Record identifier
+    my $length   = 0x000B;       # Number of bytes to follow
+
+    my $colFirst = $_[0] || 0;   # First formatted column
+    my $colLast  = $_[1] || 0;   # Last formatted column
+    my $coldx    = $_[2] || 0;   # Col width
+
+    $coldx       += 0.72;        # Fudge. Excel subtracts 0.71 !?
+    $coldx       *= 256;         # Convert to units of 1/256 of a char
+
+
+    my $ixfe     = $_[3] || 0xF; # XF
+    my $grbit    = $_[4] || 0;   # Option flags
+    my $reserved = 0x00;         # Reserved
+
+    my $header   = pack("vv",     $name, $length);
+    my $data     = pack("vvvvvC", $colFirst, $colLast, $coldx,
+                                  $ixfe, $grbit, $reserved);
+
+    $self->_prepend($header, $data);
+}
+
+######################################################################
+#
+# _store_selection($first_row, $first_col, $last_row,  $last_col)
+#
+# Write BIFF record SELECTION.
+#
+sub _store_selection {
+
+    my $self     = shift;
+    my $name     = 0x001D;              # Record identifier
+    my $length   = 0x000F;              # Number of bytes to follow
+
+    my $pnn      = 3;                   # Pane position
+    my $rwAct    = $_[0];               # Active row
+    my $colAct   = $_[1];               # Active column
+    my $irefAct  = 0;                   # Active cell ref
+    my $cref     = 1;                   # Number of refs
+    
+    my $rwFirst  = $_[0];               # First row in reference
+    my $colFirst = $_[1];               # First col in reference
+    my $rwLast   = $_[2] || $rwFirst;   # Last row in reference
+    my $colLast  = $_[3] || $colFirst;  # Last col in reference
+
+    # Swap last row/col for first row/col as necessary
+    if ($rwFirst > $rwLast) { 
+        ($rwFirst, $rwLast) = ($rwLast, $rwFirst);
+    }
+
+    if ($colFirst > $colLast) { 
+        ($colFirst, $colLast) = ($colLast, $colFirst);
+    }
+
+  
+    my $header   = pack("vv",           $name, $length);
+    my $data     = pack("CvvvvvvCC",    $pnn, $rwAct, $colAct,
+                                        $irefAct, $cref,
+                                        $rwFirst, $rwLast,
+                                        $colFirst, $colLast);
+
+    $self->_append($header, $data);
 }
 
 
@@ -315,9 +459,7 @@ sub write_number {
 
     if ($self->{_byte_order}) { $xl_double = reverse $xl_double }
 
-    $self->_append($header);
-    $self->_append($data);
-    $self->_append($xl_double);
+    $self->_append($header, $data, $xl_double);
 
     return 0;
 }
@@ -366,9 +508,7 @@ sub write_string {
     my $header    = pack("vv",   $name, $length);
     my $data      = pack("vvvv", $row, $col, $xf, $strlen);
 
-    $self->_append($header);
-    $self->_append($data);
-    $self->_append($str);
+    $self->_append($header, $data, $str);
 
     return $str_error;
 }
@@ -382,6 +522,10 @@ __END__
 =head1 NAME
 
 Worksheet - A writer class for Excel Worksheets.
+
+=head1 SYNOPSIS
+
+See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 

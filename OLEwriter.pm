@@ -1,12 +1,11 @@
-package Spreadsheet::OLEwriter; #Version 0.01
+package Spreadsheet::OLEwriter;
 
 ######################################################################
 #
 # OLEwriter - Writes BIFF data into a OLE compound storage file.
 #
-# Used in conjuction with Spreadsheet::WriteExcel
 #
-# BETA VERSION OF MULTI-SHEET WORKBOOK
+# Used in conjuction with Spreadsheet::WriteExcel
 #
 # Copyright 2000, John McNamara, jmcnamara@cpan.org
 #
@@ -19,9 +18,11 @@ use strict;
 use Carp;
 use FileHandle;
 
-use vars qw(@ISA);
+
+use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
+$VERSION = '0.02';
 
 ######################################################################
 #
@@ -72,7 +73,7 @@ sub _initialize {
     # Open file for writing
     my $fh = FileHandle->new("> $OLEfile");
     if (not defined $fh) {
-        croak "Can't open $OLEfile. It may be in use by Excel.";
+        croak "Can't open $OLEfile. It may be in use.";
     }
 
     # binmode file whether platform requires it or not
@@ -400,6 +401,10 @@ __END__
 =head1 NAME
 
 OLEwriter - Writes BIFF data into a OLE compound storage file.
+
+=head1 SYNOPSIS
+
+See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 

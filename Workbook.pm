@@ -1,12 +1,11 @@
-package Spreadsheet::Workbook; #Version 0.01
+package Spreadsheet::Workbook;
 
 ######################################################################
 #
 # Workbook - A writer class for Excel Workbooks.
 #
-# Used in conjuction with Spreadsheet::WriteExcel
 #
-# BETA VERSION OF MULTI-SHEET WORKBOOK
+# Used in conjuction with Spreadsheet::WriteExcel
 #
 # Copyright 2000, John McNamara, jmcnamara@cpan.org
 #
@@ -20,9 +19,10 @@ use Spreadsheet::BIFFwriter;
 use Spreadsheet::Worksheet;
 use Spreadsheet::OLEwriter;
 
-use vars qw(@ISA);
+use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::BIFFwriter Exporter);
 
+$VERSION = '0.02';
 
 ######################################################################
 #
@@ -43,7 +43,7 @@ sub new {
     $self->{_fileclosed}     = 0;
     $self->{_biffsize}       = 0;
     $self->{_sheetname}      = "Sheet";
-    $self->{worksheets}      = [];
+    $self->{_worksheets}     = [];
 
     bless $self, $class;
     return $self;
@@ -85,11 +85,27 @@ sub DESTROY {
 
 ######################################################################
 #
+# worksheets()
+#
+# An accessor for the _worksheets[] array
+#
+# Returns: an array reference
+#
+sub worksheets {
+
+    my $self = shift;
+
+    return $self->{_worksheets};
+}
+
+
+######################################################################
+#
 # addworksheet()
 #
 # Add a new worksheet to the Excel workbook.
 # TODO: add accessor for $self->{_sheetname} to mimic international
-# versions of Excel
+# versions of Excel.
 #
 # Returns: reference to a worksheet object
 #
@@ -97,7 +113,7 @@ sub addworksheet {
 
     my $self      = shift;
     my $name      = $_[0] || "";
-    my $index     = @{$self->{worksheets}};
+    my $index     = @{$self->{_worksheets}};
     my $sheetname = $self->{_sheetname};
 
     if ($name eq "" ) { $name = $sheetname . ($index+1) }
@@ -109,8 +125,9 @@ sub addworksheet {
                         \$self->{_firstsheet},
                         $self->{_store_in_memory},
                     );
+
     my $worksheet = Spreadsheet::Worksheet->new(@init_data);
-    $self->{worksheets}->[$index] = $worksheet;
+    $self->{_worksheets}->[$index] = $worksheet;
     return $worksheet;
 }
 
@@ -128,8 +145,8 @@ sub write {
 
     my $self    = shift;
 
-    if (@{$self->{worksheets}} == 0) { $self->addworksheet() }
-    return $self->{worksheets}[0]->write(@_);
+    if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
+    return $self->{_worksheets}[0]->write(@_);
 }
 
 
@@ -146,8 +163,8 @@ sub write_string {
 
     my $self    = shift;
 
-    if (@{$self->{worksheets}} == 0) { $self->addworksheet() }
-    return $self->{worksheets}[0]->write_string(@_);
+    if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
+    return $self->{_worksheets}[0]->write_string(@_);
 }
 
 
@@ -164,8 +181,8 @@ sub write_number {
 
     my $self    = shift;
 
-    if (@{$self->{worksheets}} == 0) { $self->addworksheet() }
-    return $self->{worksheets}[0]->write_number(@_);
+    if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
+    return $self->{_worksheets}[0]->write_number(@_);
 }
 
 ######################################################################
@@ -181,13 +198,13 @@ sub _calc_sheet_offsets {
     my $EOF     = 4;
     my $offset  = $self->{_datasize};
 
-    foreach my $sheet (@{$self->{worksheets}}) {
+    foreach my $sheet (@{$self->{_worksheets}}) {
         $offset += $BOF + length($sheet->{name});
     }
 
     $offset += $EOF;
 
-    foreach my $sheet (@{$self->{worksheets}}) {
+    foreach my $sheet (@{$self->{_worksheets}}) {
         $sheet->{_offset} = $offset;
         $offset += $sheet->{_datasize};
     }
@@ -209,7 +226,7 @@ sub _store_workbook {
     my $OLE  = $self->{_OLEwriter};
 
     # Call the finalization methods for each worksheet
-    foreach my $sheet (@{$self->{worksheets}}) {
+    foreach my $sheet (@{$self->{_worksheets}}) {
         $sheet->_close();
     }
  
@@ -222,7 +239,7 @@ sub _store_workbook {
     $self->_calc_sheet_offsets();
 
     # Add BOUNDSHEET records
-    foreach my $sheet (@{$self->{worksheets}}) {
+    foreach my $sheet (@{$self->{_worksheets}}) {
         $self->_store_boundsheet($sheet->{name}, $sheet->{_offset});
     }
 
@@ -234,7 +251,7 @@ sub _store_workbook {
         $OLE->write_header();
         $OLE->write($self->{_data});
 
-        foreach my $sheet (@{$self->{worksheets}}) {
+        foreach my $sheet (@{$self->{_worksheets}}) {
             while (my $tmp = $sheet->get_data()) {
                 $OLE->write($tmp);
             }
@@ -253,7 +270,7 @@ sub _store_workbook {
 #
 # _store_window1()
 #
-# Write Excel WINDOW1 record.
+# Write Excel BIFF WINDOW1 record.
 #
 sub _store_window1 {
 
@@ -273,11 +290,11 @@ sub _store_window1 {
     my $itabFirst = $self->{_firstsheet};  # 1st displayed worksheet
     my $itabCur   = $self->{_activesheet}; # Selected worksheet
 
-    my $header  = pack("vv",        $name, $length);
-    my $data    = pack("vvvvvvvvv", $xWn, $yWn, $dxWn, $dyWn,
-                                    $grbit,
-                                    $itabCur, $itabFirst,
-                                    $ctabsel, $wTabRatio);
+    my $header    = pack("vv",        $name, $length);
+    my $data      = pack("vvvvvvvvv", $xWn, $yWn, $dxWn, $dyWn,
+                                      $grbit,
+                                      $itabCur, $itabFirst,
+                                      $ctabsel, $wTabRatio);
 
     $self->_append($header, $data);
 }
@@ -287,7 +304,7 @@ sub _store_window1 {
 #
 # _store_font($fontname)
 #
-# Write Excel FONT record.
+# Write Excel BIFF FONT record.
 #
 sub _store_font {
 
@@ -308,10 +325,10 @@ sub _store_font {
     my $bCharSet  = 0x00;   # Character set
     my $reserved  = 0x00;   # Reserved
 
-    my $header  = pack("vv",         $name, $length);
-    my $data    = pack("vvvvvCCCCC", $dyHeight, $grbit, $icv, $bls,
-                                     $sss, $uls, $bFamily, $bCharSet,
-                                     $reserved, $cch);
+    my $header    = pack("vv",         $name, $length);
+    my $data      = pack("vvvvvCCCCC", $dyHeight, $grbit, $icv, $bls,
+                                       $sss, $uls, $bFamily,
+                                       $bCharSet, $reserved, $cch);
 
     $self->_append($header, $data, $font);
 }
@@ -339,7 +356,7 @@ sub _store_all_fonts {
 #
 # _store_xf()
 #
-# Write Excel XF records.
+# Write Excel BIFF XF record.
 #
 sub _store_xf {
 
@@ -356,10 +373,10 @@ sub _store_xf {
     my $brd_line  = 0x0000; # Border line style and color
     my $brd_color = 0x0000; # Border color
 
-    my $header  = pack("vv",       $name, $length);
-    my $data    = pack("vvvvvvvv", $ifnt, $ifmt, $style, $align,
-                                   $icv, $fill,
-                                   $brd_line,$brd_color);
+    my $header    = pack("vv",       $name, $length);
+    my $data      = pack("vvvvvvvv", $ifnt, $ifmt, $style, $align,
+                                     $icv, $fill,
+                                     $brd_line, $brd_color);
 
     $self->_append($header, $data);
 }
@@ -387,7 +404,7 @@ sub _store_all_xfs {
 #
 # _store_style()
 #
-# Write Excel STYLE records.
+# Write Excel BIFF STYLE records.
 #
 sub _store_style {
 
@@ -400,8 +417,8 @@ sub _store_style {
     my $BuiltIn   = 0x00;   # Built-in style
     my $iLevel    = 0x00;   # Outline style level
 
-    my $header  = pack("vv",  $name, $length);
-    my $data    = pack("vCC", $ixfe, $BuiltIn, $iLevel);
+    my $header    = pack("vv",  $name, $length);
+    my $data      = pack("vCC", $ixfe, $BuiltIn, $iLevel);
 
     $self->_append($header, $data);
 }
@@ -425,7 +442,7 @@ sub _store_all_styles {
 #
 # _store_boundsheet()
 #
-# Writes Excel BOUNDSHEET record.
+# Writes Excel BIFF BOUNDSHEET record.
 #
 sub _store_boundsheet {
 
@@ -455,6 +472,10 @@ __END__
 =head1 NAME
 
 Workbook - A writer class for Excel Workbooks.
+
+=head1 SYNOPSIS
+
+See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 

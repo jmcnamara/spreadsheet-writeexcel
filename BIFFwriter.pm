@@ -1,12 +1,11 @@
-package Spreadsheet::BIFFwriter; #Version 0.01
+package Spreadsheet::BIFFwriter;
 
 ######################################################################
 #
 # BIFFwriter - Abstract base class for Excel workbooks and worksheets.
 #
-# Used in conjuction with Spreadsheet::WriteExcel
 #
-# BETA VERSION OF MULTI-SHEET WORKBOOK
+# Used in conjuction with Spreadsheet::WriteExcel
 #
 # Copyright 2000, John McNamara, jmcnamara@cpan.org
 #
@@ -17,9 +16,13 @@ require Exporter;
 
 use strict;
 
-use vars qw(@ISA);
+
+
+
+use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
+$VERSION = '0.02';
 
 ######################################################################
 #
@@ -65,7 +68,7 @@ sub _set_byte_order {
     if ($byte_order eq ''){
         # Check if "pack" gives the required IEEE 64bit float
         my $teststr = pack "d", 1.2345;
-        my @hexdata = (0x8D, 0x97, 0x6E, 0x12, 0x83, 0xC0, 0xF3, 0x3F);
+        my @hexdata =(0x8D, 0x97, 0x6E, 0x12, 0x83, 0xC0, 0xF3, 0x3F);
         my $number  = pack "C8", @hexdata;
 
         if ($number eq $teststr) {
@@ -177,6 +180,10 @@ __END__
 =head1 NAME
 
 BIFFwriter - Abstract base class for Excel workbooks and worksheets.
+
+=head1 SYNOPSIS
+
+See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 

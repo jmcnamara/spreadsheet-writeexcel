@@ -1,6 +1,13 @@
-Revision history for Perl extension Spreadsheet::WriteExcel.
+Revision history for Perl module Spreadsheet::WriteExcel.
 
-0.20
+0.21 Oct 1 2000:
+Minor
+Replaced direct access to worksheets array with a workbook method;
+worksheets(). Added set_selection() and set_col_width() worksheet
+methods. Replaced the missings thats, including the that that were
+in the icebox. Added MS Access bug warning; thanks Harold Bamford.
+
+0.20 Aug 27 2000:
 Major
 Added multiple worksheets and OLE wrapper. Now compatible with
 Star Office, Gnumeric and XESS.

@@ -13,7 +13,7 @@ DESCRIPTION
     The module will work on the majority of Windows, UNIX and
     Macintosh platforms. Generated files are also compatible with the
     Linux/UNIX spreadsheet applications Star Office, Gnumeric and
-    XESS.
+    XESS. The generated files are not compatible with MS Access.
 
     This module cannot be used to read an Excel file. Look at the main
     documentation for some suggestions.
@@ -39,8 +39,8 @@ INSTALLATION
         C:\>
 
 VERSION
-    This document refers to version 0.20 of Spreadsheet::WriteExcel,
-    released Aug 27, 2000.
+    This document refers to version 0.21 of Spreadsheet::WriteExcel,
+    released Oct 1, 2000.
 
 AUTHOR
     John McNamara (jmcnamara@cpan.org)
