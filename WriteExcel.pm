@@ -2,9 +2,9 @@ package Spreadsheet::WriteExcel;
 
 ######################################################################
 #
-# WriteExcel - Write text and numbers to minimal Excel binary file.
+# WriteExcel - Write text and numbers to a minimal Excel binary file.
 #
-# Copyright 1999-2000, John McNamara, writeexcel@eircom.net
+# Copyright 1999-2000, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -18,7 +18,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 
 @ISA = qw(Exporter);
-$VERSION = '0.10.00'; # 13 May 2000, cummings
+$VERSION = '0.11'; # 25 August 2000, Cooper Clarke
 
 
 ######################################################################
@@ -353,7 +353,7 @@ Spreadsheet::WriteExcel - Write text and numbers to minimal Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.10.00 of Spreadsheet::WriteExcel, released May 13, 2000.
+This document refers to version 0.11 of Spreadsheet::WriteExcel, released August 25, 2000.
 
 =head1 SYNOPSIS
 
@@ -393,7 +393,17 @@ A new Excel file is created as follows:
 
     Spreadsheet::WriteExcel->new("filename.xls");
 
-This will create a workbook called "filename.xls" with a single worksheet called "filename".
+This will create a workbook called "filename.xls" with a single worksheet called "filename". You can also redirect the output to STDOUT using the special Perl filehandle C<"-">. This can be useful for CGIs which have a Content-type of C<application/vnd.ms-excel>.
+
+     #!/usr/bin/perl -w
+
+     use strict;
+     use Spreadsheet::WriteExcel;
+
+     print "Content-type: application/vnd.ms-excel\n\n";
+
+     my $excel = Spreadsheet::WriteExcel->new("-");
+     $excel->write(0, 0, "Hi Excel!");
 
 =head2 Object methods
 
@@ -522,9 +532,9 @@ Depending on your requirements, background and general sensibilities you may pre
 
 * HTML tables. This is an easy way of adding formatting.
 
-* ODBC. Connect to an Excel file as a database.
+* DBI or ODBC. Connect to an Excel file as a database.
 
-* Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. However, it is easy to use and gives access to the complete range of Excel's features such as: multiple worksheets, charts, cell formatting, macros and the built-in functions. See http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html and http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html
+* Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. However, it is easy to use and gives access to the complete range of Excel's features such as: multiple worksheets, charts, cell formatting, macros and the built-in functions. See http://www.activestate.com/Products/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html and http://www.activestate.com/Products/ActivePerl/docs/site/lib/Win32/OLE.html
 
 =head1 READING EXCEL FILES
 
@@ -532,9 +542,9 @@ Despite the title of this module the most commonly asked questions are in relati
 
 * HTML tables. If the files are saved from Excel in a HTML format the data can be accessed using HTML::TableExtract http://search.cpan.org/search?dist=HTML-TableExtract
 
-* ODBC.
+* DBI or ODBC. Connect to an Excel file as a database.
 
-* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats. In particular, the distro contains an Excel to HTML converter called Herbert, http://user.cs.tu-berlin.de/~schwartz/pmh/ There is also an open source C/C++ project based on the LAOLA work. Try the Filters Project at http://arturo.directmail.org/filtersweb/ and the xlHtml Project at http://www.gate.net/~ddata/xlHtml/index.htm The xlHtml filter is more complete than Herbert.
+* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats. In particular, the distro contains an Excel to HTML converter called Herbert, http://user.cs.tu-berlin.de/~schwartz/pmh/ There is also an open source C/C++ project based on the LAOLA work. Try the Filters Project at http://arturo.directmail.org/filtersweb/ and the xlHtml Project at http://www.xlhtml.org/ The xlHtml filter is more complete than Herbert.
 
 * Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. This is the most powerful and complete method for interfacing with Excel. See http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html and http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html
 
@@ -542,39 +552,32 @@ Also, if you wish to view Excel files on Windows platforms which don't have Exce
 
 =head1 BUGS
 
-The main bug is the lack of a portable way of writing a little-endian 64 bit IEEE float. This is to-do.
+The lack of a portable way of writing a little-endian 64 bit IEEE float. This is to-do.
 
-Other Spreadsheets: The binary file created by WriteExcel is not a complete Excel file. As a result it is not compatible with XESS, Applix, Star Office or anything else. This may be fixed indirectly in a later version. In the meantime write to non-Excel spreadsheets in their native format.
+Other Spreadsheets: The binary file created by WriteExcel is not a complete Excel file. As a result it is not compatible with Gnumeric, XESS, Applix, Star Office or anything else. This will be fixed in a later version. 
 
 QuickView: Excel files written with Version 0.08 are not displayed correctly in MS or JASC QuickView. This is partially fixed in Version 0.09 onwards. However, if you wish to write files that are fully compatible with QuickView it is necessary to write the cells in a sequential row by row order. This does not apply to Excel or to Excel Viewer.
 
 =head1 TO DO
 
-If possible, this module will be extended to include multiple worksheets, and formatting for rows, columns and cells.
+This module will be extended to include multiple worksheets, and formatting for rows, columns and cells.
 
 =head1 ACKNOWLEDGEMENTS
 
 The following people contributed to the debugging and testing of WriteExcel.pm:
 
-Arthur@ais, Mike Blazer, CPAN testers, Johan Ekenberg, Paul J. Falbe, Artur Silveira da Cunha, John Wren.
+Arthur@ais, Mike Blazer, CPAN testers, Johan Ekenberg, Paul J. Falbe, Daniel Gardner, Artur Silveira da Cunha, John Wren.
 
 
 =head1 AUTHOR
 
-John McNamara writeexcel@eircom.net
+John McNamara jmcnamara@cpan.org
 
-    Buffalo Bill's
-    defunct
-            who used to
-            ride a watersmooth-silver
-                                            stallion
-    and break onetwothreefourfive pigeonsjustlikethat
-                                                                Jesus
-    he was a handsome man
-                                    and what i want to know is
-    how do you like your blueeyed boy
-    Mister Death
-    --e.e. cummings
+    Writing a poem 
+    In seventeen syllables
+    Is very diffic
+    
+    - John Cooper Clarke
 
 =head1 COPYRIGHT
 

@@ -1,5 +1,10 @@
 Revision history for Perl extension Spreadsheet::WriteExcel.
 
+0.11 Aug 25 2000:
+Minor
+Changes to documentation. Explanation of how to use WriteExcel
+in CGI's. Thanks Daniel Gardner.
+
 0.10 May 13 2000:
 Minor
 Bug in close() and DESTROY sequence fixed, thanks John Wren.

@@ -6,232 +6,499 @@
 
 <BODY>
 
-<A NAME="__index__"></A>
 <!-- INDEX BEGIN -->
 
 <UL>
 
-	<LI><A HREF="#name">NAME</A></LI>
-	<LI><A HREF="#version">VERSION</A></LI>
-	<LI><A HREF="#synopsis">SYNOPSIS</A></LI>
-	<LI><A HREF="#description">DESCRIPTION</A></LI>
+	<LI><A HREF="#NAME">NAME</A></LI>
+	<LI><A HREF="#VERSION">VERSION</A></LI>
+	<LI><A HREF="#SYNOPSIS">SYNOPSIS</A></LI>
+	<LI><A HREF="#DESCRIPTION">DESCRIPTION</A></LI>
 	<UL>
 
-		<LI><A HREF="#overview">Overview</A></LI>
-		<LI><A HREF="#constructor and initialization">Constructor and initialization</A></LI>
-		<LI><A HREF="#object methods">Object methods</A></LI>
-		<LI><A HREF="#example">Example</A></LI>
-		<LI><A HREF="#limits">Limits</A></LI>
-		<LI><A HREF="#the excel biff binary format">The Excel BIFF binary format</A></LI>
+		<LI><A HREF="#Overview">Overview</A></LI>
+		<LI><A HREF="#Constructor_and_initialization">Constructor and initialization</A></LI>
+		<LI><A HREF="#Object_methods">Object methods</A></LI>
+		<LI><A HREF="#Example">Example</A></LI>
+		<LI><A HREF="#Limits">Limits</A></LI>
+		<LI><A HREF="#The_Excel_BIFF_binary_format">The Excel BIFF binary format</A></LI>
 	</UL>
 
-	<LI><A HREF="#portability">PORTABILITY</A></LI>
-	<LI><A HREF="#diagnostics">DIAGNOSTICS</A></LI>
-	<LI><A HREF="#writing excel files">WRITING EXCEL FILES</A></LI>
-	<LI><A HREF="#reading excel files">READING EXCEL FILES</A></LI>
-	<LI><A HREF="#bugs">BUGS</A></LI>
-	<LI><A HREF="#to do">TO DO</A></LI>
-	<LI><A HREF="#acknowledgements">ACKNOWLEDGEMENTS</A></LI>
-	<LI><A HREF="#author">AUTHOR</A></LI>
-	<LI><A HREF="#copyright">COPYRIGHT</A></LI>
+	<LI><A HREF="#PORTABILITY">PORTABILITY</A></LI>
+	<LI><A HREF="#DIAGNOSTICS">DIAGNOSTICS</A></LI>
+	<LI><A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A></LI>
+	<LI><A HREF="#READING_EXCEL_FILES">READING EXCEL FILES</A></LI>
+	<LI><A HREF="#BUGS">BUGS</A></LI>
+	<LI><A HREF="#TO_DO">TO DO</A></LI>
+	<LI><A HREF="#ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></LI>
+	<LI><A HREF="#AUTHOR">AUTHOR</A></LI>
+	<LI><A HREF="#COPYRIGHT">COPYRIGHT</A></LI>
 </UL>
 <!-- INDEX END -->
 
 <HR>
 <P>
-<H1><A NAME="name">NAME</A></H1>
-<P>Spreadsheet::WriteExcel - Write text and numbers to minimal Excel binary file.</P>
+<H1><A NAME="NAME">NAME</A></H1>
+<P>
+Spreadsheet::WriteExcel - Write text and numbers to minimal Excel binary
+file.
+
+</P>
 <P>
 <HR>
-<H1><A NAME="version">VERSION</A></H1>
-<P>This document refers to version 0.10.00 of Spreadsheet::WriteExcel, released May 13, 2000.</P>
+<H1><A NAME="VERSION">VERSION</A></H1>
+<P>
+This document refers to version 0.11 of Spreadsheet::WriteExcel, released
+August 25, 2000.
+
+</P>
 <P>
 <HR>
-<H1><A NAME="synopsis">SYNOPSIS</A></H1>
-<P>To write a string and a number to an Excel file called perl.xls:</P>
-<PRE>
-    use Spreadsheet::WriteExcel;</PRE>
-<PRE>
-    $row1 = $col1 = 0;
-    $row2 = 1;</PRE>
-<PRE>
-    $excel = Spreadsheet::WriteExcel-&gt;new(&quot;perl.xls&quot;);</PRE>
-<PRE>
-    $excel-&gt;write($row1, $col1, &quot;Hi Excel!&quot;);
-    $excel-&gt;write($row2, $col1, 1.2345);</PRE>
-<P>Or explicitly, without the overhead of parsing:</P>
-<PRE>
-    $excel-&gt;write_string($row1, $col1, &quot;Hi Excel!&quot;);
-    $excel-&gt;write_number($row2, $col1, 1.2345);</PRE>
-<P>The file is closed when the program ends or when it is no longer referred to. Alternatively you can close it as follows:</P>
-<PRE>
-    $excel-&gt;close();</PRE>
+<H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
+<P>
+To write a string and a number to an Excel file called perl.xls:
+
+</P>
+<P>
+<PRE>    use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>    $row1 = $col1 = 0;
+    $row2 = 1;
+</PRE>
+</P>
+<P>
+<PRE>    $excel = Spreadsheet::WriteExcel-&gt;new(&quot;perl.xls&quot;);
+</PRE>
+</P>
+<P>
+<PRE>    $excel-&gt;write($row1, $col1, &quot;Hi Excel!&quot;);
+    $excel-&gt;write($row2, $col1, 1.2345);
+</PRE>
+</P>
+<P>
+Or explicitly, without the overhead of parsing:
+
+</P>
+<P>
+<PRE>    $excel-&gt;write_string($row1, $col1, &quot;Hi Excel!&quot;);
+    $excel-&gt;write_number($row2, $col1, 1.2345);
+</PRE>
+</P>
+<P>
+The file is closed when the program ends or when it is no longer referred
+to. Alternatively you can close it as follows:
+
+</P>
+<P>
+<PRE>    $excel-&gt;close();
+</PRE>
+</P>
 <P>
 <HR>
-<H1><A NAME="description">DESCRIPTION</A></H1>
+<H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
 <P>
-<H2><A NAME="overview">Overview</A></H2>
-<P>This module can be used to write numbers and text in the native Excel binary file format. This is a minimal implementation of an Excel file; no formatting can be applied to cells and only a single worksheet can be written to a workbook.</P>
-<P>It is intended to be cross-platform, however, this is not guaranteed. See the section on portability below.</P>
+<HR>
+<H2><A NAME="Overview">Overview</A></H2>
 <P>
-<H2><A NAME="constructor and initialization">Constructor and initialization</A></H2>
-<P>A new Excel file is created as follows:</P>
-<PRE>
-    Spreadsheet::WriteExcel-&gt;new(&quot;filename.xls&quot;);</PRE>
-<P>This will create a workbook called ``filename.xls'' with a single worksheet called ``filename''.</P>
+This module can be used to write numbers and text in the native Excel
+binary file format. This is a minimal implementation of an Excel file; no
+formatting can be applied to cells and only a single worksheet can be
+written to a workbook.
+
+</P>
 <P>
-<H2><A NAME="object methods">Object methods</A></H2>
-<P>The following are the methods provided by WriteExcel:</P>
-<PRE>
-    write(row, column, token)
+It is intended to be cross-platform, however, this is not guaranteed. See
+the section on portability below.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="Constructor_and_initialization">Constructor and initialization</A></H2>
+<P>
+A new Excel file is created as follows:
+
+</P>
+<P>
+<PRE>    Spreadsheet::WriteExcel-&gt;new(&quot;filename.xls&quot;);
+</PRE>
+</P>
+<P>
+This will create a workbook called "filename.xls" with a single worksheet
+called "filename". You can also redirect the output to STDOUT using the
+special Perl filehandle <CODE>&quot;-&quot;</CODE>. This can be useful for CGIs which have a Content-type of <CODE>application/vnd.ms-excel</CODE>.
+
+</P>
+<P>
+<PRE>     #!/usr/bin/perl -w
+</PRE>
+</P>
+<P>
+<PRE>     use strict;
+     use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>     print &quot;Content-type: application/vnd.ms-excel\n\n&quot;;
+</PRE>
+</P>
+<P>
+<PRE>     my $excel = Spreadsheet::WriteExcel-&gt;new(&quot;-&quot;);
+     $excel-&gt;write(0, 0, &quot;Hi Excel!&quot;);
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="Object_methods">Object methods</A></H2>
+<P>
+The following are the methods provided by WriteExcel:
+
+</P>
+<P>
+<PRE>    write(row, column, token)
     write_number(row, column, number)
     write_string(row, column, string)
-    close()</PRE>
-<P>Row and column are zero indexed cell locations; thus, Cell A1 is (0,0) and Cell AD2000 is (1999,29). Cells can be written to in any order. They can also be overwritten. (QuickView users refer to the bugs section.)</P>
-<P>The method <CODE>write()</CODE> calls <CODE>write_number()</CODE> if ``token'' matches the following regex:</P>
-<PRE>
-    $token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/</PRE>
-<P>Otherwise it calls write_string().</P>
-<P>The <CODE>write</CODE> methods return:</P>
-<PRE>
-    0 for success
+    close()
+</PRE>
+</P>
+<P>
+Row and column are zero indexed cell locations; thus, Cell A1 is (0,0) and
+Cell AD2000 is (1999,29). Cells can be written to in any order. They can
+also be overwritten. (QuickView users refer to the bugs section.)
+
+</P>
+<P>
+The method <CODE>write()</CODE> calls <CODE>write_number()</CODE> if
+"token" matches the following regex:
+
+</P>
+<P>
+<PRE>    $token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
+</PRE>
+</P>
+<P>
+Otherwise it calls <CODE>write_string().</CODE>
+
+</P>
+<P>
+The <CODE>write</CODE> methods return:
+
+</P>
+<P>
+<PRE>    0 for success
    -1 for insufficient number of arguments
    -2 for row or column out of bounds
-   -3 for string too long.</PRE>
-<P>See also the section about limits.</P>
-<P>The <CODE>close()</CODE> method can be called to explicitly close the Excel file. Otherwise the file will be closed automatically when the object reference goes out of scope or the program ends.</P>
-<P>Note: The write* methods were previously named xl_write*. The older method names are still available but deprecated.</P>
+   -3 for string too long.
+</PRE>
+</P>
 <P>
-<H2><A NAME="example">Example</A></H2>
-<P>The following example converts a tab separated file called <CODE>tab.txt</CODE> into an Excel file called <CODE>tab.xls</CODE>.</P>
-<PRE>
-    #!/usr/bin/perl -w</PRE>
-<PRE>
-    use strict;
-    use Spreadsheet::WriteExcel;</PRE>
-<PRE>
-    open (TABFILE, &quot;tab.txt&quot;) or die &quot;tab.txt: $!&quot;;</PRE>
-<PRE>
-    my $excel = Spreadsheet::WriteExcel-&gt;new(&quot;tab.xls&quot;);
+See also the section about limits.
+
+</P>
+<P>
+The <CODE>close()</CODE> method can be called to explicitly close the Excel file. Otherwise the file
+will be closed automatically when the object reference goes out of scope or
+the program ends.
+
+</P>
+<P>
+Note: The write* methods were previously named xl_write*. The older method
+names are still available but deprecated.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="Example">Example</A></H2>
+<P>
+The following example converts a tab separated file called <CODE>tab.txt</CODE> into an Excel file called <CODE>tab.xls</CODE>.
+
+</P>
+<P>
+<PRE>    #!/usr/bin/perl -w
+</PRE>
+</P>
+<P>
+<PRE>    use strict;
+    use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>    open (TABFILE, &quot;tab.txt&quot;) or die &quot;tab.txt: $!&quot;;
+</PRE>
+</P>
+<P>
+<PRE>    my $excel = Spreadsheet::WriteExcel-&gt;new(&quot;tab.xls&quot;);
     my $row = 0;
-    my $col;</PRE>
-<PRE>
-    while (&lt;TABFILE&gt;) {
+    my $col;
+</PRE>
+</P>
+<P>
+<PRE>    while (&lt;TABFILE&gt;) {
         chomp;
-        my @Fld = split('\t', $_);</PRE>
-<PRE>
-        $col = 0;
+        my @Fld = split('\t', $_);
+</PRE>
+</P>
+<P>
+<PRE>        $col = 0;
         foreach my $token (@Fld) {
            $excel-&gt;write($row, $col, $token);
            $col++;
         }
         $row++;
-    }</PRE>
+    }
+</PRE>
+</P>
 <P>
-<H2><A NAME="limits">Limits</A></H2>
-<P>The following limits are imposed by Excel or the version of the BIFF file that has been implemented:</P>
-<PRE>
-    Description                          Limit   Source
+<HR>
+<H2><A NAME="Limits">Limits</A></H2>
+<P>
+The following limits are imposed by Excel or the version of the BIFF file
+that has been implemented:
+
+</P>
+<P>
+<PRE>    Description                          Limit   Source
     -----------------------------------  ------  -------
     Maximum number of chars in a string  255     Excel 5
     Maximum number of columns            256     Excel 5, 97
     Maximum number of rows in Excel 5    16,384  Excel 5
-    Maximum number of rows in Excel 97   65,536  Excel 97</PRE>
+    Maximum number of rows in Excel 97   65,536  Excel 97
+</PRE>
+</P>
 <P>
-<H2><A NAME="the excel biff binary format">The Excel BIFF binary format</A></H2>
-<P>The binary format of an Excel file is referred to as the Excel ``Binary Interchange File Format'' (BIFF) file format. For details of this file format refer to the ``Excel Developer's Kit'', Microsoft Press. This module is based on the BIFF5 specification. To facilitate portability and ease of implementation the Compound Document wrapper is not used. This effectively limits the scope of the BIFF file to the records given below.</P>
-<P>The following binary records are implemented:</P>
-<PRE>
-    [BOF]
+<HR>
+<H2><A NAME="The_Excel_BIFF_binary_format">The Excel BIFF binary format</A></H2>
+<P>
+The binary format of an Excel file is referred to as the Excel "Binary
+Interchange File Format" (BIFF) file format. For details of this file
+format refer to the "Excel Developer's Kit", Microsoft Press. This module
+is based on the BIFF5 specification. To facilitate portability and ease of
+implementation the Compound Document wrapper is not used. This effectively
+limits the scope of the BIFF file to the records given below.
+
+</P>
+<P>
+The following binary records are implemented:
+
+</P>
+<P>
+<PRE>    [BOF]
     [DIMENSIONS]
     [NUMBER]
     [LABEL]
-    [EOF]</PRE>
-<P>Each Excel BIFF binary record has the following format:</P>
-<PRE>
-    Record name   - Identifier, 2 bytes
+    [EOF]
+</PRE>
+</P>
+<P>
+Each Excel BIFF binary record has the following format:
+
+</P>
+<P>
+<PRE>    Record name   - Identifier, 2 bytes
     Record length - Length of the subsequent data, 2 bytes
-    Record data   - Data, variable length</PRE>
+    Record data   - Data, variable length
+</PRE>
+</P>
 <P>
 <HR>
-<H1><A NAME="portability">PORTABILITY</A></H1>
-<P>WriteExcel.pm will only work on systems where perl packs floats in 64 bit IEEE format. The float must also be in little-endian format but WriteExcel.pm will reverse it as necessary.</P>
-<P>Thus:</P>
-<PRE>
-    print join(&quot; &quot;, map { sprintf &quot;%#02x&quot;, $_ } unpack(&quot;C*&quot;, pack &quot;d&quot;, 1.2345)), &quot;\n&quot;;</PRE>
-<P>should give (or in reverse order):</P>
-<PRE>
-    0x8d 0x97 0x6e 0x12 0x83 0xc0 0xf3 0x3f</PRE>
-<P>If your system doesn't support this format of float then WriteExcel will croak with the message given in the Diagnostics section. A future version will correct this, if possible.</P>
+<H1><A NAME="PORTABILITY">PORTABILITY</A></H1>
+<P>
+WriteExcel.pm will only work on systems where perl packs floats in 64 bit
+IEEE format. The float must also be in little-endian format but
+WriteExcel.pm will reverse it as necessary.
+
+</P>
+<P>
+Thus:
+
+</P>
+<P>
+<PRE>    print join(&quot; &quot;, map { sprintf &quot;%#02x&quot;, $_ } unpack(&quot;C*&quot;, pack &quot;d&quot;, 1.2345)), &quot;\n&quot;;
+</PRE>
+</P>
+<P>
+should give (or in reverse order):
+
+</P>
+<P>
+<PRE>    0x8d 0x97 0x6e 0x12 0x83 0xc0 0xf3 0x3f
+</PRE>
+</P>
+<P>
+If your system doesn't support this format of float then WriteExcel will
+croak with the message given in the Diagnostics section. A future version
+will correct this, if possible. 
+
+</P>
 <P>
 <HR>
-<H1><A NAME="diagnostics">DIAGNOSTICS</A></H1>
+<H1><A NAME="DIAGNOSTICS">DIAGNOSTICS</A></H1>
 <DL>
-<DT><STRONG><A NAME="item_WriteExcel">Filename required in <CODE>WriteExcel('Filename')</CODE></A></STRONG><BR>
-<DD>
+<DT><STRONG><A NAME="item_Filename">Filename required in WriteExcel('Filename')</A></STRONG><DD>
+<P>
 A filename must be given in the constructor.
-<P></P>
-<DT><STRONG><A NAME="item_Can%27t_open_filename%2E_It_may_be_in_use_by_Excel">Can't open filename. It may be in use by Excel.</A></STRONG><BR>
-<DD>
-The file cannot be opened for writing. It may be protected or already in use.
-<P></P>
-<DT><STRONG><A NAME="item_Required_floating_point_format_not_supported_on_th">Required floating point format not supported on this platform.</A></STRONG><BR>
-<DD>
-Operating system doesn't support 64 bit IEEE float or it is byte-ordered in a way unknown to WriteExcel.
-<P></P></DL>
+
+</P>
+<DT><STRONG><A NAME="item_Can">Can't open filename. It may be in use by Excel.</A></STRONG><DD>
+<P>
+The file cannot be opened for writing. It may be protected or already in
+use.
+
+</P>
+<DT><STRONG><A NAME="item_Required">Required floating point format not supported on this platform.</A></STRONG><DD>
+<P>
+Operating system doesn't support 64 bit IEEE float or it is byte-ordered in
+a way unknown to WriteExcel.
+
+</P>
+</DL>
 <P>
 <HR>
-<H1><A NAME="writing excel files">WRITING EXCEL FILES</A></H1>
-<P>Depending on your requirements, background and general sensibilities you may prefer one of the following methods of getting data into Excel:</P>
-<P>* CSV, comma separated variables or text. If the file extension is <CODE>csv</CODE>, Excel will open and convert this format automatically.</P>
-<P>* HTML tables. This is an easy way of adding formatting.</P>
-<P>* ODBC. Connect to an Excel file as a database.</P>
-<P>* Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. However, it is easy to use and gives access to the complete range of Excel's features such as: multiple worksheets, charts, cell formatting, macros and the built-in functions. See <A HREF="http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html">http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html</A> and <A HREF="http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html">http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html</A></P>
+<H1><A NAME="WRITING_EXCEL_FILES">WRITING EXCEL FILES</A></H1>
+<P>
+Depending on your requirements, background and general sensibilities you
+may prefer one of the following methods of getting data into Excel:
+
+</P>
+<P>
+* CSV, comma separated variables or text. If the file extension is <CODE>csv</CODE>, Excel will open and convert this format automatically.
+
+</P>
+<P>
+* HTML tables. This is an easy way of adding formatting.
+
+</P>
+<P>
+* DBI or ODBC. Connect to an Excel file as a database.
+
+</P>
+<P>
+* Win32::OLE module and office automation. This requires a Windows platform
+and an installed copy of Excel. However, it is easy to use and gives access
+to the complete range of Excel's features such as: multiple worksheets,
+charts, cell formatting, macros and the built-in functions. See <A
+HREF="http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html">http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html</A>
+and <A
+HREF="http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html">http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html</A>
+
+
+</P>
 <P>
 <HR>
-<H1><A NAME="reading excel files">READING EXCEL FILES</A></H1>
-<P>Despite the title of this module the most commonly asked questions are in relation to reading Excel files. To read data from Excel files try:</P>
-<P>* HTML tables. If the files are saved from Excel in a HTML format the data can be accessed using HTML::TableExtract <A HREF="http://search.cpan.org/search?dist=HTML-TableExtract">http://search.cpan.org/search?dist=HTML-TableExtract</A></P>
-<P>* ODBC.</P>
-<P>* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats. In particular, the distro contains an Excel to HTML converter called Herbert, <A HREF="http://user.cs.tu-berlin.de/~schwartz/pmh/">http://user.cs.tu-berlin.de/~schwartz/pmh/</A> There is also an open source C/C++ project based on the LAOLA work. Try the Filters Project at <A HREF="http://arturo.directmail.org/filtersweb/">http://arturo.directmail.org/filtersweb/</A> and the xlHtml Project at <A HREF="http://www.gate.net/~ddata/xlHtml/index.htm">http://www.gate.net/~ddata/xlHtml/index.htm</A> The xlHtml filter is more complete than Herbert.</P>
-<P>* Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. This is the most powerful and complete method for interfacing with Excel. See <A HREF="http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html">http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html</A> and <A HREF="http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html">http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html</A></P>
-<P>Also, if you wish to view Excel files on Windows platforms which don't have Excel installed you can use the free Microsoft Excel Viewer <A HREF="http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm">http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm</A></P>
+<H1><A NAME="READING_EXCEL_FILES">READING EXCEL FILES</A></H1>
+<P>
+Despite the title of this module the most commonly asked questions are in
+relation to reading Excel files. To read data from Excel files try:
+
+</P>
+<P>
+* HTML tables. If the files are saved from Excel in a HTML format the data
+can be accessed using HTML::TableExtract <A
+HREF="http://search.cpan.org/search?dist=HTML-TableExtract">http://search.cpan.org/search?dist=HTML-TableExtract</A>
+
+
+</P>
+<P>
+* DBI or ODBC. Connect to an Excel file as a database.
+
+</P>
+<P>
+* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats. In
+particular, the distro contains an Excel to HTML converter called Herbert,
+<A
+HREF="http://user.cs.tu-berlin.de/~schwartz/pmh/">http://user.cs.tu-berlin.de/~schwartz/pmh/</A>
+There is also an open source C/C++ project based on the LAOLA work. Try the
+Filters Project at <A
+HREF="http://arturo.directmail.org/filtersweb/">http://arturo.directmail.org/filtersweb/</A>
+and the xlHtml Project at <A
+HREF="http://www.xlhtml.org/">http://www.xlhtml.org/</A> The xlHtml filter
+is more complete than Herbert.
+
+</P>
+<P>
+* Win32::OLE module and office automation. This requires a Windows platform
+and an installed copy of Excel. This is the most powerful and complete
+method for interfacing with Excel. See <A
+HREF="http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html">http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html</A>
+and <A
+HREF="http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html">http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html</A>
+
+
+</P>
+<P>
+Also, if you wish to view Excel files on Windows platforms which don't have
+Excel installed you can use the free Microsoft Excel Viewer <A
+HREF="http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm">http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm</A>
+
+
+</P>
 <P>
 <HR>
-<H1><A NAME="bugs">BUGS</A></H1>
-<P>The main bug is the lack of a portable way of writing a little-endian 64 bit IEEE float. This is to-do.</P>
-<P>Other Spreadsheets: The binary file created by WriteExcel is not a complete Excel file. As a result it is not compatible with XESS, Applix, Star Office or anything else. This may be fixed indirectly in a later version. In the meantime write to non-Excel spreadsheets in their native format.</P>
-<P>QuickView: Excel files written with Version 0.08 are not displayed correctly in MS or JASC QuickView. This is partially fixed in Version 0.09 onwards. However, if you wish to write files that are fully compatible with QuickView it is necessary to write the cells in a sequential row by row order. This does not apply to Excel or to Excel Viewer.</P>
+<H1><A NAME="BUGS">BUGS</A></H1>
+<P>
+The lack of a portable way of writing a little-endian 64 bit IEEE float.
+This is to-do.
+
+</P>
+<P>
+Other Spreadsheets: The binary file created by WriteExcel is not a complete
+Excel file. As a result it is not compatible with Gnumeric, XESS, Applix,
+Star Office or anything else. This will be fixed in a later version. 
+
+</P>
+<P>
+QuickView: Excel files written with Version 0.08 are not displayed
+correctly in MS or JASC QuickView. This is partially fixed in Version 0.09
+onwards. However, if you wish to write files that are fully compatible with
+QuickView it is necessary to write the cells in a sequential row by row
+order. This does not apply to Excel or to Excel Viewer.
+
+</P>
 <P>
 <HR>
-<H1><A NAME="to do">TO DO</A></H1>
-<P>If possible, this module will be extended to include multiple worksheets, and formatting for rows, columns and cells.</P>
+<H1><A NAME="TO_DO">TO DO</A></H1>
+<P>
+This module will be extended to include multiple worksheets, and formatting
+for rows, columns and cells.
+
+</P>
 <P>
 <HR>
-<H1><A NAME="acknowledgements">ACKNOWLEDGEMENTS</A></H1>
-<P>The following people contributed to the debugging and testing of WriteExcel.pm:</P>
-<P>Arthur@ais, Mike Blazer, CPAN testers, Johan Ekenberg, Paul J. Falbe, Artur Silveira da Cunha, John Wren.</P>
+<H1><A NAME="ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></H1>
+<P>
+The following people contributed to the debugging and testing of
+WriteExcel.pm:
+
+</P>
+<P>
+Arthur@ais, Mike Blazer, CPAN testers, Johan Ekenberg, Paul J. Falbe,
+Daniel Gardner, Artur Silveira da Cunha, John Wren.
+
+</P>
 <P>
 <HR>
-<H1><A NAME="author">AUTHOR</A></H1>
-<P>John McNamara <A HREF="mailto:writeexcel@eircom.net">writeexcel@eircom.net</A></P>
-<PRE>
-    Buffalo Bill's
-    defunct
-            who used to
-            ride a watersmooth-silver
-                                            stallion
-    and break onetwothreefourfive pigeonsjustlikethat
-                                                                Jesus
-    he was a handsome man
-                                    and what i want to know is
-    how do you like your blueeyed boy
-    Mister Death
-    --e.e. cummings</PRE>
+<H1><A NAME="AUTHOR">AUTHOR</A></H1>
+<P>
+John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
+
+</P>
+<P>
+<PRE>    Writing a poem 
+    In seventeen syllables
+    Is very diffic
+    
+    - John Cooper Clarke
+</PRE>
+</P>
 <P>
 <HR>
-<H1><A NAME="copyright">COPYRIGHT</A></H1>
-<P>Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.</P>
+<H1><A NAME="COPYRIGHT">COPYRIGHT</A></H1>
+<P>
+Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free
+software. It may be used, redistributed and/or modified under the same
+terms as Perl itself.
+</P>
 
 </BODY>
 

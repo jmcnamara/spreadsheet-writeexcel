@@ -1,10 +1,11 @@
 WriteExcel.pm
 CHANGES
 MANIFEST
+README
+INSTALL
 Makefile.PL
 test.pl
 example.pl
 tab2xls.pl
 WriteExcel.html
-readme.txt
 

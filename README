@@ -11,20 +11,16 @@ DESCRIPTION
     This module cannot be used to read an Excel file. Look at the main
     documentation for some suggestions.
 
-    It is intended to be cross-platform, however, this is not
-    guaranteed. See the section on portability in the main
+    This module is intended to be cross-platform, however, this is 
+    not guaranteed. See the section on portability in the main
     documentation.
 
 INSTALLATION
-    Use the standard installation procedure:
-        perl Makefile.PL
-        make
-        make test
-        make install
+    See the separate INSTALL text file.
 
 VERSION
-    This document refers to version 0.10 of Spreadsheet::WriteExcel,
-    released May 13, 2000.
+    This document refers to version 0.11 of Spreadsheet::WriteExcel,
+    released Aug 25, 2000.
 
 AUTHOR
-    John McNamara (writeexcel@eircom.net)
+    John McNamara (jmcnamara@cpan.org)

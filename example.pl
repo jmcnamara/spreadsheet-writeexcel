@@ -22,7 +22,7 @@ $excel->write_string(0, 0, "Hi Excel!");
 $excel->write_number(2, 0, 3);       # Writes 3
 $excel->write_number(2, 1, 3.00000); # Writes 3
 $excel->write_number(2, 2, 3.00001); # Writes 3.00001
-$excel->write_number(2, 3, 3.14159); # TeX revison no.?
+$excel->write_number(2, 3, 3.14159); # TeX revision no.?
 
 
 # Write numbers or text

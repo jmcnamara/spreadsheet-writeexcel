@@ -13,7 +13,7 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 
-# Check for valid number of parameters
+# Check for valid number of arguments
 if (($#ARGV < 1) || ($#ARGV > 2)) { 
     die("Usage: tab2xls.pl tabfile.txt newfile.xls\n");
 };
