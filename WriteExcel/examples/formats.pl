@@ -4,7 +4,7 @@
 #
 # Examples of formatting using the Spreadsheet::WriteExcel module
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

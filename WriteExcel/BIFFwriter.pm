@@ -5,7 +5,7 @@ package Spreadsheet::WriteExcel::BIFFwriter;
 # BIFFwriter - An abstract base class for Excel workbooks and worksheets.
 #
 #
-# Used in conjuction with Spreadsheet::WriteExcel
+# Used in conjunction with Spreadsheet::WriteExcel
 #
 # Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
@@ -131,7 +131,7 @@ sub _append {
 # $type = 0x0010, Worksheet
 #
 # Writes Excel BOF record to indicate the beginning of a stream or
-# substream in the the BIFF file.
+# substream in the BIFF file.
 #
 sub _store_bof {
 
@@ -189,7 +189,7 @@ See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 
-This module is used in conjuction with Spreadsheet::WriteExcel.
+This module is used in conjunction with Spreadsheet::WriteExcel.
 
 =head1 AUTHOR
 

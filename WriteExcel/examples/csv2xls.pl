@@ -10,7 +10,7 @@
 #
 # Usage: csv2xls.pl file.csv newfile.xls
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

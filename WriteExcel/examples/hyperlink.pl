@@ -4,7 +4,7 @@
 #
 # Example of how to use the WriteExcel module to write hyperlinks
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

@@ -5,7 +5,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 # Worksheet - A writer class for Excel Worksheets.
 #
 #
-# Used in conjuction with Spreadsheet::WriteExcel
+# Used in conjunction with Spreadsheet::WriteExcel
 #
 # Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
@@ -18,13 +18,13 @@ use strict;
 use Carp;
 use Spreadsheet::WriteExcel::BIFFwriter;
 use Spreadsheet::WriteExcel::Format;
-
+use Spreadsheet::WriteExcel::Formula;
 
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 ###############################################################################
 #
@@ -45,6 +45,7 @@ sub new {
     $self->{_activesheet}   = $_[2];
     $self->{_firstsheet}    = $_[3];
     $self->{_url_format}    = $_[4];
+    $self->{_parser}        = $_[5];
 
     $self->{_using_tmpfile} = 1;
     $self->{_filehandle}    = "";
@@ -458,6 +459,10 @@ sub write {
     elsif ($token =~ m|[fh]tt?p://|) {
         return $self->write_url(@_);
     }
+    # Match formula
+    elsif ($token =~ /^=/) {
+        return $self->write_formula(@_);
+    }
     # Match blank
     elsif ($token eq '') {
         splice @_, 2, 1; # remove the empty string from the parameter list
@@ -634,7 +639,7 @@ sub write_url {
     my $xf      = $_[4] || $self->{_url_format}; # The cell format
 
 
-    # Write the visible lable using the write_string() method.
+    # Write the visible label using the write_string() method.
     my $str_error = $self->write_string($row, $col, $str, $xf);
     return $str_error if $str_error == -2;
 
@@ -667,6 +672,67 @@ sub write_url {
 
     return $str_error;
 
+}
+
+
+###############################################################################
+#
+# write_formula($row, $col, $formula, $format)
+#
+# Write a formula to the specified row and column (zero indexed).
+# TODO: add an explanation here.
+# $format is optional.
+#
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#
+sub write_formula{
+
+    my $self      = shift;
+    if (@_ < 3) { return -1 }
+
+    my $record    = 0x0006;                 # Record identifier
+    my $length;                             # Bytes to follow
+
+    my $row       = $_[0];                  # Zero indexed row
+    my $col       = $_[1];                  # Zero indexed column
+    my $formula   = $_[2];
+    my $xf        = _XF($_[3]);             # The cell format
+    my $num       = 0x00;                   # TODO
+    my $grbit     = 0x03;                   # TODO
+    my $chn       = 0x00;                   # TODO
+
+    my $str_error = 0; # TODO
+
+    if ($row >= $self->{_xls_rowmax} / 2) { return -2 } # TODO
+    if ($col >= $self->{_xls_colmax}) { return -2 }
+    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
+    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
+    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
+    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+
+    my $parser = $self->{_parser};
+
+    # TODO
+    if ($formula =~ /^=/) {
+        $formula =~ s/^=//;
+        $formula = $parser->parse_formula($formula);
+    }
+    else {
+        return -4;
+    }
+
+    my $formlen = length($formula);
+    $length     = 0x16 + $formlen;
+
+    my $header    = pack("vv",      $record, $length);
+    my $data      = pack("vvvdvVv", $row, $col, $xf, $num,
+                                    $grbit, $chn, $formlen);
+
+    $self->_append($header, $data, $formula);
+
+    return $str_error;
 }
 
 
@@ -708,6 +774,8 @@ sub set_row {
 }
 
 
+
+
 1;
 
 
@@ -724,7 +792,7 @@ See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 
-This module is used in conjuction with Spreadsheet::WriteExcel.
+This module is used in conjunction with Spreadsheet::WriteExcel.
 
 =head1 AUTHOR
 

@@ -1,54 +1,66 @@
+======================================================================
 NAME
+
     Spreadsheet::WriteExcel - Write formatted text and numbers to a 
     cross-platform Excel binary file.
 
-
+======================================================================
 DESCRIPTION
-    This module can be used to write numbers and text in the native
-    Excel binary file format. Multiple worksheets can be added to a
-    workbook. Formatting can be applied to cells.
+
+    The Spreadsheet::WriteExcel module can be used create a cross-
+    platform Excel binary file. Multiple worksheets can be added to a
+    workbook and formatting can be applied to cells. Text, numbers,
+    formulas and hyperlinks can be written to the cells.
 
     The Excel file produced by this module is compatible with Excel 5,
     95, 97 and 2000.
 
     The module will work on the majority of Windows, UNIX and
     Macintosh platforms. Generated files are also compatible with the
-    Linux/UNIX spreadsheet applications Star Office, Gnumeric and
-    XESS. The generated files are not compatible with MS Access.
+    Linux/UNIX spreadsheet applications OpenOffice, Gnumeric and XESS.
+    The generated files are not compatible with MS Access.
 
     This module cannot be used to read an Excel file. See
     Spreadsheet::ParseExcel or look at the main documentation for some
-    suggestions.
+    suggestions. This module cannot be uses to write to an existing
+    Excel file.
 
-
+======================================================================
 SYNOPSIS
-    To write a string, a number and a formatted string to the first 
-    worksheet in an Excel workbook called perl.xls:
 
-    use Spreadsheet::WriteExcel;
+    To write a string, a formatted string, a number and a formula to
+    the first worksheet in an Excel workbook called perl.xls:
 
-    $row1 = $col1 = 0;
-    $row2 = 1;
-    $row3 = 2;
+        use Spreadsheet::WriteExcel;
 
-    my $workbook = Spreadsheet::WriteExcel->new("perl.xls");
-    $worksheet   = $workbook->addworksheet();
-    $format      = $workbook->addformat();
-    
-    $format->set_bold();
-    $format->set_color('red');
-    $format->set_align('center');
+        # Create a new Excel workbook
+        my $workbook = Spreadsheet::WriteExcel->new("perl.xls");
+        $worksheet   = $workbook->addworksheet(); # Add a worksheet
+        $format      = $workbook->addformat();    # Add a format
 
-    $worksheet->write($row1, $col1, "Hi Excel!");
-    $worksheet->write($row2, $col1, 1.2345);
-    $worksheet->write($row3, $col1, "Hi Excel!", $format);
+        # Define the format
+        $format->set_bold();
+        $format->set_color('red');
+        $format->set_align('center');
 
+        # Row and column are zero indexed
+        $col = 0;
+        $row = 0;
 
+        $worksheet->write($row,  $col, "Hi Excel!");
+        $worksheet->write(1,     $col, "Hi Excel!", $format);
+        $worksheet->write(2,     $col, 1.2345);
+        $worksheet->write(3,     $col, '=SIN(PI()/4)');
+
+======================================================================
 INSTALLATION
-    Method 1
-    Download the zipped tar file from:
-        http://search.cpan.org/search?dist=Spreadsheet-WriteExcel
 
+    Method 1
+    Download the zipped tar file from one of the following:
+        http://search.cpan.org/search?dist=Spreadsheet-WriteExcel
+        http://theoryx5.uwinnipeg.ca/mod_perl/cpan-search?idinfo=154
+        ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/J/JM/JMCNAMARA/
+        
     Unzip the module as follows or use winzip:
            tar -zxvf Spreadsheet-WriteExcel-0.xx.tar.gz
 
@@ -66,7 +78,7 @@ INSTALLATION
     Method 2
     If you have CPAN.pm configured you can install the module as
     follows:
-        perl -MCPAN -e "install 'Spreadsheet-WriteExcel'"
+        perl -MCPAN -e "install 'Spreadsheet::WriteExcel'"
 
     Method 3
     ActivePerl users can use PPM as follows:
@@ -87,5 +99,14 @@ INSTALLATION
     this prior to installation. 
 
 
+======================================================================
+REQUIREMENTS
+
+    This module requires Perl 5.005 (or later) and Parse::RecDescent:
+    http://search.cpan.org/search?dist=Parse-RecDescent
+
+
+======================================================================
 AUTHOR
+
     John McNamara (jmcnamara@cpan.org)

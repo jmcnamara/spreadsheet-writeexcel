@@ -5,7 +5,7 @@ package Spreadsheet::WriteExcel::Workbook;
 # Workbook - A writer class for Excel Workbooks.
 #
 #
-# Used in conjuction with Spreadsheet::WriteExcel
+# Used in conjunction with Spreadsheet::WriteExcel
 #
 # Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 ###############################################################################
 #
@@ -38,10 +38,14 @@ sub new {
     my $filename    = $_[0] || '';
     my $self        = Spreadsheet::WriteExcel::BIFFwriter->new();
     my $ole_writer  = Spreadsheet::WriteExcel::OLEwriter->new($filename);
-    my $tmp_sheet   = Spreadsheet::WriteExcel::Worksheet->new('', 0, 0);
+    #my $tmp_sheet   = Spreadsheet::WriteExcel::Worksheet->new('', 0, 0);
     my $tmp_format  = Spreadsheet::WriteExcel::Format->new();
 
+    my $byte_order  = $self->{_byte_order};
+    my $parser      = Spreadsheet::WriteExcel::Formula->new($byte_order);
+
     $self->{_OLEwriter}         = $ole_writer;
+    $self->{_parser}            = $parser;
     $self->{_1904}              = 0;
     $self->{_activesheet}       = 0;
     $self->{_firstsheet}        = 0;
@@ -49,7 +53,7 @@ sub new {
     $self->{_fileclosed}        = 0;
     $self->{_biffsize}          = 0;
     $self->{_sheetname}         = "Sheet";
-    $self->{_tmp_worksheet}     = $tmp_sheet;
+    #$self->{_tmp_worksheet}     = $tmp_sheet;
     $self->{_tmp_format}        = $tmp_format;
     $self->{_url_format}        = '';
     $self->{_worksheets}        = [];
@@ -143,7 +147,7 @@ sub addworksheet {
                         \$self->{_activesheet},
                         \$self->{_firstsheet},
                         $self->{_url_format},
-                        $self->{_use_tmp_files},
+                        $self->{_parser},
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
@@ -220,7 +224,7 @@ sub write {
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
     carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjuction with a worksheet object instead"
+         " use write() in conjunction with a worksheet object instead"
         ) if $^W;
     return $self->{_worksheets}[0]->write(@_);
 }
@@ -241,7 +245,7 @@ sub write_string {
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
     carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjuction with a worksheet object instead"
+         " use write() in conjunction with a worksheet object instead"
         ) if $^W;
     return $self->{_worksheets}[0]->write_string(@_);
 }
@@ -262,7 +266,7 @@ sub write_number {
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
     carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjuction with a worksheet object instead"
+         " use write() in conjunction with a worksheet object instead"
         ) if $^W;
     return $self->{_worksheets}[0]->write_number(@_);
 }
@@ -420,7 +424,7 @@ sub _store_all_fonts {
 #
 # _store_all_num_formats()
 #
-# Store user defined numerical formats ie. FORMAT records
+# Store user defined numerical formats i.e. FORMAT records
 #
 sub _store_all_num_formats {
 
@@ -437,7 +441,14 @@ sub _store_all_num_formats {
     #
     foreach my $format (@{$self->{_formats}}) {
         my $num_format = $format->{_num_format};
-        next if $num_format =~ m/^\d+$/; # Index for builtin format
+        
+        # Check if $num_format is an index to a builtin format.
+        # Also check for a string of zeros, which is a valid format string
+        # but would evaluate to zero
+        #
+        if ($num_format !~ m/^0+\d/) {
+            next if $num_format =~ m/^\d+$/; # builtin
+        }
 
         if (exists($num_formats{$num_format})) {
             # FORMAT has already been used
@@ -659,7 +670,7 @@ See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 
-This module is used in conjuction with Spreadsheet::WriteExcel.
+This module is used in conjunction with Spreadsheet::WriteExcel.
 
 =head1 AUTHOR
 

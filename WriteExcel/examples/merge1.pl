@@ -7,7 +7,7 @@
 # This example shows how to merge two or more cells. See also the merge2.pl
 # example.
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

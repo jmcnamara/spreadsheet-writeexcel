@@ -3,7 +3,7 @@
 ###############################################################################
 #
 # Example of how to use the format copying method with Spreadsheet::WriteExcel #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

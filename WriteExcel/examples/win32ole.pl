@@ -5,7 +5,7 @@
 # This is a simple example of how to create an Excel file using the
 # Win32::OLE module.
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -27,6 +27,10 @@ $worksheet->Cells(1,1)->Font->{Bold}       = "True";
 $worksheet->Cells(1,1)->Font->{Size}       = 16;
 $worksheet->Cells(1,1)->Font->{ColorIndex} = 3;
 $worksheet->Columns("A:A")->{ColumnWidth}  = 25;
+
+# Write a hyperlink
+my $range = $worksheet->Range("A7:A7");
+$worksheet->Hyperlinks->Add({ Anchor => $range, Address => "http://www.perl.com/"});
 
 # Get current directory using Cwd.pm
 my $dir = cwd();

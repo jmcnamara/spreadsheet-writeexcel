@@ -5,7 +5,7 @@
 # Example of how to use the WriteExcel module to write a basic multiple
 # worksheet Excel file.
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -27,7 +27,7 @@ $format->set_color('blue');
 
 # Add a caption to each worksheet
 foreach my $worksheet (@{$workbook->worksheets()}) {
-   $worksheet->write(0, 0, "Sales", $format);
+    $worksheet->write(0, 0, "Sales", $format);
 }
 
 # Write some data

@@ -7,7 +7,7 @@
 # This example shows how to use a conditional numerical format
 # with colours to indicate if a share price has gone up or down.
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

@@ -277,7 +277,7 @@ Copyright (c) 2000, The Perl Journal.
 
 <p>The SDK documentation for Excel 5 lists 127 binary records that can be included in a file, but never says which records are required. By a painful process of trial and error, I removed binary records from a standard Excel file until I reached a minimum configuration that would load without crashing the application. This process has a nice name: reverse engineering. The memory of this drudgery came back to me two years later when I came across the following article in MSDN: "Records needed to make a BIFF5 file Microsoft Excel can use, Q147732", at <a href="http://support.microsoft.com/support/kb/articles/Q147/7/32.asp" target="resource window">http://support.microsoft.com/support/kb/articles/Q147/7/32.asp</a>.</p>
 
-<h3>Everything went fine until Excel 97.</h3>
+Everything went fine until Excel 97.
 
 <p>Excel 4 files are pure BIFF files. Excel 5 files aren't. They're Compound Files with BIFF files embedded inside. However, Excel 5 will also accept a pure BIFF file for backward compatibility. Excel 97 will not. The Fortran to Excel filter that had worked so successfully with Excel 5 caused Excel 97 to choke and die.</p>
 

@@ -8,7 +8,7 @@
 #
 # Usage: tab2xls.pl tabfile.txt newfile.xls
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 

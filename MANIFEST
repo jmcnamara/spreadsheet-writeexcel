@@ -8,6 +8,7 @@ WriteExcel/Worksheet.pm
 WriteExcel/OLEwriter.pm
 WriteExcel/BIFFwriter.pm
 WriteExcel/Format.pm
+WriteExcel/Formula.pm
 
 
 Makefile.PL
@@ -34,6 +35,7 @@ WriteExcel/doc/tpj0503-0004-05.gif
 WriteExcel/doc/win32ole.gif
 
 
+WriteExcel/examples/A1convert.pl
 WriteExcel/examples/Big.pl
 WriteExcel/examples/WorkbookBig.pl
 WriteExcel/examples/bigfile.pl
@@ -49,6 +51,7 @@ WriteExcel/examples/ms_time.pl
 WriteExcel/examples/regions.pl
 WriteExcel/examples/simple.pl
 WriteExcel/examples/stocks.pl
+WriteExcel/examples/stats.pl
 WriteExcel/examples/tab2xls.pl
 WriteExcel/examples/textwrap.pl
 WriteExcel/examples/win32ole.pl

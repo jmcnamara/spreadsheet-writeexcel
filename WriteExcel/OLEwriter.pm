@@ -5,7 +5,7 @@ package Spreadsheet::WriteExcel::OLEwriter;
 # OLEwriter - A writer class to store BIFF data in a OLE compound storage file.
 #
 #
-# Used in conjuction with Spreadsheet::WriteExcel
+# Used in conjunction with Spreadsheet::WriteExcel
 #
 # Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
@@ -410,7 +410,7 @@ See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 
-This module is used in conjuction with Spreadsheet::WriteExcel.
+This module is used in conjunction with Spreadsheet::WriteExcel.
 
 =head1 AUTHOR
 

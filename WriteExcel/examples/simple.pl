@@ -1,11 +1,11 @@
 #!/usr/bin/perl -w
 
-###############################################################################
+#######################################################################
 #
-# Example of how to use the WriteExcel module to write text and
-# numbers to an Excel binary file.
+# Example of how to use the WriteExcel module to write text and numbers
+# to an Excel binary file.
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -15,21 +15,25 @@ use Spreadsheet::WriteExcel;
 my $workbook  = Spreadsheet::WriteExcel->new("simple.xls");
 my $worksheet = $workbook->addworksheet();
 
-# General syntax is sub(row, column, token)
-# Row and column are zero indexed
+# The general syntax is write($row, $column, $token). Note that row and
+# column are zero indexed
+#
 
 # Write some text
-$worksheet->write_string(0, 0, "Hi Excel!");
+$worksheet->write(0, 0,  "Hi Excel!");
+
 
 # Write some numbers
-$worksheet->write_number(2, 0, 3);          # Writes 3
-$worksheet->write_number(2, 1, 3.00000);    # Writes 3
-$worksheet->write_number(2, 2, 3.00001);    # Writes 3.00001
-$worksheet->write_number(2, 3, 3.14159);    # TeX revision no.?
+$worksheet->write(2, 0,  3);          # Writes 3
+$worksheet->write(3, 0,  3.00000);    # Writes 3
+$worksheet->write(4, 0,  3.00001);    # Writes 3.00001
+$worksheet->write(5, 0,  3.14159);    # TeX revision no.?
 
 
-# Write numbers or text
-$worksheet->write(4, 0, 207E9);             # writes a number
-$worksheet->write(4, 1, "207E9");           # writes a number
-$worksheet->write(4, 2, "207 E9");          # writes a string
+# Write some formulas
+$worksheet->write(7, 0,  '=A3 + A6');
+$worksheet->write(8, 0,  '=IF(A5>3,"Yes", "No")');
 
+
+# Write a hyperlink
+$worksheet->write(10, 0, 'http://www.perl.com/');

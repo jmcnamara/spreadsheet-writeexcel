@@ -5,7 +5,7 @@ package Spreadsheet::WriteExcel::Format;
 # Format - A class for defining Excel formatting.
 #
 #
-# Used in conjuction with Spreadsheet::WriteExcel
+# Used in conjunction with Spreadsheet::WriteExcel
 #
 # Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
@@ -292,7 +292,7 @@ sub get_xf_index {
 #
 # _get_color()
 #
-# Used in conjuction with the set_xxx_color methods to convert a color
+# Used in conjunction with the set_xxx_color methods to convert a color
 # string into a number. Color range is 0..63 but we will restrict it
 # to 8..63 to comply with Gnumeric. Colors 0..7 are repeated in 8..15.
 #
@@ -499,7 +499,7 @@ See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 
-This module is used in conjuction with Spreadsheet::WriteExcel.
+This module is used in conjunction with Spreadsheet::WriteExcel.
 
 =head1 AUTHOR
 

@@ -8,7 +8,7 @@
 # On Windows the hash-bang line should be something like:
 # #!C:\Perl\bin\perl.exe
 #
-# Dec 2000, John McNamara, jmcnamara@cpan.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -18,7 +18,10 @@ use Spreadsheet::WriteExcel;
 my $filename ="cgitest.xls";
 
 print "Content-type: application/vnd.ms-excel\n";
-print "Content-Disposition: attachment; filename=$filename\n\n";
+# The Content-Disposition will generate a prompt to save the file. If you want
+# to stream the file to the browser, comment out the following line. 
+print "Content-Disposition: attachment; filename=$filename\n";
+print "\n";
 
 # Create a new workbook and add a worksheet. The special Perl filehandle - will
 # redirect the output to STDOUT

@@ -1,26 +1,32 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.30 Feb 26 2001
+    Major
+    Added formulas.
+    Fixed docs for write_url(). Thanks James Holmes.
+    Fixed bug when using a numeric format string of zeros. Thanks
+    Kenneth Stacey.
+
 0.26 Feb 1 2001
     Minor
-    Fixed bug when using a border with the default colour. This 
+    Fixed bug when using a border with the default colour. This
     caused the cell format to become unchangeable from within Excel.
     Thanks Shenyu Zheng.
     Changed worksheet code to automatically fall back to storing
     data in memory if opening a tmp file fails.
-    
-    
+
 0.25 Jan 19 2001
     Minor
     Changed distro file format back to Unix line endings. The
     accidental DOS format was causing install problems.
-    
+
 0.24 Jan 14 2001
     Minor
     Added write_url method.
     Added set_merge() alias for set_align('merge') method.
     Added warnings about deprecated code when running under -w flag.
     Documentation changes.
-    
+
 0.23 Dec 10 2000
     Minor
     Added customisable numeric formats.
