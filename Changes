@@ -1,5 +1,33 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.35 March 18 2002
+    Minor
+    Added internal and external hyperlinks, thanks Ian Penman.
+
+    Added worksheet set_zoom() and set_print_scale(). 
+
+    Changed default value of fit_to_pages() to allow printed output to
+    be one page wide and as long as required. Thanks Michael Erickson.
+
+    Changed handling of undefs in write() method, thanks Hanc Pavel.
+    
+    Changed new() to return undef for file creation errors, thanks
+    Felipe Pérez Galiana.
+
+    Added check for header/footer length, thanks Peter Dintelmann. 
+
+    Added check for duplicate worksheet names, thanks Keith Miller.
+    
+    Removed spurious return() to fix bug in set_repeat_rows().
+    Thanks Brian White.
+    
+    Added "use integer" when using shift << to avoid bug with
+	Perl 5.6.0 on HP-UX. Thanks Markus Schmitz, VSarkiss.
+	
+    Fixed minor bug in Formula.pm. Thanks Sven Passig.
+	
+
+
 0.34 October 23 2001
     Major
     Added Spreadsheet::WriteExcel::Utility module with helper

@@ -61,7 +61,7 @@ Utility - Helper functions for Spreadsheet::WriteExcel.
 
 =head1 VERSION
 
-This document refers to version 0.01 of Spreadsheet::WriteExcel::Utility, released October, 2001.
+This document refers to version 0.02 of Spreadsheet::WriteExcel::Utility, released March, 2002.
 
 
 
@@ -745,7 +745,7 @@ sub xl_decode_date_EU {
 
 This function converts a date and time string into a number that represents an Excel date.
 
-The date parsing is performed using the C<Decode_Date_EU()> function of the Date::Calc module. Refer to the Date::Calc for further information about the date formats that can be parsed. Also note the following from the Date::Calc documentation:
+The date parsing is performed using the C<Decode_Date_US()> function of the Date::Calc module. Refer to the Date::Calc for further information about the date formats that can be parsed. Also note the following from the Date::Calc documentation:
 
 "If the year is given as one or two digits only (i.e., if the year is less than 100), it is mapped to the window 1970 -2069 as follows":
 
@@ -866,7 +866,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

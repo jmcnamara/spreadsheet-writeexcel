@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 ###############################################################################
 #
@@ -149,7 +149,11 @@ sub _init_parser {
                         { ['_ref2d', $item[1]] }
 
         # Match an external sheet reference.
-        ref3d:          /[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+/
+        # A Sheetname with a comma must be in single quotes: 'Sheet, 1'.
+        #
+        ref3d:          /([^':!(,]+:)?[^':!(,]+[!]\$?[A-I]?[A-Z]\$?\d+/
+                        { ['_ref3d', $item[1]] }
+                        |/[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+/
                         { ['_ref3d', $item[1]] }
 
         # Match A1:C5 etc.
@@ -157,7 +161,11 @@ sub _init_parser {
                         { ['_range2d', $item[1]] }
 
         # Match an external sheet range.
-        range3d:        /[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
+        # A Sheetname with a comma must be in single quotes: 'Sheet, 1'.
+        #
+        range3d:        /([^':!(,]+:)?[^':!(,]+[!]\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
+                        { ['_range3d', $item[1]] }
+                        |/[']([^':!(]+:)?[^':!(]+['][!]\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
                         { ['_range3d', $item[1]] }
 
         # Match a function name.
@@ -763,6 +771,8 @@ sub _cell_to_rowcol {
 #
 sub _cell_to_packed_rowcol {
 
+    use integer;    # Avoid << shift bug in Perl 5.6.0 on HP-UX
+
     my $self = shift;
     my $cell = shift;
 
@@ -1240,6 +1250,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

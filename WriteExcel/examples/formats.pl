@@ -4,7 +4,7 @@
 #
 # Examples of formatting using the Spreadsheet::WriteExcel module
 #
-# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2002, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -51,9 +51,24 @@ sub intro {
     $format->set_color('blue');
     $format->set_align('center');
 
+    my $format2 = $workbook->addformat();
+    $format2->set_bold();
+    $format2->set_color('blue');
+
     $worksheet->write(2, 0, 'This workbook demonstrates some of',  $format);
     $worksheet->write(3, 0, 'the formatting options provided by',  $format);
     $worksheet->write(4, 0, 'the Spreadsheet::WriteExcel module.', $format);
+    
+    $worksheet->write('A7',  'Sections:', $format2);
+    $worksheet->write('A8',  "internal:'Named colors'!A1",    'Named colors'   );
+    $worksheet->write('A9',  "internal:'Standard colors'!A1", 'Standard colors');
+    $worksheet->write('A10', "internal:'Numeric formats'!A1", 'Numeric formats');
+    $worksheet->write('A11', "internal:Fonts!A1",             'Fonts'          );
+    $worksheet->write('A12', "internal:Borders!A1",           'Borders'        );
+    $worksheet->write('A13', "internal:Patterns!A1",          'Patterns'       );
+    $worksheet->write('A14', "internal:Alignment!A1",         'Alignment'      );
+    $worksheet->write('A15', "internal:Miscellaneous!A1",     'Miscellaneous'  );
+
 }
 
 
@@ -80,13 +95,14 @@ sub named_colors {
 
     for my $i (0..13) {
         my $format = $workbook->addformat();
-        $format->set_color($colors[$i]);
-        $format->set_align('center');
+        $format->set_pattern();
+        $format->set_fg_color($indices[$i]);
+        $format->set_border();
 
         $worksheet->write($i+1, 0, $indices[$i],                    $center);
         $worksheet->write($i+1, 1, sprintf("0x%02X", $indices[$i]), $center);
         $worksheet->write($i+1, 2, $colors[$i],                     $center);
-        $worksheet->write($i+1, 3, $colors[$i],                     $format);
+        $worksheet->write($i+1, 3, '',                              $format);
     }
 }
 
@@ -107,12 +123,13 @@ sub standard_colors {
 
     for my $i (8..63){
         my $format = $workbook->addformat();
-        $format->set_color($i);
-        $format->set_align('center');
+        $format->set_pattern();
+        $format->set_fg_color($i);
+        $format->set_border();
 
         $worksheet->write(($i -7), 0, $i,                    $center);
         $worksheet->write(($i -7), 1, sprintf("0x%02X", $i), $center);
-        $worksheet->write(($i -7), 2, 'COLOR',               $format);
+        $worksheet->write(($i -7), 2, '',                    $format);
     }
 }
 

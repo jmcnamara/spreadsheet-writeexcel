@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.34'; # MacNeice.
+$VERSION = '0.35'; # The Man with Two Brains.
 
 
 
@@ -41,8 +41,10 @@ sub new {
 
     my $class = shift;
     my $self  = Spreadsheet::WriteExcel::Workbook->new(@_);
-
-    bless  $self, $class;
+    
+    # Check for file creation failures before re-blessing
+    bless  $self, $class if defined $self;
+    
     return $self;
 }
 
@@ -63,7 +65,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.34 of Spreadsheet::WriteExcel, released October 23, 2001.
+This document refers to version 0.35 of Spreadsheet::WriteExcel, released March 18, 2002.
 
 
 
@@ -104,7 +106,7 @@ The Spreadsheet::WriteExcel module can be used to create a cross-platform Excel 
 
 The Excel file produced by this module is compatible with Excel 5, 95, 97, 2000 and 2002.
 
-The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications OpenOffice, Gnumeric and XESS.
+The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.
 
 This module cannot be used to write to an existing Excel file.
 
@@ -171,6 +173,11 @@ The last two examples demonstrates how to create a file on DOS or Windows where 
 
 The C<new()> constructor returns a Spreadsheet::WriteExcel object that you can use to add worksheets and store data. It should be noted that although C<my> is not specifically required it defines the scope of the new workbook variable and, in the majority of cases, ensures that the workbook is closed properly without explicitly calling the C<close()> method.
 
+If the file cannot be created, due to file permissions or some other reason,  C<new> will return C<undef>. Therefore, it is good practice to check the return value of C<new> before proceeding. As usual the Perl variable C<$!> will be set if there is a file creation error. You will also see one of the warning messages detailed in L<DIAGNOSTICS>:
+
+    my $workbook  = Spreadsheet::WriteExcel->new('protected.xls');
+    die "Problems creating new Excel file: $!" unless defined $workbook;
+
 You can also pass a valid filehandle to the C<new()> constructor. For example in a CGI program you could do something like this:
 
     binmode(STDOUT);
@@ -190,7 +197,7 @@ See also, the C<cgi.pl> program in the C<examples> directory of the distro. Howe
 
 Filehandles can also be useful if you want to stream an Excel file over a socket or if you want to store an Excel file in a tied scalar. For some examples of using filehandles with Spreadsheet::WriteExcel see the C<filehandle.pl> program in the C<examples> directory of the distro.
 
-Note about the requirement for C<binmode()>: An Excel file is comprised of binary data. Therefore, if you are using a filehandle you should ensure that you C<binmode()> it prior to passing it to C<new()>.You should do this regardless of whether your platform requires it or not. For more information about C<binmode()> see C<perlfunc> and C<perlopentut> in the main Perl documentation. It is equally important to note that you do not need to C<binmode()> a filename. In fact it would cause an error. Spreadsheet::WriteExcel performs the C<binmode()> internally when it converts the filename to a filehandle.
+Note about the requirement for C<binmode()>: An Excel file is comprised of binary data. Therefore, if you are using a filehandle you should ensure that you C<binmode()> it prior to passing it to C<new()>.You can safely do this regardless of whether your platform requires it or not. For more information about C<binmode()> see C<perlfunc> and C<perlopentut> in the main Perl documentation. It is equally important to note that you do not need to C<binmode()> a filename. In fact it would cause an error. Spreadsheet::WriteExcel performs the C<binmode()> internally when it converts the filename to a filehandle.
 
 
 
@@ -201,7 +208,7 @@ The C<close()> method can be used to explicitly close an Excel file.
 
     $workbook->close();
 
-An explicit C<close()> is required if the file must be closed prior to performing some external action on it such as copying or reading its size.
+An explicit C<close()> is required if the file must be closed prior to performing some external action on it such as copying it, reading its size or attaching it to an email.
 
 In addition, C<close()> may be required if the scope of the Workbook, Worksheet or Format objects cannot be determined by perl. Situations where this can occur are:
 
@@ -232,6 +239,8 @@ At least one worksheet should be added to a new workbook. A worksheet is used to
 
 If C<$sheetname> is not specified the default Excel convention will be followed, i.e. Sheet1, Sheet2, etc.
 
+Note, you cannot use the same sheet name in more than one worksheet.
+
 
 
 
@@ -257,7 +266,7 @@ The C<sheets()> method returns a list of the worksheets in a workbook. This can 
     
     # or:
     
-    ($workbook->sheets)[5]->write('A1', "Hello");
+    ($workbook->sheets())[5]->write('A1', "Hello");
 
 
 Note: This functionality was previously available via the C<worksheets()> method which returned an array ref. This was unnecessarily complicated. The C<worksheets()> method is still available but deprecated.
@@ -295,6 +304,7 @@ The following methods are available through a new worksheet:
     write_formula()
     write_blank()
     write_url()
+    write_url_range()
     insert_bitmap()
     get_name()
     activate()
@@ -307,6 +317,7 @@ The following methods are available through a new worksheet:
     freeze_panes()
     thaw_panes()
     merge_cells()
+    set_zoom()
 
 
 =head2 Cell notation
@@ -330,7 +341,7 @@ Row-column notation is useful if you are referring to cells programmatically:
 A1 notation is useful for setting up a worksheet manually and for working with formulas:
 
     $worksheet->write('H1', 200);
-    $worksheet->write('H2', '=H7+1');
+    $worksheet->write('H2', '=H1+1');
 
 The C<Spreadsheet::WriteExcel::Utility> module that is included in the distro contains helper functions for dealing with A1 notation, for example:
 
@@ -346,13 +357,45 @@ For simplicity, the parameter lists for the worksheet method calls in the follow
 
 =head2 write($row, $column, $token, $format)
 
-The C<write()> method is a general alias for one of several methods of writing to a cell in Excel. C<write()> calls one of the following methods depending on the value of C<$token>:
+Excel distinguishes between data types such as strings, numbers, blanks, formulas and hyperlinks. To simplify the process of writing data C<Spreadsheet::WriteExcel> provides the C<write()> method as a general alias to several more specific methods for writing to a cell in Excel:
+
+    write_string()
+    write_number()
+    write_blank()
+    write_formula()
+    write_url()
+    write_row()
+    write_col()
+
+Here are some examples in both row-column and A1 notation:
+
+                                                      # Same as:
+    $worksheet->write(0, 0, "Hello"                ); # write_string()
+    $worksheet->write(1, 0, 'One'                  ); # write_string()
+    $worksheet->write(2, 0,  2                     ); # write_number()
+    $worksheet->write(3, 0,  3.00001               ); # write_number()
+    $worksheet->write(4, 0,  ""                    ); # write_blank()
+    $worksheet->write(5, 0,  ''                    ); # write_blank()
+    $worksheet->write(6, 0,  undef                 ); # write_blank()
+    $worksheet->write(7, 0                         ); # write_blank()
+    $worksheet->write(8, 0,  'http://www.perl.com/'); # write_url()
+    $worksheet->write('A9',  'ftp://ftp.cpan.org/' ); # write_url()
+    $worksheet->write('A10', 'internal:Sheet1!A1'  ); # write_url()
+    $worksheet->write('A11', 'external:c:\foo.xls' ); # write_url()
+    $worksheet->write('A12', '=A3 + 3*A4'          ); # write_formula()
+    $worksheet->write('A13', '=SIN(PI()/4)'        ); # write_formula()
+    $worksheet->write('A14', \@array               ); # write_row()
+    $worksheet->write('A15', [\@array]             ); # write_col()
+
+The general rule is that if it looks like a I<something> then a I<something> is written. The "looks like" is defined by regular expressions:
 
 C<write_number()> if C<$token> is a number based on the following regex: C<$token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/>.
 
-C<write_blank()> if C<$token> is a blank string: C<""> or C<''>.
+C<write_blank()> if C<$token> is undef or a blank string: C<undef>, C<""> or C<''>.
 
 C<write_url()> if C<$token> is a http, ftp or mailto URL based on the following regexes: C<$token =~ m|^[fh]tt?p://|> or  C<$token =~ m|^mailto:|>.
+
+C<write_url()> if C<$token> is an internal or external sheet reference based on the following regex: C<$token =~ m[^(in|ex)ternal:]>.
 
 C<write_formula()> if the first character of C<$token> is C<"=">.
 
@@ -361,22 +404,6 @@ C<write_row()> if C<$token> is an array ref.
 C<write_col()> if C<$token> is an array ref of array refs.
 
 C<write_string()> if none of the previous conditions apply.
-
-
-Here are some examples in both row-column and A1 notation:
-
-    $worksheet->write(0, 0, "Hello"                 );  # write_string()
-    $worksheet->write('A2', 'One'                   );  # write_string()
-    $worksheet->write(2, 0,  2                      );  # write_number()
-    $worksheet->write('A4',  3.00001                );  # write_number()
-    $worksheet->write(4, 0,  ""                     );  # write_blank()
-    $worksheet->write('A6',  ''                     );  # write_blank()
-    $worksheet->write(6, 0,  'http://www.perl.com/' );  # write_url()
-    $worksheet->write('A8',  'ftp://ftp.cpan.org/'  );  # write_url()
-    $worksheet->write(8, 0,  '=A3 + 3*A4'           );  # write_formula()
-    $worksheet->write('A10', '=SIN(PI()/4)'         );  # write_formula()
-    $worksheet->write('A11', \@array                );  # write_row()
-    $worksheet->write('A12', [\@array]              );  # write_col()
 
 The C<$format> parameter is optional. It should be a valid Format object, see L<CELL FORMATTING>:
 
@@ -387,6 +414,21 @@ The C<$format> parameter is optional. It should be a valid Format object, see L<
 
     $worksheet->write(4, 0, "Hello", $format ); # Formatted string
 
+The write() method will ignore empty string or C<undef> tokens unless a format is also supplied. As such you needn't worry about special handling for empty or C<undef> values in your data. See also the the C<write_blank()> method.
+
+One problem with the C<write()> method is that occasionally data looks like a number but you don't want it treated as a number. For example, zip codes or phone numbers often start with a leading zero. If you write it as a number then the leading zero(s) will be stripped. To get around this you can either explicitly write the number as a string or write the number with a number format:
+
+    # write as a number (1209)
+    $worksheet->write('A1', '01209');
+    
+    # Format as a string (01209)
+    $worksheet->write_string('A2', '01209');
+    
+    # Format as a number (01209)
+    my $format    = $workbook->addformat(num_format => '00000');
+    $worksheet->write('A3', '01209', $format);
+
+Note, Excel writes strings with a left justification and numbers with a right justification so you may want to add an align format as well, L<CELL FORMATTING>.
 
 The C<write> methods return:
 
@@ -398,17 +440,85 @@ The C<write> methods return:
 
 
 
+=head2 write_number($row, $column, $number, $format)
+
+Write an integer or a float to the cell specified by C<$row> and C<$column>:
+
+    $worksheet->write_number(0, 0,  123456);
+    $worksheet->write_number('A2',  2.3451);
+
+See the note about L<Cell notation>. The C<$format> parameter is optional.
+
+In general it is sufficient to use the C<write()> method.
+
+
+
+
+=head2 write_string($row, $column, $string, $format)
+
+Write a string to the cell specified by C<$row> and C<$column>:
+
+    $worksheet->write_string(0, 0, "Your text here" );
+    $worksheet->write_string('A2', "or here" );
+
+See the note about L<Cell notation>. The maximum string size is 255 characters. The C<$format> parameter is optional.
+
+In general it is sufficient to use the C<write()> method.
+
+
+
+
+=head2 write_formula($row, $column, $formula, $format)
+
+Write a formula or function to the cell specified by C<$row> and C<$column>:
+
+    $worksheet->write_formula(0, 0, '=$B$3 + B4'  );
+    $worksheet->write_formula(1, 0, '=SIN(PI()/4)');
+    $worksheet->write_formula(2, 0, '=SUM(B1:B5)' );
+    $worksheet->write_formula('A4', '=IF(A3>1,"Yes", "No")'   );
+    $worksheet->write_formula('A5', '=AVERAGE(1, 2, 3, 4)'    );
+    $worksheet->write_formula('A6', '=DATEVALUE("1-Jan-2001")');
+
+See the note about L<Cell notation>. For more information about writing Excel formulas see L<FORMULAS AND FUNCTIONS IN EXCEL>
+
+In general it is sufficient to use the C<write()> method.
+
+
+
+
+=head2 write_blank($row, $column, $format)
+
+Write a blank cell specified by C<$row> and C<$column>:
+
+    $worksheet->write_blank(0, 0, $format);
+
+This method is used to add formatting to a cell which doesn't contain a string or number value.
+
+Excel differentiates between an "Empty" cell and a "Blank" cell. An "Empty" cell is a cell which doesn't contain data whilst a "Blank" cell is a cell which doesn't contain data but does contain formatting. Excel stores "Blank" cells but ignores "Empty" cells.
+
+As such, if you write an empty cell without formatting it is ignored:
+
+    $worksheet->write('A1',  undef, $format); # write_blank()
+    $worksheet->write('A2',  undef         ); # Ignored
+
+This seemingly uninteresting fact means that you can write arrays of data without special treatment for undef or empty string values.
+
+See the note about L<Cell notation>. 
+
+
+
+
 =head2 write_row($row, $column, $array_ref, $format)
 
 
-The C<write_row()> method can be used to write a 1D or 2D array or data in one go. This is useful for dumping the results of a database query into an Excel worksheet. You must pass a reference to the array of data rather than the array itself. The C<write()> method is then called for each element of the data. For example:
+The C<write_row()> method can be used to write a 1D or 2D array or data in one go. This is useful for converting the results of a database query into an Excel worksheet. You must pass a reference to the array of data rather than the array itself. The C<write()> method is then called for each element of the data. For example:
 
     @array      = ('awk', 'gawk', 'mawk');
     $array_ref  = \@array;
     
     $worksheet->write_row(0, 0, $array_ref);
     
-    # Which is equivalent to:
+    # The above example is equivalent to:
     $worksheet->write(0, 0, $array[0]);
     $worksheet->write(0, 1, $array[1]);
     $worksheet->write(0, 2, $array[2]);
@@ -460,14 +570,14 @@ See also the C<write_arrays.pl> program in the C<examples> directory of the dist
 
 =head2 write_col($row, $column, $array_ref, $format)
 
-The C<write_col()> method can be used to write a 1D or 2D array or data in one go. This is useful for dumping the results of a database query into an Excel worksheet. You must pass a reference to the array of data rather than the array itself. The C<write()> method is then called for each element of the data. For example:
+The C<write_col()> method can be used to write a 1D or 2D array or data in one go. This is useful for converting the results of a database query into an Excel worksheet. You must pass a reference to the array of data rather than the array itself. The C<write()> method is then called for each element of the data. For example:
 
     @array      = ('awk', 'gawk', 'mawk');
     $array_ref  = \@array;
     
     $worksheet->write_col(0, 0, $array_ref);
     
-    # Which is equivalent to:
+    # The above example is equivalent to:
     $worksheet->write(0, 0, $array[0]);
     $worksheet->write(1, 0, $array[1]);
     $worksheet->write(2, 0, $array[2]);
@@ -509,81 +619,89 @@ As noted above the C<write()> method can be used as a synonym for C<write_row()>
 
 To find out more about array references refer to C<perlref> and C<perlreftut> in the main Perl documentation. To find out more about 2D arrays or "lists of lists" refer to C<perllol>.
 
-The C<write_col()> method returns the first error encounterd when writing the elements of the data or zero if no errors were encountered. See the return values described for the C<write()> method above.
+The C<write_col()> method returns the first error encountered when writing the elements of the data or zero if no errors were encountered. See the return values described for the C<write()> method above.
 
 See also the C<write_arrays.pl> program in the C<examples> directory of the distro.
 
 
 
 
-
-
-=head2 write_number($row, $column, $number, $format)
-
-Write an integer or a float to the cell specified by C<$row> and C<$column>:
-
-    $worksheet->write_number(0, 0,  1     );
-    $worksheet->write_number('A2',  2.3451);
-
-See the note about L<Cell notation>. The C<$format> parameter is optional.
-
-
-
-
-=head2 write_string($row, $column, $string, $format)
-
-Write a string to the cell specified by C<$row> and C<$column>:
-
-    $worksheet->write_string(0, 0, "Your text here" );
-    $worksheet->write_string('A2', "or here" );
-
-See the note about L<Cell notation>. The maximum string size is 255 characters. The C<$format> parameter is optional.
-
-
-
-
-=head2 write_formula($row, $column, $formula, $format)
-
-Write a formula or function to the cell specified by C<$row> and C<$column>:
-
-    $worksheet->write_formula(0, 0, '=$B$3 + B4'  );
-    $worksheet->write_formula(1, 0, '=SIN(PI()/4)');
-    $worksheet->write_formula(2, 0, '=SUM(B1:B5)' );
-    $worksheet->write_formula('A4', '=IF(A3>1,"Yes", "No")'   );
-    $worksheet->write_formula('A5', '=AVERAGE(1, 2, 3, 4)'    );
-    $worksheet->write_formula('A6', '=DATEVALUE("1-Jan-2001")');
-
-See the note about L<Cell notation>. For more information about writing Excel formulas see L<FORMULAS AND FUNCTIONS IN EXCEL>
-
-
-
-
-=head2 write_blank($row, $column, $format)
-
-Write a blank cell specified by C<$row> and C<$column>:
-
-    $worksheet->write_blank(0, 0, $format);
-
-See the note about L<Cell notation>. This method is useful for adding formatting to a cell which doesn't contain a string or number value.
-
-
-
-
 =head2 write_url($row, $col, $url, $string, $format)
 
-Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative string is specified. The parameters C<$string> and the C<$format> are optional. As of version 0.33 you can use C<$format> without C<$string> without having to replace the missing argument with undef.
-
-    $worksheet->write_url(0, 0, 'http://www.perl.com/'                 );
-    $worksheet->write_url(1, 0, 'http://www.perl.com/', 'Perl home'    );
-    $worksheet->write_url('A3', 'http://www.perl.com/', $format        );
-    $worksheet->write_url('A4', 'http://www.perl.com/', 'Perl', $format);
-    $worksheet->write_url('A5', 'mailto:jmcnamara@cpan.org'            );
+Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative string is specified. The parameters C<$string> and the C<$format> are optional and their position is interchangeable.
 
 The label is written using the C<write_string()> method. Therefore the 255 characters string limit applies to the label: the URL can be any length.
 
-See the note about L<Cell notation>.
+There are three web style URI's supported: C<http://>, C<ftp://> and  C<mailto:>:
+
+    $worksheet->write_url(0, 0,  'ftp://www.perl.org/'                  );
+    $worksheet->write_url(1, 0,  'http://www.perl.com/', 'Perl home'    );
+    $worksheet->write_url('A3',  'http://www.perl.com/', $format        );
+    $worksheet->write_url('A4',  'http://www.perl.com/', 'Perl', $format);
+    $worksheet->write_url('A5',  'mailto:jmcnamara@cpan.org'            );
+
+There are two local URIs supported: C<internal:> and C<external:>. These are used for hyperlinks to internal worksheet references or external workbook and worksheet references:
+
+    $worksheet->write_url('A6',  'internal:Sheet2!A1'                   );
+    $worksheet->write_url('A7',  'internal:Sheet2!A1',   $format        );
+    $worksheet->write_url('A8',  'internal:Sheet2!A1:B2'                );
+    $worksheet->write_url('A9',  q{internal:'Sales Data'!A1}            );
+    $worksheet->write_url('A10', 'external:c:\temp\foo.xls'             );
+    $worksheet->write_url('A11', 'external:c:\temp\foo.xls#Sheet2!A1'   );
+    $worksheet->write_url('A12', 'external:..\..\..\foo.xls'            );
+    $worksheet->write_url('A13', 'external:..\..\..\foo.xls#Sheet2!A1'  );
+    $worksheet->write_url('A13', 'external:\\\\NETWORK\share\foo.xls'   );
+
+All of the these URI types are recognised by the C<write()> method, see above.
+
+Worksheet references are typically of the form C<Sheet1!A1>. You can also refer to a worksheet range using the standard Excel notation: C<Sheet1!A1:B2>.
+
+In external links the workbook and worksheet name must be separated by the C<#> character: C<external:Workbook.xls#Sheet1!A1'>.
+
+You can also link to a named range in the target worksheet. For example say you have a named range called C<my_name> in the workbook C<c:\temp\foo.xls> you could link to it as follows:
+
+    $worksheet->write_url('A14', 'external:c:\temp\foo.xls#my_name');
+
+Note, you cannot currently create named ranges with C<Spreadsheet::WriteExcel>. 
+
+Excel requires that worksheet names containing spaces or non alphanumeric characters are single quoted as follows C<'Sales Data'!A1>. If you need to do this in a single quoted string then you can either escape the single quotes C<\'> or use the quote operator C<q{}> as described in C<perlop> in the main Perl documentation.
+
+Links to network files are also supported. MS/Novell Network files normally begin with two back slashes as follows C<\\NETWORK\etc>. In order to generate this in a single or double quoted string you will have to escape the backslashes,  C<'\\\\NETWORK\etc'>.
+
+If you are using double quote strings then you should be careful to escape anything that looks like a metacharacter. For more information  see C<perlfaq5: Why can't I use "C:\temp\foo" in DOS paths?>.
+
+Finally, you can avoid most of these quoting problems by using forward slashes. These are translated internally to backslashes:
+
+    $worksheet->write_url('A14', "external:c:/temp/foo.xls"             );
+    $worksheet->write_url('A15', 'external://NETWORK/share/foo.xls'     );
 
 Note: Hyperlinks are not available in Excel 5. They will appear as a string only.
+
+See also, the note about L<Cell notation>.
+
+
+
+
+=head2 write_url_range($row1, $col1, $row2, $col2, $url, $string, $format)
+
+This method is essentially the same as the C<write_url()> method described above. The main difference is that you can specify that the link is available for a range of cells:
+
+    $worksheet->write_url(0, 0, 0, 3, 'ftp://www.perl.org/'              );
+    $worksheet->write_url(1, 0, 0, 3, 'http://www.perl.com/', 'Perl home');
+    $worksheet->write_url('A3:D3',    'internal:Sheet2!A1'               );
+    $worksheet->write_url('A4:D4',     'external:c:\temp\foo.xls'        );
+
+
+This method is generally only required when used in conjunction with merged cells. See the C<merge_cells()> method and the C<merge> property of a Format object, L<CELL FORMATTING>.
+
+There is no way to force this behaviour through the C<write()> method.
+
+The parameters C<$string> and the C<$format> are optional and their position is interchangeable. However, they are applied only to the first cell in the range. 
+
+Note: Hyperlinks are not available in Excel 5. They will appear as a string only.
+
+See also, the note about L<Cell notation>.
+
 
 
 
@@ -595,8 +713,7 @@ This method can be used to insert a bitmap into a worksheet. The bitmap must be 
     $worksheet2->insert_bitmap('A1', '../images/perl.bmp');
     $worksheet3->insert_bitmap('A1', '.c:\images\perl.bmp');
 
-
-Note: you must call C<set_row()> or C<set_column()> before C<insert_bitmap()> if you wish to change the default dimensions of any of the rows or columns that the images occupies. 
+Note: you must call C<set_row()> or C<set_column()> before C<insert_bitmap()> if you wish to change the default dimensions of any of the rows or columns that the images occupies. Also, if you use large fonts then the height of the row that they occupy may change automatically. This in turn could affect the scaling of your image. To avoid this you should explicitly set the height of the row using C<set_row()>.
 
 The parameters C<$x> and C<$y> can be used to specify an offset from the top left hand corner of the the cell specified by C<$row> and C<$col>. The offset values are in pixels.
 
@@ -614,7 +731,6 @@ The pixels offsets can be calculated using the following relationships:
     Wp is width in pixels
     He is the cell height in Excels units
     Hp is height in pixels
-
 
 The parameters C<$scale_x> and C<$scale_y> can be used to scale the inserted image horizontally and vertically:
 
@@ -664,41 +780,7 @@ The C<select()> method is used to indicate that a worksheet is selected in a mul
     $worksheet2->select();
     $worksheet3->select();
 
-A selected worksheet has its tab highlighted. Selecting worksheets is a way of grouping them together so that, for example, several worksheets could be printed in one go.. A worksheet that has been activated via the C<activate()> method will also appear as a selected. You probably won't need to use the C<select()> method very often.
-
-
-
-
-=head2 protect()
-
-Protect the worksheet from modification. Worksheet protection is used to prevent accidental modification of a worksheet.
-
-    $worksheet->protect();
-
-It can be turned off in Excel via the "Tools->Protection->Unprotect Sheet" menu command.
-
-The C<protect()> method also has the effect of enabling a cell's C<locked> and C<hidden> properties if they have been set. A "locked" cell cannot be edited. A "hidden" cell will display the results of a formula but not the formula itself. 
-
-    # Set some format properties
-    my $locked    = $workbook->addformat(locked => 1);
-    my $unlocked  = $workbook->addformat(locked => 0);
-    my $hidden    = $workbook->addformat(hidden => 1);
-
-    # Enable worksheet protection
-    $worksheet->protect();
-
-    # This cell cannot be edited.
-    $worksheet->write('A1', '=1+2', $locked);
-
-    # This cell can be edited.
-    $worksheet->write('A2', '=1+2', $unlocked);
-
-    # The formula in this cell isn't visible 
-    $worksheet->write('A3', '=1+2', $hidden);
-
-See also the C<set_locked> and C<set_hidden> format methods in L<CELL FORMATTING>.
-
-Note: A future release will support weak sheet level password protection.
+A selected worksheet has its tab highlighted. Selecting worksheets is a way of grouping them together so that, for example, several worksheets could be printed in one go. A worksheet that has been activated via the C<activate()> method will also appear as selected. You probably won't need to use the C<select()> method very often.
 
 
 
@@ -722,9 +804,46 @@ This method is not required very often. The default value is the first worksheet
 
 
 
+=head2 protect($password)
+
+The C<protect()> method is used to protect a worksheet from modification:
+
+    $worksheet->protect();
+
+It can be turned off in Excel via the C<Tools-E<gt>Protection-E<gt>Unprotect Sheet> menu command.
+
+The C<protect()> method also has the effect of enabling a cell's C<locked> and C<hidden> properties if they have been set. A "locked" cell cannot be edited. A "hidden" cell will display the results of a formula but not the formula itself. In Excel a cell's locked property is on by default.
+
+    # Set some format properties
+    my $unlocked  = $workbook->addformat(locked => 0);
+    my $hidden    = $workbook->addformat(hidden => 1);
+    
+    # Enable worksheet protection
+    $worksheet->protect();
+    
+    # This cell cannot be edited, it is locked by default
+    $worksheet->write('A1', '=1+2');
+    
+    # This cell can be edited
+    $worksheet->write('A2', '=1+2', $unlocked);
+    
+    # The formula in this cell isn't visible 
+    $worksheet->write('A3', '=1+2', $hidden);
+
+See also the C<set_locked> and C<set_hidden> format methods in L<CELL FORMATTING>.
+
+You can optionally add a password to the worksheet protection:
+
+    $worksheet->protect('drowssap');
+
+Note, the worksheet level password in Excel provides very weak protection. It does not encrypt your data in any way and it is very easy to deactivate. Therefore, do not use the above method if you wish to protect sensitive data or calculations. However, before you get worried, Excel's own workbook level password protection does provide strong encryption in Excel 97+. For reasons both ethical and technical, this will never be supported by C<Spreadsheet::WriteExcel>.
+
+
+
+
 =head2 set_selection($first_row, $first_col, $last_row, $last_col)
 
-This method can be used to specify which cell or cells are selected in a worksheet. The most common requirement is to select a single cell, in which case C<$last_row> and C<$last_col> are not required. The active cell within a selected range is determined by the order in which C<$first> and C<$last> are specified. It is also possible to specify a cell or a range using A1 notation. See the note about L<Cell notation>.
+This method can be used to specify which cell or cells are selected in a worksheet. The most common requirement is to select a single cell, in which case C<$last_row> and C<$last_col> can be omitted. The active cell within a selected range is determined by the order in which C<$first> and C<$last> are specified. It is also possible to specify a cell or a range using A1 notation. See the note about L<Cell notation>.
 
 Examples:
 
@@ -735,7 +854,7 @@ Examples:
     $worksheet5->set_selection('D4:G7');    # Same as 2.
     $worksheet6->set_selection('G7:D4');    # Same as 3.
 
-The default cell is (0, 0), 'A1'.
+The default cell selections is (0, 0), 'A1'.
 
 
 
@@ -790,7 +909,7 @@ The C<$hidden> parameter is optional. It should be set to 1 if you wish to hide 
 
 =head2 freeze_panes($row, $col, $top_row, $left_col)
 
-This method can be used to divide a worksheet into horizontal or vertical regions known as panes and to also "freeze" these panes so that the splitter bars are not visible. This is the same as the "Window->Freeze Panes" menu command in Excel
+This method can be used to divide a worksheet into horizontal or vertical regions known as panes and to also "freeze" these panes so that the splitter bars are not visible. This is the same as the C<Window-E<gt>Freeze Panes> menu command in Excel
 
 The parameters C<$row> and C<$col> are used to specify the location of the split. It should be noted that the split is specified at the top or left of a cell and that the method uses zero based indexing. Therefore to freeze the first row of a worksheet it is necessary to specify the split at row 2 (which is 1 as the zero-based index). This might lead you to think that you are using a 1 based index but this is not the case.
 
@@ -838,17 +957,15 @@ See also the C<freeze_panes()> method and the C<panes.pl> program in the C<examp
 
 
 
-
-=head2 merge_cells()
+=head2 merge_cells($first_row, $first_col, $last_row, $last_col)
 
 Merging cells is generally achieved by setting the C<merge> property of a Format object, see L<CELL FORMATTING>. However, in certain circumstances this is not sufficient and you must additionally specify the cells to be merged via the C<merge_cells()> method.
 
-Cases where the C<merge_cells()> method is required are:
+The main use of the C<merge_cells()> method is to merge cells vertically.
+    
+The C<merge_cells()> method can also be used to merge cells that contain hyperlinks although this can also be achieved via the C<write_url_range()> method.
 
-    1. Merging cells vertically
-    2. Merging cells that contain hyperlinks
-
-For an example of how to use this methods see the C<merge3.pl> program in the C<examples> directory of the distribution.
+For an example of how to use this method see the C<merge3.pl> program in the C<examples> directory of the distribution.
 
 This method is currently of limited use. It will play a more important role when Spreadsheet::WriteExcel moves to the Excel 97/2000 file format.
 
@@ -856,11 +973,46 @@ In general the C<set_merge()> method is all that you will require to create merg
 
 
 
+=head2 set_zoom($scale)
+
+Set the worksheet zoom factor in the range C<10 E<lt>= $scale E<lt>= 400>:
+
+    $worksheet1->set_zoom(50);
+    $worksheet2->set_zoom(75);
+    $worksheet3->set_zoom(300);
+    $worksheet4->set_zoom(400);
+
+The default zoom factor is 100. You cannot zoom to "Selection" because it is calculated by Excel at run-time.
+
+Note, C<set_zoom()> does not affect the scale of the printed page. For that you should use C<set_print_scale()>.
+
+
 
 
 =head1 PAGE SET-UP METHODS
 
-Page set-up methods affect the way that a worksheet will look when it is printed. They control features such as page headers and footers and margins. These methods are really just standard worksheet methods. They are documented here in a separate section for the sake of clarity.
+Page set-up methods affect the way that a worksheet looks when it is printed. They control features such as page headers and footers and margins. These methods are really just standard worksheet methods. They are documented here in a separate section for the sake of clarity.
+
+The following methods are available for page set-up:
+
+    set_landscape()
+    set_portrait()
+    set_paper()
+    center_horizontally()
+    center_vertically()
+    set_margins()
+    set_header()
+    set_footer()
+    repeat_rows()
+    repeat_columns()
+    hide_gridlines()
+    print_row_col_headers()
+    print_area()
+    fit_to_pages()
+    set_print_scale()
+    set_h_pagebreaks()
+    set_v_pagebreaks()
+
 
 A common requirement when working with Spreadsheet::WriteExcel is to apply the same page set-up features to all of the worksheets in a workbook. To do this you can use the C<sheets()> method of the C<workbook> class to access the array of worksheets in a workbook:
 
@@ -988,8 +1140,8 @@ Headers and footers are generated using a C<$string> which is a combination of p
 
 The available control character are:
 
-    Control             Type                Description
-    =======             ====                ===========
+    Control             Category            Description
+    =======             ========            ===========
     &L                  Justification       Left
     &C                                      Center
     &R                                      Right
@@ -1003,8 +1155,14 @@ The available control character are:
     
     &fontsize           Font                Font size
     &"font,style"                           Font name and style
+    &U                                      Single underline
+    &E                                      Double underline
+    &S                                      Strikethrough
+    &X                                      Superscript
+    &Y                                      Subscript
     
-    
+    &&                  Miscellaneous       Literal ampersand &
+
 
 Text in headers and footers can be justified (aligned) to the left, center and right by prefixing the text with the control characters C<&L>, C<&C> and C<&R>.
 
@@ -1090,13 +1248,19 @@ It is possible to combine all of these features together to create sophisticated
     .CenterHeader = "&""Times New Roman,Regular""Hello"
     .RightHeader  = ""
 
-The header or footer string must be less than 255 characters.
+
+To include a single literal ampersand C<&> in a header or footer you should use a double ampersand C<&&>:
+
+    $worksheet1->set_header('Rhythm && Blues');
 
 As stated above the margin parameter is optional. As with the other margins the value should be in inches. The default header and footer margin is 0.50 inch. The header and footer margin size can be set as follows:
 
     $worksheet->set_header('&CHello', 0.75);
 
-Note, the header and footer margins are independent of the top and bottom margins.
+The header and footer margins are independent of the top and bottom margins.
+
+Note, the header or footer string must be less than 255 characters. Strings longer than this will not be written and a warning will be generated.
+
 
 
 
@@ -1161,7 +1325,7 @@ An Excel worksheet looks something like the following;
 
 The headers are the letters and numbers at the top and the left of the worksheet. Since these headers serve mainly as a indication of position on the worksheet they generally do not appear on the printed page. If you wish to have them printed you can use the C<print_row_col_headers()> method : 
 
-    $worksheet1->print_row_col_headers()
+    $worksheet->print_row_col_headers()
 
 Do not confuse these headers with page headers as described in the C<set_header()> section above.
 
@@ -1189,9 +1353,33 @@ The C<fit_to_pages()> method is used to fit the printed area to a specific numbe
 
 The print area can be defined using the C<print_area()> method as described above. 
 
-If you call C<fit_to_pages()> without arguments or with one argument the default values for C<$width> and C<$height> are 1 page. However the fit to page option is off by default.
+A common requirement is to fit the printed output to "n" pages wide but have the height be as long as necessary. To achieve this set the C<$height> to zero or leave it blank:
+
+    $worksheet1->fit_to_pages(1, 0); # 1 page wide and as long as necessary
+    $worksheet2->fit_to_pages(1);    # The same
+    
+
+Note that although it is valid to use both C<fit_to_pages()> and C<set_print_scale()> on the same worksheet only one of these options can be active at a time. The last method call made will set the active option.
 
 Note that C<fit_to_pages()> will override any manual page breaks that are defined in the worksheet.
+
+
+
+
+=head2 set_print_scale($scale)
+
+Set the scale factor of the printed page. Scale factors in the range C<10 E<lt>= $scale E<lt>= 400> are valid:
+
+    $worksheet1->set_print_scale(50);
+    $worksheet2->set_print_scale(75);
+    $worksheet3->set_print_scale(300);
+    $worksheet4->set_print_scale(400);
+
+The default scale factor is 100. Note, C<set_print_scale()> does not affect the scale of the visible page in Excel. For that you should use C<set_zoom()>.
+
+Note also that although it is valid to use both C<fit_to_pages()> and C<set_print_scale()> on the same worksheet only one of these options can be active at a time. The last method call made will set the active option.
+
+
 
 
 =head2 set_h_pagebreaks(@breaks)
@@ -1230,7 +1418,7 @@ Note: If you specify the "fit to page" option via the C<fit_to_pages()> method i
 
 =head1 CELL FORMATTING
 
-This section describes the methods and properties that are available for formatting cells in Excel. Examples of the cell formatting that is available through Spreadsheet::WriteExcel include: fonts, colours, patterns, borders, alignment and number formatting.
+This section describes the methods and properties that are available for formatting cells in Excel. The properties of a cell that can be formatted include: fonts, colours, patterns, borders, alignment and number formatting.
 
 
 =head2 Creating and using a Format object
@@ -1280,7 +1468,7 @@ The following table shows the Excel format categories, the formatting properties
                Hide formulas     hidden          set_hidden()    
                                                                      
     Alignment  Horizontal align  align           set_align()         
-               Vertical align    align           set_align()         
+               Vertical align    valign          set_align()         
                Rotation          rotation        set_rotation()      
                Text wrap         text_wrap       set_text_wrap()     
                Justify last      text_justlast   set_text_justlast() 
@@ -1300,7 +1488,6 @@ The following table shows the Excel format categories, the formatting properties
                Top color         top_color       set_top_color()     
                Left color        left_color      set_left_color()    
                Right color       right_color     set_right_color()   
-
 
 There are two ways of setting Format properties: by using the object method interface or by setting the property directly. For example, a typical use of the method interface would be as follows:
 
@@ -1666,6 +1853,11 @@ Using format strings you can define very sophisticated formatting of numbers.
     $worksheet->write(12, 0, -45,       $format12);    # < 0 Red
     $worksheet->write(13, 0, 0,         $format12);    # = 0 Default colour
 
+    # Zip code
+    $format13->set_num_format('00000');
+    $worksheet->write(14, 0, '01209',   $format13);
+
+
 The number system used for dates is described in L<Dates in Excel>. 
 
 The colour format should have one of the following values:
@@ -1755,7 +1947,7 @@ This property can be used to prevent modification of a cells contents. Following
     # This cell can be edited.
     $worksheet->write('A2', '=1+2', $unlocked);
 
-Note: This offers weak protection. A user can easily modify a locked cell by either copying it to a new worksheet or by turning the worksheet protection off.
+Note: This offers weak protection even with a password, see the note in relation to the C<protect()> method.
 
 
 
@@ -1778,7 +1970,7 @@ This property is used to hide a formula while still displaying its result. This 
     $worksheet->write('A1', '=1+2', $hidden);
 
 
-Note: This offers weak protection. A user can easily reveal the formula in a hidden cell by either copying it to a new worksheet or by turning the worksheet protection off.
+Note: This offers weak protection even with a password, see the note in relation to the C<protect()> method.
 
 
 
@@ -1833,7 +2025,7 @@ Only one cell should contain the text, the other cells should be blank:
     $worksheet->write(1, 1, 'Merged cells', $format);
     $worksheet->write_blank(1, 2, $format);
 
-See also the C<merge1.pl>, C<merge2.pl> and C<merge3.pl> programs in the C<examples> directory.
+See also the C<merge1.pl>, C<merge2.pl> and C<merge3.pl> programs in the C<examples> directory and the C<merge_cells()> method.
 
 
 
@@ -1864,7 +2056,7 @@ Excel will adjust the height of the row to accommodate the wrapped text. A simil
                         3 90° clockwise
 
 
-Set the rotation of the text in a cell. See the 'Alignment' worksheet created by formats.pl.
+Set the rotation of the text in a cell. See the 'Alignment' worksheet created by formats.pl. Note, fractional rotations aren't possible with the Excel 5 format.
 
 
 
@@ -1988,9 +2180,9 @@ The epoch can be either 1900 or 1904. Excel for Windows uses 1900 and Excel for 
     1900: 0 January 1900 i.e. 31 December 1899
     1904: 1 January 1904
 
-Excel on Windows and the Macintosh will convert automatically between one system and the other. By default Spreadsheet::WriteExcel uses the 1900 format. To use the 1904 epoch you must use the C<set_1904()> workbook method above.
+By default Spreadsheet::WriteExcel uses the Windows/1900 format although it generally isn't an issue since Excel on Windows and the Macintosh will convert automatically between one system and the other. To use the 1904 epoch you must use the C<set_1904()> workbook method.
 
-There are two things to note about the 1900 date format. The first is that the epoch starts on 0 January 1900. The second is that the year 1900 is erroneously but deliberately treated as a leap year. Therefore you must add an extra day to dates after 28 February 1900. The functions in the following section will deal with these issues automatically. The reason for this anomaly is explained at http://support.microsoft.com/support/kb/articles/Q181/3/70.asp 
+There are two things to note about the 1900 date format. The first is that the epoch starts on 0 January 1900. The second is that the year 1900 is erroneously but deliberately treated as a leap year. Therefore you must add an extra day to dates after 28 February 1900. The reason for this anomaly is explained at http://support.microsoft.com/support/kb/articles/Q181/3/70.asp 
 
 A date or time in Excel is like any other number. To display the number as a date you must apply a number format to it. Refer to the C<set_num_format()> method above:
 
@@ -2005,7 +2197,9 @@ The C<Spreadsheet::WriteExcel::Utility> module that is included in the distro co
     $time = xl_parse_time('3:21:36 PM');      # 0.64
     $date = xl_decode_date_EU("13 May 2002"); # 37389
 
-These functions are based on functions provided by the C<Date::Calc> and C<Date::Manip> modules. These modules are useful if you plan to manipulate dates in different formats. 
+These functions deal automatically with the s1900 leap year issue described above.
+
+The date and time functions are based on functions provided by the C<Date::Calc> and C<Date::Manip> modules. These modules are very useful if you plan to manipulate dates in different formats. 
 
 There is also the C<excel_date1.pl> program in the C<examples> directory of the WriteExcel distribution which was written by Andrew Benham. It contains a detailed description of the problems involved in calculating dates in Excel. It does not require any external modules.
 
@@ -2062,10 +2256,10 @@ Formulas can also refer to cells in other worksheets of the current workbook. Fo
     q{='Test Data'!A1}
     q{='Test Data1:Test Data2'!A1}
 
-The sheet reference and the cell reference are separated by  C<!> the exclamation mark symbol. If worksheet names contain spaces then Excel requires them to be enclosed in single quotes as in the last two examples above. In this case you will have to use the quote operator C<q{}> to protect the quotes. See C<perlop> in the main Perl documentation. Only valid sheet names that have been added using the C<addworksheet()> method can be used in formulas. You cannot reference external workbooks.
+The sheet reference and the cell reference are separated by  C<!> the exclamation mark symbol. If worksheet names contain spaces then Excel requires that the name is enclosed in single quotes as shown in the last two examples above. In this case you will have to use the quote operator C<q{}> to protect the quotes. See C<perlop> in the main Perl documentation. Only valid sheet names that have been added using the C<addworksheet()> method can be used in formulas. You cannot reference external workbooks.
 
 
-The following table lists the operators that are available in Excel's formulas. The majority of the operators are the same as Perl's. Differences are indicated.
+The following table lists the operators that are available in Excel's formulas. The majority of the operators are the same as Perl's, differences are indicated:
 
     Arithmetic operators:
     =====================
@@ -2109,7 +2303,10 @@ The following table lists the operators that are available in Excel's formulas. 
     [3]: This range is equivalent to cells A1, A2, A3 and A4.
     [4]: The comma behaves like the list separator in Perl.
 
-The range and comma operators can have different symbols in non-English versions of Excel. These will be supported in a later version of Spreadsheet::WriteExcel.
+The range and comma operators can have different symbols in non-English versions of Excel. These will be supported in a later version of Spreadsheet::WriteExcel. European users of Excel take note:
+
+    $worksheet->write('A1', '=SUM(1; 2; 3)'); # Wrong!!
+    $worksheet->write('A1', '=SUM(1, 2, 3)'); # Okay
 
 The following table lists all of the core functions supported by Excel 5 and Spreadsheet::WriteExcel. Any additional functions that are available through the "Analysis ToolPak" or other add-ins are not supported. These functions have all been tested to verify that they work.
 
@@ -2440,8 +2637,6 @@ The following example converts a tab separated file called C<tab.txt> into an Ex
 
 If you performed a normal installation the following examples files should have been copied to your C<~site/Spreadsheet/WriteExcel/examples> directory:
 
-
-
 The following is a description of the example files that are provided
 with Spreadsheet::WriteExcel. They are intended to demonstrate the
 different features and options of the module.
@@ -2460,12 +2655,14 @@ different features and options of the module.
     ========
     sales.pl            An example of a simple sales spreadsheet.
     stocks.pl           Demonstrates conditional formatting.
+    write_array.pl      Example of writing 1D or 2D arrays of data.
     chess.pl            An example of formatting using properties.
     images.pl           Adding bitmap images to worksheets.
     stats_ext.pl        Same as stats.pl with external references.
     cgi.pl              A simple CGI program.
     mod_perl.pl         A simple mod_perl program.
-    hyperlink.pl        Shows how to create hyperlinks.
+    hyperlink1.pl       Shows how to create web hyperlinks.
+    hyperlink2.pl       Examples of internal and external hyperlinks.
     merge1.pl           A simple example of cell merging.
     merge2.pl           A more advanced example of cell merging.
     merge3.pl           Merge hyperlinks and merge vertically.
@@ -2510,10 +2707,11 @@ The following limits are imposed by Excel or the version of the BIFF file that h
     Description                          Limit   Source
     -----------------------------------  ------  -------
     Maximum number of chars in a string  255     Excel 5
-    Maximum number of columns            256     Excel 5, 97
+    Maximum number of columns            256     Excel All versions
     Maximum number of rows in Excel 5    16384   Excel 5
     Maximum number of rows in Excel 97   65536   Excel 97
-    Maximum chars in a sheet name        32      Excel 5, 97
+    Maximum chars in a sheet name        31      Excel All versions
+    Maximum chars in a header/footer     254     Excel All versions
 
 
 Note: the maximum row reference in a formula is the Excel 5 row limit of 16384.
@@ -2547,19 +2745,16 @@ In general, if you don't know whether your system supports a 64 bit IEEE float o
 
 =head1 DIAGNOSTICS
 
+
 =over 4
 
-=item Filename required in WriteExcel('Filename')
+=item Filename required by Spreadsheet::WriteExcel->new()
 
 A filename must be given in the constructor.
 
-=item Can't open filename. It may be in use.
+=item Can't open filename. It may be in use or protected.
 
 The file cannot be opened for writing. The directory that you are writing to  may be protected or the file may be in use by another program.
-
-=item Required floating point format not supported on this platform.
-
-Operating system doesn't support 64 bit IEEE float or it is byte-ordered in a way unknown to WriteExcel.
 
 =item Unable to create tmp files via IO::File->new_tmpfile().
 
@@ -2577,6 +2772,10 @@ Spreadsheet::WriteExcel requires the Parse::RecDescent module. Download it from 
 
 There are a large number of warnings which relate to badly formed formulas and functions. See the L<FORMULAS AND FUNCTIONS IN EXCEL> section for suggestions on how to avoid these errors.
 
+=item Required floating point format not supported on this platform.
+
+Operating system doesn't support 64 bit IEEE float or it is byte-ordered in a way unknown to WriteExcel.
+
 =back
 
 
@@ -2584,9 +2783,13 @@ There are a large number of warnings which relate to badly formed formulas and f
 
 =head1 THE EXCEL BINARY FORMAT
 
+The following is some general information about the Excel binary format for anyone who may be interested.
+
 Excel data is stored in the "Binary Interchange File Format" (BIFF) file format. Details of this format are given in the Excel SDK, the "Excel Developer's Kit" from Microsoft Press. It is also included in the MSDN CD library but is no longer available on the MSDN website. An older version of the BIFF documentation is available at http://www.cubic.org/source/archive/fileform/misc/excel.txt
 
-Issues relating to the Excel SDK are discussed, occasionally, at news://microsoft.public.excel.sdk
+Charles Wybble has collected together almost all of the available information about the Excel file format. See "The Chicago Project" at http://chicago.sourceforge.net/devel/
+
+Daniel Rentz of OpenOffice has also written a detailed description of the Excel workbook records, see http://sc.openoffice.org/excelfileformat.pdf
 
 The BIFF portion of the Excel file is comprised of contiguous binary records that have different functions and that hold different types of data. Each BIFF record is comprised of the following three parts:
 
@@ -2596,7 +2799,7 @@ The BIFF portion of the Excel file is comprised of contiguous binary records tha
 
 The BIFF data is stored along with other data in an OLE Compound File. This is a structured storage which acts like a file system within a file. A Compound File is comprised of storages and streams which, to follow the file system analogy, are like directories and files.
 
-The documentation for the OLE::Storage module, http://user.cs.tu-berlin.de/~schwartz/pmh/guide.html , contains one of the few descriptions of the OLE Compound File in the public domain.
+The documentation for the OLE::Storage module, http://user.cs.tu-berlin.de/~schwartz/pmh/guide.html , contains one of the few descriptions of the OLE Compound File in the public domain. The Digital Imaging Group have also detailed the OLE format in the JPEG2000 specification: see Appendix A of http://www.i3a.org/pdf/wg1n1017.pdf
 
 For a open source implementation of the OLE library see the 'cole' library at http://atena.com/libole2.php
 
@@ -2618,11 +2821,11 @@ Depending on your requirements, background and general sensibilities you may pre
 
 * Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. This is the most powerful and complete method for interfacing with Excel. See http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/faq/Windows/ActivePerl-Winfaq12.html and http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/site/lib/Win32/OLE.html If your main platform is UNIX but you have the resources to set up a separate Win32/MSOffice server, you can convert office documents to text, postscript or PDF using Win32::OLE. For a demonstration of how to do this using Perl see Docserver: http://search.cpan.org/search?mode=module&query=docserver
 
-* CSV, comma separated variables or text. If the file extension is C<csv>, Excel will open and convert this format automatically. Generating a valid CSV file isn't as easy as it seems. Have a look at the DBD::RAM, DBD::CSV and Text::CSV_XS modules.
+* CSV, comma separated variables or text. If the file extension is C<csv>, Excel will open and convert this format automatically. Generating a valid CSV file isn't as easy as it seems. Have a look at the DBD::RAM, DBD::CSV, Text::xSV and Text::CSV_XS modules.
 
 * DBI with DBD::ADO or DBD::ODBC. Excel files contain an internal index table that allows them to act like a database file. Using one of the standard Perl database modules you can connect to an Excel file as a database.
 
-* DBD::Excel, you can also access Spreadsheet::WriteExcel using the standard DBI interface via Kawai Takanori's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
+* DBD::Excel, you can also access Spreadsheet::WriteExcel using the standard DBI interface via Takanori Kawai's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
 
 * Spreadsheet::WriteExcel::Simple for an easier interface to a new Excel file: http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-Simple
 
@@ -2631,6 +2834,8 @@ Depending on your requirements, background and general sensibilities you may pre
 * HTML tables. This is an easy way of adding formatting via a text based format.
 
 * XML, the Excel XML and HTML file specification are available from http://msdn.microsoft.com/library/officedev/ofxml2k/ofxml2k.htm
+
+For other Perl-Excel modules try the following search: http://search.cpan.org/search?mode=module&query=excel
 
 
 
@@ -2641,11 +2846,14 @@ To read data from Excel files try:
 
 * Spreadsheet::ParseExcel. This uses the OLE::Storage-Lite module to extract data from an Excel file. http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
 
-* DBD::Excel, you can also access Spreadsheet::ParseExcel using the standard DBI interface via Kawai Takanori's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
+* Spreadsheet::ParseExcel_XLHTML. This module uses Spreadsheet::ParseExcel's interface but uses xlHtml (see below) to do the conversion: http://search.cpan.org/search?dist=Spreadsheet-ParseExcel_XLHTML
+Spreadsheet::ParseExcel_XLHTML 
+
+* There are also open source C/C++ projects. Try the xlHtml "Excel to HTML Converter" project at http://www.xlhtml.org/ and the OLE Filters Project at http://atena.com/libole2.php. 
+
+* DBD::Excel, you can also access Spreadsheet::ParseExcel using the standard DBI interface via  Takanori Kawai's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
 
 * Win32::OLE module and office automation. See, the section L<WRITING EXCEL FILES>.
-
-* There are also open source C/C++ projects. Try the xlHtml "Excel to HTML Converter" project at http://www.xlhtml.org/the and the OLE Filters Project at http://atena.com/libole2.php. 
 
 * HTML tables. If the files are saved from Excel in a HTML format the data can be accessed using HTML::TableExtract http://search.cpan.org/search?dist=HTML-TableExtract
 
@@ -2655,9 +2863,12 @@ To read data from Excel files try:
 
 * OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats. In particular, the distro contains an Excel to HTML converter called Herbert, http://user.cs.tu-berlin.de/~schwartz/pmh/ This has been superseded by the Spreadsheet::ParseExcel module.
 
+For other Perl-Excel modules try the following search: http://search.cpan.org/search?mode=module&query=excel
+
 If you wish to view Excel files on a UNIX/Linux platform check out the excellent Gnumeric spreadsheet application at http://www.gnome.org/projects/gnumeric/ or OpenOffice at http://www.openoffice.org/
 
 If you wish to view Excel files on a Windows platform which doesn't have Excel installed you can use the free Microsoft Excel Viewer http://officeupdate.microsoft.com/2000/downloaddetails/xlviewer.htm
+
 
 
 
@@ -2668,15 +2879,15 @@ Orange isn't.
 
 Formulas are formulae.
 
+Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE". This will be fixed in a later release.
+
 Spreadsheet::ParseExcel: All formulas created by Spreadsheet::WriteExcel are read as having a value of zero. This is because Spreadsheet::WriteExcel only stores the formula and not the calculated result.
 
-OpenOffice: Numerical formats are not displayed due to some missing records in Spreadsheet::WriteExcel. Someone with a good knowledge of C++, and possibly of German, might help me to track this down in the OpenOffice source. URLs are not displayed as links.
+OpenOffice: Numerical formats are not displayed due to some missing records in Spreadsheet::WriteExcel. URLs are not displayed as links.
 
 Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as links.
 
 MS Access: The Excel files that are produced by this module are not compatible with MS Access. Use DBI or ODBC instead.
-
-QuickView: If you wish to write files that are fully compatible with QuickView it is necessary to write the cells in a sequential row by row order.
 
 The lack of a portable way of writing a little-endian 64 bit IEEE float.
 
@@ -2694,7 +2905,6 @@ The roadmap is as follows:
 
 You can keep up to date with future release by registering as a user with Freshmeat http://freshmeat.net/ and subscribing to Spreadsheet::WriteExcel at the project page http://freshmeat.net/projects/writeexcel/ You will then receive mailed updates when a new version is released. Alternatively you can keep an eye on news://comp.lang.perl.announce
 
-
 Also, here are some of the most requested features that probably won't get added:
 
 =over
@@ -2707,7 +2917,7 @@ Also, here are some of the most requested features that probably won't get added
 
 =back
 
-If there is some feature of an Excel file that you really, really need then you should use Win32::OLE with Excel on Windows. If you are on Unix, then set up a Windows server and use SOAP or CORBA or get your clients to use Gnumeric, it's better than Excel anyway.
+If there is some feature of an Excel file that you really, really need then you should use Win32::OLE with Excel on Windows.
 
 
 
@@ -2729,12 +2939,16 @@ Spreadsheet::WriteExcel::FromDB. http://search.cpan.org/search?dist=Spreadsheet-
 
 Spreadsheet::WriteExcel documentation in Japanese by Takanori Kawai. http://member.nifty.ne.jp/hippo2000/perltips/Spreadsheet/WriteExcel.htm
 
+Oesterly user brushes with fame:
+http://oesterly.com/releases/12102000.html
+
 
 =head1 ACKNOWLEDGEMENTS
 
+
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Cedric Bouvier, CPAN testers, Daniel Berger, Daniel Gardner, Ernesto Baschny, Harold Bamford, James Holmes, Johan Ekenberg, J.C. Wren, Kenneth Stacey, Kyle Krom, Michael Buschauer, Mike Blazer, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits.
+Alexander Farber, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Cedric Bouvier, CPAN testers, Daniel Berger, Daniel Gardner, Ernesto Baschny, Felipe Pérez Galiana, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Buschauer, Mike Blazer, Michael Erickson, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Vahe Sarkissian.
 
 The following people contributed code, examples or Excel information:
 
@@ -2755,26 +2969,15 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    The room was suddenly rich and the great bay-window was
-    Spawning snow and pink roses against it
-    Soundlessly collateral and incompatible:
-    World is suddener than we fancy it.
+    Pointy birds, O pointy pointy,
+    Anoint my head, anointy nointy.
     
-    World is crazier and more of it than we think,
-    Incorrigibly plural. I peel and portion
-    A tangerine and spit the pips and feel
-    The drunkenness of things being various.
-    And the fire flames with a bubbling sound for world
-    Is more spiteful and gay than one supposes -
-    On the tongue on the eyes on the ears in the palms of one's hands -
-    There is more than glass between the snow and the huge roses.
-
-        -- Louis MacNiece.
+        -- Steve Martin.
 
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

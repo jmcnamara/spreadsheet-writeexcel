@@ -12,7 +12,9 @@
 # one row. In this case you need to cell the merge_cells() workbook method in
 # addition to setting the format.
 #
-# reverse('©'), June 2001, John McNamara, jmcnamara@cpan.org
+# Merged hyperlinks can also be created using write_url_range(). 
+#
+# reverse('©'), March 2002, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -25,17 +27,28 @@ my $worksheet = $workbook->addworksheet();
 
 
 # Create a format that looks like a hyperlink and that has the merge property
-# set.
+# set. Note the border is applied around the merged cells and not around each
+# individual cell.
 #
-my $format = $workbook->addformat();
-$format->set_color('blue');
-$format->set_underline();
-$format->set_merge();
+my $format = $workbook->addformat(
+                                    merge       => 1,
+                                    border      => 1,
+                                    color       => 'blue',
+                                    underline   => 1,
+                                 );
 
-
-# Call merge_cells *before* writing the cells to be merged.
 #
-# Note: merge_cells("B4:D4") is equivalent to merge_cells(3, 3, 1, 3);
+# Merge cells containing a hyperlink, Method 1: using write_url_range().
+#
+
+# Write the cells to be merged
+$worksheet->write_url_range("B2:D2", "http://www.perl.com", $format);
+$worksheet->write("C2", "", $format);
+$worksheet->write("D2", "", $format);
+
+#
+# Merge cells containing a hyperlink, Method 2: using merge_cells().
+# Note: Call merge_cells *before* writing the cells to be merged.
 #
 $worksheet->merge_cells("B4:D4");
 
@@ -46,8 +59,10 @@ $worksheet->write("C4", "", $format);
 $worksheet->write("D4", "", $format);
 
 
-# Merge cells over two rows
 
+#
+# Merge cells over two rows using merge_cells
+#
 $worksheet->merge_cells("B7:D8");
 
 $worksheet->write("B7", "http://www.perl.com", $format);

@@ -18,12 +18,14 @@ Advanced
 ========
 sales.pl            An example of a simple sales spreadsheet.
 stocks.pl           Demonstrates conditional formatting.
+write_array.pl      Example of writing 1D or 2D arrays of data.
 chess.pl            An example of formatting using properties.
 images.pl           Adding bitmap images to worksheets.
 stats_ext.pl        Same as stats.pl with external references.
 cgi.pl              A simple CGI program.
 mod_perl.pl         A simple mod_perl program.
-hyperlink.pl        Shows how to create hyperlinks.
+hyperlink1.pl       Shows how to create web hyperlinks.
+hyperlink2.pl       Examples of internal and external hyperlinks.
 merge1.pl           A simple example of cell merging.
 merge2.pl           A more advanced example of cell merging.
 merge3.pl           Merge hyperlinks and merge vertically.

@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 ###############################################################################
 #
@@ -59,11 +59,29 @@ sub new {
     bless $self, $class;
 
     # Add the default format for hyperlinks
-    my $url_format = $self->addformat();
-    $url_format->set_color('blue');
-    $url_format->set_underline(1);
-    $self->{_url_format} = $url_format;
+    $self->{_url_format} = $self->addformat(color => 'blue', underline => 1);
 
+
+    # Check for a filename
+    if ($self->{_filename} eq '') {
+        carp 'Filename required by Spreadsheet::WriteExcel->new()';
+        return undef;
+    }
+
+
+    # Try to open the named file and see if it throws any errors.
+    # If the filename is a reference it is assumed that it is a valid
+    # filehandle and ignore
+    #
+    if (not ref $self->{_filename}) {
+        open  TMP, '>'. $self->{_filename} or do {
+            carp "Can't open " . $self->{_filename} . ". " .
+                 "It may be in use or protected";
+            return undef;
+        };
+        close TMP;
+    }
+    # Warn if tmpfiles can't be used.
     $self->_tmpfile_warning();
 
     return $self;
@@ -123,7 +141,7 @@ sub sheets {
 # worksheets()
 #
 # An accessor for the _worksheets[] array.
-# This method is now deprected. Use the sheets() method instead.
+# This method is now deprecated. Use the sheets() method instead.
 #
 # Returns: an array reference
 #
@@ -141,7 +159,6 @@ sub worksheets {
 #
 # Add a new worksheet to the Excel workbook.
 # TODO: Add accessor for $self->{_sheetname} for international Excel versions.
-# TODO: Limit sheet name to the Excel limit of 31 chars.
 #
 # Returns: reference to a worksheet object
 #
@@ -149,10 +166,19 @@ sub addworksheet {
 
     my $self      = shift;
     my $name      = $_[0] || "";
+
+    # Check that sheetname is <= 31 chars (Excel limit).
+    croak "Sheetname $name must be <= 31 chars" if length $name > 31;
+
     my $index     = @{$self->{_worksheets}};
     my $sheetname = $self->{_sheetname};
 
     if ($name eq "" ) { $name = $sheetname . ($index+1) }
+
+    # Check that the worksheet name doesn't already exist: a fatal Excel error.
+    foreach my $tmp (@{$self->{_worksheets}}) {
+        croak "Worksheet '$name' already exists" if $name eq $tmp->get_name();
+    }
 
     my @init_data = (
                         $name,
@@ -238,7 +264,7 @@ sub _tmpfile_warning {
 
     if ((not defined $fh) && ($^W)) {
         carp("Unable to create tmp files via IO::File->new_tmpfile(). " .
-             "Storing data in memory ")
+             "Storing data in memory")
     }
 }
 
@@ -593,9 +619,7 @@ sub _store_names {
         }
         else {
             # Print title hasn't been defined.
-            return;
         }
-
     }
 }
 
@@ -988,6 +1012,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -2,12 +2,12 @@
 
 ###############################################################################
 #
-# Example of how to using the Date::Calc module to calculate Excel dates. 
+# Example of how to using the Date::Calc module to calculate Excel dates.
 #
 # See also the excel_date1.pl example.
 #
 # These functions have been superceded by Spreadsheet::WriteExcel::Utility.
-# 
+#
 # reverse('©'), June 2001, John McNamara, jmcnamara@cpan.org
 #
 
@@ -60,17 +60,17 @@ sub excel_date {
     my $hours   = $_[3] || 0;
     my $minutes = $_[4] || 0;
     my $seconds = $_[5] || 0;
-    
+
     my @date = ($years, $months, $days, $hours, $minutes, $seconds);
     my @epoch = (1899, 12, 31, 0, 0, 0);
-    
+
     ($days, $hours, $minutes, $seconds) = Delta_DHMS(@epoch, @date);
-    
+
     my $date = $days + ($hours*3600 +$minutes*60 +$seconds)/(24*60*60);
-    
-    # Add a day for Excel's missing leap day in 1900 
+
+    # Add a day for Excel's missing leap day in 1900
     $date++ if ($date > 59);
-    
+
     return $date;
 }
 
@@ -91,14 +91,14 @@ sub excel_date_1904 {
     my $hours   = $_[3] || 0;
     my $minutes = $_[4] || 0;
     my $seconds = $_[5] || 0;
-    
+
     my @date = ($years, $months, $days, $hours, $minutes, $seconds);
     my @epoch = (1904, 1, 1, 0, 0, 0);
-    
+
     ($days, $hours, $minutes, $seconds) = Delta_DHMS(@epoch, @date);
-    
+
     my $date = $days + ($hours*3600 +$minutes*60 +$seconds)/(24*60*60);
-  
+
     return $date;
 }
 

@@ -7,7 +7,7 @@
 #
 # Setting format properties via hashes of values is useful when you have
 # to deal with a large number of similar formats. Consider for example a
-# chess board pattern with black squares, white unformatted squares and 
+# chess board pattern with black squares, white unformatted squares and
 # a border. This relatively simple example requires 14 separate Format
 # objects although there are only 5 different properties: black
 # background, top border, bottom border, left border and right border.

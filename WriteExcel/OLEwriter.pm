@@ -24,7 +24,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 ###############################################################################
 #
@@ -69,9 +69,9 @@ sub _initialize {
     my $OLEfile = $self->{_OLEfilename};
     my $fh;
 
-    # Check for filename
-    if ($OLEfile eq "") {
-        croak('Filename required in WriteExcel("Filename")');
+    # Check for a filename. Workbook.pm will catch this first.
+    if ($OLEfile eq '') {
+        croak('Filename required by Spreadsheet::WriteExcel->new()');
     }
 
     # If the filename is a reference it is assumed that it is a valid
@@ -83,8 +83,10 @@ sub _initialize {
     else{
         # Create a new file, open for writing
         $fh = FileHandle->new("> $OLEfile");
+        # Workbook.pm also checks this but something may have happened since
+        # then.
         if (not defined $fh) {
-            croak "Can't open $OLEfile. It may be in use.";
+            croak "Can't open $OLEfile. It may be in use or protected.\n";
         }
 
         # binmode file whether platform requires it or not
@@ -449,6 +451,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -14,7 +14,7 @@ package Spreadsheet::WriteExcel::Format;
 
 use Exporter;
 use strict;
-use Carp;
+
 
 
 
@@ -24,7 +24,7 @@ use Carp;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 ###############################################################################
 #
@@ -115,6 +115,8 @@ sub copy {
 # Generate an Excel BIFF XF record.
 #
 sub get_xf {
+
+    use integer;    # Avoid << shift bug in Perl 5.6.0 on HP-UX
 
     my $self      = shift;
 
@@ -352,6 +354,8 @@ sub _get_color {
 
 ###############################################################################
 #
+# set_align()
+#
 # Set cell alignment.
 #
 sub set_align {
@@ -378,6 +382,20 @@ sub set_align {
     $self->set_text_v_align(2) if ($location eq 'bottom');
     $self->set_text_v_align(3) if ($location eq 'vjustify');
     $self->set_text_v_align(4) if ($location eq 'vequal_space');    # For K.T.
+}
+
+
+###############################################################################
+#
+# set_valign()
+#
+# Set vertical cell alignment. This is required by the set_properties() method
+# to differentiate between the vertical and horizontal properties.
+#
+sub set_valign {
+
+    my $self = shift;
+    $self->set_align(@_);
 }
 
 
@@ -470,10 +488,12 @@ sub set_properties {
         # Strip leading "-" from Tk style properties eg. -color => 'red'.
         $key =~ s/^-//;
 
+
         # Make sure method names are alphanumeric characters only, in case
         # tainted data is passed to the eval().
         #
-        croak "Unknown method: \$self->set_$key" if $key =~ /\W/;
+        die "Unknown method: \$self->set_$key\n" if $key =~ /\W/;
+
 
         # Evaling all $values as a strings gets around the problem of some
         # numerical format strings being evaluated as numbers, for example
@@ -503,13 +523,13 @@ sub AUTOLOAD {
     return if $AUTOLOAD =~ /::DESTROY$/;
 
     # Check for a valid method names, ie. "set_xxx_yyy".
-    $AUTOLOAD =~ /.*::set(\w+)/ or croak "Unknown method: $AUTOLOAD";
+    $AUTOLOAD =~ /.*::set(\w+)/ or die "Unknown method: $AUTOLOAD\n";
 
     # Match the attribute, ie. "_xxx_yyy".
     my $attribute = $1;
 
     # Check that the attribute exists
-    exists $self->{$attribute}  or croak "Unknown method: $AUTOLOAD";
+    exists $self->{$attribute}  or die "Unknown method: $AUTOLOAD\n";
 
     # The attribute value
     my $value;
@@ -553,6 +573,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

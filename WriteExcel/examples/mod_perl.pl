@@ -19,13 +19,13 @@
 #
 # Your httpd.conf entry for this module, should you choose to use it
 # as a stand alone app, should look similar to the following:
-# 
+#
 # <Location /spreadsheet-test>
 # SetHandler perl-script
 # PerlHandler Spreadsheet::WriteExcel::Cgi
 # PerlSendHeader On
 # </Location>
-# 
+#
 # PerlHandler and the package line below have to match.
 # I promise.
 package Spreadsheet::WriteExcel::Cgi;
@@ -63,7 +63,7 @@ sub handler {
 
     ####################################################
     # Tie a filehandle to Apache's STDOUT.
-    # Create a new workbook and add a worksheet. 
+    # Create a new workbook and add a worksheet.
     ####################################################
     my $xls_str;
     tie *XLS => 'Apache';

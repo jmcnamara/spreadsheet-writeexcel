@@ -1,0 +1,181 @@
+<HTML>
+<HEAD>
+<TITLE>Installation instructions for Spreadsheet::WriteExcel</TITLE>
+<LINK REV="made" HREF="mailto:">
+</HEAD>
+
+<style type="text/css">   
+
+
+
+   <!--
+   
+   pre  {
+        font-family : courier new, sans-serif;
+        font-size : 10pt;
+        color : #0066cc;
+   }
+
+   CODE  {
+        font-family : courier new, sans-serif;
+        font-size : 10pt;
+        color : #0066cc;
+   }
+   
+         
+   -->
+</style>
+
+
+<BODY>
+
+
+<P>
+<H1><A NAME="Spreadsheet_WriteExcel">Spreadsheet::WriteExcel</A></H1>
+<P>
+Installation instructions for <A
+HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel">Spreadsheet::WriteExcel</A>
+
+
+</P>
+<P>
+<HR>
+<H1><A NAME="Requirements">Requirements</A></H1>
+<P>
+This module requires <CODE>Perl 5.005</CODE> (or later) and <CODE>Parse::RecDescent</CODE>:
+
+</P>
+<P>
+<PRE>
+    <A HREF="http://search.cpan.org/search?dist=Parse-RecDescent">http://search.cpan.org/search?dist=Parse-RecDescent</A>
+</PRE>
+</P>
+<P>
+<HR>
+<H1><A NAME="Installation">Installation</A></H1>
+<P>
+<H2><A NAME="Method_1">Method 1</A></H2>
+<P>
+Download the zipped tar file from one of the following:
+
+</P>
+<P>
+<PRE>
+    <A HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel">http://search.cpan.org/search?dist=Spreadsheet-WriteExcel</A>
+    <A HREF="http://theoryx5.uwinnipeg.ca/mod_perl/cpan-search?idinfo=154">http://theoryx5.uwinnipeg.ca/mod_perl/cpan-search?idinfo=154</A>
+    <A HREF="ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/J/JM/JMCNAMARA/">ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/J/JM/JMCNAMARA/</A>
+</PRE>
+</P>
+<P>
+Untar and unzip the module as follows or use winzip:
+
+</P>
+<P>
+<PRE>
+    tar -zxvf Spreadsheet-WriteExcel-0.xx.tar.gz
+</PRE>
+</P>
+<P>
+Change to the directory that <CODE>tar</CODE> creates. The module can be installed using the standard Perl procedure:
+
+</P>
+<P>
+<PRE>
+    perl Makefile.PL
+    make
+    make test
+    make install    # You may need to be root
+    make clean      # or make realclean
+</PRE>
+</P>
+<P>
+Windows users without a working <CODE>make</CODE> can get <CODE>nmake</CODE> from:
+
+</P>
+<P>
+<PRE>
+    <A HREF="ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe">ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe</A>
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="Method_2">Method 2</A></H2>
+<P>
+If you have CPAN.pm configured you can install the module as follows:
+
+</P>
+<P>
+<PRE>
+    perl -MCPAN -e 'install &quot;Spreadsheet::WriteExcel&quot;'
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="Method_3">Method 3</A></H2>
+<P>
+ActivePerl users can use PPM as follows:
+
+</P>
+<P>
+<PRE>
+    C:\&gt; ppm
+    PPM&gt; set repository tmp http://homepage.eircom.net/~jmcnamara/perl
+    PPM&gt; install Spreadsheet-WriteExcel
+    PPM&gt; quit
+    C:\&gt;
+</PRE>
+</P>
+<P>
+If this fails try the following:
+
+</P>
+<P>
+<PRE>
+    PPM&gt;install http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
+</PRE>
+</P>
+<P>
+If you wish to perform a local PPM install you can get the files from (xx
+is the version number):
+
+</P>
+<P>
+<PRE>
+    <A HREF="http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd">http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd</A>
+    <A HREF="http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel-0.xx-PPM.tar.gz">http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel-0.xx-PPM.tar.gz</A>
+</PRE>
+</P>
+<P>
+<HR>
+<H1><A NAME="Updates">Updates</A></H1>
+<P>
+You can keep up to date with future release by registering as a user with
+Freshmeat <A HREF="http://freshmeat.net/">http://freshmeat.net/</A> and
+subscribing to
+<CODE>Spreadsheet::WriteExcel</CODE> at the project page:
+
+</P>
+<P>
+<PRE>
+    <A HREF="http://freshmeat.net/projects/writeexcel/">http://freshmeat.net/projects/writeexcel/</A>
+</PRE>
+</P>
+<P>
+You will then receive mailed updates when a new version is released.
+
+</P>
+<P>
+Alternatively you can keep an eye on <A
+HREF="news://comp.lang.perl.announce">news://comp.lang.perl.announce</A>
+
+</P>
+<P>
+<HR>
+<H1><A NAME="Author">Author</A></H1>
+<P>
+John McNamara (<A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>)
+</P>
+
+</BODY>
+
+</HTML>

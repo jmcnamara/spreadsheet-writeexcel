@@ -8,7 +8,7 @@ package Spreadsheet::WriteExcel::Big;
 # Spreadsheet::WriteExcel - Write formatted text and numbers to a
 # cross-platform Excel binary file.
 #
-# © MM-MMI, John McNamara.
+# © MM-MMII, John McNamara.
 #
 #
 
@@ -94,7 +94,7 @@ John McNamara jmcnamara@cpan.org
 =head1 COPYRIGHT
 
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

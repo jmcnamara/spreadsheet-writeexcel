@@ -191,8 +191,6 @@ sub _store_eof {
 #
 sub _add_continue {
 
-    # TODO remove the hard wired constants
-
     my $self        = shift;
     my $data        = $_[0];
     my $limit       = $self->{_limit};
@@ -249,6 +247,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -17,7 +17,7 @@ my $workbook        = Spreadsheet::WriteExcel->new("sales.xls");
 my $worksheet       = $workbook->addworksheet('May Sales');
 
 
-# Set up some formats 
+# Set up some formats
 my %heading         =   (
                             bold        => 1,
                             pattern     => 1,
@@ -73,23 +73,23 @@ foreach my $sale (@sales) {
     $worksheet->write($row, 0, @$sale[0]);
     $worksheet->write($row, 1, @$sale[1]);
     $worksheet->write($row, 2, @$sale[2], $price_format);
-    
+
     # Create a formula like '=B2*C2'
-    my $formula =   '=' 
+    my $formula =   '='
                     . xl_rowcol_to_cell($row, 1)
                     . "*"
                     . xl_rowcol_to_cell($row, 2);
-    
+
     $worksheet->write($row, 3, $formula, $price_format);
 
     # Parse the date
-    my $date = xl_decode_date_US(@$sale[3]);    
+    my $date = xl_decode_date_US(@$sale[3]);
     $worksheet->write($row, 4, $date, $date_format);
     $row++;
 }
 
 # Create a formula to sum the totals, like '=SUM(D2:D6)'
-my $total = '=SUM(D2:' 
+my $total = '=SUM(D2:'
             . xl_rowcol_to_cell($row-1, 3)
             . ")";
 

@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::WorkbookBig;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# © MM-MMI, John McNamara and Kawai Takanori.
+# © MM-MMII, John McNamara and Kawai Takanori.
 #
 # Documentation after __END__
 #
@@ -106,6 +106,6 @@ Kawai Takanori kwitknr@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara and Kawai Takanori.
+© MM-MMII, John McNamara and Kawai Takanori.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

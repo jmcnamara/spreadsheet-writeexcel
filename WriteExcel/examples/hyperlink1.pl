@@ -4,6 +4,8 @@
 #
 # Example of how to use the WriteExcel module to write hyperlinks
 #
+# See also hyperlink2.pl for worksheet URL examples.
+#
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 

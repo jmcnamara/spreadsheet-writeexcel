@@ -20,6 +20,7 @@ test.pl
 WriteExcel/doc/index.html
 WriteExcel/doc/WriteExcel.html
 WriteExcel/doc/examples.html
+WriteExcel/doc/install.html
 WriteExcel/doc/number_formats1.html
 WriteExcel/doc/number_formats2.html
 WriteExcel/doc/tpj.html
@@ -54,7 +55,8 @@ WriteExcel/examples/easter_egg.pl
 WriteExcel/examples/filehandle.pl
 WriteExcel/examples/formats.pl
 WriteExcel/examples/function_locale.pl
-WriteExcel/examples/hyperlink.pl
+WriteExcel/examples/hyperlink1.pl
+WriteExcel/examples/hyperlink2.pl
 WriteExcel/examples/images.pl
 WriteExcel/examples/lecxe.pl
 WriteExcel/examples/merge1.pl
@@ -73,6 +75,7 @@ WriteExcel/examples/stocks.pl
 WriteExcel/examples/tab2xls.pl
 WriteExcel/examples/textwrap.pl
 WriteExcel/examples/win32ole.pl
+WriteExcel/examples/write_arrays.pl
 WriteExcel/examples/writeA1.pl
 WriteExcel/examples/writemany.pl
 

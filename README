@@ -17,7 +17,7 @@ DESCRIPTION
 
     The module will work on the majority of Windows, UNIX and
     Macintosh platforms. Generated files are also compatible with the
-    Linux/UNIX spreadsheet applications OpenOffice, Gnumeric and XESS.
+    Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.
     The generated files are not compatible with MS Access.
 
     This module cannot be used to read an Excel file. See

@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.11';
+$VERSION = '0.12';
 
 ###############################################################################
 #
@@ -92,8 +92,8 @@ sub new {
     $self->{_print_headers}     = 0;
 
     $self->{_fit_page}          = 0;
-    $self->{_fit_width}         = 1;
-    $self->{_fit_height}        = 1;
+    $self->{_fit_width}         = 0;
+    $self->{_fit_height}        = 0;
 
     $self->{_hbreaks}           = [];
     $self->{_vbreaks}           = [];
@@ -103,6 +103,9 @@ sub new {
 
     $self->{_col_sizes}         = {};
     $self->{_row_sizes}         = {};
+
+    $self->{_zoom}              = 100;
+    $self->{_print_scale}       = 100;
 
     bless $self, $class;
     $self->_initialize();
@@ -237,6 +240,7 @@ sub _close {
 
     # Append
     $self->_store_window2();
+    $self->_store_zoom();
     $self->_store_panes(@{$self->{_panes}}) if @{$self->{_panes}};
     $self->_store_selection(@{$self->{_selection}});
     $self->_store_eof();
@@ -494,9 +498,15 @@ sub set_paper {
 #
 sub set_header {
 
-    my $self = shift;
+    my $self   = shift;
+    my $string = $_[0] || '';
 
-    $self->{_header}      = $_[0] || '';
+    if (length $string >= 255) {
+        carp 'Header string must be less than 255 characters';
+        return;
+    }
+    
+    $self->{_header}      = $string;
     $self->{_margin_head} = $_[1] || 0.50;
 }
 
@@ -509,9 +519,16 @@ sub set_header {
 #
 sub set_footer {
 
-    my $self = shift;
+    my $self   = shift;
+    my $string = $_[0] || '';
 
-    $self->{_footer}      = $_[0] || '';
+    if (length $string >= 255) {
+        carp 'Footer string must be less than 255 characters';
+        return;
+    }
+    
+
+    $self->{_footer}      = $string;
     $self->{_margin_foot} = $_[1] || 0.50;
 }
 
@@ -766,8 +783,8 @@ sub fit_to_pages {
     my $self = shift;
 
     $self->{_fit_page}      = 1;
-    $self->{_fit_width}     = $_[0] || 1;
-    $self->{_fit_height}    = $_[1] || 1;
+    $self->{_fit_width}     = $_[0] || 0;
+    $self->{_fit_height}    = $_[1] || 0;
 }
 
 
@@ -801,6 +818,51 @@ sub set_v_pagebreaks {
 
 ###############################################################################
 #
+# set_zoom($scale)
+#
+# Set the worksheet zoom factor.
+#
+sub set_zoom {
+
+    my $self  = shift;
+    my $scale = $_[0] || 100;
+
+    # Confine the scale to Excel's range
+    if ($scale < 10 or $scale > 400) {
+        carp("Zoom factor $scale outside range: 10 <= zoom <= 400.");
+        $scale = 100;
+    }
+
+    $self->{_zoom} = int $scale;
+}
+
+
+###############################################################################
+#
+# set_print_scale($scale)
+#
+# Set the scale factor for the printed page.
+#
+sub set_print_scale {
+
+    my $self  = shift;
+    my $scale = $_[0] || 100;
+
+    # Confine the scale to Excel's range
+    if ($scale < 10 or $scale > 400) {
+        carp("Print $scale outside range: 10 <= zoom <= 400.");
+        $scale = 100;
+    }
+
+    # Turn off "fit to page" option
+    $self->{_fit_page}    = 0;
+
+    $self->{_print_scale} = int $scale;
+}
+
+
+###############################################################################
+#
 # write($row, $col, $token, $format)
 #
 # Parse $token call appropriate write method. $row and $column are zero
@@ -819,6 +881,8 @@ sub write {
 
     my $token = $_[2];
 
+    # Handle undefs as blanks
+    $token = '' unless defined $token;
 
     # Match an array ref.
     if (ref $token eq "ARRAY") {
@@ -835,6 +899,10 @@ sub write {
     }
     # Match mailto:
     elsif ($token =~ m/^mailto:/) {
+        return $self->write_url(@_);
+    }
+    # Match internal or external sheet link
+    elsif ($token =~ m[^(?:in|ex)ternal:]) {
         return $self->write_url(@_);
     }
     # Match formula
@@ -865,7 +933,7 @@ sub write {
 #
 sub write_row {
 
-    my $self    = shift;
+    my $self = shift;
 
 
     # Check for a cell reference in A1 notation and substitute row and column
@@ -886,16 +954,6 @@ sub write_row {
     my $ret;
 
     foreach my $token (@$tokens) {
-        # Deal with undef values. If a format has been specified we write a
-        # formatted blank cell. Otherwise we ignore the undef.
-        #
-        if (not defined $token) {
-            if (not @options) {
-                $col++;
-                next;
-            }
-            $token = '' unless defined $token;
-        }
 
         # Check for nested arrays
         if (ref $token eq "ARRAY") {
@@ -905,7 +963,7 @@ sub write_row {
         }
 
         # Return only the first error encountered, if any.
-        $error = $ret if ($ret and not $error);
+        $error ||= $ret;
         $col++;
     }
 
@@ -925,7 +983,7 @@ sub write_row {
 #
 sub write_col {
 
-    my $self    = shift;
+    my $self = shift;
 
 
     # Check for a cell reference in A1 notation and substitute row and column
@@ -946,22 +1004,12 @@ sub write_col {
     my $ret;
 
     foreach my $token (@$tokens) {
-        # Deal with undef values. If a format has been specified we write a
-        # formatted blank cell. Otherwise we ignore the undef.
-        #
-        if (not defined $token) {
-            if (not @options) {
-                $row++;
-                next;
-            }
-            $token = '' unless defined $token;
-        }
 
         # write() will deal with any nested arrays
         $ret = $self->write($row, $col, $token, @options);
 
         # Return only the first error encountered, if any.
-        $error = $ret if ($ret and not $error);
+        $error ||= $ret;
         $row++;
     }
 
@@ -1072,7 +1120,7 @@ sub _substitute_cellref {
 #
 # Returns: row, column
 #
-# TODO use function in Utility.pm
+# TODO use functions in Utility.pm
 #
 sub _cell_to_rowcol {
 
@@ -1127,7 +1175,7 @@ sub _sort_pagebreaks {
     shift @array if $array[0] == 0;          # Remove zero
 
     # 1000 vertical pagebreaks appears to be an internal Excel 5 limit.
-    # It is slightly higher in Excel 97/200, approx 1026
+    # It is slightly higher in Excel 97/200, approx. 1026
     splice(@array, 1000) if (@array > 1000);
 
     return @array
@@ -1138,13 +1186,38 @@ sub _sort_pagebreaks {
 #
 # _encode_password($password)
 #
-# TODO. This is only a placeholder. Please be patient.
+# Based on the algorithm provided by Daniel Rentz of OpenOffice.
+#
 #
 sub _encode_password {
 
-    my $self = shift;
+    use integer;
 
-    return 0;
+    my $self      = shift;
+    my $plaintext = $_[0];
+    my $password;
+    my $count;
+    my @chars;
+    my $i = 0;
+
+    $count = @chars = split //, $plaintext;
+
+    foreach my $char (@chars) {
+        my $low_15;
+        my $high_15;
+        $char     = ord($char) << ++$i;
+        $low_15   = $char & 0x7fff;
+        $high_15  = $char & 0x7fff << 15;
+        $high_15  = $high_15 >> 15;
+        $char     = $low_15 | $high_15;
+    }
+
+    $password  = 0x0000;
+    $password ^= $_ for @chars;
+    $password ^= $count;
+    $password ^= 0xCE4B;
+
+    return $password;
 }
 
 
@@ -1270,9 +1343,13 @@ sub write_string {
 #
 # Write a blank cell to the specified row and column (zero indexed).
 # A blank cell is used to specify formatting without adding a string
-# or a number. $format is optional.
+# or a number.
 #
-# Returns  0 : normal termination
+# A blank cell without a format serves no purpose. Therefore, we don't write
+# a BLANK record unless a format is specified. This is mainly an optimisation
+# for the write_row() and write_col() methods.
+#
+# Returns  0 : normal termination (including no format)
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
 #
@@ -1285,7 +1362,12 @@ sub write_blank {
         @_ = $self->_substitute_cellref(@_);
     }
 
-    if (@_ < 2) { return -1 }               # Check the number of args
+    # Check the number of args
+    return -1 if @_ < 2;
+
+    # Don't write a blank cell unless it has a format
+    return 0 if not defined $_[2];
+
 
     my $record    = 0x0201;                 # Record identifier
     my $length    = 0x0006;                 # Number of bytes to follow
@@ -1387,7 +1469,7 @@ sub write_formula{
 
 ###############################################################################
 #
-# write_url($row, $col, $url, $string, $format )
+# write_url($row, $col, $url, $string, $format)
 #
 # Write a hyperlink. This is comprised of two elements: the visible label and
 # the invisible link. The visible label is the same as the link unless an
@@ -1395,12 +1477,16 @@ sub write_formula{
 # write_string() method. Therefore the 255 characters string limit applies.
 # $string and $format are optional and their order is interchangeable.
 #
+# The hyperlink can be to a http, ftp, mail, internal sheet, or external
+# directory url.
+#
 # Returns  0 : normal termination
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
 #         -3 : long string truncated to 255 chars
 #
 sub write_url {
+
     my $self = shift;
 
     # Check for a cell reference in A1 notation and substitute row and column
@@ -1408,54 +1494,425 @@ sub write_url {
         @_ = $self->_substitute_cellref(@_);
     }
 
-    if (@_ < 3) { return -1 }                    # Check the number of args
+    # Check the number of args
+    return -1 if @_ < 3;
+
+    # Add start row and col to arg list
+    return $self->write_url_range($_[0], $_[1], @_);
+}
+
+
+###############################################################################
+#
+# write_url_range($row1, $col1, $row2, $col2, $url, $string, $format)
+#
+# This is the more general form of write_url(). It allows a hyperlink to be
+# written to a range of cells. This function also decides the type of hyperlink
+# to be written. These are either, Web (http, ftp, mailto), Internal
+# (Sheet1!A1) or external ('c:\temp\foo.xls#Sheet1!A1').
+#
+# See also write_url() above for a general description and return values.
+#
+sub write_url_range {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    # Check the number of args
+    return -1 if @_ < 5;
 
     # Reverse the order of $string and $format if necessary.
-    ($_[3], $_[4]) = ($_[4], $_[3]) if (ref $_[3]);
+    ($_[5], $_[6]) = ($_[6], $_[5]) if (ref $_[5]);
 
-    my $record  = 0x01B8;                        # Record identifier
-    my $length  = 0x0034 + 2*(1+length($_[2]));  # Bytes to follow
+    my $url = $_[4];
 
-    my $row     = $_[0];                         # Zero indexed row
-    my $col     = $_[1];                         # Zero indexed column
-    my $url     = $_[2];                         # URL string
-    my $str     = $_[3] || $_[2];                # Alternative label
-    my $xf      = $_[4] || $self->{_url_format}; # The cell format
+    # Check for internal/external sheet links or default to web link
+    return $self->_write_url_internal(@_) if $url =~ m[^internal:];
+    return $self->_write_url_external(@_) if $url =~ m[^external:];
+    return $self->_write_url_web(@_);
+}
+
+
+
+###############################################################################
+#
+# _write_url_web($row1, $col1, $row2, $col2, $url, $string, $format)
+#
+# Used to write http, ftp and mailto hyperlinks.
+# The link type ($options) is 0x03 is the same as absolute dir ref without
+# sheet. However it is differentiated by the $unknown2 data stream.
+#
+# See also write_url() above for a general description and return values.
+#
+sub _write_url_web {
+
+    my $self    = shift;
+
+    my $record      = 0x01B8;                       # Record identifier
+    my $length      = 0x00000;                      # Bytes to follow
+
+    my $row1        = $_[0];                        # Start row
+    my $col1        = $_[1];                        # Start column
+    my $row2        = $_[2];                        # End row
+    my $col2        = $_[3];                        # End column
+    my $url         = $_[4];                        # URL string
+    my $str         = $_[5];                        # Alternative label
+    my $xf          = $_[6] || $self->{_url_format};# The cell format
 
 
     # Write the visible label using the write_string() method.
-    my $str_error = $self->write_string($row, $col, $str, $xf);
+    $str            = $url unless defined $str;
+    my $str_error   = $self->write_string($row1, $col1, $str, $xf);
     return $str_error if $str_error == -2;
 
 
-    # Pack the header data
-    my $header  = pack("vv",   $record, $length);
-    my $data    = pack("vvvv", $row, $row, $col, $col);
+    # Pack the undocumented parts of the hyperlink stream
+    my $unknown1    = pack("H*", "D0C9EA79F9BACE118C8200AA004BA90B02000000");
+    my $unknown2    = pack("H*", "E0C9EA79F9BACE118C8200AA004BA90B");
 
 
-    # Pack the undocumented part of the hyperlink stream, 40 bytes.
-    my $unknown = "D0C9EA79F9BACE118C8200AA004BA90B02000000";
-    $unknown   .= "03000000E0C9EA79F9BACE118C8200AA004BA90B";
-    my $stream  = pack("H*", $unknown);
-
+    # Pack the option flags
+    my $options     = pack("V", 0x03);
 
     # Convert URL to a null terminated wchar string
-    $url        = join("\0", split('', $url));
-    $url        = $url . "\0\0\0";
+    $url            = join("\0", split('', $url));
+    $url            = $url . "\0\0\0";
 
 
     # Pack the length of the URL
-    my $url_len = pack("V", length($url));
+    my $url_len     = pack("V", length($url));
+
+
+    # Calculate the data length
+    $length         = 0x34 + length($url);
+
+
+    # Pack the header data
+    my $header      = pack("vv",   $record, $length);
+    my $data        = pack("vvvv", $row1, $row2, $col1, $col2);
 
 
     # Write the packed data
-    $self->_append($header, $data);
-    $self->_append($stream);
-    $self->_append($url_len);
-    $self->_append($url);
+    $self->_append( $header,
+                    $data,
+                    $unknown1,
+                    $options,
+                    $unknown2,
+                    $url_len,
+                    $url);
 
     return $str_error;
+}
 
+
+###############################################################################
+#
+# _write_url_internal($row1, $col1, $row2, $col2, $url, $string, $format)
+#
+# Used to write internal reference hyperlinks such as "Sheet1!A1".
+#
+# See also write_url() above for a general description and return values.
+#
+sub _write_url_internal {
+
+    my $self    = shift;
+
+    my $record      = 0x01B8;                       # Record identifier
+    my $length      = 0x00000;                      # Bytes to follow
+
+    my $row1        = $_[0];                        # Start row
+    my $col1        = $_[1];                        # Start column
+    my $row2        = $_[2];                        # End row
+    my $col2        = $_[3];                        # End column
+    my $url         = $_[4];                        # URL string
+    my $str         = $_[5];                        # Alternative label
+    my $xf          = $_[6] || $self->{_url_format};# The cell format
+
+    # Strip URL type
+    $url            =~ s[^internal:][];
+
+
+    # Write the visible label
+    $str            = $url unless defined $str;
+    my $str_error   = $self->write_string($row1, $col1, $str, $xf);
+    return $str_error if $str_error == -2;
+
+
+    # Pack the undocumented parts of the hyperlink stream
+    my $unknown1    = pack("H*", "D0C9EA79F9BACE118C8200AA004BA90B02000000");
+
+
+    # Pack the option flags
+    my $options     = pack("V", 0x08);
+
+
+    # Convert the URL type and to a null terminated wchar string
+    $url            = join("\0", split('', $url));
+    $url            = $url . "\0\0\0";
+
+
+    # Pack the length of the URL as chars (not wchars)
+    my $url_len     = pack("V", int(length($url)/2));
+
+
+    # Calculate the data length
+    $length         = 0x24 + length($url);
+
+
+    # Pack the header data
+    my $header      = pack("vv",   $record, $length);
+    my $data        = pack("vvvv", $row1, $row2, $col1, $col2);
+
+
+    # Write the packed data
+    $self->_append( $header,
+                    $data,
+                    $unknown1,
+                    $options,
+                    $url_len,
+                    $url);
+
+    return $str_error;
+}
+
+
+###############################################################################
+#
+# _write_url_external($row1, $col1, $row2, $col2, $url, $string, $format)
+#
+# Write links to external directory names such as 'c:\foo.xls',
+# c:\foo.xls#Sheet1!A1', '../../foo.xls'. and '../../foo.xls#Sheet1!A1'.
+#
+# Note: Excel writes some relative links with the $dir_long string. We ignore
+# these cases for the sake of simpler code.
+#
+# See also write_url() above for a general description and return values.
+#
+sub _write_url_external {
+
+    my $self    = shift;
+
+    # Network drives are different. We will handle them separately
+    # MS/Novell network drives and shares start with \\
+    return $self->_write_url_external_net(@_) if $_[4] =~ m[^external:\\\\];
+
+
+    my $record      = 0x01B8;                       # Record identifier
+    my $length      = 0x00000;                      # Bytes to follow
+
+    my $row1        = $_[0];                        # Start row
+    my $col1        = $_[1];                        # Start column
+    my $row2        = $_[2];                        # End row
+    my $col2        = $_[3];                        # End column
+    my $url         = $_[4];                        # URL string
+    my $str         = $_[5];                        # Alternative label
+    my $xf          = $_[6] || $self->{_url_format};# The cell format
+
+
+    # Strip URL type and change Unix dir separator to Dos style (if needed)
+    #
+    $url            =~ s[^external:][];
+    $url            =~ s[/][\\]g;
+
+
+    # Write the visible label
+    ($str = $url)   =~ s[\#][ - ] unless defined $str;
+    my $str_error   = $self->write_string($row1, $col1, $str, $xf);
+    return $str_error if $str_error == -2;
+
+
+    # Determine if the link is relative or absolute:
+    #   relative if link contains no dir separator, "somefile.xls"
+    #   relative if link starts with up-dir, "..\..\somefile.xls"
+    #   otherwise, absolute
+    #
+    my $absolute    = 0x02; # Bit mask
+       $absolute    = 0x00  if $url !~ m[\\];
+       $absolute    = 0x00  if $url =~ m[^\.\.\\];
+
+
+    # Determine if the link contains a sheet reference and change some of the
+    # parameters accordingly.
+    # Split the dir name and sheet name (if it exists)
+    #
+    my ($dir_long , $sheet) = split /\#/, $url;
+    my $link_type           = 0x01 | $absolute;
+    my $sheet_len;
+
+    if (defined $sheet) {
+        $link_type |= 0x08;
+        $sheet_len  = pack("V", length($sheet) + 0x01);
+        $sheet      = join("\0", split('', $sheet));
+        $sheet     .= "\0\0\0";
+    }
+    else {
+        $sheet_len   = '';
+        $sheet       = '';
+    }
+
+    # Pack the link type
+    $link_type      = pack("V", $link_type);
+
+
+    # Calculate the up-level dir count e.g.. (..\..\..\ == 3)
+    my $up_count    = 0;
+    $up_count++       while $dir_long =~ s[^\.\.\\][];
+    $up_count       = pack("v", $up_count);
+
+
+    # Store the short dos dir name (null terminated)
+    my $dir_short   = $dir_long . "\0";
+
+
+    # Store the long dir name as a wchar string (non-null terminated)
+    $dir_long       = join("\0", split('', $dir_long));
+    $dir_long       = $dir_long . "\0";
+
+
+    # Pack the lengths of the dir strings
+    my $dir_short_len = pack("V", length $dir_short      );
+    my $dir_long_len  = pack("V", length $dir_long       );
+    my $stream_len    = pack("V", length($dir_long) + 0x06);
+
+
+    # Pack the undocumented parts of the hyperlink stream
+    my $unknown1 =pack("H*",'D0C9EA79F9BACE118C8200AA004BA90B02000000'       );
+    my $unknown2 =pack("H*",'0303000000000000C000000000000046'               );
+    my $unknown3 =pack("H*",'FFFFADDE000000000000000000000000000000000000000');
+    my $unknown4 =pack("v",  0x03                                            );
+
+
+    # Pack the main data stream
+    my $data        = pack("vvvv", $row1, $row2, $col1, $col2) .
+                      $unknown1     .
+                      $link_type    .
+                      $unknown2     .
+                      $up_count     .
+                      $dir_short_len.
+                      $dir_short    .
+                      $unknown3     .
+                      $stream_len   .
+                      $dir_long_len .
+                      $unknown4     .
+                      $dir_long     .
+                      $sheet_len    .
+                      $sheet        ;
+
+
+    # Pack the header data
+    $length         = length $data;
+    my $header      = pack("vv",   $record, $length);
+
+
+    # Write the packed data
+    $self->_append( $header, $data);
+
+    return $str_error;
+}
+
+
+
+
+###############################################################################
+#
+# write_url_xxx($row1, $col1, $row2, $col2, $url, $string, $format)
+#
+# Write links to external MS/Novell network drives and shares such as
+# '//NETWORK/share/foo.xls' and '//NETWORK/share/foo.xls#Sheet1!A1'.
+#
+# See also write_url() above for a general description and return values.
+#
+sub _write_url_external_net {
+
+    my $self    = shift;
+
+    my $record      = 0x01B8;                       # Record identifier
+    my $length      = 0x00000;                      # Bytes to follow
+
+    my $row1        = $_[0];                        # Start row
+    my $col1        = $_[1];                        # Start column
+    my $row2        = $_[2];                        # End row
+    my $col2        = $_[3];                        # End column
+    my $url         = $_[4];                        # URL string
+    my $str         = $_[5];                        # Alternative label
+    my $xf          = $_[6] || $self->{_url_format};# The cell format
+
+
+    # Strip URL type and change Unix dir separator to Dos style (if needed)
+    #
+    $url            =~ s[^external:][];
+    $url            =~ s[/][\\]g;
+
+
+    # Write the visible label
+    ($str = $url)   =~ s[\#][ - ] unless defined $str;
+    my $str_error   = $self->write_string($row1, $col1, $str, $xf);
+    return $str_error if $str_error == -2;
+
+
+    # Determine if the link contains a sheet reference and change some of the
+    # parameters accordingly.
+    # Split the dir name and sheet name (if it exists)
+    #
+    my ($dir_long , $sheet) = split /\#/, $url;
+    my $link_type           = 0x0103; # Always absolute
+    my $sheet_len;
+
+    if (defined $sheet) {
+        $link_type |= 0x08;
+        $sheet_len  = pack("V", length($sheet) + 0x01);
+        $sheet      = join("\0", split('', $sheet));
+        $sheet     .= "\0\0\0";
+    }
+    else {
+        $sheet_len   = '';
+        $sheet       = '';
+    }
+
+    # Pack the link type
+    $link_type      = pack("V", $link_type);
+
+
+    # Make the string null terminated
+    $dir_long       = $dir_long . "\0";
+
+
+    # Pack the lengths of the dir string
+    my $dir_long_len  = pack("V", length $dir_long);
+
+
+    # Store the long dir name as a wchar string (non-null terminated)
+    $dir_long       = join("\0", split('', $dir_long));
+    $dir_long       = $dir_long . "\0";
+
+
+    # Pack the undocumented part of the hyperlink stream
+    my $unknown1    = pack("H*",'D0C9EA79F9BACE118C8200AA004BA90B02000000');
+
+
+    # Pack the main data stream
+    my $data        = pack("vvvv", $row1, $row2, $col1, $col2) .
+                      $unknown1     .
+                      $link_type    .
+                      $dir_long_len .
+                      $dir_long     .
+                      $sheet_len    .
+                      $sheet        ;
+
+
+    # Pack the header data
+    $length         = length $data;
+    my $header      = pack("vv",   $record, $length);
+
+
+    # Write the packed data
+    $self->_append( $header, $data);
+
+    return $str_error;
 }
 
 
@@ -1534,6 +1991,8 @@ sub _store_dimensions {
 # Write BIFF record Window2.
 #
 sub _store_window2 {
+
+    use integer;    # Avoid << shift bug in Perl 5.6.0 on HP-UX
 
     my $self           = shift;
     my $record         = 0x023E;     # Record identifier
@@ -1817,12 +2276,14 @@ sub _store_panes {
 #
 sub _store_setup {
 
+    use integer;    # Avoid << shift bug in Perl 5.6.0 on HP-UX
+
     my $self         = shift;
     my $record       = 0x00A1;                  # Record identifier
     my $length       = 0x0022;                  # Number of bytes to follow
 
     my $iPaperSize   = $self->{_paper_size};    # Paper size
-    my $iScale       = 0x64;                    # Scaling factor
+    my $iScale       = $self->{_print_scale};   # Print scaling factor
     my $iPageStart   = 0x01;                    # Starting page number
     my $iFitWidth    = $self->{_fit_width};     # Fit to number of pages wide
     my $iFitHeight   = $self->{_fit_height};    # Fit to number of pages high
@@ -2726,6 +3187,33 @@ sub _process_bitmap {
 }
 
 
+###############################################################################
+#
+# _store_zoom($zoom)
+#
+#
+# Store the window zoom factor. This should be a reduced fraction but for
+# simplicity we will store all fractions with a numerator of 100.
+#
+sub _store_zoom {
+
+    my $self        = shift;
+
+    # If scale is 100 we don't need to write a record
+    return if $self->{_zoom} == 100;
+
+    my $record      = 0x00A0;               # Record identifier
+    my $length      = 0x0004;               # Bytes to follow
+
+    my $header      = pack("vv", $record, $length   );
+    my $data        = pack("vv", $self->{_zoom}, 100);
+
+    $self->_append($header, $data);
+}
+
+
+
+
 1;
 
 
@@ -2750,6 +3238,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+© MM-MMII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
