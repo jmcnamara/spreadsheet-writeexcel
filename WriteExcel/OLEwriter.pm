@@ -2,12 +2,12 @@ package Spreadsheet::WriteExcel::OLEwriter;
 
 ###############################################################################
 #
-# OLEwriter - A write class to store BIFF data in a OLE compound storage file.
+# OLEwriter - A writer class to store BIFF data in a OLE compound storage file.
 #
 #
 # Used in conjuction with Spreadsheet::WriteExcel
 #
-# Copyright 2000, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -17,6 +17,7 @@ require Exporter;
 use strict;
 use Carp;
 use FileHandle;
+
 
 
 
@@ -417,5 +418,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
+© MM-MMI, John McNamara.
 
+All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

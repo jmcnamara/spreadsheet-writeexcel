@@ -40,26 +40,27 @@
 	<LI><A HREF="#WORKBOOK_METHODS">WORKBOOK METHODS</A></LI>
 	<UL>
 
-		<LI><code><A HREF="#new_">new()</A></code></LI>
-		<LI><code><A HREF="#close_">close()</A></code></LI>
-		<LI><code><A HREF="#addworksheet_sheetname_">addworksheet($sheetname)</A></code></LI>
-		<LI><code><A HREF="#addformat_">addformat()</A></code></LI>
-		<LI><code><A HREF="#worksheets_">worksheets()</A></code></LI>
-		<LI><code><A HREF="#set_1904_">set_1904()</A></code></LI>
+		<code><LI><A HREF="#new_">new()</A></LI>
+		<LI><A HREF="#close_">close()</A></LI>
+		<LI><A HREF="#addworksheet_sheetname_">addworksheet($sheetname)</A></LI>
+		<LI><A HREF="#addformat_">addformat()</A></LI>
+		<LI><A HREF="#worksheets_">worksheets()</A></LI>
+		<LI><A HREF="#set_1904_">set_1904()</A></LI></code>
 	</UL>
 
 	<LI><A HREF="#WORKSHEET_METHODS">WORKSHEET METHODS</A></LI>
 	<UL>
 
-		<LI><code><A HREF="#write_row_column_token_fo">write($row, $column, $token, $format)</A></code></LI>
-		<LI><code><A HREF="#write_number_row_column_num">write_number($row, $column, $number, $format)</A></code></LI>
-		<LI><code><A HREF="#write_string_row_column_str">write_string($row, $column, $string, $format)</A></code></LI>
-		<LI><code><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></code></LI>
-		<LI><code><A HREF="#activate_">activate()</A></code></LI>
-		<LI><code><A HREF="#set_first_sheet_">set_first_sheet()</A></code></LI>
-		<LI><code><A HREF="#set_selection_first_row_first">set_selection($first_row, $first_col, $last_row, $last_col);</A></code></LI>
-		<LI><code><A HREF="#set_row_row_height_format_">set_row($row, $height, $format);</A></code></LI>
-		<LI><code><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format);</A></code></LI>
+		<code><LI><A HREF="#write_row_column_token_fo">write($row, $column, $token, $format)</A></LI>
+		<LI><A HREF="#write_number_row_column_num">write_number($row, $column, $number, $format)</A></LI>
+		<LI><A HREF="#write_string_row_column_str">write_string($row, $column, $string, $format)</A></LI>
+		<LI><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></LI>
+		<LI><A HREF="#write_url_row_col_url_for">write_url($row, $col, $url, $format, $string)</A></LI>
+		<LI><A HREF="#activate_">activate()</A></LI>
+		<LI><A HREF="#set_first_sheet_">set_first_sheet()</A></LI>
+		<LI><A HREF="#set_selection_first_row_first">set_selection($first_row, $first_col, $last_row, $last_col);</A></LI>
+		<LI><A HREF="#set_row_row_height_format_">set_row($row, $height, $format);</A></LI>
+		<LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format);</A></LI></code>
 	</UL>
 
 	<LI><A HREF="#FORMAT_METHODS">FORMAT METHODS</A></LI>
@@ -78,6 +79,7 @@
 		<LI><A HREF="#set_shadow_">set_shadow()</A></LI>
 		<LI><A HREF="#set_num_format_">set_num_format()</A></LI>
 		<LI><A HREF="#set_align_">set_align()</A></LI>
+		<LI><A HREF="#set_merge_">set_merge()</A></LI>
 		<LI><A HREF="#set_text_wrap_">set_text_wrap()</A></LI>
 		<LI><A HREF="#set_rotation_">set_rotation()</A></LI>
 		<LI><A HREF="#set_text_justlast_">set_text_justlast()</A></LI>
@@ -122,8 +124,8 @@ cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.23 of Spreadsheet::WriteExcel, released
-December 10, 2000.
+This document refers to version 0.24 of Spreadsheet::WriteExcel, released
+January 14, 2001.
 
 </P>
 <P>
@@ -379,26 +381,44 @@ worksheet is created by calling the <CODE>addworksheet()</CODE> method from a wo
 <HR>
 <H2><A NAME="write_row_column_token_fo">write($row, $column, $token, $format)</A></H2>
 <P>
-The <CODE>write()</CODE> method calls <CODE>write_number()</CODE> if <CODE>$token</CODE> matches the following regex:
+The <CODE>write()</CODE> method is a general alias for one of several methods of writing to a cell
+in Excel. <CODE>write()</CODE> calls one of the following methods depending on the value of <CODE>$token</CODE>:
+
+</P>
+<P>
+<CODE>write_number()</CODE> if <CODE>$token</CODE> is a number based on the following regex: <CODE>$token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/</CODE>
+
+
+
+</P>
+<P>
+<CODE>write_blank()</CODE> if <CODE>$token</CODE> is a blank string: <CODE>&quot;&quot;</CODE> or <CODE>''</CODE>.
+
+</P>
+<P>
+<CODE>write_url()</CODE> if <CODE>$token</CODE> is a URL based on the following regex: <CODE>$token =~ m|[fh]tt?p://|</CODE>
+
+
+
+</P>
+<P>
+<CODE>write_string()</CODE> if none of the previous conditions matched.
+
+</P>
+<P>
+Here are some examples:
 
 </P>
 <P>
 <PRE>
-    $token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
-</PRE>
-</P>
-<P>
-If the <CODE>$token</CODE> is a blank string <CODE>&quot;&quot;</CODE> or <CODE>''</CODE> it will call <CODE>write_blank()</CODE>, otherwise it calls <CODE>write_string()</CODE>:
-
-</P>
-<P>
-<PRE>
-    $worksheet-&gt;write(0, 0, &quot;Hello&quot; );  # write_string()
-    $worksheet-&gt;write(1, 0, &quot;One&quot;   );  # write_string()
-    $worksheet-&gt;write(2, 0,  2      );  # write_number()
-    $worksheet-&gt;write(3, 0,  3.00001);  # write_number()
-    $worksheet-&gt;write(4, 0,  &quot;&quot;     );  # write_blank()
-    $worksheet-&gt;write(5, 0,  ''     );  # write_blank()
+    $worksheet-&gt;write(0, 0, &quot;Hello&quot;                 );  # write_string()
+    $worksheet-&gt;write(1, 0, 'One'                   );  # write_string()
+    $worksheet-&gt;write(2, 0,  2                      );  # write_number()
+    $worksheet-&gt;write(3, 0,  3.00001                );  # write_number()
+    $worksheet-&gt;write(4, 0,  &quot;&quot;                     );  # write_blank()
+    $worksheet-&gt;write(5, 0,  ''                     );  # write_blank()
+    $worksheet-&gt;write(6, 0,  'http://www.perl.com/' );  # write_url()
+    $worksheet-&gt;write(7, 0,  'ftp://ftp.cpan.org/'  );  # write_url()
 </PRE>
 </P>
 <P>
@@ -488,6 +508,28 @@ a string or number value.
 </P>
 <P>
 <HR>
+<H2><A NAME="write_url_row_col_url_for">write_url($row, $col, $url, $format, $string)</A></H2>
+<P>
+Write a hyperlink to a URL in the cell specified by <CODE>$row</CODE> and <CODE>$column</CODE>. The hyperlink is comprised of two elements: the visible label and the
+invisible link. The visible label is the same as the link unless an
+alternative string is specified. The alternative <CODE>$string</CODE> and <CODE>$format</CODE> are optional. 
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write_url(0, 0, 'http://www.perl.com/'                    );
+    $worksheet-&gt;write_url(1, 0, 'http://www.perl.com/', $format           );
+    $worksheet-&gt;write_url(2, 0, 'http://www.perl.com/', undef, 'Perl home');
+</PRE>
+</P>
+<P>
+The label is written using the <CODE>write_string()</CODE> method. Therefore the 255 characters string limit applies to the label: the
+URL can be any length. Use <CODE>undef</CODE> if you want to specify an alternative string but don't wish to specify a
+format.
+
+</P>
+<P>
+<HR>
 <H2><A NAME="activate_">activate()</A></H2>
 <P>
 The <CODE>activate()</CODE> method is used to specify which worksheet is initially selected in a
@@ -557,9 +599,9 @@ the order in which <CODE>$first</CODE> and <CODE>$last</CODE> are specified:
 </P>
 <P>
 <PRE>
-    $worksheet1-&gt;set_selection(3, 3);
-    $worksheet2-&gt;set_selection(3, 3, 6, 6);
-    $worksheet3-&gt;set_selection(6, 6, 3, 3);
+    $worksheet1-&gt;set_selection(3, 3);       # Cell D4
+    $worksheet2-&gt;set_selection(3, 3, 6, 6); # Cell D4 to G7
+    $worksheet3-&gt;set_selection(6, 6, 3, 3); # Cell G7 to D4
 </PRE>
 </P>
 <P>
@@ -575,7 +617,7 @@ This method can be used to specify the height of a row. The <CODE>$format</CODE>
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;set_row(0, 20);
+    $worksheet-&gt;set_row(0, 20); # Row 1 height set to 20
 </PRE>
 </P>
 <P>
@@ -597,8 +639,8 @@ of columns. If the method is applied to a single column the value of <CODE>$firs
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;set_column(0, 0, 20);
-    $worksheet-&gt;set_column(1, 3, 30);
+    $worksheet-&gt;set_column(0, 0, 20); # Column A width set to 20
+    $worksheet-&gt;set_column(1, 3, 30); # Columns B-D width set to 30
 </PRE>
 </P>
 <P>
@@ -615,12 +657,6 @@ If you wish to set the format without changing the width you can pass <CODE>unde
 <PRE>
     $worksheet-&gt;set_column(0, 0, undef, $format);
 </PRE>
-</P>
-<P>
-Note: This method was previously called <CODE>set_col_width().</CODE> The
-previous name is now deprecated and will not be available after
-version.0.23.
-
 </P>
 <P>
 <HR>
@@ -657,10 +693,7 @@ object method to do so:
                     Super/Subscript     set_font_script()
                     Outline             set_font_outline()
                     Shadow              set_font_shadow()
-</PRE>
-</P>
-<P>
-<PRE>
+    
     Number          Numeric format      set_num_format()
     
     Alignment       Horizontal align    set_align()
@@ -668,10 +701,7 @@ object method to do so:
                     Rotation            set_rotation()
                     Text wrap           set_text_wrap()
                     Justify last        set_text_justlast()
-</PRE>
-</P>
-<P>
-<PRE>
+    
     Pattern         Cell pattern        set_pattern()
                     Background color    set_bg_color()
                     Foreground color    set_fg_color()
@@ -743,9 +773,8 @@ Excel.
 
 </P>
 <P>
-NOTE: It is important to understand that a Format is applied to a cell not
-in its current state but in its final state. Consider the following
-example:
+It is important to understand that a Format is applied to a cell not in its
+current state but in its final state. Consider the following example:
 
 </P>
 <P>
@@ -767,7 +796,7 @@ final state of the Format which in this case will be the colour green.
 <P>
 The Format object methods are described in more detail in the following
 sections. In addition, there is a Perl program in the WriteExcel
-distribution called <CODE>formats.pl</CODE>. If you run this program it creates an Excel workbook called <CODE>formats.xls</CODE> that contains examples of all possible format types.
+distribution called <CODE>formats.pl</CODE>. This program it creates an Excel workbook called <CODE>formats.xls</CODE> that contains examples of almost all the format types.
 
 </P>
 <P>
@@ -796,8 +825,8 @@ to another:
 </P>
 <P>
 This can be useful when you are setting up several complex but similar
-formats. It is also useful if you want to repeatedly use a format in
-several workbooks:
+formats. It is also useful if you want to use a format in more than one
+workbook:
 
 </P>
 <P>
@@ -832,6 +861,15 @@ copying.
     Default state:      Font is Arial
     Default action:     None
     Valid args:         Any valid font name
+</PRE>
+</P>
+<P>
+Example:
+
+</P>
+<P>
+<PRE>
+    $format-&gt;set_font('Arial');
 </PRE>
 </P>
 <P>
@@ -900,7 +938,7 @@ The <CODE>set_color()</CODE> method is used as follows:
 </P>
 <P>
 Note: The <CODE>set_color()</CODE> method is used to set the colour of the font in a cell. To set the colour
-of a cell use the <CODE>set_fg_color()</CODE> method.
+of a cell use the <CODE>set_fg_color()</CODE> and <CODE>set_pattern()</CODE> methods.
 
 </P>
 <P>
@@ -923,6 +961,11 @@ worksheets created by formats.pl
 is bold and 1000 is very bold indeed. It is probably best to set the value
 to 1 and use normal bold.
 
+</P>
+<P>
+<PRE>
+    $format-&gt;set_bold();  # Turn bold on
+</PRE>
 </P>
 <P>
 <HR>
@@ -971,8 +1014,7 @@ to 1 and use normal bold.
 </PRE>
 </P>
 <P>
-This format will not be very useful until multiple formats can be applied
-to a string.
+This format is currently not very useful.
 
 </P>
 <P>
@@ -1078,7 +1120,7 @@ numbers.
 </P>
 <P>
 <PRE>
-    $format07-&gt;set_num_format('mm/dd/yy');  
+    $format07-&gt;set_num_format('mm/dd/yy');
     $worksheet-&gt;write(6,  0, 36870.016, $format07);    # 12/10/00
 </PRE>
 </P>
@@ -1104,7 +1146,10 @@ numbers.
 <PRE>
     $format11-&gt;set_num_format('0 &quot;dollar and&quot; .00 &quot;cents&quot;');
     $worksheet-&gt;write(10, 0, 1.87,      $format11);    # 1 dollar and .87 cents
-    
+</PRE>
+</P>
+<P>
+<PRE>
     # Conditional formatting
     $format12-&gt;set_num_format('[Green]General;[Red]-General;General');
     $worksheet-&gt;write(11, 0, 123,       $format12);    # &gt; 0 Green
@@ -1128,8 +1173,8 @@ worksheet created by formats.pl.
 
 </P>
 <P>
-For more information refer to the Excel on-line help or to the tutorial at:
-<A
+For more information refer to the documentation on formatting in the <CODE>doc</CODE> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or
+to the tutorial at: <A
 HREF="http://support.microsoft.com/support/Excel/Content/Formats/default.asp">http://support.microsoft.com/support/Excel/Content/Formats/default.asp</A>
 and <A
 HREF="http://support.microsoft.com/support/Excel/Content/Formats/codes.asp">http://support.microsoft.com/support/Excel/Content/Formats/codes.asp</A>
@@ -1137,8 +1182,8 @@ HREF="http://support.microsoft.com/support/Excel/Content/Formats/codes.asp">http
 
 </P>
 <P>
-There is additional documentation on formatting in the <CODE>doc</CODE> directory of the Spreadsheet::WriteExcel distro. You should ensure that the
-format string in valid in Excel prior to using it in WriteExcel.
+You should ensure that the format string is valid in Excel prior to using
+it in WriteExcel.
 
 </P>
 <P>
@@ -1218,10 +1263,6 @@ Excel 5 and Excel 97-2000.
 
 </P>
 <P>
-Note 4. The <CODE>set_num_format()</CODE> method was previously called <CODE>set_format()</CODE>. The old name is deprecated and will not be available after version.0.23.
-
-</P>
-<P>
 <HR>
 <H2><A NAME="set_align_">set_align()</A></H2>
 <P>
@@ -1257,21 +1298,8 @@ method is used as follows:
 </PRE>
 </P>
 <P>
-Text can be aligned across two or more adjacent cells using the <CODE>merge</CODE> property. Only one cell should contain the text, the other cells should be
-blank:
+Text can be aligned across two or more adjacent cells using the <CODE>merge</CODE> property. See also, the <CODE>set_merge()</CODE> method.
 
-</P>
-<P>
-<PRE>
-    my $format = $workbook-&gt;addformat();
-    $format-&gt;set_align('merge');
-</PRE>
-</P>
-<P>
-<PRE>
-    $worksheet-&gt;write(1, 1, 'Merged cells', $format);
-    $worksheet-&gt;write_blank(1, 2, $format);
-</PRE>
 </P>
 <P>
 The <CODE>vjustify</CODE> (vertical justify) option can be used to provide automatic text wrapping in
@@ -1281,6 +1309,40 @@ text. To specify where the text wraps use the <CODE>set_text_wrap()</CODE> metho
 </P>
 <P>
 For further examples see the 'Alignment' worksheet created by formats.pl.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_merge_">set_merge()</A></H2>
+<P>
+<PRE>
+    Default state:      Cell merging is off
+    Default action:     Turn cell merging on
+    Valid args:         1
+</PRE>
+</P>
+<P>
+Text can be aligned across two or more adjacent cells using the <CODE>set_merge()</CODE> method. This is an alias for the unintuitive <CODE>set_align('merge')</CODE> method call.
+
+</P>
+<P>
+Only one cell should contain the text, the other cells should be blank:
+
+</P>
+<P>
+<PRE>
+    my $format = $workbook-&gt;addformat();
+    $format-&gt;set_merge();
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write(1, 1, 'Merged cells', $format);
+    $worksheet-&gt;write_blank(1, 2, $format);
+</PRE>
+</P>
+<P>
+See also the <CODE>merge1.pl</CODE> and <CODE>merge2.pl</CODE> programs in the <CODE>examples</CODE> directory.
 
 </P>
 <P>
@@ -1306,7 +1368,7 @@ Here is an example using the text wrap property, the escape character <CODE>\n</
 </P>
 <P>
 Excel will adjust the height of the row to accommodate the wrapped text. A
-similar effect can be obtained without newlines using the <CODE>set_align('vjustify')</CODE> method.
+similar effect can be obtained without newlines using the <CODE>set_align('vjustify')</CODE> method. See the <CODE>textwrap.pl</CODE> program in the <CODE>examples</CODE> directory.
 
 </P>
 <P>
@@ -1332,7 +1394,7 @@ See the 'Alignment' worksheet created by formats.pl.
 <P>
 <PRE>
     Default state:      Justify last is off
-    Default action:     Turn Justify last on
+    Default action:     Turn justify last on
     Valid args:         0, 1
 </PRE>
 </P>
@@ -1370,14 +1432,16 @@ color.
 </PRE>
 </P>
 <P>
-Here is an example of how to set the color in a cell:
+Note, the foreground and background colours will only have an effect if the
+cell pattern has been set. In the most common case you can specify the
+solid fill pattern and the foreground colour as follows:
 
 </P>
 <P>
 <PRE>
     my $format = $workbook-&gt;addformat();
-    $format-&gt;set_pattern(0x1);
-    $format-&gt;set_fg_color('green');
+    $format-&gt;set_pattern();         # Set pattern to 1, ie. solid fill
+    $format-&gt;set_fg_color('green'); # Note foreground and not background
     $worksheet-&gt;write(0, 0, &quot;Ray&quot;, $format);
 </PRE>
 </P>
@@ -1533,15 +1597,12 @@ of the Spreadsheet::WriteExcel module:
 <P>
 This example shows how to use a conditional numerical format with colours
 to indicate if a share price has gone up or down.
+
 </P>
 <br>
 <center><img SRC="stocks.gif" ALT="The output from stocks.pl"></center>
 <P>
-</P>
-<P>
 <PRE>
-    #!/usr/bin/perl -w
-
     use strict;
     use Spreadsheet::WriteExcel;
 </PRE>
@@ -1630,7 +1691,8 @@ to indicate if a share price has gone up or down.
     $workbook-&gt;write(3, 2, 321,       $f_volume); # 321
     $workbook-&gt;write(3, 3, 0,         $f_change); # 0 in the font color (black)
 </PRE>
-
+</P>
+<P>
 <HR>
 <H2><A NAME="Example_4">Example 4</A></H2>
 <P>
@@ -1807,7 +1869,9 @@ HREF="http://arturo.directmail.org/filtersweb/">http://arturo.directmail.org/fil
 <P>
 The source code for the Excel plugin of the Gnumeric spreadsheet also
 contains information relevant to the Excel BIFF format and the OLE
-container, <A HREF="http://www.gnumeric.org/">http://www.gnumeric.org/</A>
+container, <A
+HREF="http://www.gnumeric.org/gnumeric">http://www.gnumeric.org/gnumeric</A>
+
 
 </P>
 <P>
@@ -1911,13 +1975,11 @@ HREF="http://search.cpan.org/search?dist=HTML-TableExtract">http://search.cpan.o
 
 </P>
 <P>
-* DBI with DBD::ADO or DBD::ODBC. See, the section &quot;Writing Excel
-Files&quot;.
+* DBI with DBD::ADO or DBD::ODBC. See, the section <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A>.
 
 </P>
 <P>
-* Win32::OLE module and office automation. See, the section &quot;Writing
-Excel Files&quot;.
+* Win32::OLE module and office automation. See, the section <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A>.
 
 </P>
 <P>
@@ -1946,11 +2008,12 @@ Orange isn't.
 OpenOffice: Numerical formats are not displayed due to some missing records
 in Spreadsheet::WriteExcel. Someone with a good knowledge of C++ and,
 possibly, of German might help me to track this down in the OpenOffice
-source.
+source. URLs are not displayed as links.
 
 </P>
 <P>
-Gnumeric: Some formatting is not displayed correctly.
+Gnumeric: Some formatting is not displayed correctly. URLs are not
+displayed as links.
 
 </P>
 <P>
@@ -1973,14 +2036,19 @@ The lack of a portable way of writing a little-endian 64 bit IEEE float.
 <H1><A NAME="TO_DO">TO DO</A></H1>
 <P>
 It is frustrating to use a program or library or module that does
-everything except what you want it to. As such I am committed to adding new
-features to Spreadsheet::WriteExcel. If there is something that you would
-like to see, write and let me know. The features that are requested most
-will be implemented where possible. To save you some time:
+everything except what you want it to do. As such I am committed to adding
+new features to Spreadsheet::WriteExcel. If there is something that you
+would like to see, write and let me know. The features that are requested
+most will be implemented where possible. To save you some time:
 
 </P>
 <P>
-* Formulas will be implemented.
+* Formulas will be implemented (hopefully by early February).
+
+</P>
+<P>
+* Worksheet formatting such as headers, footers, linebreaks will be
+implemented.
 
 </P>
 <P>
@@ -1992,7 +2060,7 @@ will be implemented where possible. To save you some time:
 
 </P>
 <P>
-While you are waiting try Win32::OLE. ;-)
+While you are waiting try Win32::OLE.
 
 </P>
 <P>
@@ -2018,9 +2086,9 @@ Andrew Benham, Takanori Kawai, Sam Kington.
 
 </P>
 <P>
-If you have a good example of using Spreadsheet::WriteExcel either on its
-own or in conjunction with another module and would like to include it in
-the <CODE>examples</CODE> directory of the distro please send it along.
+If you have a representative example of using Spreadsheet::WriteExcel
+either on its own or in conjunction with another module and would like to
+have it included in the <CODE>examples</CODE> directory of the distro please send it along.
 
 </P>
 <P>
@@ -2032,25 +2100,18 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-        I'd never met her type she ignored me and that's alright
-        Never to be friends or my body lie on her floor
-        Her father works
-        Her mother works in exports
-        But that's of no importance at all
-        I don't mind
-        I don't mind
-        To chase her
-        A fools dream
-        I'm 104 degrees
-        With a Head Full of Steam
-            - Robert Forster
+    When the rain hit the roof
+    With the sound of a finished kiss
+    Like when a lip lifts from a lip
+    I took the Wrong Road round
+            - Grant McLennan
 </PRE>
 </P>
 <P>
 <HR>
 <H1><A NAME="COPYRIGHT">COPYRIGHT</A></H1>
 <P>
-© MM, John McNamara.
+© MM-MMI, John McNamara.
 
 </P>
 <P>

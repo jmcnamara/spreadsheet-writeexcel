@@ -37,9 +37,9 @@ $border1->set_bottom(6);
 $border1->set_left(6);
 $border1->set_align('center');
 $border1->set_align('vcenter');
-$border1->set_align('merge'); # This is the key feature
+$border1->set_merge(); # This is the key feature
 
-# Create another border format
+# Create another border format. Note you could use copy() here.
 my $border2 = $workbook->addformat();
 $border2->set_color('white');
 $border2->set_bold();
@@ -52,7 +52,7 @@ $border2->set_bottom(6);
 $border2->set_right(6);
 $border2->set_align('center');
 $border2->set_align('vcenter');
-$border2->set_align('merge'); # This is the key feature
+$border2->set_merge(); # This is the key feature
 
 # Only one cell should contain text, the others should be blank.
 $worksheet->write      (2, 1, "Merged Cells", $border1);

@@ -21,10 +21,11 @@ DESCRIPTION
 
 INSTALLATION
 
-    NOTE: Version 0.23 changes the WriteExcel namespace. To tidy up stray
-    files it would be best to uninstall any older versions prior to
-    installation. 
+    Download the zipped tar file from:
+        http://search.cpan.org/search?dist=Spreadsheet-WriteExcel
 
+    Unzip the module as follows or use winzip:
+           tar -zxvf Spreadsheet-WriteExcel-0.24.tar.gz
 
     The module can be installed using the standard Perl procedure:
 
@@ -33,8 +34,6 @@ INSTALLATION
         make test
         make install    # You may need to be root
         make clean      # or make realclean
-
-
 
     Windows users without a working "make" can get nmake from:
         ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
@@ -47,9 +46,13 @@ INSTALLATION
         PPM> quit
         C:\>
 
+    NOTE: Version 0.23 changed the WriteExcel namespace. To tidy up stray
+    files it would be best to uninstall any older versions older than this
+    prior to installation. 
+
 VERSION
-    This document refers to version 0.23 of Spreadsheet::WriteExcel,
-    released Dec 10, 2000.
+    This document refers to version 0.24 of Spreadsheet::WriteExcel,
+    released Jan 14, 2001.
 
 AUTHOR
     John McNamara (jmcnamara@cpan.org)

@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #
 # Used in conjuction with Spreadsheet::WriteExcel
 #
-# Copyright 2000, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -20,10 +20,11 @@ use Spreadsheet::WriteExcel::BIFFwriter;
 use Spreadsheet::WriteExcel::Format;
 
 
+
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 ###############################################################################
 #
@@ -43,7 +44,8 @@ sub new {
     $self->{_index}          = $_[1];
     $self->{_activesheet}    = $_[2];
     $self->{_firstsheet}     = $_[3];
-    $self->{store_in_memory} = $_[4];
+    $self->{_url_format}     = $_[4];
+    $self->{store_in_memory} = $_[5];
 
     $self->{_filehandle}     = "";
     $self->{_fileclosed}     = 0;
@@ -232,13 +234,14 @@ sub set_column {
 #
 # set_col_width()
 #
-# This is a deprecated alias for set_column(). 
+# This is a deprecated alias for set_column().
 #
 sub set_col_width {
 
     my $self = shift;
 
     $self->set_column(@_);
+    carp("set_col_width() is deprecated, use set_column() instead") if $^W;
 }
 
 
@@ -435,9 +438,8 @@ sub _store_selection {
 #
 # write ($row, $col, $token, $format)
 #
-# Parse $token as a number or string and call write_number(), write_string()
-# or write_blank() accordingly. $row and $column are zero indexed. $format is
-# optional.
+# Parse $token call appropriate write method. $row and $column are zero
+# indexed. $format is optional.
 #
 # Returns: return value of called subroutine
 #
@@ -446,14 +448,20 @@ sub write {
     my $self  = shift;
     my $token = $_[2];
 
-    # Match number or blank or string
+    # Match number
     if ($token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
         return $self->write_number(@_);
     }
+    # Match http or ftp URL
+    elsif ($token =~ m|[fh]tt?p://|) {
+        return $self->write_url(@_);
+    }
+    # Match blank
     elsif ($token eq '') {
         splice @_, 2, 1; # remove the empty string from the parameter list
         return $self->write_blank(@_);
     }
+    # Default: match string
     else {
         return $self->write_string(@_);
     }
@@ -596,6 +604,71 @@ sub write_blank {
 
 ###############################################################################
 #
+# write_url($row, $col, $url, $string, $format )
+#
+# Write a hyperlink. This is comprised of two elements: the visible label and
+# the invisible link. The visible label is the same as the link unless an
+# alternative string is specified. The label is written using the
+# write_string() method. Therefore the 255 characters string limit applies.
+# $string and $format are optional.
+#
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#         -3 : long string truncated to 255 chars
+#
+sub write_url {
+    my $self      = shift;
+    if (@_ < 3) { return -1 }                    # Check the number of args
+
+    my $record  = 0x01B8;                        # Record identifier
+    my $length  = 0x0034 + 2*(1+length($_[2]));  # Bytes to follow
+
+    my $row     = $_[0];                         # Zero indexed row
+    my $col     = $_[1];                         # Zero indexed column
+    my $url     = $_[2];                         # URL string
+    my $str     = $_[3] || $_[2];                # Alternative label
+    my $xf      = $_[4] || $self->{_url_format}; # The cell format
+
+
+    # Write the visible lable using the write_string() method.
+    my $str_error = $self->write_string($row, $col, $str, $xf);
+    return $str_error if $str_error == -2;
+
+
+    # Pack the header data
+    my $header  = pack("vv",   $record, $length);
+    my $data    = pack("vvvv", $row, $row, $col, $col);
+
+
+    # Pack the undocumented part of the hyperlink stream, 40 bytes.
+    my $unknown = "D0C9EA79F9BACE118C8200AA004BA90B02000000";
+    $unknown   .= "03000000E0C9EA79F9BACE118C8200AA004BA90B";
+    my $stream  = pack("H*", $unknown);
+
+
+    # Convert URL to a null terminated wchar string
+    $url        = join("\0", split('', $url));
+    $url        = $url . "\0\0\0";
+
+
+    # Pack the length of the URL
+    my $url_len = pack("V", length($url));
+
+
+    # Write the packed data
+    $self->_append($header, $data);
+    $self->_append($stream);
+    $self->_append($url_len);
+    $self->_append($url);
+
+    return $str_error;
+
+}
+
+
+###############################################################################
+#
 # set_row($row, $height, $XF)
 #
 # This method is used to set the height and XF format for a row.
@@ -616,7 +689,7 @@ sub set_row {
     my $grbit       = 0x01C0;               # Option flags. (monkey) see $1 do
     my $ixfe        = _XF($_[2]);           # XF index
 
-    # Use set_row($row, undef, $XF) to set XF without setting height 
+    # Use set_row($row, undef, $XF) to set XF without setting height
     if (defined ($_[1])) {
         $miyRw = $_[1] *20;
     }
@@ -656,4 +729,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
+© MM-MMI, John McNamara.
+
+All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

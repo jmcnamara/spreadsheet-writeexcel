@@ -1,5 +1,12 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.24 Jan 14 2001
+    Minor
+    Added write_url method.
+    Added set_merge() alias for set_align('merge') method.
+    Added warnings about deprected code when running under -w flag.
+    Documentation changes.
+    
 0.23 Dec 10 2000
     Minor
     Added customisable numeric formats.

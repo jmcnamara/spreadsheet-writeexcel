@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Workbook;
 #
 # Used in conjuction with Spreadsheet::WriteExcel
 #
-# Copyright 2000, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -15,6 +15,7 @@ package Spreadsheet::WriteExcel::Workbook;
 require Exporter;
 
 use strict;
+use Carp;
 use Spreadsheet::WriteExcel::BIFFwriter;
 use Spreadsheet::WriteExcel::Worksheet;
 use Spreadsheet::WriteExcel::OLEwriter;
@@ -23,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 ###############################################################################
 #
@@ -45,17 +46,26 @@ sub new {
     $self->{_1904}              = 0;
     $self->{_activesheet}       = 0;
     $self->{_firstsheet}        = 0;
-    $self->{_xf_index}          = 16;
+    $self->{_xf_index}          = 16; # 15 style XF's and 1 cell XF.
     $self->{_fileclosed}        = 0;
     $self->{_biffsize}          = 0;
     $self->{_sheetname}         = "Sheet";
     $self->{_tmp_worksheet}     = $tmp_sheet;
     $self->{_tmp_format}        = $tmp_format;
+    $self->{_url_format}        = '';
     $self->{_worksheets}        = [];
     $self->{_formats}           = [];
 
     bless $self, $class;
+    
+    # Add the default format for hyperlinks
+    my $url_format = $self->addformat();
+    $url_format->set_color('blue');
+    $url_format->set_underline(1);
+    $self->{_url_format} = $url_format;
+
     return $self;
+    
 }
 
 
@@ -132,6 +142,7 @@ sub addworksheet {
                         $index,
                         \$self->{_activesheet},
                         \$self->{_firstsheet},
+                        $self->{_url_format},
                         $self->{_store_in_memory},
                     );
 
@@ -208,6 +219,9 @@ sub write {
     my $self    = shift;
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
+    carp("Calling write() methods on a workbook object is deprecated," .
+         " use write() in conjuction with a worksheet object instead"
+        ) if $^W;
     return $self->{_worksheets}[0]->write(@_);
 }
 
@@ -226,6 +240,9 @@ sub write_string {
     my $self    = shift;
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
+    carp("Calling write() methods on a workbook object is deprecated," .
+         " use write() in conjuction with a worksheet object instead"
+        ) if $^W;
     return $self->{_worksheets}[0]->write_string(@_);
 }
 
@@ -244,8 +261,12 @@ sub write_number {
     my $self    = shift;
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
+    carp("Calling write() methods on a workbook object is deprecated," .
+         " use write() in conjuction with a worksheet object instead"
+        ) if $^W;
     return $self->{_worksheets}[0]->write_number(@_);
 }
+
 
 ###############################################################################
 #
@@ -529,7 +550,7 @@ sub _store_boundsheet {
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("VvC", $offset, $grbit, $cch);
 
-    $self->_append($header, $data, $sheetname)
+    $self->_append($header, $data, $sheetname);
 }
 
 
@@ -554,6 +575,24 @@ sub _store_style {
     my $data      = pack("vCC", $ixfe, $BuiltIn, $iLevel);
 
     $self->_append($header, $data);
+
+    
+    my $hexdata;
+    my $newdata;
+    
+    #$hexdata  = "93020400148008ff";
+    #$newdata  = pack("H*", $hexdata);
+    #$self->_append($newdata);
+    
+    #$hexdata  = "fc001f000100000001000000140000687474";
+    #$hexdata .= "703a2f2f7777772e7065726c2e636f6d2f";
+    #$newdata  = pack("H*", $hexdata);
+    #$self->_append($newdata);
+    
+    
+    
+
+    
 }
 
 
@@ -627,5 +666,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
+© MM-MMI, John McNamara.
 
+All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -37,7 +37,7 @@ $worksheet->writemany(21,2, [5..20], {direction => "col",
 $workbook->close;
 
 
-package Spreadsheet::Worksheet;
+package Spreadsheet::WriteExcel::Worksheet;
 
 ######################################################################
 #

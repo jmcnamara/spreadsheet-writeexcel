@@ -26,7 +26,7 @@ $worksheet->set_row(2, 30);
 
 # Create a border format
 my $border1 = $workbook->addformat();
-$border1->set_align('merge');
+$border1->set_merge();
 
 
 # Only one cell should contain text, the others should be blank.

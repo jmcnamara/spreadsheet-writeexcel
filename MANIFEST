@@ -42,6 +42,7 @@ WriteExcel/examples/copyformat.pl
 WriteExcel/examples/csv2xls.pl
 WriteExcel/examples/easter_egg.pl
 WriteExcel/examples/formats.pl
+WriteExcel/examples/hyperlink.pl
 WriteExcel/examples/merge1.pl
 WriteExcel/examples/merge2.pl
 WriteExcel/examples/ms_time.pl

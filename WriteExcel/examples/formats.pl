@@ -348,7 +348,7 @@ sub alignment {
     $format09->set_align('center');
     $format10->set_align('fill');
     $format11->set_align('justify');
-    $format12->set_align('merge');
+    $format12->set_merge();
 
     $format13->set_rotation(1);
     $format14->set_rotation(2);

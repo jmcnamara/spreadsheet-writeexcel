@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Format;
 #
 # Used in conjuction with Spreadsheet::WriteExcel
 #
-# Copyright 2000, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -16,6 +16,7 @@ require Exporter;
 
 use strict;
 use Carp;
+
 
 
 
@@ -355,6 +356,20 @@ sub set_align {
 
 ###############################################################################
 #
+# set_merge()
+#
+# This is an alias for the unintuitive set_align('merge') 
+#
+sub set_merge {
+
+    my $self     = shift;
+
+    $self->set_text_h_align(6);
+}
+
+
+###############################################################################
+#
 # set_bold()
 #
 # Bold has a range 0x64..0x3E8.
@@ -486,4 +501,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
+© MM-MMI, John McNamara.
+
+All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

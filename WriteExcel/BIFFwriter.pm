@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::BIFFwriter;
 #
 # Used in conjuction with Spreadsheet::WriteExcel
 #
-# Copyright 2000, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -15,6 +15,7 @@ package Spreadsheet::WriteExcel::BIFFwriter;
 require Exporter;
 
 use strict;
+
 
 
 
@@ -196,4 +197,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
+© MM-MMI, John McNamara.
+
+All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -5,6 +5,9 @@
 # Example of how to use the Spreadsheet::WriteExcel module to send an Excel
 # file to a browser in a CGI program.
 #
+# On Windows the hash-bang line should be something like:
+# #!C:\Perl\bin\perl.exe
+#
 # Dec 2000, John McNamara, jmcnamara@cpan.org
 #
 
