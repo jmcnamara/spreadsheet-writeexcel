@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 ###############################################################################
 #
@@ -53,7 +53,10 @@ sub new {
     my $class  = $_[0];
 
     my $self   = {
-                    _byte_order    => $_[1],
+                    _byte_order     => $_[1],
+                    _volatile       => 0,
+                    _workbook       => "",
+                    _ext_sheets     => {},
                  };
 
     bless $self, $class;
@@ -81,18 +84,18 @@ sub _init_parser {
     #
     $parser = Parse::RecDescent->new(<<'EndGrammar');
 
-        expr:           list
+        expr:           list 
 
         # Match arg lists such as SUM(1,2, 3)
         list:           <leftop: addition ',' addition>
                         { [ $item[1], '_arg', scalar @{$item[1]} ] }
 
-        addition:       <leftop: multiplication add_op multiplication>
+        addition:       <leftop: multiplication add_op multiplication> 
 
         # TODO: The add_op operators don't have equal precedence.
-        add_op:         add |  sub | concat
+        add_op:         add |  sub | concat 
                         | eq | ne | le | ge | lt | gt   # Order is important
-
+                        
         add:            '+'  { 'ptgAdd'    }
         sub:            '-'  { 'ptgSub'    }
         concat:         '&'  { 'ptgConcat' }
@@ -106,7 +109,7 @@ sub _init_parser {
 
         multiplication: <leftop: exponention mult_op exponention>
 
-        mult_op:        mult  | div
+        mult_op:        mult  | div 
         mult:           '*' { 'ptgMul' }
         div:            '/' { 'ptgDiv' }
 
@@ -117,38 +120,55 @@ sub _init_parser {
 
         factor:         number       # Order is important
                         | string
-                        | range
+                        | range2d
+                        | range3d
                         | true
                         | false
-                        | cell
+                        | ref2d
+                        | ref3d
                         | function
                         | '(' expr ')'  { [$item[2], 'ptgParen'] }
 
-        # TODO: Define a regex that can handle embedded quotes
-        string:         /"[^"]+"/     #" For editors
+        # Match a string.
+        # TODO: Define a regex or subrule to handle embedded quotes.
+        #
+        string:         /"[^"]*"/     #" For editors
                         { [ '_str', $item[1]] }
 
         # Match float or integer
-        number:          /([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?/
+        number:          /([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?/ 
                         { ['_num', $item[1]] }
 
-        # Match A1, $A1, A$1 or $A$1. Highest is column 255; IV.
-        cell:           /\$?[A-V][A-Z]?\$?\d+/
-                        { ['_ref', $item[1]] }
+        # 
+        # The highest column values is IV. The following regexes match to IZ.
+        # Out of range values are caught in the code.
+        #
+        
+        # Match A1, $A1, A$1 or $A$1.
+        ref2d:           /\$?[A-I]?[A-Z]\$?\d+/ 
+                        { ['_ref2d', $item[1]] }
 
+        # Match an external sheet reference.
+        ref3d:          /[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+/ 
+                        { ['_ref3d', $item[1]] }
+                        
         # Match A1:C5 etc.
-        range:          /\$?[A-V][A-Z]?\$?\d+:\$?[A-V][A-Z]?\$?\d+/
-                        { ['_rng', $item[1]] }
+        range2d:          /\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
+                        { ['_range2d', $item[1]] }
 
-        # Match a function name
-        function:       /[A-Z]+/ '()'
-                        { ['_fnc', $item[1]] }
-                        | /[A-Z]+/ '(' expr ')'
-                         { [$item[3], '_fnc', $item[1]] }
-                        | /[A-Z]+/ '(' list ')'
-                        { [$item[3], '_fnc', $item[1]] }
-
-        # Just watching the screen and hacking some Perl.
+        # Match an external sheet range.
+        range3d:        /[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/ 
+                        { ['_range3d', $item[1]] }
+                        
+        # Match a function name.
+        function:       /[A-Z0-9À-Ü_.]+/ '()'
+                        { ['_func', $item[1]] }
+                        | /[A-Z0-9À-Ü_.]+/ '(' expr ')' 
+                        { ['_class', $item[1], $item[3], '_func', $item[1]] }
+                        | /[A-Z0-9À-Ü_.]+/ '(' list ')' 
+                        { ['_class', $item[1], $item[3], '_func', $item[1]] }
+                        
+        # Budweiser.
         true:           'TRUE'  { [ 'ptgBool', 1 ] }
 
         false:          'FALSE' { [ 'ptgBool', 0 ] }
@@ -169,7 +189,7 @@ EndGrammar
 #
 sub parse_formula {
 
-    my $self = shift;
+    my $self= shift;
 
     # Initialise the parser if this is the first call
     $self->_init_parser() if not defined $parser;
@@ -177,6 +197,7 @@ sub parse_formula {
     my $formula = shift @_;
     my $str;
     my $tokens;
+
     print $formula, "\n" if $_debug;
 
     # Build the parse tree for the formula
@@ -188,11 +209,17 @@ sub parse_formula {
 
         # Convert parsed tokens to a byte stream
         $str = $self->_parse_tokens(@tokens);
-        $tokens = join " ", @tokens;
+        $tokens = join " ", @tokens; # For debugging
     }
     else {
         croak("Couldn't parse formula: $formula ")
     }
+
+    # Prepend the volatile attribute if the function is volatile.
+    # Then reset the volatile flag.
+    #
+    $str = ($self->_add_volatile() . $str) if $self->{_volatile};
+    $self->{_volatile} = 0;
 
     if ($_debug) {
         print join(" ", map { sprintf "%02X", $_ } unpack("C*",$str)), "\n";
@@ -274,12 +301,20 @@ sub _parse_tokens {
     my $parse_str   = '';
     my $last_type   = '';
     my $num_args    = 0;
+    my $class       = 0;
+    my @class       = 1;
 
+    
     while (@_) {
         my $token = shift @_;
 
         if ($token eq '_arg') {
             $num_args = shift @_;
+        }
+        elsif ($token eq '_class') {
+            $token = shift @_;
+            $class = $functions{$token}[2];
+            push @class, $class;
         }
         elsif ($token eq 'ptgBool') {
             $token = shift @_;
@@ -293,27 +328,53 @@ sub _parse_tokens {
             $token = shift @_;
             $parse_str .= $self->_convert_string($token);
         }
-        elsif ($token eq '_ref') {
+        elsif ($token eq '_ref2d') {
             $token = shift @_;
-            $parse_str .= $self->_convert_reference($token);
+            $parse_str .= $self->_convert_ref2d($token, $class[-1]);
         }
-        elsif ($token eq '_rng') {
+        elsif ($token eq '_ref3d') {
             $token = shift @_;
-            $parse_str .= $self->_convert_range($token);
+            $parse_str .= $self->_convert_ref3d($token, $class[-1]);
         }
-        elsif ($token eq '_fnc') {
+        elsif ($token eq '_range2d') {
+            $token = shift @_;
+            $parse_str .= $self->_convert_range2d($token, $class[-1]);
+        }
+        elsif ($token eq '_range3d') {
+            $token = shift @_;
+            $parse_str .= $self->_convert_range3d($token, $class[-1]);
+        }
+        elsif ($token eq '_func') {
             $token = shift @_;
             $parse_str .= $self->_convert_function($token, $num_args);
+            pop @class;
         }
         elsif (exists $ptg{$token}) {
             $parse_str .= pack("C", $ptg{$token});
         }
         else {
-            croak("Unrecognised token: $token ");
+            print("Unrecognised token: $token ");
         }
     }
 
     return $parse_str;
+}
+
+
+###############################################################################
+#
+# _add_volatile()
+#
+# Returns a ptgAttr tag formatted to indicate that the formula contains a
+# volatile function, i.e. a function that must be recalculated each time a cell
+# is updated. Examples: RAND(), NOW(), TIME()
+#
+sub _add_volatile {
+
+    my $self = shift;
+
+    # Set bitFattrSemi flag to indicate volatile function, "w" is set to zero.
+    return pack("CCv", $ptg{ptgAttr}, 0x1, 0x0);
 }
 
 
@@ -368,7 +429,7 @@ sub _convert_string {
 
     $str =~ s/^"//;   # Remove leading  "
     $str =~ s/"$//;   # Remove trailing "
-    $str =~ s/""/"/g; # Substitute Excels escaped double quote "" for "
+    $str =~ s/""/"/g; # Substitute Excel's escaped double quote "" for "
 
     my $length = length($str);
     croak("String: $str greater than 255 chars ") if $length > 255;
@@ -379,42 +440,241 @@ sub _convert_string {
 
 ###############################################################################
 #
-# _convert_reference
+# _convert_ref2d()
 #
 # Convert an Excel reference such as A1, $B2, C$3 or $D$4 to a ptgRefV.
 #
-sub _convert_reference {
+sub _convert_ref2d {
 
+    my $self  = shift;
+    my $cell  = shift;
+    my $class = shift;
+    my $ptgRef;
 
-    my $self = shift;
-    my $cell = shift;
-
+    # Convert the cell reference
     my ($row, $col) = $self->_cell_to_packed_rowcol($cell);
 
-    my $ptgRefV     = pack("C", $ptg{ptgRefV});
+    # The ptg value depends on the class of the ptg.
+    if    ($class == 0) {
+        $ptgRef = pack("C", $ptg{ptgRef});
+    }
+    elsif ($class == 1) {
+        $ptgRef = pack("C", $ptg{ptgRefV});
+    }
+    elsif ($class == 2) {
+        $ptgRef = pack("C", $ptg{ptgRefA});
+    }
+    else{
+        croak("Unknown class ");
+    }
 
-    return $ptgRefV . $row . $col;
+    return $ptgRef . $row . $col;
 }
 
 
 ###############################################################################
 #
-# _convert_range()
+# _convert_ref3d
+#
+# Convert an Excel 3d reference such as "Sheet1!A1" or "Sheet1:Sheet2!A1" to a
+# ptgRef3dV.
+#
+sub _convert_ref3d {
+
+    my $self  = shift;
+    my $token = shift;
+    my $class = shift;
+    my $ptgRef;
+
+    # Split the ref at the ! symbol
+    my ($ext_ref, $cell) = split '!', $token;
+
+    # Convert the external reference part
+    $ext_ref = $self->_pack_ext_ref($ext_ref);
+
+    # Convert the cell reference part
+    my ($row, $col) = $self->_cell_to_packed_rowcol($cell);
+
+    # The ptg value depends on the class of the ptg.
+    if    ($class == 0) {
+        $ptgRef = pack("C", $ptg{ptgRef3d});
+    }
+    elsif ($class == 1) {
+        $ptgRef = pack("C", $ptg{ptgRef3dV});
+    }
+    elsif ($class == 2) {
+        $ptgRef = pack("C", $ptg{ptgRef3dA});
+    }
+    else{
+        croak("Unknown class ");
+    }
+
+    return $ptgRef . $ext_ref. $row . $col;
+}
+
+
+###############################################################################
+#
+# _convert_range2d()
 #
 # Convert an Excel range such as A1:D4 to a ptgRefV.
 #
-sub _convert_range {
+sub _convert_range2d {
 
-    my $self = shift;
-
+    my $self  = shift;
     my $range = shift;
+    my $class = shift;
+    my $ptgArea;
+
+    # Split the range into 2 cell refs
     my ($cell1, $cell2) = split ':', $range;
-    my ($row1, $col1)   = $self->_cell_to_packed_rowcol($cell1);
-    my ($row2, $col2)   = $self->_cell_to_packed_rowcol($cell2);
 
-    my $ptgAreaV        = pack("C", $ptg{ptgArea});
+    # Convert the cell references
+    my ($row1, $col1) = $self->_cell_to_packed_rowcol($cell1);
+    my ($row2, $col2) = $self->_cell_to_packed_rowcol($cell2);
 
-    return $ptgAreaV . $row1 . $row2 . $col1. $col2;
+    # The ptg value depends on the class of the ptg.
+    if    ($class == 0) {
+        $ptgArea = pack("C", $ptg{ptgArea});
+    }
+    elsif ($class == 1) {
+        $ptgArea = pack("C", $ptg{ptgAreaV});
+    }
+    elsif ($class == 2) {
+        $ptgArea = pack("C", $ptg{ptgAreaA});
+    }
+    else{
+        croak("Unknown class ");
+    }
+
+    return $ptgArea . $row1 . $row2 . $col1. $col2;
+}
+
+
+###############################################################################
+#
+# _convert_range3d
+#
+# Convert an Excel 3d range such as "Sheet1!A1:D4" or "Sheet1:Sheet2!A1:D4" to
+# a ptgArea3dV.
+#
+sub _convert_range3d {
+
+    my $self      = shift;
+    my $token     = shift;
+    my $class = shift;
+    my $ptgArea;
+
+    # Split the ref at the ! symbol
+    my ($ext_ref, $range) = split '!', $token;
+
+    # Convert the external reference part
+    $ext_ref = $self->_pack_ext_ref($ext_ref);
+
+    # Split the range into 2 cell refs
+    my ($cell1, $cell2) = split ':', $range;
+
+    # Convert the cell references
+    my ($row1, $col1) = $self->_cell_to_packed_rowcol($cell1);
+    my ($row2, $col2) = $self->_cell_to_packed_rowcol($cell2);
+
+    # The ptg value depends on the class of the ptg.
+    if    ($class == 0) {
+        $ptgArea = pack("C", $ptg{ptgArea3d});
+    }
+    elsif ($class == 1) {
+        $ptgArea = pack("C", $ptg{ptgArea3dV});
+    }
+    elsif ($class == 2) {
+        $ptgArea = pack("C", $ptg{ptgArea3dA});
+    }
+    else{
+        croak("Unknown class ");
+    }
+
+    return $ptgArea . $ext_ref . $row1 . $row2 . $col1. $col2;
+}
+
+
+###############################################################################
+#
+# _pack_ext_ref()
+#
+# Convert the sheet name part of an external reference, for example "Sheet1" or
+# "Sheet1:Sheet2", to a packed structure.
+#
+sub _pack_ext_ref {
+
+    my $self    = shift;
+    my $ext_ref = shift;
+    my $sheet1;
+    my $sheet2;
+
+    $ext_ref =~ s/^'//;   # Remove leading  ' if any.
+    $ext_ref =~ s/'$//;   # Remove trailing ' if any.
+
+    # Check if there is a sheet range eg., Sheet1:Sheet2.
+    if ($ext_ref =~ /:/) {
+        ($sheet1, $sheet2) = split ':', $ext_ref;
+
+        $sheet1 = $self->_get_sheet_index($sheet1);
+        $sheet2 = $self->_get_sheet_index($sheet2);
+
+        # Reverse max and min sheet numbers if necessary
+        if ($sheet1 > $sheet2) {
+            ($sheet1, $sheet2) = ($sheet2, $sheet1);
+        }
+    }
+    else {
+        # Single sheet name only.
+        ($sheet1, $sheet2) = ($ext_ref, $ext_ref);
+
+        $sheet1 = $self->_get_sheet_index($sheet1);
+        $sheet2 = $sheet1;
+    }
+
+    # References are stored relative to 0xFFFF.
+    my $offset = -1 - $sheet1;
+
+    return pack("vdvv",$offset, 0x00, $sheet1, $sheet2);
+}
+
+
+###############################################################################
+#
+# _get_sheet_index()
+#
+# Look up the index that corresponds to an external sheet name. The hash of
+# sheet names is updated by the addworksheet() method of the Workbook class.
+#
+sub _get_sheet_index {
+
+    my $self        = shift;
+    my $sheet_name  = shift;
+
+    if (not exists $self->{_ext_sheets}->{$sheet_name}) {
+        croak("Unknown sheet name:  $sheet_name ");
+    }
+    else {
+        return $self->{_ext_sheets}->{$sheet_name};
+    }
+}
+
+
+###############################################################################
+#
+# set_ext_sheets()
+#
+# This semi-public method is used to update the hash of sheet names. It is
+# updated by the addworksheet() method of the Workbook class.
+#
+sub set_ext_sheet {
+
+    my $self  = shift;
+    my $key   = shift;
+    my $value = shift;
+
+    $self->{_ext_sheets}->{$key} = $value;
 }
 
 
@@ -431,12 +691,23 @@ sub _convert_function {
     my $token    = shift;
     my $num_args = shift;
 
-    my $args = $functions{$token}[1];
+    my $args     = $functions{$token}[1];
+    my $volatile = $functions{$token}[3];
+    
+    $self->{_volatile} = 1 if $volatile;
 
+    # Fixed number of args eg. TIME($i,$j,$k).
     if ($args >= 0) {
-        return pack("Cv", $ptg{ptgFuncV}, $functions{$token}[0]);
+        # Check that the number of args is valid.
+        if ($args != $num_args) {
+            croak ("Incorrect number of arguments in function $token() ");
+        }
+        else {
+            return pack("Cv", $ptg{ptgFuncV}, $functions{$token}[0]);
+        }
     }
 
+    # Variable number of args eg. SUM($i,$j,$k, ..).
     if ($args == -1) {
         return pack "CCv", $ptg{ptgFuncVarV}, $num_args, $functions{$token}[0];
     }
@@ -448,8 +719,8 @@ sub _convert_function {
 # _cell_to_rowcol($cell_ref)
 #
 # Convert an Excel cell reference such as A1 or $B2 or C$3 or $D$4 to a zero
-# indexed row and column number. Also, returns two boolean values to indicate
-# if the row or column are relative references.
+# indexed row and column number. Also returns two boolean values to indicate
+# whether the row or column are relative references.
 #
 sub _cell_to_rowcol {
 
@@ -463,15 +734,15 @@ sub _cell_to_rowcol {
     my $row_rel = $3 eq "" ? 1 : 0;
     my $row     = $4;
 
-
-    # Convert base26 column string to number
+    # Convert base26 column string to a number.
+    # All your Base are belong to us.
     my @chars  = split //, $col;
     my $expn   = 0;
     $col       = 0;
 
     while (@chars) {
         my $char = pop(@chars); # LS char first
-        $col += (ord($char) -ord('A') +1) * (26**$expn);
+        $col += (ord($char) - ord('A') + 1) * (26**$expn);
         $expn++;
     }
 
@@ -496,8 +767,8 @@ sub _cell_to_packed_rowcol {
 
     my ($row, $col, $row_rel, $col_rel) = $self->_cell_to_rowcol($cell);
 
-    croak("Column in: $cell greater than 255 ") if $col >= 255;
-    croak("Row in: $cell greater than 16384 ") if $row >= 16384;
+    croak("Column in: $cell greater than 255 ") if $col >= 256;
+    croak("Row in: $cell greater than 16384 " ) if $row >= 16384;
 
     # Set the high bits to indicate if row or col are relative.
     $row    |= $col_rel << 14;
@@ -615,239 +886,246 @@ sub _initialize_hashes {
         'ptgAreaErr3d'      => 0x7D,
     );
 
-    # The Excel function names with their index code and a value to indicate
-    # the number of arguments that the take:
-    #    >=0 is a fixed number of arguments
-    #    -1  is variable
+    # Thanks to Michael Meeks and Gnumeric for the initial arg values.
     #
-    # Thanks to Michael Meeks and Gnumeric for the number of arg values.
+    # The following hash was generated by "function_locale.pl" in the distro.
+    # Refer to function_locale.pl for non-English function names.
+    #
+    # The array elements are as follow:
+    # ptg:   The Excel function ptg code.
+    # args:  The number of arguments that the function takes:
+    #           >=0 is a fixed number of arguments.
+    #           -1  is a variable  number of arguments.
+    # class: The reference, value or array class of the function args.
+    # vol:   The function is volatile.
     #
     %functions  = (
-        'COUNT'             => [   0,  -1 ],
-        'IF'                => [   1,  -1 ],
-        'ISNA'              => [   2,   1 ],
-        'ISERROR'           => [   3,   1 ],
-        'SUM'               => [   4,  -1 ],
-        'AVERAGE'           => [   5,  -1 ],
-        'MIN'               => [   6,  -1 ],
-        'MAX'               => [   7,  -1 ],
-        'ROW'               => [   8,   1 ],
-        'COLUMN'            => [   9,   1 ],
-        'NA'                => [  10,   0 ],
-        'NPV'               => [  11,  -1 ],
-        'STDEV'             => [  12,  -1 ],
-        'DOLLAR'            => [  13,  -1 ],
-        'FIXED'             => [  14,  -1 ],
-        'SIN'               => [  15,   1 ],
-        'COS'               => [  16,   1 ],
-        'TAN'               => [  17,   1 ],
-        'ATAN'              => [  18,   1 ],
-        'PI'                => [  19,   0 ],
-        'SQRT'              => [  20,   1 ],
-        'EXP'               => [  21,   1 ],
-        'LN'                => [  22,   1 ],
-        'LOG10'             => [  23,   1 ],
-        'ABS'               => [  24,   1 ],
-        'INT'               => [  25,   1 ],
-        'SIGN'              => [  26,   1 ],
-        'ROUND'             => [  27,   2 ],
-        'LOOKUP'            => [  28,  -1 ],
-        'INDEX'             => [  29,  -1 ],
-        'REPT'              => [  30,   2 ],
-        'MID'               => [  31,   3 ],
-        'LEN'               => [  32,   1 ],
-        'VALUE'             => [  33,   1 ],
-        'TRUE'              => [  34,   0 ],
-        'FALSE'             => [  35,   0 ],
-        'AND'               => [  36,  -1 ],
-        'OR'                => [  37,  -1 ],
-        'NOT'               => [  38,   1 ],
-        'MOD'               => [  39,   2 ],
-        'DCOUNT'            => [  40,   3 ],
-        'DSUM'              => [  41,   3 ],
-        'DAVERAGE'          => [  42,   3 ],
-        'DMIN'              => [  43,   3 ],
-        'DMAX'              => [  44,   3 ],
-        'DSTDEV'            => [  45,   3 ],
-        'VAR'               => [  46,  -1 ],
-        'DVAR'              => [  47,   3 ],
-        'TEXT'              => [  48,   2 ],
-        'LINEST'            => [  49,  -1 ],
-        'TREND'             => [  50,  -1 ],
-        'LOGEST'            => [  51,  -1 ],
-        'GROWTH'            => [  52,  -1 ],
-        'PV'                => [  56,  -1 ],
-        'FV'                => [  57,  -1 ],
-        'NPER'              => [  58,  -1 ],
-        'PMT'               => [  59,  -1 ],
-        'RATE'              => [  60,  -1 ],
-        'MIRR'              => [  61,   3 ],
-        'IRR'               => [  62,  -1 ],
-        'RAND'              => [  63,   0 ],
-        'MATCH'             => [  64,   3 ],
-        'DATE'              => [  65,   3 ],
-        'TIME'              => [  66,   3 ],
-        'DAY'               => [  67,   1 ],
-        'MONTH'             => [  68,   1 ],
-        'YEAR'              => [  69,   1 ],
-        'WEEKDAY'           => [  70,  -1 ],
-        'HOUR'              => [  71,   1 ],
-        'MINUTE'            => [  72,   1 ],
-        'SECOND'            => [  73,   1 ],
-        'NOW'               => [  74,   0 ],
-        'AREAS'             => [  75,   1 ],
-        'ROWS'              => [  76,   1 ],
-        'COLUMNS'           => [  77,   1 ],
-        'OFFSET'            => [  78,  -1 ],
-        'SEARCH'            => [  82,  -1 ],
-        'TRANSPOSE'         => [  83,   1 ],
-        'TYPE'              => [  86,   1 ],
-        'ATAN2'             => [  97,   2 ],
-        'ASIN'              => [  98,   1 ],
-        'ACOS'              => [  99,   1 ],
-        'CHOOSE'            => [ 100,  -1 ],
-        'HLOOKUP'           => [ 101,  -1 ],
-        'VLOOKUP'           => [ 102,  -1 ],
-        'ISREF'             => [ 105,   1 ],
-        'LOG'               => [ 109,  -1 ],
-        'CHAR'              => [ 111,   1 ],
-        'LOWER'             => [ 112,   1 ],
-        'UPPER'             => [ 113,   1 ],
-        'PROPER'            => [ 114,   1 ],
-        'LEFT'              => [ 115,  -1 ],
-        'RIGHT'             => [ 116,  -1 ],
-        'EXACT'             => [ 117,   2 ],
-        'TRIM'              => [ 118,   1 ],
-        'REPLACE'           => [ 119,   4 ],
-        'SUBSTITUTE'        => [ 120,  -1 ],
-        'CODE'              => [ 121,   1 ],
-        'FIND'              => [ 124,  -1 ],
-        'CELL'              => [ 125,   2 ],
-        'ISERR'             => [ 126,   1 ],
-        'ISTEXT'            => [ 127,   1 ],
-        'ISNUMBER'          => [ 128,   1 ],
-        'ISBLANK'           => [ 129,   1 ],
-        'T'                 => [ 130,   1 ],
-        'N'                 => [ 131,   1 ],
-        'DATEVALUE'         => [ 140,   1 ],
-        'TIMEVALUE'         => [ 141,   1 ],
-        'SLN'               => [ 142,   3 ],
-        'SYD'               => [ 143,   4 ],
-        'DDB'               => [ 144,  -1 ],
-        'INDIRECT'          => [ 148,  -1 ],
-        'CALL'              => [ 150,  -1 ],
-        'CLEAN'             => [ 162,   1 ],
-        'MDETERM'           => [ 163,   1 ],
-        'MINVERSE'          => [ 164,   1 ],
-        'MMULT'             => [ 165,   2 ],
-        'IPMT'              => [ 167,  -1 ],
-        'PPMT'              => [ 168,  -1 ],
-        'COUNTA'            => [ 169,  -1 ],
-        'PRODUCT'           => [ 183,  -1 ],
-        'FACT'              => [ 184,   1 ],
-        'DPRODUCT'          => [ 189,   3 ],
-        'ISNONTEXT'         => [ 190,   1 ],
-        'STDEVP'            => [ 193,  -1 ],
-        'VARP'              => [ 194,  -1 ],
-        'DSTDEVP'           => [ 195,   3 ],
-        'DVARP'             => [ 196,   3 ],
-        'TRUNC'             => [ 197,  -1 ],
-        'ISLOGICAL'         => [ 198,   1 ],
-        'DCOUNTA'           => [ 199,   3 ],
-        'ROUNDUP'           => [ 212,   2 ],
-        'ROUNDDOWN'         => [ 213,   2 ],
-        'RANK'              => [ 216,  -1 ],
-        'ADDRESS'           => [ 219,  -1 ],
-        'DAYS360'           => [ 220,  -1 ],
-        'TODAY'             => [ 221,   0 ],
-        'VDB'               => [ 222,  -1 ],
-        'MEDIAN'            => [ 227,  -1 ],
-        'SUMPRODUCT'        => [ 228,  -1 ],
-        'SINH'              => [ 229,   1 ],
-        'COSH'              => [ 230,   1 ],
-        'TANH'              => [ 231,   1 ],
-        'ASINH'             => [ 232,   1 ],
-        'ACOSH'             => [ 233,   1 ],
-        'ATANH'             => [ 234,   1 ],
-        'DGET'              => [ 235,   3 ],
-        'INFO'              => [ 244,   1 ],
-        'DB'                => [ 247,  -1 ],
-        'FREQUENCY'         => [ 252,   2 ],
-        'ERROR.TYPE'        => [ 261,   1 ],
-        'REGISTER.ID'       => [ 267,  -1 ],
-        'AVEDEV'            => [ 269,  -1 ],
-        'BETADIST'          => [ 270,  -1 ],
-        'GAMMALN'           => [ 271,   1 ],
-        'BETAINV'           => [ 272,  -1 ],
-        'BINOMDIST'         => [ 273,   4 ],
-        'CHIDIST'           => [ 274,   2 ],
-        'CHIINV'            => [ 275,   2 ],
-        'COMBIN'            => [ 276,   2 ],
-        'CONFIDENCE'        => [ 277,   3 ],
-        'CRITBINOM'         => [ 278,   3 ],
-        'EVEN'              => [ 279,   1 ],
-        'EXPONDIST'         => [ 280,   3 ],
-        'FDIST'             => [ 281,   3 ],
-        'FINV'              => [ 282,   3 ],
-        'FISHER'            => [ 283,   1 ],
-        'FISHERINV'         => [ 284,   1 ],
-        'FLOOR'             => [ 285,   2 ],
-        'GAMMADIST'         => [ 286,   4 ],
-        'GAMMAINV'          => [ 287,   3 ],
-        'CEILING'           => [ 288,   2 ],
-        'HYPGEOMDIST'       => [ 289,   4 ],
-        'LOGNORMDIST'       => [ 290,   3 ],
-        'LOGINV'            => [ 291,   3 ],
-        'NEGBINOMDIST'      => [ 292,   3 ],
-        'NORMDIST'          => [ 293,   4 ],
-        'NORMSDIST'         => [ 294,   1 ],
-        'NORMINV'           => [ 295,   3 ],
-        'NORMSINV'          => [ 296,   1 ],
-        'STANDARDIZE'       => [ 297,   3 ],
-        'ODD'               => [ 298,   1 ],
-        'PERMUT'            => [ 299,   2 ],
-        'POISSON'           => [ 300,   3 ],
-        'TDIST'             => [ 301,   3 ],
-        'WEIBULL'           => [ 302,   4 ],
-        'SUMXMY2'           => [ 303,   2 ],
-        'SUMX2MY2'          => [ 304,   2 ],
-        'SUMX2PY2'          => [ 305,   2 ],
-        'CHITEST'           => [ 306,   2 ],
-        'CORREL'            => [ 307,   2 ],
-        'COVAR'             => [ 308,   2 ],
-        'FORECAST'          => [ 309,   3 ],
-        'FTEST'             => [ 310,   2 ],
-        'INTERCEPT'         => [ 311,   2 ],
-        'PEARSON'           => [ 312,   2 ],
-        'RSQ'               => [ 313,   2 ],
-        'STEYX'             => [ 314,   2 ],
-        'SLOPE'             => [ 315,   2 ],
-        'TTEST'             => [ 316,   4 ],
-        'PROB'              => [ 317,  -1 ],
-        'DEVSQ'             => [ 318,  -1 ],
-        'GEOMEAN'           => [ 319,  -1 ],
-        'HARMEAN'           => [ 320,  -1 ],
-        'SUMSQ'             => [ 321,  -1 ],
-        'KURT'              => [ 322,  -1 ],
-        'SKEW'              => [ 323,  -1 ],
-        'ZTEST'             => [ 324,  -1 ],
-        'LARGE'             => [ 325,   2 ],
-        'SMALL'             => [ 326,   2 ],
-        'QUARTILE'          => [ 327,   2 ],
-        'PERCENTILE'        => [ 328,   2 ],
-        'PERCENTRANK'       => [ 329,  -1 ],
-        'MODE'              => [ 330,  -1 ],
-        'TRIMMEAN'          => [ 331,   2 ],
-        'TINV'              => [ 332,   2 ],
-        'CONCATENATE'       => [ 336,  -1 ],
-        'POWER'             => [ 337,   2 ],
-        'RADIANS'           => [ 342,   1 ],
-        'DEGREES'           => [ 343,   1 ],
-        'SUBTOTAL'          => [ 344,  -1 ],
-        'SUMIF'             => [ 345,  -1 ],
-        'COUNTIF'           => [ 346,   2 ],
-        'COUNTBLANK'        => [ 347,   1 ],
-        'ROMAN'             => [ 354,  -1 ],
+        #                                     ptg  args  class  vol
+        'COUNT'                         => [   0,   -1,    0,    0 ],
+        'IF'                            => [   1,   -1,    1,    0 ],
+        'ISNA'                          => [   2,    1,    1,    0 ],
+        'ISERROR'                       => [   3,    1,    1,    0 ],
+        'SUM'                           => [   4,   -1,    0,    0 ],
+        'AVERAGE'                       => [   5,   -1,    0,    0 ],
+        'MIN'                           => [   6,   -1,    0,    0 ],
+        'MAX'                           => [   7,   -1,    0,    0 ],
+        'ROW'                           => [   8,   -1,    0,    0 ],
+        'COLUMN'                        => [   9,   -1,    0,    0 ],
+        'NA'                            => [  10,    0,    0,    0 ],
+        'NPV'                           => [  11,   -1,    1,    0 ],
+        'STDEV'                         => [  12,   -1,    0,    0 ],
+        'DOLLAR'                        => [  13,   -1,    1,    0 ],
+        'FIXED'                         => [  14,   -1,    1,    0 ],
+        'SIN'                           => [  15,    1,    1,    0 ],
+        'COS'                           => [  16,    1,    1,    0 ],
+        'TAN'                           => [  17,    1,    1,    0 ],
+        'ATAN'                          => [  18,    1,    1,    0 ],
+        'PI'                            => [  19,    0,    1,    0 ],
+        'SQRT'                          => [  20,    1,    1,    0 ],
+        'EXP'                           => [  21,    1,    1,    0 ],
+        'LN'                            => [  22,    1,    1,    0 ],
+        'LOG10'                         => [  23,    1,    1,    0 ],
+        'ABS'                           => [  24,    1,    1,    0 ],
+        'INT'                           => [  25,    1,    1,    0 ],
+        'SIGN'                          => [  26,    1,    1,    0 ],
+        'ROUND'                         => [  27,    2,    1,    0 ],
+        'LOOKUP'                        => [  28,   -1,    0,    0 ],
+        'INDEX'                         => [  29,   -1,    0,    1 ],
+        'REPT'                          => [  30,    2,    1,    0 ],
+        'MID'                           => [  31,    3,    1,    0 ],
+        'LEN'                           => [  32,    1,    1,    0 ],
+        'VALUE'                         => [  33,    1,    1,    0 ],
+        'TRUE'                          => [  34,    0,    1,    0 ],
+        'FALSE'                         => [  35,    0,    1,    0 ],
+        'AND'                           => [  36,   -1,    0,    0 ],
+        'OR'                            => [  37,   -1,    0,    0 ],
+        'NOT'                           => [  38,    1,    1,    0 ],
+        'MOD'                           => [  39,    2,    1,    0 ],
+        'DCOUNT'                        => [  40,    3,    0,    0 ],
+        'DSUM'                          => [  41,    3,    0,    0 ],
+        'DAVERAGE'                      => [  42,    3,    0,    0 ],
+        'DMIN'                          => [  43,    3,    0,    0 ],
+        'DMAX'                          => [  44,    3,    0,    0 ],
+        'DSTDEV'                        => [  45,    3,    0,    0 ],
+        'VAR'                           => [  46,   -1,    0,    0 ],
+        'DVAR'                          => [  47,    3,    0,    0 ],
+        'TEXT'                          => [  48,    2,    1,    0 ],
+        'LINEST'                        => [  49,   -1,    0,    0 ],
+        'TREND'                         => [  50,   -1,    0,    0 ],
+        'LOGEST'                        => [  51,   -1,    0,    0 ],
+        'GROWTH'                        => [  52,   -1,    0,    0 ],
+        'PV'                            => [  56,   -1,    1,    0 ],
+        'FV'                            => [  57,   -1,    1,    0 ],
+        'NPER'                          => [  58,   -1,    1,    0 ],
+        'PMT'                           => [  59,   -1,    1,    0 ],
+        'RATE'                          => [  60,   -1,    1,    0 ],
+        'MIRR'                          => [  61,    3,    0,    0 ],
+        'IRR'                           => [  62,   -1,    0,    0 ],
+        'RAND'                          => [  63,    0,    1,    1 ],
+        'MATCH'                         => [  64,   -1,    0,    0 ],
+        'DATE'                          => [  65,    3,    1,    0 ],
+        'TIME'                          => [  66,    3,    1,    0 ],
+        'DAY'                           => [  67,    1,    1,    0 ],
+        'MONTH'                         => [  68,    1,    1,    0 ],
+        'YEAR'                          => [  69,    1,    1,    0 ],
+        'WEEKDAY'                       => [  70,   -1,    1,    0 ],
+        'HOUR'                          => [  71,    1,    1,    0 ],
+        'MINUTE'                        => [  72,    1,    1,    0 ],
+        'SECOND'                        => [  73,    1,    1,    0 ],
+        'NOW'                           => [  74,    0,    1,    1 ],
+        'AREAS'                         => [  75,    1,    0,    1 ],
+        'ROWS'                          => [  76,    1,    0,    1 ],
+        'COLUMNS'                       => [  77,    1,    0,    1 ],
+        'OFFSET'                        => [  78,   -1,    0,    1 ],
+        'SEARCH'                        => [  82,   -1,    1,    0 ],
+        'TRANSPOSE'                     => [  83,    1,    1,    0 ],
+        'TYPE'                          => [  86,    1,    1,    0 ],
+        'ATAN2'                         => [  97,    2,    1,    0 ],
+        'ASIN'                          => [  98,    1,    1,    0 ],
+        'ACOS'                          => [  99,    1,    1,    0 ],
+        'CHOOSE'                        => [ 100,   -1,    1,    0 ],
+        'HLOOKUP'                       => [ 101,   -1,    0,    0 ],
+        'VLOOKUP'                       => [ 102,   -1,    0,    0 ],
+        'ISREF'                         => [ 105,    1,    0,    0 ],
+        'LOG'                           => [ 109,   -1,    1,    0 ],
+        'CHAR'                          => [ 111,    1,    1,    0 ],
+        'LOWER'                         => [ 112,    1,    1,    0 ],
+        'UPPER'                         => [ 113,    1,    1,    0 ],
+        'PROPER'                        => [ 114,    1,    1,    0 ],
+        'LEFT'                          => [ 115,   -1,    1,    0 ],
+        'RIGHT'                         => [ 116,   -1,    1,    0 ],
+        'EXACT'                         => [ 117,    2,    1,    0 ],
+        'TRIM'                          => [ 118,    1,    1,    0 ],
+        'REPLACE'                       => [ 119,    4,    1,    0 ],
+        'SUBSTITUTE'                    => [ 120,   -1,    1,    0 ],
+        'CODE'                          => [ 121,    1,    1,    0 ],
+        'FIND'                          => [ 124,   -1,    1,    0 ],
+        'CELL'                          => [ 125,   -1,    0,    1 ],
+        'ISERR'                         => [ 126,    1,    1,    0 ],
+        'ISTEXT'                        => [ 127,    1,    1,    0 ],
+        'ISNUMBER'                      => [ 128,    1,    1,    0 ],
+        'ISBLANK'                       => [ 129,    1,    1,    0 ],
+        'T'                             => [ 130,    1,    0,    0 ],
+        'N'                             => [ 131,    1,    0,    0 ],
+        'DATEVALUE'                     => [ 140,    1,    1,    0 ],
+        'TIMEVALUE'                     => [ 141,    1,    1,    0 ],
+        'SLN'                           => [ 142,    3,    1,    0 ],
+        'SYD'                           => [ 143,    4,    1,    0 ],
+        'DDB'                           => [ 144,   -1,    1,    0 ],
+        'INDIRECT'                      => [ 148,   -1,    1,    1 ],
+        'CALL'                          => [ 150,   -1,    1,    0 ],
+        'CLEAN'                         => [ 162,    1,    1,    0 ],
+        'MDETERM'                       => [ 163,    1,    2,    0 ],
+        'MINVERSE'                      => [ 164,    1,    2,    0 ],
+        'MMULT'                         => [ 165,    2,    2,    0 ],
+        'IPMT'                          => [ 167,   -1,    1,    0 ],
+        'PPMT'                          => [ 168,   -1,    1,    0 ],
+        'COUNTA'                        => [ 169,   -1,    0,    0 ],
+        'PRODUCT'                       => [ 183,   -1,    0,    0 ],
+        'FACT'                          => [ 184,    1,    1,    0 ],
+        'DPRODUCT'                      => [ 189,    3,    0,    0 ],
+        'ISNONTEXT'                     => [ 190,    1,    1,    0 ],
+        'STDEVP'                        => [ 193,   -1,    0,    0 ],
+        'VARP'                          => [ 194,   -1,    0,    0 ],
+        'DSTDEVP'                       => [ 195,    3,    0,    0 ],
+        'DVARP'                         => [ 196,    3,    0,    0 ],
+        'TRUNC'                         => [ 197,   -1,    1,    0 ],
+        'ISLOGICAL'                     => [ 198,    1,    1,    0 ],
+        'DCOUNTA'                       => [ 199,    3,    0,    0 ],
+        'ROUNDUP'                       => [ 212,    2,    1,    0 ],
+        'ROUNDDOWN'                     => [ 213,    2,    1,    0 ],
+        'RANK'                          => [ 216,   -1,    0,    0 ],
+        'ADDRESS'                       => [ 219,   -1,    1,    0 ],
+        'DAYS360'                       => [ 220,   -1,    1,    0 ],
+        'TODAY'                         => [ 221,    0,    1,    1 ],
+        'VDB'                           => [ 222,   -1,    1,    0 ],
+        'MEDIAN'                        => [ 227,   -1,    0,    0 ],
+        'SUMPRODUCT'                    => [ 228,   -1,    2,    0 ],
+        'SINH'                          => [ 229,    1,    1,    0 ],
+        'COSH'                          => [ 230,    1,    1,    0 ],
+        'TANH'                          => [ 231,    1,    1,    0 ],
+        'ASINH'                         => [ 232,    1,    1,    0 ],
+        'ACOSH'                         => [ 233,    1,    1,    0 ],
+        'ATANH'                         => [ 234,    1,    1,    0 ],
+        'DGET'                          => [ 235,    3,    0,    0 ],
+        'INFO'                          => [ 244,    1,    1,    1 ],
+        'DB'                            => [ 247,   -1,    1,    0 ],
+        'FREQUENCY'                     => [ 252,    2,    0,    0 ],
+        'ERROR.TYPE'                    => [ 261,    1,    1,    0 ],
+        'REGISTER.ID'                   => [ 267,   -1,    1,    0 ],
+        'AVEDEV'                        => [ 269,   -1,    0,    0 ],
+        'BETADIST'                      => [ 270,   -1,    1,    0 ],
+        'GAMMALN'                       => [ 271,    1,    1,    0 ],
+        'BETAINV'                       => [ 272,   -1,    1,    0 ],
+        'BINOMDIST'                     => [ 273,    4,    1,    0 ],
+        'CHIDIST'                       => [ 274,    2,    1,    0 ],
+        'CHIINV'                        => [ 275,    2,    1,    0 ],
+        'COMBIN'                        => [ 276,    2,    1,    0 ],
+        'CONFIDENCE'                    => [ 277,    3,    1,    0 ],
+        'CRITBINOM'                     => [ 278,    3,    1,    0 ],
+        'EVEN'                          => [ 279,    1,    1,    0 ],
+        'EXPONDIST'                     => [ 280,    3,    1,    0 ],
+        'FDIST'                         => [ 281,    3,    1,    0 ],
+        'FINV'                          => [ 282,    3,    1,    0 ],
+        'FISHER'                        => [ 283,    1,    1,    0 ],
+        'FISHERINV'                     => [ 284,    1,    1,    0 ],
+        'FLOOR'                         => [ 285,    2,    1,    0 ],
+        'GAMMADIST'                     => [ 286,    4,    1,    0 ],
+        'GAMMAINV'                      => [ 287,    3,    1,    0 ],
+        'CEILING'                       => [ 288,    2,    1,    0 ],
+        'HYPGEOMDIST'                   => [ 289,    4,    1,    0 ],
+        'LOGNORMDIST'                   => [ 290,    3,    1,    0 ],
+        'LOGINV'                        => [ 291,    3,    1,    0 ],
+        'NEGBINOMDIST'                  => [ 292,    3,    1,    0 ],
+        'NORMDIST'                      => [ 293,    4,    1,    0 ],
+        'NORMSDIST'                     => [ 294,    1,    1,    0 ],
+        'NORMINV'                       => [ 295,    3,    1,    0 ],
+        'NORMSINV'                      => [ 296,    1,    1,    0 ],
+        'STANDARDIZE'                   => [ 297,    3,    1,    0 ],
+        'ODD'                           => [ 298,    1,    1,    0 ],
+        'PERMUT'                        => [ 299,    2,    1,    0 ],
+        'POISSON'                       => [ 300,    3,    1,    0 ],
+        'TDIST'                         => [ 301,    3,    1,    0 ],
+        'WEIBULL'                       => [ 302,    4,    1,    0 ],
+        'SUMXMY2'                       => [ 303,    2,    2,    0 ],
+        'SUMX2MY2'                      => [ 304,    2,    2,    0 ],
+        'SUMX2PY2'                      => [ 305,    2,    2,    0 ],
+        'CHITEST'                       => [ 306,    2,    2,    0 ],
+        'CORREL'                        => [ 307,    2,    2,    0 ],
+        'COVAR'                         => [ 308,    2,    2,    0 ],
+        'FORECAST'                      => [ 309,    3,    2,    0 ],
+        'FTEST'                         => [ 310,    2,    2,    0 ],
+        'INTERCEPT'                     => [ 311,    2,    2,    0 ],
+        'PEARSON'                       => [ 312,    2,    2,    0 ],
+        'RSQ'                           => [ 313,    2,    2,    0 ],
+        'STEYX'                         => [ 314,    2,    2,    0 ],
+        'SLOPE'                         => [ 315,    2,    2,    0 ],
+        'TTEST'                         => [ 316,    4,    2,    0 ],
+        'PROB'                          => [ 317,   -1,    2,    0 ],
+        'DEVSQ'                         => [ 318,   -1,    0,    0 ],
+        'GEOMEAN'                       => [ 319,   -1,    0,    0 ],
+        'HARMEAN'                       => [ 320,   -1,    0,    0 ],
+        'SUMSQ'                         => [ 321,   -1,    0,    0 ],
+        'KURT'                          => [ 322,   -1,    0,    0 ],
+        'SKEW'                          => [ 323,   -1,    0,    0 ],
+        'ZTEST'                         => [ 324,   -1,    0,    0 ],
+        'LARGE'                         => [ 325,    2,    0,    0 ],
+        'SMALL'                         => [ 326,    2,    0,    0 ],
+        'QUARTILE'                      => [ 327,    2,    0,    0 ],
+        'PERCENTILE'                    => [ 328,    2,    0,    0 ],
+        'PERCENTRANK'                   => [ 329,   -1,    0,    0 ],
+        'MODE'                          => [ 330,   -1,    2,    0 ],
+        'TRIMMEAN'                      => [ 331,    2,    0,    0 ],
+        'TINV'                          => [ 332,    2,    1,    0 ],
+        'CONCATENATE'                   => [ 336,   -1,    1,    0 ],
+        'POWER'                         => [ 337,    2,    1,    0 ],
+        'RADIANS'                       => [ 342,    1,    1,    0 ],
+        'DEGREES'                       => [ 343,    1,    1,    0 ],
+        'SUBTOTAL'                      => [ 344,   -1,    0,    0 ],
+        'SUMIF'                         => [ 345,   -1,    0,    0 ],
+        'COUNTIF'                       => [ 346,    2,    0,    0 ],
+        'COUNTBLANK'                    => [ 347,    1,    0,    0 ],
+        'ROMAN'                         => [ 354,   -1,    1,    0 ],
     );
 
 }
@@ -871,11 +1149,16 @@ See the documentation for Spreadsheet::WriteExcel
 
 =head1 DESCRIPTION
 
-This module is used in conjunction with Spreadsheet::WriteExcel. It should not be used directly.
+This module is used by Spreadsheet::WriteExcel. You do not need to use it directly.
+
+
+=head1 NOTES
 
 The following notes are to help developers and maintainers understand the sequence of operation. They are also intended as a pro-memoria for the author. ;-)
 
-Spreadsheet::WriteExcel::Formula converts a textual representation of a formula into the pre-parsed binary format that Excel uses to store formulas. For example C<1+2*3> is stored as follows: C<1E 01 00 1E 02 00 1E 03 00 05 03>. This string is comprised of operators and operands arranged in a reverse-Polish format. The meaning of the tokens in the above example is shown in the following table:
+Spreadsheet::WriteExcel::Formula converts a textual representation of a formula into the pre-parsed binary format that Excel uses to store formulas. For example C<1+2*3> is stored as follows: C<1E 01 00 1E 02 00 1E 03 00 05 03>.
+
+This string is comprised of operators and operands arranged in a reverse-Polish format. The meaning of the tokens in the above example is shown in the following table:
 
     Token   Name        Value
     1E      ptgInt      0001   (stored as 01 00)
@@ -886,9 +1169,9 @@ Spreadsheet::WriteExcel::Formula converts a textual representation of a formula 
 
 The tokens and token names are defined in the "Excel Developer's Kit" from Microsoft Press. C<ptg> stands for Parse ThinG (as in "That lexer can't grok it, it's a parse thang.")
 
-In general the tokens fall into two categories: operators such as C<ptgMul> above and operands such as C<ptgInt>. When the formula is evaluated by Excel the operand tokens push values onto a stack. The operator tokens then pop the required number of operands from the stack, perform an operation and push the resulting value back onto the stack. This methodology is similar to the basic operation of a reverse-Polish (RPN) calculator.
+In general the tokens fall into two categories: operators such as C<ptgMul> and operands such as C<ptgInt>. When the formula is evaluated by Excel the operand tokens push values onto a stack. The operator tokens then pop the required number of operands from the stack, perform an operation and push the resulting value back onto the stack. This methodology is similar to the basic operation of a reverse-Polish (RPN) calculator.
 
-Spreadsheet::WriteExcel::Formula parses a formula using a C<Parse::RecDescent> parser (at a later stage it may use a C<Parse::Yapp> parser).
+Spreadsheet::WriteExcel::Formula parses a formula using a C<Parse::RecDescent> parser (at a later stage it may use a C<Parse::Yapp> parser or C<Parse::FastDescent>).
 
 The parser converts the textual representation of a formula into a parse tree. Thus, C<1+2*3> is converted into something like the following, C<e> stands for expression:
 
@@ -899,7 +1182,7 @@ The parser converts the textual representation of a formula into a parse tree. T
              2   *   3
 
 
-The function C<_reverse_tree()> recurses down through this structure swapping the order of operators followed by operands to produce a reverse-Polish tree. Following the above example the resulting tree would look like this:
+The function C<_reverse_tree()> recurses down through this structure swapping the order of operators followed by operands to produce a reverse-Polish tree. In other words the formula is converted from in-fix notation to post-fix. Following the above example the resulting tree would look like this:
 
 
              e
@@ -918,17 +1201,22 @@ The actual return value contains some additional information to help in the seco
 
 The additional tokens are:
 
-    Token   Meaning
+    Token       Meaning
+    _num        The next token is a number
+    _str        The next token is a string
+    _ref2d      The next token is a 2d cell reference
+    _ref3d      The next token is a 3d cell reference
+    _range2d    The next token is a 2d range
+    _range3d    The next token is a 3d range
+    _func       The next token is a function
+    _arg        The next token is the number of args for a function
+    _class      The next token is a function name
 
-    _num    The next token is a number
-    _str    The next token is a string
-    _ref    The next token is a cell reference
-    _rng    The next token is a range
-    _fnc    The next token is a function
-    _arg    The next token is a the number of args for a function
+The C<_arg> token is generated for all lists but is only used for functions that take a variable number of arguments.
 
-The C<_arg> token is generated for all lists but is only used for functions the take a variable number of arguments.
+The C<_class> token indicates the start of the arguments to a function. This allows the post-processor to decide the "class" of the ref and range arguments that the function takes. The class can be reference, value or array. Since function calls can be nested, the class variable is stored on a stack in the C<@class> array. The class of the ref or range is then read as the top element of the stack C<$class[-1]>. When a C<_func> is read it pops the class value.
 
+Certain Excel functions such as RAND() and NOW() are designated as volatile and must be recalculated by Excel every time that a is updated. Any formulas that contain one of these functions has a specially formatted C<ptgAttr> tag prepended to it to indicate that it is volatile.
 
 A secondary parsing stage is carried out by C<_parse_tokens()> which converts these tokens into a binary string. For the C<1+2*3> example this would give:
 
@@ -938,7 +1226,11 @@ This two-pass method could probably have been reduced to a single pass through t
 
 The token values and formula values are stored in the C<%ptg> and C<%functions> hashes. These hashes and the parser object C<$parser> are exposed as global data. This breaks the OO encapsulation, but means that they can be shared by several instances of Spreadsheet::WriteExcel called from the same program.
 
+Non-English function names can be added to the C<%functions> hash using the C<function_locale.pl> program in the C<examples> directory of the distro. The supported languages are: German, French, Spanish, Portuguese, Dutch, Finnish, Italian and Swedish.
+
 The parser is initialised by C<_init_parser()>. The initialisation is delayed until the first formula is parsed. This eliminates the overhead of generating the parser in programs that are not processing formulas. (The parser should really be pre-compiled, this is to-do when the grammar stabilises).
+
+
 
 
 =head1 AUTHOR

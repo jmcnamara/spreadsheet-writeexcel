@@ -11,7 +11,7 @@
 # serves as an example of how the module can be extended without modifying the
 # code directly.
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

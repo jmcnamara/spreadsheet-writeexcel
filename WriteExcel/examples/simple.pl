@@ -5,7 +5,7 @@
 # Example of how to use the WriteExcel module to write text and numbers
 # to an Excel binary file.
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

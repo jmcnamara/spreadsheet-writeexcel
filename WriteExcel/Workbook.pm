@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 ###############################################################################
 #
@@ -38,7 +38,6 @@ sub new {
     my $filename    = $_[0] || '';
     my $self        = Spreadsheet::WriteExcel::BIFFwriter->new();
     my $ole_writer  = Spreadsheet::WriteExcel::OLEwriter->new($filename);
-    #my $tmp_sheet   = Spreadsheet::WriteExcel::Worksheet->new('', 0, 0);
     my $tmp_format  = Spreadsheet::WriteExcel::Format->new();
 
     my $byte_order  = $self->{_byte_order};
@@ -53,10 +52,10 @@ sub new {
     $self->{_fileclosed}        = 0;
     $self->{_biffsize}          = 0;
     $self->{_sheetname}         = "Sheet";
-    #$self->{_tmp_worksheet}     = $tmp_sheet;
     $self->{_tmp_format}        = $tmp_format;
     $self->{_url_format}        = '';
     $self->{_worksheets}        = [];
+    $self->{_sheetnames}        = [];
     $self->{_formats}           = [];
 
     bless $self, $class;
@@ -151,7 +150,9 @@ sub addworksheet {
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
-    $self->{_worksheets}->[$index] = $worksheet;
+    $self->{_worksheets}->[$index] = $worksheet;    # Store ref for iterator
+    $self->{_sheetnames}->[$index] = $name;         # Store EXTERNSHEET names
+    $self->{_parser}->set_ext_sheet($name, $index); # Store names in Formula.pm
     return $worksheet;
 }
 
@@ -293,34 +294,6 @@ sub _tmpfile_warning{
 
 ###############################################################################
 #
-# _calc_sheet_offsets()
-#
-# Calculate offsets for Worksheet BOF records.
-#
-sub _calc_sheet_offsets {
-
-    my $self    = shift;
-    my $BOF     = 11;
-    my $EOF     = 4;
-    my $offset  = $self->{_datasize};
-
-    foreach my $sheet (@{$self->{_worksheets}}) {
-        $offset += $BOF + length($sheet->{name});
-    }
-
-    $offset += $EOF;
-
-    foreach my $sheet (@{$self->{_worksheets}}) {
-        $sheet->{_offset} = $offset;
-        $offset += $sheet->{_datasize};
-    }
-
-    $self->{_biffsize} = $offset;
-}
-
-
-###############################################################################
-#
 # _store_workbook()
 #
 # Assemble worksheets into a workbook and send the BIFF data to an OLE
@@ -333,7 +306,7 @@ sub _store_workbook {
 
     # Call the finalization methods for each worksheet
     foreach my $sheet (@{$self->{_worksheets}}) {
-        $sheet->_close();
+        $sheet->_close($self->{_sheetnames});
     }
 
     # Add Workbook globals
@@ -348,7 +321,7 @@ sub _store_workbook {
 
     # Add BOUNDSHEET records
     foreach my $sheet (@{$self->{_worksheets}}) {
-        $self->_store_boundsheet($sheet->{name}, $sheet->{_offset});
+        $self->_store_boundsheet($sheet->{_name}, $sheet->{_offset});
     }
 
     # End Workbook globals
@@ -365,6 +338,34 @@ sub _store_workbook {
             }
         }
     }
+}
+
+
+###############################################################################
+#
+# _calc_sheet_offsets()
+#
+# Calculate offsets for Worksheet BOF records.
+#
+sub _calc_sheet_offsets {
+
+    my $self    = shift;
+    my $BOF     = 11;
+    my $EOF     = 4;
+    my $offset  = $self->{_datasize};
+
+    foreach my $sheet (@{$self->{_worksheets}}) {
+        $offset += $BOF + length($sheet->{_name});
+    }
+
+    $offset += $EOF;
+
+    foreach my $sheet (@{$self->{_worksheets}}) {
+        $sheet->{_offset} = $offset;
+        $offset += $sheet->{_datasize};
+    }
+
+    $self->{_biffsize} = $offset;
 }
 
 
@@ -441,10 +442,10 @@ sub _store_all_num_formats {
     #
     foreach my $format (@{$self->{_formats}}) {
         my $num_format = $format->{_num_format};
-        
+
         # Check if $num_format is an index to a builtin format.
         # Also check for a string of zeros, which is a valid format string
-        # but would evaluate to zero
+        # but would evaluate to zero.
         #
         if ($num_format !~ m/^0+\d/) {
             next if $num_format =~ m/^\d+$/; # builtin

@@ -61,7 +61,7 @@ sub new {
 # _set_byte_order()
 #
 # Determine the byte order and store it as class data to avoid
-# recalulating it for each call to new().
+# recalculating it for each call to new().
 #
 sub _set_byte_order {
 

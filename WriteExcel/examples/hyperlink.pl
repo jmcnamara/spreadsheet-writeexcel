@@ -4,7 +4,7 @@
 #
 # Example of how to use the WriteExcel module to write hyperlinks
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -12,11 +12,11 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("hyperlink.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->addworksheet('Hyperlinks');
 
 # Format the first column
-$worksheet->set_column(0, 0, 25);
-$worksheet->set_selection(0, 1);
+$worksheet->set_column('A:A', 30);
+$worksheet->set_selection('B1');
 
 
 # Add a sample format
@@ -28,11 +28,11 @@ $format->set_underline();
 
 
 # Write some hyperlinks
-$worksheet->write(0, 0, 'http://www.perl.com/'                );
-$worksheet->write(1, 0, 'http://www.perl.com/', 'Perl home'   );
-$worksheet->write(2, 0, 'http://www.perl.com/', undef, $format);
-$worksheet->write(3, 0, 'ftp://www.perl.com/'                 );
+$worksheet->write('A1', 'http://www.perl.com/'                );
+$worksheet->write('A3', 'http://www.perl.com/', 'Perl home'   );
+$worksheet->write('A5', 'http://www.perl.com/', undef, $format);
+$worksheet->write('A7', 'mailto:jmcnamara@cpan.org', 'Mail me');
 
 # Write a URL that isn't a hyperlink
-$worksheet->write_string(5, 0, 'http://www.perl.com/');
+$worksheet->write_string('A9', 'http://www.perl.com/');
 

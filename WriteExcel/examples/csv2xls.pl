@@ -6,11 +6,11 @@
 #
 # Program to convert a CSV comma-separated value file into an Excel file.
 # This is more or less an non-op since Excel can read CSV files.
-# The program uses Text::CSV_XS to parse the CSV. 
+# The program uses Text::CSV_XS to parse the CSV.
 #
 # Usage: csv2xls.pl file.csv newfile.xls
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -39,7 +39,7 @@ my $row = 0;
 while (<CSVFILE>) {
     if ($csv->parse($_)) {
         my @Fld = $csv->fields;
-        
+
         my $col = 0;
         foreach my $token (@Fld) {
             $worksheet->write($row, $col, $token);

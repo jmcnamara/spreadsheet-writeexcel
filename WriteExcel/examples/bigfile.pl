@@ -2,20 +2,13 @@
 
 ###############################################################################
 #
-# Example of how to use extend the  Spreadsheet::WriteExcel 7MB limit with
+# Example of how to extend the Spreadsheet::WriteExcel 7MB limit with
 # OLE::Storage_Lite http://search.cpan.org/search?dist=OLE-Storage_Lite
 #
 # Nov 2000, Kawai, Takanori (Hippo2000)
 #   Mail: GCD00051@nifty.ne.jp
 #   http://member.nifty.ne.jp/hippo2000
 #
-# To run this program, rename Big.pl and WorkbookBig.pl to *.pm and copy them
-# to yourperl/site/lib/Spreadsheet/WriteExcel
-#
-# Currently the Excel data is transfered to OLE::Storage_Lite as a single
-# scalar. This is slow and requires a lot of memory. 
-#
-# Create a BIG Excel file
 
 
 use strict;

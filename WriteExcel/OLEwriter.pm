@@ -24,7 +24,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 ###############################################################################
 #
@@ -39,6 +39,7 @@ sub new {
                     _OLEfilename   => $_[0],
                     _filehandle    => "",
                     _fileclosed    => 0,
+                    _internal_fh   => 0,
                     _biff_only     => 0,
                     _size_allowed  => 0,
                     _biffsize      => 0,
@@ -66,20 +67,31 @@ sub _initialize {
 
     my $self    = shift;
     my $OLEfile = $self->{_OLEfilename};
+    my $fh;
 
     # Check for filename
     if ($OLEfile eq "") {
         croak('Filename required in WriteExcel("Filename")');
     }
 
-    # Open file for writing
-    my $fh = FileHandle->new("> $OLEfile");
-    if (not defined $fh) {
-        croak "Can't open $OLEfile. It may be in use.";
+    # If the filename is a reference it is assumed that it is a valid
+    # filehandle, if not we create a filehandle.
+    #
+    if (ref($OLEfile)) {
+        $fh = $OLEfile;
     }
+    else{
+        # Create a new file, open for writing
+        $fh = FileHandle->new("> $OLEfile");
+        if (not defined $fh) {
+            croak "Can't open $OLEfile. It may be in use.";
+        }
 
-    # binmode file whether platform requires it or not
-    binmode($fh);
+        # binmode file whether platform requires it or not
+        binmode($fh);
+
+        $self->{_internal_fh} = 1;
+    }
 
     # Store filehandle
     $self->{_filehandle} = $fh;
@@ -169,7 +181,9 @@ sub close {
     $self->_write_property_storage() if not $self->{_biff_only};
     $self->_write_big_block_depot()  if not $self->{_biff_only};
 
-    CORE::close($self->{_filehandle});
+    # Close the filehandle if it was created internally.
+    CORE::close($self->{_filehandle}) if $self->{_internal_fh};
+
     $self->{_fileclosed} = 1;
 }
 

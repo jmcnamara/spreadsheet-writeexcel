@@ -58,7 +58,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #              $direction eq "col", values will be inserted from
 #              ($row, $col) to ($row+3, $col+9)
 #  format: a format object (optional)
-# 
+#
 # Returns: array of return values of called subroutines, in the same
 # order as $ref
 

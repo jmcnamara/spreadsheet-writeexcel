@@ -8,7 +8,7 @@
 #
 # Usage: tab2xls.pl tabfile.txt newfile.xls
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 

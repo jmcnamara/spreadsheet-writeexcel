@@ -5,7 +5,7 @@
 # Example of how to use the WriteExcel module to write a basic multiple
 # worksheet Excel file.
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -39,7 +39,7 @@ $west->write (0, 1, 100000);
 # Set the active worksheet
 $south->activate();
 
-# Set the width of the first column 
+# Set the width of the first column
 $south->set_column(0, 0, 20);
 
 # Set the active cell

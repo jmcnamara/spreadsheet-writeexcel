@@ -9,7 +9,7 @@
 # is wrapped automatically to fit the column width. With text wrap you must
 # specify a newline with an embedded \n.
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

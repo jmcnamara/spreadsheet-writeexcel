@@ -4,7 +4,7 @@
 #
 # Examples of formatting using the Spreadsheet::WriteExcel module
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -50,7 +50,7 @@ sub intro {
     $format->set_size(14);
     $format->set_color('blue');
     $format->set_align('center');
-    
+
     $worksheet->write(2, 0, 'This workbook demonstrates some of',  $format);
     $worksheet->write(3, 0, 'the formatting options provided by',  $format);
     $worksheet->write(4, 0, 'the Spreadsheet::WriteExcel module.', $format);
@@ -82,7 +82,7 @@ sub named_colors {
         my $format = $workbook->addformat();
         $format->set_color($colors[$i]);
         $format->set_align('center');
-        
+
         $worksheet->write($i+1, 0, $indices[$i],                    $center);
         $worksheet->write($i+1, 1, sprintf("0x%02X", $indices[$i]), $center);
         $worksheet->write($i+1, 2, $colors[$i],                     $center);
@@ -109,7 +109,7 @@ sub standard_colors {
         my $format = $workbook->addformat();
         $format->set_color($i);
         $format->set_align('center');
-        
+
         $worksheet->write(($i -7), 0, $i,                    $center);
         $worksheet->write(($i -7), 1, sprintf("0x%02X", $i), $center);
         $worksheet->write(($i -7), 2, 'COLOR',               $format);
@@ -127,7 +127,7 @@ sub numeric_formats {
 
     $worksheet->set_column(0, 4, 15);
     $worksheet->set_column(5, 5, 45);
-    
+
     $worksheet->write(0, 0, "Index",       $heading);
     $worksheet->write(0, 1, "Index",       $heading);
     $worksheet->write(0, 2, "Unformatted", $heading);

@@ -3,7 +3,7 @@
 ###############################################################################
 #
 # Example of how to use the format copying method with Spreadsheet::WriteExcel #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

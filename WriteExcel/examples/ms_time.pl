@@ -62,7 +62,7 @@
 #
 # Copyright (c) 2000, Andrew Benham.
 # This program is free software. It may be used, redistributed and/or
-# modified under the same terms as Perl itself. 
+# modified under the same terms as Perl itself.
 #
 # Andrew Benham, adsb@bigfoot.com
 # London, United Kingdom
@@ -112,7 +112,7 @@ $workbook->close();
 #   1.  Unix timestamp.  If omitted, uses current time.
 #   2.  GMT flag. Set to '1' to return serial in GMT.
 #       If omitted, returns serial in appropriate timezone.
-# 
+#
 # Returns date/time serial according to $DATE_SYSTEM selected
 #-----------------------------------------------------------
 sub calc_serial {

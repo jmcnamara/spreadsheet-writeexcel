@@ -5,7 +5,7 @@
 # This is a simple example of how to create an Excel file using the
 # Win32::OLE module.
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

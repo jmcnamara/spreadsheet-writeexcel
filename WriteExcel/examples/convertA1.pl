@@ -5,9 +5,10 @@
 # This program contains helper functions to deal with the Excel A1 cell
 # reference  notation.
 #
-# TODO: These functions should include error checking and more comments.
+# TODO: These functions and some others will be moved to a utility module in a
+# later version.
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -119,7 +120,7 @@ sub cell_to_rowcol {
     my $row     = $4;
 
     # Convert base26 column string to number
-    # All your bases are belong to us.
+    # All your Bases are belong to us.
     my @chars  = split //, $col;
     my $expn   = 0;
     $col       = 0;

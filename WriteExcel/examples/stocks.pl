@@ -7,7 +7,7 @@
 # This example shows how to use a conditional numerical format
 # with colours to indicate if a share price has gone up or down.
 #
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -44,7 +44,7 @@ $f_volume->set_num_format('#,##0');
 # format. The number is formatted as a percentage. If it is positive it is
 # formatted in green, if it is negative it is formatted in red and if it is
 # zero it is formatted as the default font colour (in this case black).
-# Note: the [Green] format produces an unappealing lime green. Try 
+# Note: the [Green] format produces an unappealing lime green. Try
 # [Color 10] instead for a dark green.
 #
 my $f_change = $workbook->addformat();
