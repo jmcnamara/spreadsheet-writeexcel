@@ -12,12 +12,12 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 my $workbook  = Spreadsheet::WriteExcel->new("protection.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 # Create some format objects
-my $locked    = $workbook->addformat(locked => 1);
-my $unlocked  = $workbook->addformat(locked => 0);
-my $hidden    = $workbook->addformat(hidden => 1);
+my $locked    = $workbook->add_format(locked => 1);
+my $unlocked  = $workbook->add_format(locked => 0);
+my $hidden    = $workbook->add_format(hidden => 1);
 
 # Format the columns
 $worksheet->set_column('A:A', 42);

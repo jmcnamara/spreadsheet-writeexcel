@@ -27,7 +27,7 @@ print "\n";
 # redirect the output to STDOUT
 #
 my $workbook  = Spreadsheet::WriteExcel->new("-");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 
 # Set the column width for column 1
@@ -35,7 +35,7 @@ $worksheet->set_column(0, 0, 20);
 
 
 # Create a format
-my $format = $workbook->addformat();
+my $format = $workbook->add_format();
 $format->set_bold();
 $format->set_size(15);
 $format->set_color('blue');

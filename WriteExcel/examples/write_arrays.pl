@@ -18,16 +18,16 @@ use Spreadsheet::WriteExcel;
 
 
 my $workbook   = Spreadsheet::WriteExcel->new("write_arrays.xls");
-my $worksheet1 = $workbook->addworksheet('Example 1');
-my $worksheet2 = $workbook->addworksheet('Example 2');
-my $worksheet3 = $workbook->addworksheet('Example 3');
-my $worksheet4 = $workbook->addworksheet('Example 4');
-my $worksheet5 = $workbook->addworksheet('Example 5');
-my $worksheet6 = $workbook->addworksheet('Example 6');
-my $worksheet7 = $workbook->addworksheet('Example 7');
-my $worksheet8 = $workbook->addworksheet('Example 8');
+my $worksheet1 = $workbook->add_worksheet('Example 1');
+my $worksheet2 = $workbook->add_worksheet('Example 2');
+my $worksheet3 = $workbook->add_worksheet('Example 3');
+my $worksheet4 = $workbook->add_worksheet('Example 4');
+my $worksheet5 = $workbook->add_worksheet('Example 5');
+my $worksheet6 = $workbook->add_worksheet('Example 6');
+my $worksheet7 = $workbook->add_worksheet('Example 7');
+my $worksheet8 = $workbook->add_worksheet('Example 8');
 
-my $format     = $workbook->addformat(color => 'red', bold => 1);
+my $format     = $workbook->add_format(color => 'red', bold => 1);
 
 
 # Data arrays used in the following examples.

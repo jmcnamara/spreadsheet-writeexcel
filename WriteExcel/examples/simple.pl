@@ -13,7 +13,7 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook called simple.xls and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("simple.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 # The general syntax is write($row, $column, $token). Note that row and
 # column are zero indexed

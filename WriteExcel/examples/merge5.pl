@@ -13,7 +13,7 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new('merge5.xls');
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 
 # Increase the cell size of the merged cells to highlight the formatting.
@@ -25,7 +25,7 @@ $worksheet->set_column($_, $_ , 15) for (1,3,5);
 #
 # Rotation 1, letters run from top to bottom
 #
-my $format1 = $workbook->addformat(
+my $format1 = $workbook->add_format(
                                     border      => 6,
                                     bold        => 1,
                                     color       => 'red',
@@ -42,7 +42,7 @@ $worksheet->merge_range('B4:B9', 'Rotation 1: Top to bottom', $format1);
 #
 # Rotation 2, 90° anticlockwise
 #
-my $format2 = $workbook->addformat(
+my $format2 = $workbook->add_format(
                                     border      => 6,
                                     bold        => 1,
                                     color       => 'red',
@@ -60,7 +60,7 @@ $worksheet->merge_range('D4:D9', 'Rotation 2: 90° anticlockwise', $format2);
 #
 # Rotation 3, 90° clockwise
 #
-my $format3 = $workbook->addformat(
+my $format3 = $workbook->add_format(
                                     border      => 6,
                                     bold        => 1,
                                     color       => 'red',

@@ -14,7 +14,7 @@ use Spreadsheet::WriteExcel::Utility;
 
 # Create a new workbook and add a worksheet
 my $workbook        = Spreadsheet::WriteExcel->new("sales.xls");
-my $worksheet       = $workbook->addworksheet('May Sales');
+my $worksheet       = $workbook->add_worksheet('May Sales');
 
 
 # Set up some formats
@@ -32,10 +32,10 @@ my %total           =   (
                         num_format  => '$#,##0.00'
                         );
 
-my $heading         = $workbook->addformat(%heading);
-my $total_format    = $workbook->addformat(%total);
-my $price_format    = $workbook->addformat(num_format => '$#,##0.00');
-my $date_format     = $workbook->addformat(num_format => 'mmm d yyy');
+my $heading         = $workbook->add_format(%heading);
+my $total_format    = $workbook->add_format(%total);
+my $price_format    = $workbook->add_format(num_format => '$#,##0.00');
+my $date_format     = $workbook->add_format(num_format => 'mmm d yyy');
 
 
 # Write the main headings

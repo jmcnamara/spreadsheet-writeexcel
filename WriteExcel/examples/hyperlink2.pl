@@ -28,22 +28,22 @@ use Spreadsheet::WriteExcel;
 #   C:\Temp\Asia\China.xls
 #
 my $ireland   = Spreadsheet::WriteExcel->new('C:\Temp\Europe\Ireland.xls');
-my $ire_links = $ireland->addworksheet('Links');
-my $ire_sales = $ireland->addworksheet('Sales');
-my $ire_data  = $ireland->addworksheet('Product Data');
+my $ire_links = $ireland->add_worksheet('Links');
+my $ire_sales = $ireland->add_worksheet('Sales');
+my $ire_data  = $ireland->add_worksheet('Product Data');
 
 my $italy     = Spreadsheet::WriteExcel->new('C:\Temp\Europe\Italy.xls');
-my $ita_links = $italy->addworksheet('Links');
-my $ita_sales = $italy->addworksheet('Sales');
-my $ita_data  = $italy->addworksheet('Product Data');
+my $ita_links = $italy->add_worksheet('Links');
+my $ita_sales = $italy->add_worksheet('Sales');
+my $ita_data  = $italy->add_worksheet('Product Data');
 
 my $china     = Spreadsheet::WriteExcel->new('C:\Temp\Asia\China.xls');
-my $cha_links = $china->addworksheet('Links');
-my $cha_sales = $china->addworksheet('Sales');
-my $cha_data  = $china->addworksheet('Product Data');
+my $cha_links = $china->add_worksheet('Links');
+my $cha_sales = $china->add_worksheet('Sales');
+my $cha_data  = $china->add_worksheet('Product Data');
 
 # Add a format
-my $format = $ireland->addformat(color => 'green', bold => 1);
+my $format = $ireland->add_format(color => 'green', bold => 1);
 $ire_links->set_column('A:B', 25);
 
 

@@ -23,7 +23,7 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 my $workbook  = Spreadsheet::WriteExcel->new("chess.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 
 # Some row and column formatting
@@ -49,22 +49,22 @@ my %right   = ( 'right'  => 6 );
 
 # Define the formats
 #
-my $format01 = $workbook->addformat(%top,    %left          );
-my $format02 = $workbook->addformat(%top,    %black         );
-my $format03 = $workbook->addformat(%top,                   );
-my $format04 = $workbook->addformat(%top,    %right, %black );
+my $format01 = $workbook->add_format(%top,    %left          );
+my $format02 = $workbook->add_format(%top,    %black         );
+my $format03 = $workbook->add_format(%top,                   );
+my $format04 = $workbook->add_format(%top,    %right, %black );
 
-my $format05 = $workbook->addformat(%left                   );
-my $format06 = $workbook->addformat(%black                  );
-my $format07 = $workbook->addformat(                        );
-my $format08 = $workbook->addformat(%right,  %black         );
-my $format09 = $workbook->addformat(%right                  );
-my $format10 = $workbook->addformat(%left,   %black         );
+my $format05 = $workbook->add_format(%left                   );
+my $format06 = $workbook->add_format(%black                  );
+my $format07 = $workbook->add_format(                        );
+my $format08 = $workbook->add_format(%right,  %black         );
+my $format09 = $workbook->add_format(%right                  );
+my $format10 = $workbook->add_format(%left,   %black         );
 
-my $format11 = $workbook->addformat(%bottom, %left,  %black );
-my $format12 = $workbook->addformat(%bottom                 );
-my $format13 = $workbook->addformat(%bottom, %black         );
-my $format14 = $workbook->addformat(%bottom, %right         );
+my $format11 = $workbook->add_format(%bottom, %left,  %black );
+my $format12 = $workbook->add_format(%bottom                 );
+my $format13 = $workbook->add_format(%bottom, %black         );
+my $format14 = $workbook->add_format(%bottom, %right         );
 
 
 # Draw the pattern

@@ -14,8 +14,8 @@ use Spreadsheet::WriteExcel;
 my $workbook = Spreadsheet::WriteExcel->new("colors.xls");
 
 # Some common formats
-my $center  = $workbook->addformat(align => 'center');
-my $heading = $workbook->addformat(align => 'center', bold => 1);
+my $center  = $workbook->add_format(align => 'center');
+my $heading = $workbook->add_format(align => 'center', bold => 1);
 
 # Try this to see the default Excel 5 palette
 # $workbook->set_palette_xl5();
@@ -44,7 +44,7 @@ my %colors = (
                 0x0D, 'yellow',
              );
 
-my $worksheet1 = $workbook->addworksheet('Named colors');
+my $worksheet1 = $workbook->add_worksheet('Named colors');
 
 $worksheet1->set_column(0, 3, 15);
 
@@ -56,7 +56,7 @@ $worksheet1->write(0, 3, "Color", $heading);
 my $i = 1;
 
 while (my($index, $color) = each %colors) {
-    my $format = $workbook->addformat(
+    my $format = $workbook->add_format(
                                         fg_color => $color,
                                         pattern  => 1,
                                         border   => 1
@@ -75,7 +75,7 @@ while (my($index, $color) = each %colors) {
 # Demonstrate the standard Excel colors in the range 8..63.
 #
 
-my $worksheet2 = $workbook->addworksheet('Standard colors');
+my $worksheet2 = $workbook->add_worksheet('Standard colors');
 
 $worksheet2->set_column(0, 3, 15);
 
@@ -85,7 +85,7 @@ $worksheet2->write(0, 2, "Color", $heading);
 $worksheet2->write(0, 3, "Name",  $heading);
 
 for my $i (8..63) {
-    my $format = $workbook->addformat(
+    my $format = $workbook->add_format(
                                         fg_color => $i,
                                         pattern  => 1,
                                         border   => 1

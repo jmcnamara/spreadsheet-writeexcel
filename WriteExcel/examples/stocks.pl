@@ -15,27 +15,27 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("stocks.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 # Set the column width for columns 1, 2, 3 and 4
 $worksheet->set_column(0, 3, 15);
 
 
 # Create a format for the column headings
-my $header = $workbook->addformat();
+my $header = $workbook->add_format();
 $header->set_bold();
 $header->set_size(12);
 $header->set_color('blue');
 
 
 # Create a format for the stock price
-my $f_price = $workbook->addformat();
+my $f_price = $workbook->add_format();
 $f_price->set_align('left');
 $f_price->set_num_format('$0.00');
 
 
 # Create a format for the stock volume
-my $f_volume = $workbook->addformat();
+my $f_volume = $workbook->add_format();
 $f_volume->set_align('left');
 $f_volume->set_num_format('#,##0');
 
@@ -47,7 +47,7 @@ $f_volume->set_num_format('#,##0');
 # Note: the [Green] format produces an unappealing lime green. Try
 # [Color 10] instead for a dark green.
 #
-my $f_change = $workbook->addformat();
+my $f_change = $workbook->add_format();
 $f_change->set_align('left');
 $f_change->set_num_format('[Green]0.0%;[Red]-0.0%;0.0%');
 

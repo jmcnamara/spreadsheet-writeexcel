@@ -16,7 +16,7 @@ use Spreadsheet::WriteExcel::Big; # Note the name
 
 
 my $workbook  = Spreadsheet::WriteExcel::Big->new("big.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 $worksheet->set_column(0, 50, 18);
 

@@ -7,16 +7,16 @@ package Spreadsheet::WriteExcel::Formula;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2003, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
 
 use Exporter;
 use strict;
-use Parse::RecDescent;
-use Data::Dumper;
 use Carp;
+
+
 
 
 
@@ -78,6 +78,11 @@ sub _init_parser {
 
     my $self = shift;
 
+    # Delay loading Parse::RecDescent to reduce the module dependencies.
+    eval { require Parse::RecDescent };
+    die  "The Parse::RecDescent module must be installed in order ".
+         "to write an Excel formula\n" if $@;
+            
     $self->_initialize_hashes();
 
     # The parsing grammar.
@@ -727,7 +732,7 @@ sub _pack_ext_ref {
 # _get_sheet_index()
 #
 # Look up the index that corresponds to an external sheet name. The hash of
-# sheet names is updated by the addworksheet() method of the Workbook class.
+# sheet names is updated by the add_worksheet() method of the Workbook class.
 #
 sub _get_sheet_index {
 
@@ -748,7 +753,7 @@ sub _get_sheet_index {
 # set_ext_sheets()
 #
 # This semi-public method is used to update the hash of sheet names. It is
-# updated by the addworksheet() method of the Workbook class.
+# updated by the add_worksheet() method of the Workbook class.
 #
 sub set_ext_sheets {
 
@@ -1325,6 +1330,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMII, John McNamara.
+© MM-MMIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -14,7 +14,7 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new('merge3.xls');
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 
 # Increase the cell size of the merged cells to highlight the formatting.
@@ -27,7 +27,7 @@ $worksheet->set_column('B:D', 20);
 # Example 1: Merge cells containing a hyperlink using write_url_range()
 # and the standard Excel 5+ merge property.
 #
-my $format1 = $workbook->addformat(
+my $format1 = $workbook->add_format(
                                     merge       => 1,
                                     border      => 1,
                                     underline   => 1,
@@ -45,7 +45,7 @@ $worksheet->write_blank('D2', $format1);
 #
 # Example 2: Merge cells containing a hyperlink using merge_range().
 #
-my $format2 = $workbook->addformat(
+my $format2 = $workbook->add_format(
                                     border      => 1,
                                     underline   => 1,
                                     color       => 'blue',

@@ -83,9 +83,9 @@ use vars qw/$DATE_SYSTEM/;
 $DATE_SYSTEM = ($^O eq 'MacOS') ? 1 : 0;
 
 my $workbook = Spreadsheet::WriteExcel->new("dates.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
-my $format_date =  $workbook->addformat();
+my $format_date =  $workbook->add_format();
 $format_date->set_num_format('d mmmm yyy');
 
 $worksheet->set_column(0,1,21);

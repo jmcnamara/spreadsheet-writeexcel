@@ -8,7 +8,7 @@ package Spreadsheet::WriteExcel::Big;
 # Spreadsheet::WriteExcel - Write formatted text and numbers to a
 # cross-platform Excel binary file.
 #
-# © MM-MMII, John McNamara.
+# © MM-MMIII, John McNamara.
 #
 #
 
@@ -73,7 +73,7 @@ This module is used in conjunction with Spreadsheet::WriteExcel.
     use Spreadsheet::WriteExcel::Big;
 
     my $workbook  = Spreadsheet::WriteExcel::Big->new("file.xls");
-    my $worksheet = $workbook->addworksheet();
+    my $worksheet = $workbook->add_worksheet();
 
     # Same as Spreadsheet::WriteExcel
     ...
@@ -94,7 +94,7 @@ John McNamara jmcnamara@cpan.org
 =head1 COPYRIGHT
 
 
-© MM-MMII, John McNamara.
+© MM-MMIII, John McNamara.
 
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -70,6 +70,7 @@ WriteExcel/examples/merge3.pl
 WriteExcel/examples/merge4.pl
 WriteExcel/examples/merge5.pl
 WriteExcel/examples/mod_perl.pl
+WriteExcel/examples/outline.pl
 WriteExcel/examples/panes.pl
 WriteExcel/examples/protection.pl
 WriteExcel/examples/regions.pl

@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2003, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -18,13 +18,13 @@ use Carp;
 use Spreadsheet::WriteExcel::BIFFwriter;
 use Spreadsheet::WriteExcel::Format;
 use Spreadsheet::WriteExcel::Formula;
-use File::Temp 'tempfile';
+
 
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.17';
+$VERSION = '0.18';
 
 ###############################################################################
 #
@@ -51,7 +51,6 @@ sub new {
     $self->{_ext_sheets}        = [];
     $self->{_using_tmpfile}     = 1;
     $self->{_filehandle}        = "";
-    $self->{_filename}          = "";
     $self->{_fileclosed}        = 0;
     $self->{_offset}            = 0;
     $self->{_xls_rowmax}        = $rowmax;
@@ -116,6 +115,12 @@ sub new {
 
     $self->{_leading_zeros}     = 0;
 
+    $self->{_outline_row_level} = 0;
+    $self->{_outline_style}     = 0;
+    $self->{_outline_below}     = 1;
+    $self->{_outline_right}     = 1;
+    $self->{_outline_on}        = 1;
+
     bless $self, $class;
     $self->_initialize();
     return $self;
@@ -134,34 +139,60 @@ sub _initialize {
 
     my $self = shift;
     my $fh;
-    my $filename;
+    my $tmp_dir;
 
-    # Open tmp file for storing Worksheet data. We do this in an eval block
-    # to trap any File::Temp errors.
-    #
-    # Note it would be better to call tempfile in a scalar context here and
-    # have $fh unlinked automatically. However, that would limit us to ~800
-    # tempfiles on some Windows system. So this is a workaround:
-    #
-    eval { ($fh, $filename) = File::Temp::tempfile(DIR => $self->{_tempdir}) };
+    # The following code is complicated by Windows limitations. Porters can
+    # choose a more direct method.
 
+
+
+    # In the default case we use IO::File->new_tmpfile(). This may fail, in
+    # particular with IIS on Windows, so we allow the user to specify a temp
+    # directory via File::Temp.
+    #
+    if (defined $self->{_tempdir}) {
+
+        # Delay loading File:Temp to reduce the module dependencies.
+        eval { require File::Temp };
+        die "The File::Temp module must be installed in order ".
+            "to call set_tempdir().\n" if $@;
+
+
+        # Trap but ignore File::Temp errors.
+        eval { $fh = File::Temp::tempfile(DIR => $self->{_tempdir}) };
+
+        # Store the failed tmp dir in case of errors.
+        $tmp_dir = $self->{_tempdir} || File::Spec->tmpdir if not $fh;
+    }
+    else {
+
+        $fh = IO::File->new_tmpfile();
+
+        # Store the failed tmp dir in case of errors.
+        $tmp_dir = "POSIX::tmpnam() directory" if not $fh;
+    }
+
+
+    # Check if the temp file creation was sucessful. Else store data in memory.
     if ($fh) {
-        # binmode file whether platform requires it or not
+
+        # binmode file whether platform requires it or not.
         binmode($fh);
 
         # Store filehandle
         $self->{_filehandle} = $fh;
-        $self->{_filename}   = $filename;
     }
     else {
-        # If tempfile() failed store data in memory
+
+        # Set flag to store data in memory if XX::tempfile() failed.
         $self->{_using_tmpfile} = 0;
 
         if ($self->{_index} == 0 && $^W) {
-            my $dir = $self->{_tempdir} || File::Spec->tmpdir;
+            my $dir = $self->{_tempdir} || File::Spec->tmpdir();
 
-            warn "Unable to create temp files in $dir. Refer to set_tempdir()".
-                 " in the Spreadsheet::WriteExcel documentation.\n" ;
+            warn "Unable to create temp files in $tmp_dir. Data will be ".
+                 "stored in memory. Refer to set_tempdir() in the ".
+                 "Spreadsheet::WriteExcel documentation.\n" ;
         }
     }
 }
@@ -231,6 +262,9 @@ sub _close {
 
     # Prepend GRIDSET
     $self->_store_gridset();
+
+    # Prepend GUTS
+    $self->_store_guts();
 
     # Prepend PRINTGRIDLINES
     $self->_store_print_gridlines();
@@ -384,9 +418,9 @@ sub protect {
 
 ###############################################################################
 #
-# set_column($firstcol, $lastcol, $width, $format, $hidden)
+# set_column($firstcol, $lastcol, $width, $format, $hidden, $level)
 #
-# Set the width of a single column or a range of column.
+# Set the width of a single column or a range of columns.
 # See also: _store_colinfo
 #
 sub set_column {
@@ -1095,6 +1129,74 @@ sub write_col {
 
 ###############################################################################
 #
+# write_comment($row, $col, $comment)
+#
+# Write a comment to the specified row and column (zero indexed). The maximum
+# comment size is 30831 chars. Excel5 probably accepts 32k-1 chars. However, it
+# can only display 30831 chars. Excel 7 and 2000 will crash above 32k-1.
+#
+# In Excel 5 a comment is referred to as a NOTE.
+#
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#         -3 : long comment truncated to 30831 chars
+#
+sub write_comment {
+
+    my $self      = shift;
+    
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+
+    if (@_ < 3) { return -1 } # Check the number of args
+
+    my $row       = $_[0];
+    my $col       = $_[1];
+    my $str       = $_[2];
+    my $strlen    = length($_[2]);
+    my $str_error = 0;
+    my $str_max   = 30831;
+    my $note_max  = 2048;
+
+    if ($row >= $self->{_xls_rowmax}) { return -2 }
+    if ($col >= $self->{_xls_colmax}) { return -2 }
+    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
+    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
+    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
+    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+
+    # String must be <= 30831 chars
+    if ($strlen > $str_max) {
+        $str       = substr($str, 0, $str_max);
+        $strlen    = $str_max;
+        $str_error = -3;
+    }
+
+    # A comment can be up to 30831 chars broken into segments of 2048 chars.
+    # The first NOTE record contains the total string length. Each subsequent
+    # NOTE record contains the length of that segment.
+    #
+    my $comment = substr($str, 0, $note_max, '');
+    $self->_store_comment($row, $col, $comment, $strlen); # First NOTE
+
+    # Subsequent NOTE records
+    while ($str) {
+        $comment = substr($str, 0, $note_max, '');
+        $strlen  = length($comment);
+        # Row is -1 to indicate a continuation NOTE
+        $self->_store_comment(-1, 0, $comment, $strlen);
+    }
+
+    return $str_error;
+}
+
+
+###############################################################################
+#
 # _XF()
 #
 # Returns an index to the XF record in the workbook.
@@ -1310,6 +1412,29 @@ sub _encode_password {
 
 
 ###############################################################################
+#
+# outline_settings($visible, $symbols_below, $symbols_right, $auto_style)
+#
+# This method sets the properties for outlining and grouping. The defaults
+# correspond to Excel's defaults.
+#
+sub outline_settings {
+
+    my $self                = shift;
+
+    $self->{_outline_on}    = defined $_[0] ? $_[0] : 1;
+    $self->{_outline_below} = defined $_[1] ? $_[1] : 1;
+    $self->{_outline_right} = defined $_[2] ? $_[2] : 1;
+    $self->{_outline_style} =         $_[3] || 0;
+
+    # Ensure this is a boolean vale for Window2
+    $self->{_outline_on}    = 1 if $self->{_outline_on};
+}
+
+
+
+
+###############################################################################
 ###############################################################################
 #
 # BIFF RECORDS
@@ -1522,13 +1647,13 @@ sub write_formula{
     my $parser  = $self->{_parser};
 
     # In order to raise formula errors from the point of view of the calling
-    # program we use an eval block and reraise the error from here.
+    # program we use an eval block and re-raise the error from here.
     #
     eval { $formula = $parser->parse_formula($formula) };
 
     if ($@) {
         $@ =~ s/\n$//;  # Strip the \n used in the Formula.pm die()
-        croak $@;       # Reraise the error
+        croak $@;       # Re-raise the error
     }
 
 
@@ -1564,14 +1689,14 @@ sub store_formula{
     my $parser  = $self->{_parser};
 
     # In order to raise formula errors from the point of view of the calling
-    # program we use an eval block and reraise the error from here.
+    # program we use an eval block and re-raise the error from here.
     #
     my @tokens;
     eval { @tokens = $parser->parse_formula($formula) };
 
     if ($@) {
         $@ =~ s/\n$//;  # Strip the \n used in the Formula.pm die()
-        croak $@;       # Reraise the error
+        croak $@;       # Re-raise the error
     }
 
 
@@ -2121,7 +2246,7 @@ sub _write_url_external_net {
 
 ###############################################################################
 #
-# set_row($row, $height, $XF, $hidden)
+# set_row($row, $height, $XF, $hidden, $level)
 #
 # This method is used to set the height and XF format for a row.
 # Writes the  BIFF record ROW.
@@ -2138,11 +2263,12 @@ sub set_row {
     my $miyRw;                              # Row height
     my $irwMac      = 0x0000;               # Used by Excel to optimise loading
     my $reserved    = 0x0000;               # Reserved
-    my $grbit       = 0x0140;               # Options: fUnsynced
+    my $grbit       = 0x0000;               # Option flags
     my $ixfe;                               # XF index
     my $height      = $_[1];                # Format object
     my $format      = $_[2];                # Format object
-    my $hidden      = $_[3];                # Hidden flag
+    my $hidden      = $_[3] || 0;           # Hidden flag
+    my $level       = $_[4] || 0;           # Outline level
 
 
     # Check for a format object
@@ -2165,9 +2291,24 @@ sub set_row {
     }
 
 
-    # Set the options flags
-    $grbit |= 0x80 if $format;
-    $grbit |= 0x20 if $hidden;
+    # Set the limits for the outline levels (0 <= x <= 7).
+    $level = 0 if $level < 0;
+    $level = 7 if $level > 7;
+
+    $self->{_outline_row_level} = $level if $level >$self->{_outline_row_level};
+
+
+    # Set the options flags. fUnsynced is used to show that the font and row
+    # heights are not compatible. This is usually the case for WriteExcel.
+    # The collapsed flag 0x10 doesn't seem to be used to indicate that a row
+    # is collapsed. Instead it is used to indicate that the previous row is
+    # collapsed. The zero height flag, 0x20, is used to collapse a row.
+    #
+    $grbit |= $level;
+    $grbit |= 0x0020 if $hidden;
+    $grbit |= 0x0040; # fUnsynced
+    $grbit |= 0x0080 if $format;
+    $grbit |= 0x0100;
 
 
     my $header   = pack("vv",       $record, $length);
@@ -2282,7 +2423,7 @@ sub _store_window2 {
     my $fDspZeros      = 1;                          # 4
     my $fDefaultHdr    = 1;                          # 5
     my $fArabic        = 0;                          # 6
-    my $fDspGuts       = 1;                          # 7
+    my $fDspGuts       = $self->{_outline_on};       # 7
     my $fFrozenNoSplit = 0;                          # 0 - bit
     my $fSelected      = $self->{_selected};         # 1
     my $fPaged         = 1;                          # 2
@@ -2344,16 +2485,27 @@ sub _store_colinfo {
 
     my $colFirst = $_[0] || 0;      # First formatted column
     my $colLast  = $_[1] || 0;      # Last formatted column
-    my $coldx    = $_[2] || 8.43;   # Col width, 8.43 is Excel default
+    my $width    = $_[2] || 8.43;   # Col width in user units, 8.43 is default
+    my $coldx;                      # Col width in internal units
 
-    $coldx       += 0.72;           # Fudge. Excel subtracts 0.72 !?
-    $coldx       *= 256;            # Convert to units of 1/256 of a char
+    # The following relationships between the users width and the internal units
+    # were derived via interpolation.
+    #
+    if ($width < 1) {
+        $coldx = int($width * 438);
+    }
+    else {
+        $coldx = int($width *256 +182);
+    }
 
 
     my $ixfe;                       # XF index
-    my $grbit    = $_[4] || 0;      # Option flags
+    my $grbit    = 0x0000;          # Option flags
     my $reserved = 0x00;            # Reserved
     my $format   = $_[3];           # Format object
+    my $hidden   = $_[4] || 0;      # Hidden flag
+    my $level    = $_[5] || 0;      # Outline level
+
 
     # Check for a format object
     if (ref $format) {
@@ -2362,6 +2514,21 @@ sub _store_colinfo {
     else {
         $ixfe = 0x0F;
     }
+
+
+    # Set the limits for the outline levels (0 <= x <= 7).
+    $level = 0 if $level < 0;
+    $level = 7 if $level > 7;
+
+
+    # Set the options flags.
+    # The collapsed flag 0x10 doesn't seem to be used to indicate that a col
+    # is collapsed. Instead it is used to indicate that the previous col is
+    # collapsed. The zero height flag, 0x20, is used to collapse a col.
+    #
+    $grbit |= 0x0001 if $hidden;
+    $grbit |= $level << 8;
+
 
     my $header   = pack("vv",     $record, $length);
     my $data     = pack("vvvvvC", $colFirst, $colLast, $coldx,
@@ -2867,7 +3034,7 @@ sub merge_range {
         @_ = $self->_substitute_cellref(@_);
     }
     croak "Incorrect number of arguments" if @_ != 6;
-    croak "Final argument must be a format ojbect" unless ref $_[5];
+    croak "Final argument must be a format object" unless ref $_[5];
 
     my $rwFirst  = $_[0];
     my $colFirst = $_[1];
@@ -2968,6 +3135,58 @@ sub _store_gridset {
     my $data        = pack("v",   $fGridSet);
 
     $self->_prepend($header, $data);
+
+}
+
+
+###############################################################################
+#
+# _store_guts()
+#
+# Write the GUTS BIFF record. This is used to configure the gutter margins
+# where Excel outline symbols are displayed. The visibility of the gutters is
+# controlled by a flag in WSBOOL. See also _store_wsbool().
+#
+# We are all in the gutter but some of us are looking at the stars.
+#
+sub _store_guts {
+
+    my $self        = shift;
+
+    my $record      = 0x0080;   # Record identifier
+    my $length      = 0x0008;   # Bytes to follow
+
+    my $dxRwGut     = 0x0000;   # Size of row gutter
+    my $dxColGut    = 0x0000;   # Size of col gutter
+
+    my $row_level   = $self->{_outline_row_level};
+    my $col_level   = 0;
+
+
+    # Calculate the maximum column outline level. The equivalent calculation
+    # for the row outline level is carried out in set_row().
+    #
+    foreach my $colinfo (@{$self->{_colinfo}}) {
+        # Skip cols without outline level info.
+        next if @{$colinfo} < 6;
+        $col_level = @{$colinfo}[5] if @{$colinfo}[5] > $col_level;
+    }
+
+
+    # Set the limits for the outline levels (0 <= x <= 7).
+    $col_level = 0 if $col_level < 0;
+    $col_level = 7 if $col_level > 7;
+
+
+    # The displayed level is one greater than the max outline levels
+    $row_level++ if $row_level > 0;
+    $col_level++ if $col_level > 0;
+
+    my $header      = pack("vv",   $record, $length);
+    my $data        = pack("vvvv", $dxRwGut, $dxColGut, $row_level, $col_level);
+
+    $self->_prepend($header, $data);
+
 }
 
 
@@ -2985,17 +3204,16 @@ sub _store_wsbool {
     my $record      = 0x0081;   # Record identifier
     my $length      = 0x0002;   # Bytes to follow
 
-    my $grbit;                  # Option flags
+    my $grbit       = 0x0000;   # Option flags
 
-    # The only option that is of interest is the flag for fit to page. So we
-    # set all the options in one go.
-    #
-    if ($self->{_fit_page}) {
-        $grbit = 0x05c1
-    }
-    else {
-        $grbit = 0x04c1
-    }
+    # Set the option flags
+    $grbit |= 0x0001;                            # Auto page breaks visible
+    $grbit |= 0x0020 if $self->{_outline_style}; # Auto outline styles
+    $grbit |= 0x0040 if $self->{_outline_below}; # Outline summary below
+    $grbit |= 0x0080 if $self->{_outline_right}; # Outline summary right
+    $grbit |= 0x0100 if $self->{_fit_page};      # Page setup fit to page
+    $grbit |= 0x0400 if $self->{_outline_on};    # Outline symbols displayed
+
 
     my $header      = pack("vv",  $record, $length);
     my $data        = pack("v",   $grbit);
@@ -3235,16 +3453,27 @@ sub _position_image {
 
     ($col_start, $row_start, $x1, $y1, $width, $height) = @_;
 
+
+    # Adjust start column for offsets that are greater than the col width
+    while ($x1 >= $self->_size_col($col_start)) {
+        $x1 -= $self->_size_col($col_start);
+        $col_start++;
+    }
+
+    # Adjust start row for offsets that are greater than the row height
+    while ($y1 >= $self->_size_row($row_start)) {
+        $y1 -= $self->_size_row($row_start);
+        $row_start++;
+    }
+
+
     # Initialise end cell to the same as the start cell
-    $col_end    = $col_start;
-    $row_end    = $row_start;
+    $col_end = $col_start;
+    $row_end = $row_start;
 
-    # Zero the specified offset if greater than the cell dimensions
-    $x1         = 0 if $x1 >= $self->_size_col($col_start);
-    $y1         = 0 if $y1 >= $self->_size_row($row_start);
+    $width   = $width  + $x1 -1;
+    $height  = $height + $y1 -1;
 
-    $width      = $width  + $x1 -1;
-    $height     = $height + $y1 -1;
 
     # Subtract the underlying cell widths to find the end cell of the image
     while ($width >= $self->_size_col($col_end)) {
@@ -3274,8 +3503,8 @@ sub _position_image {
 
     $self->_store_obj_picture(  $col_start, $x1,
                                 $row_start, $y1,
-                                $col_end, $x2,
-                                $row_end, $y2
+                                $col_end,   $x2,
+                                $row_end,   $y2
                              );
 }
 
@@ -3286,8 +3515,9 @@ sub _position_image {
 #
 #
 # Convert the width of a cell from user's units to pixels. By interpolation
-# the relationship is: y = 7x +5. If the width hasn't been set by the user we
-# use the default value. If the col is hidden we use a value of zero.
+# the relationship is: y = 12.5x if x < 1 and y = 7x +5 if x >= 1.
+# If the width hasn't been set by the user we use the default value. If the
+# column is hidden we use a value of zero.
 #
 sub _size_col {
 
@@ -3296,11 +3526,13 @@ sub _size_col {
 
     # Look up the cell value to see if it has been changed
     if (exists $self->{_col_sizes}->{$col}) {
-        if ($self->{_col_sizes}->{$col} == 0) {
-            return 0;
+        my $width = $self->{_col_sizes}->{$col};
+
+        if ($width < 1) {
+            return int(12.5 * $width);
         }
         else {
-            return int (7 * $self->{_col_sizes}->{$col} + 5);
+            return int(7 * $width + 5);
         }
     }
     else {
@@ -3549,17 +3781,39 @@ sub _store_zoom {
 
 ###############################################################################
 #
-# DESTROY()
+# _store_comment
 #
-# Close and unlink the tempfile.
+# Store the Excel 5 NOTE record. This format is not compatible with the Excel 7
+# record.
 #
-sub DESTROY {
+sub _store_comment {
 
-    my $self = shift;
+    my $self      = shift;
+    if (@_ < 3) { return -1 }
 
-    CORE::close $self->{_filehandle} or carp
-                                      "Couldn't close $self->{_filename}}: $!";
-    unlink $self->{_filename} or carp "Couldn't unlink $self->{_filename}: $!";
+    my $record    = 0x001C;                 # Record identifier
+    my $length ;                            # Bytes to follow
+
+    my $row       = $_[0];                  # Zero indexed row
+    my $col       = $_[1];                  # Zero indexed column
+    my $str       = $_[2];
+    my $strlen    = $_[3];
+
+    # The length of the first record is the total length of the NOTE.
+    # Therefore, it can be greater than 2048.
+    #
+    if ($strlen > 2048) {
+        $length = 0x06 + 2048;
+    }
+    else{
+        $length = 0x06 + $strlen;
+    }
+
+
+    my $header    = pack("vv",  $record, $length);
+    my $data      = pack("vvv", $row, $col, $strlen);
+
+    $self->_append($header, $data, $str);
 }
 
 
@@ -3587,6 +3841,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMII, John McNamara.
+© MM-MMIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
+

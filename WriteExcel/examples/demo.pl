@@ -13,9 +13,9 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 my $workbook   = Spreadsheet::WriteExcel->new("demo.xls");
-my $worksheet  = $workbook->addworksheet('Demo');
-my $worksheet2 = $workbook->addworksheet('Another sheet');
-my $worksheet3 = $workbook->addworksheet('And another');
+my $worksheet  = $workbook->add_worksheet('Demo');
+my $worksheet2 = $workbook->add_worksheet('Another sheet');
+my $worksheet3 = $workbook->add_worksheet('And another');
 
 
 
@@ -24,7 +24,7 @@ my $worksheet3 = $workbook->addworksheet('And another');
 # Write a general heading
 #
 $worksheet->set_column('A:B', 32);
-my $heading  = $workbook->addformat(
+my $heading  = $workbook->add_format(
                                         bold    => 1,
                                         color   => 'blue',
                                         size    => 18,
@@ -39,7 +39,7 @@ $worksheet->write_row('A1', \@headings, $heading);
 #
 # Some text examples
 #
-my $text_format  = $workbook->addformat(
+my $text_format  = $workbook->add_format(
                                             bold    => 1,
                                             italic  => 1,
                                             color   => 'red',
@@ -56,8 +56,8 @@ $worksheet->write('B3', "Hello Excel", $text_format);
 #
 # Some numeric examples
 #
-my $num1_format  = $workbook->addformat(num_format => '$#,##0.00');
-my $num2_format  = $workbook->addformat(num_format => ' d mmmm yyy');
+my $num1_format  = $workbook->add_format(num_format => '$#,##0.00');
+my $num2_format  = $workbook->add_format(num_format => ' d mmmm yyy');
 
 
 $worksheet->write('A4', "Numbers");

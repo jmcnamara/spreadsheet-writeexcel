@@ -23,6 +23,7 @@ write_array.pl      Example of writing 1D or 2D arrays of data.
 chess.pl            An example of formatting using properties.
 colors.pl           Demo of the colour palette and named colours.
 images.pl           Adding bitmap images to worksheets.
+comments.pl         Add cell comments to Excel 5 worksheets.
 sendmail.pl         Send an Excel email attachment using Mail::Sender.
 stats_ext.pl        Same as stats.pl with external references.
 repeat.pl           Example of writing repeated formulas.
@@ -36,6 +37,7 @@ merge2.pl           A simple example of cell merging with formatting.
 merge3.pl           Add hyperlinks to merged cells.
 merge4.pl           An advanced example of merging with formatting.
 merge5.pl           An advanced example of merging with formatting.
+outline.pl          An example of outlines and grouping.
 textwrap.pl         Demonstrates text wrapping options.
 panes.pl            An examples of how to create panes.
 protection.pl       Example of cell locking and formula hiding.
@@ -60,5 +62,4 @@ Developer
 function_locale.pl  Add non-English function names to Formula.pm.
 filehandle.pl       Examples of working with filehandles.
 writeA1.pl          Example of how to extend the module.
-comments.pl         Add cell comments to Excel 5 worksheets.
 bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.

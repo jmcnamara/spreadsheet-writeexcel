@@ -11,15 +11,15 @@ use Spreadsheet::WriteExcel;
 
 # Create workbook1
 my $workbook1       = Spreadsheet::WriteExcel->new("workbook1.xls");
-my $worksheet1      = $workbook1->addworksheet();
-my $format1a        = $workbook1->addformat();
-my $format1b        = $workbook1->addformat();
+my $worksheet1      = $workbook1->add_worksheet();
+my $format1a        = $workbook1->add_format();
+my $format1b        = $workbook1->add_format();
 
 # Create workbook2
 my $workbook2       = Spreadsheet::WriteExcel->new("workbook2.xls");
-my $worksheet2      = $workbook2->addworksheet();
-my $format2a        = $workbook2->addformat();
-my $format2b        = $workbook2->addformat();
+my $worksheet2      = $workbook2->add_worksheet();
+my $format2a        = $workbook2->add_format();
+my $format2b        = $workbook2->add_format();
 
 
 # Create a global format object that isn't tied to a workbook

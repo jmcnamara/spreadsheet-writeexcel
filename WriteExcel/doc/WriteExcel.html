@@ -44,11 +44,11 @@
         <code><LI><A HREF="#new_">new()</A></LI>
         <LI><A HREF="#close_">close()</A></LI>
         <LI><A HREF="#set_tempdir_">set_tempdir()</A></LI>
-        <LI><A HREF="#addworksheet_sheetname_">addworksheet($sheetname)</A></LI>
-        <LI><A HREF="#addformat_properties_">addformat(%properties)</A></LI>
+        <LI><A HREF="#add_worksheet_sheetname_">add_worksheet($sheetname)</A></LI>
+        <LI><A HREF="#add_format_properties_">add_format(%properties)</A></LI>
         <LI><A HREF="#set_custom_color_index_red_">set_custom_color($index, $red, $green, $blue)</A></LI>
         <LI><A HREF="#set_palette_xl5_">set_palette_xl5()</A></LI>
-        <LI><A HREF="#sheets_">sheets()</A></LI>
+        <LI><A HREF="#sheets_0_1_">sheets(0, 1, ...)</A></LI>
         <LI><A HREF="#set_1904_">set_1904()</A></LI>
         <LI><A HREF="#set_codepage_codepage_">set_codepage($codepage)</A></LI></code>
 	</UL>
@@ -69,6 +69,7 @@
         <LI><A HREF="#write_formula_row_column_fo">write_formula($row, $column, $formula, $format)</A></LI>
         <LI><A HREF="#store_formula_formula_">store_formula($formula)</A></LI>
         <LI><A HREF="#repeat_formula_row_col_form">repeat_formula($row, $col, $formula, $format, ($pattern =&gt; $replace, ...))</A></LI>
+        <LI><A HREF="#write_comment_row_column_st">write_comment($row, $column, $string)</A></LI>
         <LI><A HREF="#insert_bitmap_row_col_filen">insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
         <LI><A HREF="#get_name_">get_name()</A></LI>
         <LI><A HREF="#activate_">activate()</A></LI>
@@ -76,8 +77,9 @@
         <LI><A HREF="#set_first_sheet_">set_first_sheet()</A></LI>
         <LI><A HREF="#protect_password_">protect($password)</A></LI>
         <LI><A HREF="#set_selection_first_row_first">set_selection($first_row, $first_col, $last_row, $last_col)</A></LI>
-        <LI><A HREF="#set_row_row_height_format_">set_row($row, $height, $format, $hidden)</A></LI>
-        <LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden)</A></LI>
+        <LI><A HREF="#set_row_row_height_format_">set_row($row, $height, $format, $hidden, $level)</A></LI>
+        <LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden, $level)</A></LI>
+        <LI><A HREF="#outline_settings_visible_symb">outline_settings($visible, $symbols_below, $symbols_right, $auto_style)</A></LI>
         <LI><A HREF="#freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col)</A></LI>
         <LI><A HREF="#thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col)</A></LI>
         <LI><A HREF="#merge_range_first_row_first_c">merge_range($first_row, $first_col, $last_row, $last_col, $token, $format)</A></LI>
@@ -109,9 +111,9 @@
 	<LI><A HREF="#CELL_FORMATTING">CELL FORMATTING</A></LI>
 	<UL>
 
-		<LI><A HREF="#Creating_and_using_a_Format_obje">Creating and using a Format object</A></LI>
-		<LI><A HREF="#Format_methods_and_Format_proper">Format methods and Format properties</A></LI>
-		<LI><A HREF="#Working_with_formats">Working with formats</A></LI>
+        <LI><A HREF="#Creating_and_using_a_Format_obje">Creating and using a Format object</A></LI>
+        <LI><A HREF="#Format_methods_and_Format_proper">Format methods and Format properties</A></LI>
+        <LI><A HREF="#Working_with_formats">Working with formats</A></LI>
 	</UL>
 
 	<LI><A HREF="#FORMAT_METHODS">FORMAT METHODS</A></LI>
@@ -146,6 +148,7 @@
 
 	<LI><A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A></LI>
 	<LI><A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A></LI>
+	<LI><A HREF="#OUTLINES_AND_GROUPING_IN_EXCEL">OUTLINES AND GROUPING IN EXCEL</A></LI>
 	<LI><A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A></LI>
 	<UL>
 
@@ -194,8 +197,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.40 of Spreadsheet::WriteExcel, released
-December 20, 2002.
+This document refers to version 0.41 of Spreadsheet::WriteExcel, released
+April 24, 2003.
 
 </P>
 <P>
@@ -220,13 +223,13 @@ worksheet in an Excel workbook called perl.xls:
 <P>
 <PRE>
     # Add a worksheet
-    $worksheet = $workbook-&gt;addworksheet();
+    $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
 <PRE>
     #  Add and define a format
-    $format = $workbook-&gt;addformat(); # Add a format
+    $format = $workbook-&gt;add_format(); # Add a format
     $format-&gt;set_bold();
     $format-&gt;set_color('red');
     $format-&gt;set_align('center');
@@ -289,7 +292,7 @@ steps:
 
 </P>
 <P>
-2. Add a <EM>worksheet</EM> to the new workbook using <CODE>addworksheet()</CODE>.
+2. Add a <EM>worksheet</EM> to the new workbook using <CODE>add_worksheet()</CODE>.
 
 </P>
 <P>
@@ -308,7 +311,7 @@ Like this:
 <P>
 <PRE>
     my $workbook = Spreadsheet::WriteExcel-&gt;new(&quot;perl.xls&quot;); # Step 1
-    $worksheet   = $workbook-&gt;addworksheet();                # Step 2
+    $worksheet   = $workbook-&gt;add_worksheet();               # Step 2
     $worksheet-&gt;write('A1', &quot;Hi Excel!&quot;);                    # Step 3
 </PRE>
 </P>
@@ -337,8 +340,8 @@ workbook.
     new()
     close()
     set_tempdir()
-    addworksheet()
-    addformat()
+    add_worksheet()
+    add_format()
     set_custom_color()
     set_palette_xl5()
     sheets()
@@ -362,7 +365,7 @@ The following example creates a new Excel file based on a filename:
 <P>
 <PRE>
     my $workbook  = Spreadsheet::WriteExcel-&gt;new('filename.xls');
-    my $worksheet = $workbook-&gt;addworksheet();
+    my $worksheet = $workbook-&gt;add_worksheet();
     $worksheet-&gt;write(0, 0, &quot;Hi Excel!&quot;);
 </PRE>
 </P>
@@ -478,8 +481,9 @@ email.
 
 </P>
 <P>
-In addition, <CODE>close()</CODE> may be required if the scope of the Workbook, Worksheet or Format objects
-cannot be determined by perl. Situations where this can occur are:
+In addition, <CODE>close()</CODE> may be required to prevent perl's garbage collector from disposing of the
+Workbook, Worksheet and Format objects in the wrong order. Situations where
+this can occur are:
 
 </P>
 <UL>
@@ -490,13 +494,14 @@ If <CODE>my()</CODE> was not used to declare the scope of a workbook variable cr
 </P>
 <LI>
 <P>
-If the <CODE>new()</CODE>, <CODE>addworksheet()</CODE> or <CODE>addformat()</CODE> methods are called in subroutines.
+If the <CODE>new()</CODE>, <CODE>add_worksheet()</CODE> or <CODE>add_format()</CODE> methods are called in subroutines.
 
 </P>
 </UL>
 <P>
-The reason for this is that Spreadsheet::WriteExcel relies on Perl's <CODE>DESTROY</CODE> mechanism to trigger destructor methods in a specific sequence. This will
-not happen if the scope of the variables cannot be determined.
+The reason for this is that Spreadsheet::WriteExcel relies on Perl's <CODE>DESTROY</CODE> mechanism to trigger destructor methods in a specific sequence. This may
+not happen in cases where the Workbook, Worksheet and Format variables are
+not lexically scoped or where they have different lexical scopes.
 
 </P>
 <P>
@@ -524,8 +529,12 @@ workbook.
 <P>
 If Spreadsheet::WriteExcel is unable to create these temporary files it
 will store the required data in memory. This can be slow for large files.
-To avoid this problem the <CODE>set_tempdir()</CODE> method can be used to specify a directory that is accessible for the
-creation of temporary files.
+
+</P>
+<P>
+The problem occurs mainly with IIS on Windows although it could feasibly
+occur on Unix systems as well. The problem generally occurs because the
+default temp file directory is defined as <CODE>C:/</CODE> or some other directory that IIS doesn't provide write access to.
 
 </P>
 <P>
@@ -547,14 +556,12 @@ temporary files:
 <P>
 <PRE>
     my $workbook  = Spreadsheet::WriteExcel-&gt;new(&quot;test.xls&quot;);
-    my $worksheet = $workbook-&gt;addworksheet();
+    my $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
-However, this is not a common problem. The only reported instances of this
-were with certain IIS configurations on Windows. Also, as of version 0.37
-the mechanism for creating temporary files has changed and it should now
-work without intervention even on IIS.
+To avoid this problem the <CODE>set_tempdir()</CODE> method can be used to specify a directory that is accessible for the
+creation of temporary files.
 
 </P>
 <P>
@@ -563,12 +570,12 @@ The <CODE>File::Temp</CODE> module is used to create the temporary files. File::
 </P>
 <P>
 <PRE>
-    perl -MFile::Spec -le 'print File::Spec-&gt;tmpdir'
+    perl -MFile::Spec -le &quot;print File::Spec-&gt;tmpdir&quot;
 </PRE>
 </P>
 <P>
 Even if the default temporary file directory is accessible you may wish to
-specify an alternative location for security reasons:
+specify an alternative location for security or maintenance reasons:
 
 </P>
 <P>
@@ -582,12 +589,20 @@ The directory for the temporary file must exist, <CODE>set_tempdir()</CODE> will
 
 </P>
 <P>
-Note: This method must be called before calling <CODE>addworksheet()</CODE>.
+One disadvantage of using the <CODE>set_tempdir()</CODE> method is that on some Windows systems it will limit you to approximately
+800 concurrent tempfiles. This means that a single program running on one
+of these systems will be limited to creating a total of 800 workbook and
+worksheet objects. You can run multiple, non-concurrent programs to work
+around this if necessary.
+
+</P>
+<P>
+The <CODE>set_tempdir()</CODE> method must be called before calling <CODE>add_worksheet()</CODE>.
 
 </P>
 <P>
 <HR>
-<H2><A NAME="addworksheet_sheetname_">addworksheet($sheetname)</A></H2>
+<H2><A NAME="add_worksheet_sheetname_">add_worksheet($sheetname)</A></H2>
 <P>
 At least one worksheet should be added to a new workbook. A worksheet is
 used to write data into cells:
@@ -595,10 +610,10 @@ used to write data into cells:
 </P>
 <P>
 <PRE>
-    $worksheet1 = $workbook-&gt;addworksheet();          # Sheet1
-    $worksheet2 = $workbook-&gt;addworksheet('Foglio2'); # Foglio2
-    $worksheet3 = $workbook-&gt;addworksheet('Data');    # Data
-    $worksheet4 = $workbook-&gt;addworksheet();          # Sheet4
+    $worksheet1 = $workbook-&gt;add_worksheet();          # Sheet1
+    $worksheet2 = $workbook-&gt;add_worksheet('Foglio2'); # Foglio2
+    $worksheet3 = $workbook-&gt;add_worksheet('Data');    # Data
+    $worksheet4 = $workbook-&gt;add_worksheet();          # Sheet4
 </PRE>
 </P>
 <P>
@@ -613,22 +628,30 @@ same <CODE>$sheetname</CODE> for more than one worksheet.
 
 </P>
 <P>
-<HR>
-<H2><A NAME="addformat_properties_">addformat(%properties)</A></H2>
+This method was previously called <CODE>addworksheet()</CODE>. The old method name is still supported but deprecated.
+
+</P>
 <P>
-The <CODE>addformat()</CODE> method can be used to create new Format objects which are used to apply
+<HR>
+<H2><A NAME="add_format_properties_">add_format(%properties)</A></H2>
+<P>
+The <CODE>add_format()</CODE> method can be used to create new Format objects which are used to apply
 formatting to a cell. You can either define the properties at creation time
 via a hash of property values or later via method calls.
 
 </P>
 <P>
 <PRE>
-    $format1 = $workbook-&gt;addformat(%props); # Set properties at creation
-    $format2 = $workbook-&gt;addformat();       # Set properties later
+    $format1 = $workbook-&gt;add_format(%props); # Set properties at creation
+    $format2 = $workbook-&gt;add_format();       # Set properties later
 </PRE>
 </P>
 <P>
 See the <A HREF="#CELL_FORMATTING">CELL FORMATTING</A> section for more details about Format properties and how to set them.
+
+</P>
+<P>
+This method was previously called <CODE>addformat()</CODE>. The old method name is still supported but deprecated.
 
 </P>
 <P>
@@ -684,7 +707,7 @@ The <CODE>set_custom_color()</CODE> workbook method can also be used with a HTML
 </P>
 <P>
 <PRE>
-    my $font = $workbook-&gt;addformat(color =&gt; 40); # Use the modified colour
+    my $font = $workbook-&gt;add_format(color =&gt; 40); # Use the modified colour
 </PRE>
 </P>
 <P>
@@ -698,7 +721,7 @@ The return value from <CODE>set_custom_color()</CODE> is the index of the colour
 </P>
 <P>
 <PRE>
-    my $format  = $workbook-&gt;addformat(
+    my $format  = $workbook-&gt;add_format(
                                         bg_color =&gt; $ferrari,
                                         pattern  =&gt; 1,
                                         border   =&gt; 1
@@ -735,11 +758,15 @@ See also <A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A>.
 </P>
 <P>
 <HR>
-<H2><A NAME="sheets_">sheets()</A></H2>
+<H2><A NAME="sheets_0_1_">sheets(0, 1, ...)</A></H2>
 <P>
-The <CODE>sheets()</CODE> method returns a list of the worksheets in a workbook. This can be useful
-if you want to repeat an operation on each worksheet in a workbook or if
-you wish to refer to a worksheet by its index:
+The <CODE>sheets()</CODE> method returns a list, or a sliced list, of the worksheets in a workbook.
+
+</P>
+<P>
+If no arguments are passed the method returns a list of all the worksheets
+in the workbook. This is useful if you want to repeat an operation on each
+worksheet:
 
 </P>
 <P>
@@ -750,14 +777,38 @@ you wish to refer to a worksheet by its index:
 </PRE>
 </P>
 <P>
-<PRE>
-    # or:
-</PRE>
+You can also specify a slice list to return one or more worksheet objects:
+
 </P>
 <P>
 <PRE>
-    ($workbook-&gt;sheets())[5]-&gt;write('A1', &quot;Hello&quot;);
+    $worksheet = $workbook-&gt;sheets(0);
+    $worksheet-&gt;write('A1', &quot;Hello&quot;);
 </PRE>
+</P>
+<P>
+Or since return value from <CODE>sheets()</CODE> is a reference to a worksheet object you can write the above example as:
+
+</P>
+<P>
+<PRE>
+    $workbook-&gt;sheets(0)-&gt;write('A1', &quot;Hello&quot;);
+</PRE>
+</P>
+<P>
+The following example returns the first and last worksheet in a workbook:
+
+</P>
+<P>
+<PRE>
+    foreach $worksheet ($workbook-&gt;sheets(0, -1)) {
+       # Do something
+    }
+</PRE>
+</P>
+<P>
+Array slices are explained in the perldata manpage.
+
 </P>
 <P>
 <HR>
@@ -776,7 +827,7 @@ wish to change this you can call the <CODE>set_1904()</CODE> workbook method. Yo
 
 </P>
 <P>
-See also <A HREF="#Dates_in_Excel">Dates in Excel</A> for more information about working with Excel's date system.
+See also <A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A> for more information about working with Excel's date system.
 
 </P>
 <P>
@@ -812,13 +863,13 @@ The <CODE>set_codepage()</CODE> method is rarely required.
 <HR>
 <H1><A NAME="WORKSHEET_METHODS">WORKSHEET METHODS</A></H1>
 <P>
-A new worksheet is created by calling the <CODE>addworksheet()</CODE> method from a workbook object:
+A new worksheet is created by calling the <CODE>add_worksheet()</CODE> method from a workbook object:
 
 </P>
 <P>
 <PRE>
-    $worksheet1 = $workbook-&gt;addworksheet();
-    $worksheet2 = $workbook-&gt;addworksheet();
+    $worksheet1 = $workbook-&gt;add_worksheet();
+    $worksheet2 = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
@@ -848,6 +899,7 @@ The following methods are available through a new worksheet:
     set_selection()
     set_row()
     set_column()
+    outline_settings()
     freeze_panes()
     thaw_panes()
     merge_range()
@@ -1038,7 +1090,7 @@ The <CODE>$format</CODE> parameter is optional. It should be a valid Format obje
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_bold();
     $format-&gt;set_color('red');
     $format-&gt;set_align('center');
@@ -1132,7 +1184,7 @@ number. To get around this you can use the Excel text format <CODE>@</CODE>:
 <P>
 <PRE>
     # Format as a string. Doesn't change to a number when edited
-    my $format1 = $workbook-&gt;addformat(num_format =&gt; '@');
+    my $format1 = $workbook-&gt;add_format(num_format =&gt; '@');
     $worksheet-&gt;write_string('A2', '01209', $format1);
 </PRE>
 </P>
@@ -1142,8 +1194,7 @@ See also the note about <A HREF="#Cell_notation">Cell notation</A>.
 </P>
 <P>
 The 255 character limit will be removed when the module moves to the Excel
-97+ format. In the meantime, you can work around this limit using a
-formula. See the <CODE>long_string.pl</CODE> program in the <CODE>examples</CODE> directory of the distro. See also  <A HREF="#TO_DO">TO DO</A> for information about the Excel97 pre-release version of this module.
+97+ format. See <A HREF="#TO_DO">TO DO</A> for information about the Excel97 pre-release version of this module.
 
 </P>
 <P>
@@ -1162,27 +1213,27 @@ number but you don't want it treated as a number.
 
 </P>
 <P>
-For example, zip codes or ID numbers often start with a leading zero. If
+Zip codes and ID numbers, for example, often start with a leading zero. If
 you write this data as a number then the leading <CODE>zero(s)</CODE> will
 be stripped. This is the also the default behaviour when you enter data
 manually in Excel.
 
 </P>
 <P>
-To get around this you can either write a formatted number, write the
-number as a string or use the <CODE>keep_leading_zeros()</CODE> method to change the default behaviour of <CODE>write()</CODE>:
+To get around this you can one of three options. Write a formatted number,
+write the number as a string or use the <CODE>keep_leading_zeros()</CODE> method to change the default behaviour of <CODE>write()</CODE>:
 
 </P>
 <P>
 <PRE>
-    # Write implicitly as a number, the leading zero is removed: 1209
+    # Implicitly write a number, the leading zero is removed: 1209
     $worksheet-&gt;write('A1', '01209');
 </PRE>
 </P>
 <P>
 <PRE>
     # Write a zero padded number using a format: 01209
-    my $format1 = $workbook-&gt;addformat(num_format =&gt; '00000');
+    my $format1 = $workbook-&gt;add_format(num_format =&gt; '00000');
     $worksheet-&gt;write('A2', '01209', $format1);
 </PRE>
 </P>
@@ -1229,7 +1280,7 @@ behaviour. To avoid this you can use the text format <CODE>@</CODE>:
 <P>
 <PRE>
     # Format as a string (01209)
-    my $format2 = $workbook-&gt;addformat(num_format =&gt; '@');
+    my $format2 = $workbook-&gt;add_format(num_format =&gt; '@');
     $worksheet-&gt;write_string('A5', '01209', $format2);
 </PRE>
 </P>
@@ -1293,7 +1344,7 @@ See the note about <A HREF="#Cell_notation">Cell notation</A>.
 <HR>
 <H2><A NAME="write_row_row_column_array_">write_row($row, $column, $array_ref, $format)</A></H2>
 <P>
-The <CODE>write_row()</CODE> method can be used to write a 1D or 2D array or data in one go. This is
+The <CODE>write_row()</CODE> method can be used to write a 1D or 2D array of data in one go. This is
 useful for converting the results of a database query into an Excel
 worksheet. You must pass a reference to the array of data rather than the
 array itself. The <CODE>write()</CODE> method is then called for each element of the data. For example:
@@ -1414,7 +1465,7 @@ file:
 <P>
 <PRE>
     my $workbook  = Spreadsheet::WriteExcel-&gt;new('file.xls');
-    my $worksheet = $workbook-&gt;addworksheet();
+    my $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
@@ -1431,7 +1482,7 @@ file:
 <HR>
 <H2><A NAME="write_col_row_column_array_">write_col($row, $column, $array_ref, $format)</A></H2>
 <P>
-The <CODE>write_col()</CODE> method can be used to write a 1D or 2D array or data in one go. This is
+The <CODE>write_col()</CODE> method can be used to write a 1D or 2D array of data in one go. This is
 useful for converting the results of a database query into an Excel
 worksheet. You must pass a reference to the array of data rather than the
 array itself. The <CODE>write()</CODE> method is then called for each element of the data. For example:
@@ -1882,6 +1933,50 @@ See also the <CODE>repeat.pl</CODE> program in the <CODE>examples</CODE> directo
 </P>
 <P>
 <HR>
+<H2><A NAME="write_comment_row_column_st">write_comment($row, $column, $string)</A></H2>
+<P>
+The <CODE>write_comment()</CODE> method is used to add a comment to a cell. A cell comment is indicated in
+Excel by a small red triangle in the upper right-hand corner of the cell.
+Moving the cursor over the red triangle will cause the comment to appear.
+
+</P>
+<P>
+The following example shows how to add a comment to a cell:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write(&quot;C3&quot;, &quot;Hello&quot;);
+    $worksheet-&gt;write_comment(&quot;C3&quot;, &quot;This is a comment.&quot;);
+</PRE>
+</P>
+<P>
+The cell comment can be up to 30,000 characters in length.
+
+</P>
+<P>
+No formatting of the text or the text box is possible with the Excel 5
+version of this method.
+
+</P>
+<P>
+Note: the <CODE>write_comment()</CODE> method was previously supplied as an external example program. If you are
+currently using that method you will get a warning about subroutines being
+redefined:
+
+</P>
+<P>
+<PRE>
+    Subroutine write_comment redefined at ... line ...
+    Subroutine _store_comment  redefined at ... line ...
+</PRE>
+</P>
+<P>
+You can safely delete the user defined <CODE>write_comment()</CODE> code from your old programs and use the module defined method instead.
+
+</P>
+<P>
+<HR>
 <H2><A NAME="insert_bitmap_row_col_filen">insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></H2>
 <P>
 This method can be used to insert a bitmap into a worksheet. The bitmap
@@ -1897,10 +1992,10 @@ must be a 24 bit, true colour, bitmap. No other format is supported. The <CODE>$
 </P>
 <P>
 Note: you must call <CODE>set_row()</CODE> or <CODE>set_column()</CODE> before <CODE>insert_bitmap()</CODE> if you wish to change the default dimensions of any of the rows or columns
-that the images occupies. Also, if you use large fonts then the height of
-the row that they occupy may change automatically. This in turn could
-affect the scaling of your image. To avoid this you should explicitly set
-the height of the row using <CODE>set_row()</CODE>.
+that the images occupies. The height of a row can also change if you use a
+font that is larger than the default. This in turn will affect the scaling
+of your image. To avoid this you should explicitly set the height of the
+row using <CODE>set_row()</CODE> if it contains a font size that will change the row height.
 
 </P>
 <P>
@@ -1915,18 +2010,15 @@ cell specified by <CODE>$row</CODE> and <CODE>$col</CODE>. The offset values are
 </P>
 <P>
 The default width of a cell is 63 pixels. The default height of a cell is
-17 pixels. The offsets are ignored if they are greater than the width or
-height of the underlying cell.
-
-</P>
-<P>
-The pixels offsets can be calculated using the following relationships:
+17 pixels. The pixels offsets can be calculated using the following
+relationships:
 
 </P>
 <P>
 <PRE>
-    Wp = 7We +5
-    Hp = 4/3He
+    Wp = int 12.5We if We &lt;  1
+    Wp = int 7We +5 if We &gt;= 1
+    Hp = int 4/3He
 </PRE>
 </P>
 <P>
@@ -1937,6 +2029,12 @@ The pixels offsets can be calculated using the following relationships:
     He is the cell height in Excels units
     Hp is height in pixels
 </PRE>
+</P>
+<P>
+The offsets can be greater than the width or height of the underlying cell.
+This can be occasionally useful if you wish to align two or more images
+relative to the same cell.
+
 </P>
 <P>
 The parameters <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> can be used to scale the inserted image horizontally and vertically:
@@ -1994,9 +2092,9 @@ multi-sheet workbook:
 </P>
 <P>
 <PRE>
-    $worksheet1 = $workbook-&gt;addworksheet('To');
-    $worksheet2 = $workbook-&gt;addworksheet('the');
-    $worksheet3 = $workbook-&gt;addworksheet('wind');
+    $worksheet1 = $workbook-&gt;add_worksheet('To');
+    $worksheet2 = $workbook-&gt;add_worksheet('the');
+    $worksheet3 = $workbook-&gt;add_worksheet('wind');
 </PRE>
 </P>
 <P>
@@ -2044,14 +2142,14 @@ worksheet using <CODE>set_first_sheet()</CODE>:
 <P>
 <PRE>
     for (1..20) {
-        $workbook-&gt;addworksheet;
+        $workbook-&gt;add_worksheet;
     }
 </PRE>
 </P>
 <P>
 <PRE>
-    $worksheet21 = $workbook-&gt;addworksheet();
-    $worksheet22 = $workbook-&gt;addworksheet();
+    $worksheet21 = $workbook-&gt;add_worksheet();
+    $worksheet22 = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
@@ -2090,8 +2188,8 @@ not the formula itself. In Excel a cell's locked property is on by default.
 <P>
 <PRE>
     # Set some format properties
-    my $unlocked  = $workbook-&gt;addformat(locked =&gt; 0);
-    my $hidden    = $workbook-&gt;addformat(hidden =&gt; 1);
+    my $unlocked  = $workbook-&gt;add_format(locked =&gt; 0);
+    my $hidden    = $workbook-&gt;add_format(hidden =&gt; 1);
 </PRE>
 </P>
 <P>
@@ -2171,9 +2269,14 @@ The default cell selections is (0, 0), 'A1'.
 </P>
 <P>
 <HR>
-<H2><A NAME="set_row_row_height_format_">set_row($row, $height, $format, $hidden)</A></H2>
+<H2><A NAME="set_row_row_height_format_">set_row($row, $height, $format, $hidden, $level)</A></H2>
 <P>
-This method can be used to specify the height and format of a row. The <CODE>$format</CODE> parameter is optional, for additional information, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>.
+This method can be used to change the default properties of a row. All
+parameters apart from <CODE>$row</CODE> are optional.
+
+</P>
+<P>
+The most common use for this method is to change the height of a row:
 
 </P>
 <P>
@@ -2204,14 +2307,13 @@ For example
 </P>
 <P>
 If you wish to define a row format in this way you should call the method
-before any calls to <CODE>write()</CODE>. If you call it afterwards it will overwrite any format that was
-previously specified.
+before any calls to <CODE>write()</CODE>. Calling it afterwards will overwrite any format that was previously
+specified.
 
 </P>
 <P>
-The <CODE>$hidden</CODE> parameter is optional. It should be set to 1 if you wish to hide a row.
-This can be used, for example, to hide intermediary steps in a complicated
-calculation:
+The <CODE>$hidden</CODE> parameter should be set to 1 if you wish to hide a row. This can be used,
+for example, to hide intermediary steps in a complicated calculation:
 
 </P>
 <P>
@@ -2221,12 +2323,47 @@ calculation:
 </PRE>
 </P>
 <P>
-<HR>
-<H2><A NAME="set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden)</A></H2>
+The <CODE>$level</CODE> parameter is used to set the outline level of the row. Outlines are
+described in <A HREF="#OUTLINES_AND_GROUPING_IN_EXCEL">OUTLINES AND GROUPING IN EXCEL</A>. Adjacent rows with the same outline level are grouped together into a
+single outline.
+
+</P>
 <P>
-This method can be used to specify the width and format of a single column
-or a range of columns. If the method is applied to a single column the
-value of <CODE>$first_col</CODE> and <CODE>$last_col</CODE> should be the same. It is also possible to specify a column range using the
+The following example sets an outline level of 1 for rows 1 and 2
+(zero-indexed):
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_row(1, undef, undef, 0, 1);
+    $worksheet-&gt;set_row(2, undef, undef, 0, 1);
+</PRE>
+</P>
+<P>
+The <CODE>$hidden</CODE> parameter can also be used to collapse outlined rows when used in
+conjunction with the <CODE>$level</CODE> parameter.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_row(1, undef, undef, 1, 1);
+    $worksheet-&gt;set_row(2, undef, undef, 1, 1);
+</PRE>
+</P>
+<P>
+Excel allows up to 7 outline levels. Therefore the <CODE>$level</CODE> parameter should be in the range <CODE>0 &lt;= $level &lt;= 7</CODE>.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden, $level)</A></H2>
+<P>
+This method can be used to change the default properties of a single column
+or a range of columns. All parameters apart from <CODE>$first_col</CODE> and <CODE>$last_col</CODE> are optional.
+
+</P>
+<P>
+If <CODE>set_column()</CODE> is applied to a single column the value of <CODE>$first_col</CODE> and <CODE>$last_col</CODE> should be the same. It is also possible to specify a column range using the
 form of A1 notation used for columns. See the note about <A HREF="#Cell_notation">Cell notation</A>.
 
 </P>
@@ -2251,7 +2388,7 @@ runtime from within Excel.
 
 </P>
 <P>
-The <CODE>$format</CODE> parameter is optional, for additional information, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. If you wish to set the format without changing the width you can pass <CODE>undef</CODE> as the width parameter:
+As usual the <CODE>$format</CODE> parameter is optional, for additional information, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. If you wish to set the format without changing the width you can pass <CODE>undef</CODE> as the width parameter:
 
 </P>
 <P>
@@ -2289,9 +2426,8 @@ A default row format takes precedence over a default column format
 </PRE>
 </P>
 <P>
-The <CODE>$hidden</CODE> parameter is optional. It should be set to 1 if you wish to hide a column.
-This can be used, for example, to hide intermediary steps in a complicated
-calculation:
+The <CODE>$hidden</CODE> parameter should be set to 1 if you wish to hide a column. This can be
+used, for example, to hide intermediary steps in a complicated calculation:
 
 </P>
 <P>
@@ -2299,6 +2435,85 @@ calculation:
     $worksheet-&gt;set_column('D:D', 20,    $format, 1);
     $worksheet-&gt;set_column('E:E', undef, undef,   1);
 </PRE>
+</P>
+<P>
+The <CODE>$level</CODE> parameter is used to set the outline level of the column. Outlines are
+described in <A HREF="#OUTLINES_AND_GROUPING_IN_EXCEL">OUTLINES AND GROUPING IN EXCEL</A>. Adjacent columns with the same outline level are grouped together into a
+single outline.
+
+</P>
+<P>
+The following example sets an outline level of 1 for columns B to G:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_column('B:G', undef, undef, 0, 1);
+</PRE>
+</P>
+<P>
+The <CODE>$hidden</CODE> parameter can also be used to collapse outlined columns when used in
+conjunction with the <CODE>$level</CODE> parameter.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_column('B:G', undef, undef, 1, 1);
+</PRE>
+</P>
+<P>
+Excel allows up to 7 outline levels. Therefore the <CODE>$level</CODE> parameter should be in the range <CODE>0 &lt;= $level &lt;= 7</CODE>.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="outline_settings_visible_symb">outline_settings($visible, $symbols_below, $symbols_right, $auto_style)</A></H2>
+<P>
+The <CODE>outline_settings()</CODE> method is used to control the appearance of outlines in Excel. Outlines are
+described in <A HREF="#OUTLINES_AND_GROUPING_IN_EXCEL">OUTLINES AND GROUPING IN EXCEL</A>.
+
+</P>
+<P>
+The <CODE>$visible</CODE> parameter is used to control whether or not outlines are visible. Setting
+this parameter to 0 will cause all outlines on the worksheet to be hidden.
+They can be unhidden in Excel by means of the &quot;Show Outline
+Symbols&quot; command button. The default setting is 1 for visible
+outlines.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;outline_settings(0);
+</PRE>
+</P>
+<P>
+The <CODE>$symbols_below</CODE> parameter is used to control whether the row outline symbol will appear
+above or below the outline level bar. The default setting is 1 for symbols
+to appear below the outline level bar.
+
+</P>
+<P>
+The <CODE>symbols_right</CODE> parameter is used to control whether the column outline symbol will appear
+to the left or the right of the outline level bar. The default setting is 1
+for symbols to appear to the right of the outline level bar.
+
+</P>
+<P>
+The <CODE>$auto_style</CODE> parameter is used to control whether the automatic outline generator in
+Excel uses automatic styles when creating an outline. This has no effect on
+a file generated by <CODE>Spreadsheet::WriteExcel</CODE> but it does have an effect on how the worksheet behaves after it is
+created. The default setting is 0 for &quot;Automatic Styles&quot; to be
+turned off.
+
+</P>
+<P>
+The default settings for all of these parameters correspond to Excel's
+default parameters.
+
+</P>
+<P>
+The worksheet parameters controlled by <CODE>outline_settings()</CODE> are rarely used.
+
 </P>
 <P>
 <HR>
@@ -2402,10 +2617,6 @@ See also the <CODE>freeze_panes()</CODE> method and the <CODE>panes.pl</CODE> pr
 <HR>
 <H2><A NAME="merge_range_first_row_first_c">merge_range($first_row, $first_col, $last_row, $last_col, $token, $format)</A></H2>
 <P>
-Note, the <CODE>merge_range()</CODE> method replaces the <CODE>merge_cells()</CODE> method as a simpler and safer way of generating a merged range. <CODE>merge_cells()</CODE> is still available but it is deprecated and no longer documented.
-
-</P>
-<P>
 Merging cells is generally achieved by setting the <CODE>merge</CODE> property of a Format object, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. However, this only allows simple Excel5 style horizontal merging which
 Excel refers to as &quot;center across selection&quot;.
 
@@ -2417,7 +2628,7 @@ contain other types of alignment in addition to the merging:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat(
+    my $format = $workbook-&gt;add_format(
                                         border  =&gt; 6,
                                         valign  =&gt; 'vcenter',
                                         align   =&gt; 'center',
@@ -2426,7 +2637,7 @@ contain other types of alignment in addition to the merging:
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;merge_range('B3:D4', 'Vertically and horizontal', $format);
+    $worksheet-&gt;merge_range('B3:D4', 'Vertical and horizontal', $format);
 </PRE>
 </P>
 <P>
@@ -2450,6 +2661,10 @@ The full possibilities of this method are shown in the <CODE>merge3.pl</CODE>, <
 </P>
 <P>
 The <CODE>merge_range()</CODE> method doesn't work with Excel versions before Excel 97.
+
+</P>
+<P>
+Note, the <CODE>merge_range()</CODE> method replaces the <CODE>merge_cells()</CODE> method as a simpler and safer way of generating a merged range. <CODE>merge_cells()</CODE> is still available but it is deprecated and no longer documented.
 
 </P>
 <P>
@@ -3196,13 +3411,13 @@ formatting.
 <H2><A NAME="Creating_and_using_a_Format_obje">Creating and using a Format object</A></H2>
 <P>
 Cell formatting is defined through a Format object. Format objects are
-created by calling the workbook <CODE>addformat()</CODE> method as follows:
+created by calling the workbook <CODE>add_format()</CODE> method as follows:
 
 </P>
 <P>
 <PRE>
-    my $format1 = $workbook-&gt;addformat();       # Set properties later
-    my $format2 = $workbook-&gt;addformat(%props); # Set properties at creation
+    my $format1 = $workbook-&gt;add_format();       # Set properties later
+    my $format2 = $workbook-&gt;add_format(%props); # Set at creation
 </PRE>
 </P>
 <P>
@@ -3308,7 +3523,7 @@ of the method interface would be as follows:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_bold();
     $format-&gt;set_color('red');
 </PRE>
@@ -3320,7 +3535,7 @@ properties to the Format constructor:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat(bold =&gt; 1, color =&gt; 'red');
+    my $format = $workbook-&gt;add_format(bold =&gt; 1, color =&gt; 'red');
 </PRE>
 </P>
 <P>
@@ -3329,7 +3544,7 @@ or after the Format has been constructed by means of the <CODE>set_properties()<
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_properties(bold =&gt; 1, color =&gt; 'red');
 </PRE>
 </P>
@@ -3358,8 +3573,8 @@ to the required method:
 </P>
 <P>
 <PRE>
-    my $format1 = $workbook-&gt;addformat(%font);            # Font only
-    my $format2 = $workbook-&gt;addformat(%font, %shading);  # Font and shading
+    my $format1 = $workbook-&gt;add_format(%font);           # Font only
+    my $format2 = $workbook-&gt;add_format(%font, %shading); # Font and shading
 </PRE>
 </P>
 <P>
@@ -3381,10 +3596,10 @@ Tk style of defining properties is also supported:
 <P>
 <PRE>
     my %font    = (
-                    -font      =&gt; 'Arial',
-                    -size      =&gt; 12,
-                    -color     =&gt; 'blue',
-                    -bold      =&gt; 1,
+                    -font  =&gt; 'Arial',
+                    -size  =&gt; 12,
+                    -color =&gt; 'blue',
+                    -bold  =&gt; 1,
                   );
 </PRE>
 </P>
@@ -3400,19 +3615,12 @@ a write method as follows:
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;write('A1', &quot;Title&quot;, $workbook-&gt;addformat(bold =&gt; 1));
+    $worksheet-&gt;write('A1', &quot;Title&quot;, $workbook-&gt;add_format(bold =&gt; 1));
 </PRE>
 </P>
 <P>
 This corresponds to an &quot;anonymous&quot; format in the Perl sense of
 anonymous data or subs.
-
-</P>
-<P>
-If you need to create an Excel file with a large amount of formatting you
-can also use the <CODE>lecxe.pl</CODE> program in the <CODE>examples</CODE> directory of the distribution. <CODE>lecxe</CODE> is a Win32::OLE program written by Tomas Andersson which converts Excel
-files to Spreadsheet::WriteExcel files. Therefore, you can use Excel to
-define your formatting and have <CODE>lecxe</CODE> do the hard work for you.
 
 </P>
 <P>
@@ -3432,7 +3640,7 @@ state but in its final state. Consider the following example:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_bold();
     $format-&gt;set_color('red');
     $worksheet-&gt;write('A1', &quot;Cell A1&quot;, $format);
@@ -3453,7 +3661,7 @@ example:
 </P>
 <P>
 <PRE>
-    my $format1 = $workbook-&gt;addformat();
+    my $format1 = $workbook-&gt;add_format();
     $format1-&gt;set_bold();  # Turns bold on
     $format1-&gt;set_bold(1); # Also turns bold on
     $format1-&gt;set_bold(0); # Turns bold off
@@ -3521,7 +3729,7 @@ The properties of an existing Format object can be set by means of <CODE>set_pro
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_properties(bold =&gt; 1, color =&gt; 'red');
 </PRE>
 </P>
@@ -3546,7 +3754,7 @@ to the <CODE>set_properties()</CODE> method:
 </PRE>
 </P>
 <P>
-This method can be used as an alternative to setting the properties with <CODE>addformat()</CODE> or the specific format methods that are detailed in the following sections.
+This method can be used as an alternative to setting the properties with <CODE>add_format()</CODE> or the specific format methods that are detailed in the following sections.
 
 </P>
 <P>
@@ -3593,7 +3801,7 @@ a row using the <CODE>set_row()</CODE> worksheet method.
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_size(30);
 </PRE>
 </P>
@@ -3628,7 +3836,7 @@ Set the font colour. The <CODE>set_color()</CODE> method is used as follows:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_color('red');
     $worksheet-&gt;write(0, 0, &quot;wheelbarrow&quot;, $format);
 </PRE>
@@ -3796,8 +4004,8 @@ an index to one of Excel's built-in formats:
 </P>
 <P>
 <PRE>
-    my $format1 = $workbook-&gt;addformat();
-    my $format2 = $workbook-&gt;addformat();
+    my $format1 = $workbook-&gt;add_format();
+    my $format2 = $workbook-&gt;add_format();
     $format1-&gt;set_num_format('d mmm yyyy'); # Format string
     $format2-&gt;set_num_format(0x0f);         # Format index
 </PRE>
@@ -3896,7 +4104,7 @@ numbers.
 </PRE>
 </P>
 <P>
-The number system used for dates is described in <A HREF="#Dates_in_Excel">Dates in Excel</A>.
+The number system used for dates is described in <A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A>.
 
 </P>
 <P>
@@ -3976,7 +4184,8 @@ Excel's built-in formats are shown in the following table:
 </P>
 <P>
 For examples of these formatting codes see the 'Numerical formats'
-worksheet created by formats.pl.
+worksheet created by formats.pl. See also the number_formats1.html and the
+number_formats2.html documents in the <CODE>doc</CODE> directory of the distro.
 
 </P>
 <P>
@@ -4013,13 +4222,13 @@ worksheet <CODE>protect()</CODE> method.
 </P>
 <P>
 <PRE>
-    my $locked  = $workbook-&gt;addformat();
+    my $locked  = $workbook-&gt;add_format();
     $locked-&gt;set_locked(1); # A non-op
 </PRE>
 </P>
 <P>
 <PRE>
-    my $unlocked = $workbook-&gt;addformat();
+    my $unlocked = $workbook-&gt;add_format();
     $locked-&gt;set_locked(0);
 </PRE>
 </P>
@@ -4065,7 +4274,7 @@ been protected, see the worksheet <CODE>protect()</CODE> method.
 </P>
 <P>
 <PRE>
-    my $hidden = $workbook-&gt;addformat();
+    my $hidden = $workbook-&gt;add_format();
     $hidden-&gt;set_hidden();
 </PRE>
 </P>
@@ -4117,7 +4326,7 @@ method is used as follows:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_align('center');
     $format-&gt;set_align('vcenter');
     $worksheet-&gt;set_row(0, 30);
@@ -4125,7 +4334,7 @@ method is used as follows:
 </PRE>
 </P>
 <P>
-Text can be aligned across two or more adjacent cells using the <CODE>merge</CODE> property. See also, the <CODE>set_merge()</CODE> method.
+Text can be aligned across two or more adjacent cells using the <CODE>merge</CODE> property. See also, the <CODE>set_merge()</CODE> method below.
 
 </P>
 <P>
@@ -4149,7 +4358,7 @@ For further examples see the 'Alignment' worksheet created by formats.pl.
 </PRE>
 </P>
 <P>
-Text can be aligned across two or more adjacent cells using the <CODE>set_merge()</CODE> method. This is an alias for the unintuitive <CODE>set_align('merge')</CODE> method call.
+Text can be aligned across two or more adjacent cells using the <CODE>set_merge()</CODE> method. This is an alias for the <CODE>set_align('merge')</CODE> method call.
 
 </P>
 <P>
@@ -4158,7 +4367,7 @@ Only one cell should contain the text, the other cells should be blank:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_merge();
 </PRE>
 </P>
@@ -4188,7 +4397,7 @@ Here is an example using the text wrap property, the escape character <CODE>\n</
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_text_wrap();
     $worksheet-&gt;write(0, 0, &quot;It's\na bum\nwrap&quot;, $format);
 </PRE>
@@ -4242,6 +4451,10 @@ Only applies to Far Eastern versions of Excel.
 </PRE>
 </P>
 <P>
+Set the background pattern of a cell.
+
+</P>
+<P>
 Examples of the available patterns are shown in the 'Patterns' worksheet
 created by formats.pl. However, it is unlikely that you will ever need
 anything other than Pattern 1 which is a solid fill of the background
@@ -4270,7 +4483,7 @@ Here is an example of how to set up a solid fill in a cell:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
 </PRE>
 </P>
 <P>
@@ -4363,7 +4576,11 @@ formats.pl.
 </PRE>
 </P>
 <P>
-Set the colour of the cell borders.
+Set the colour of the cell borders. A cell border is comprised of a border
+on the bottom, top, left and right. These can be set to the same colour
+using <CODE>set_border_color()</CODE> or individually using the relevant method calls shown above. Examples of
+the border styles and colours are shown in the 'Borders' worksheet created
+by formats.pl.
 
 </P>
 <P>
@@ -4376,7 +4593,7 @@ another:
 </P>
 <P>
 <PRE>
-    my $lorry1 = $workbook-&gt;addformat();
+    my $lorry1 = $workbook-&gt;add_format();
     $lorry1-&gt;set_bold();
     $lorry1-&gt;set_italic();
     $lorry1-&gt;set_color('red');    # lorry1 is bold, italic and red
@@ -4384,13 +4601,13 @@ another:
 </P>
 <P>
 <PRE>
-    my $lorry2 = $workbook-&gt;addformat();
+    my $lorry2 = $workbook-&gt;add_format();
     $lorry2-&gt;copy($lorry1);
     $lorry2-&gt;set_color('yellow'); # lorry2 is bold, italic and yellow
 </PRE>
 </P>
 <P>
-It is only useful if you are using the method interface to Format
+The <CODE>copy()</CODE> method is only useful if you are using the method interface to Format
 properties. It generally isn't required if you are setting Format
 properties directly using hashes.
 
@@ -4412,7 +4629,7 @@ For example:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat(
+    my $format = $workbook-&gt;add_format(
                                         color =&gt; 12, # index for blue
                                         font  =&gt; 'Arial',
                                         size  =&gt; 12,
@@ -4450,7 +4667,7 @@ For example:
 </P>
 <P>
 <PRE>
-    my $font = $workbook-&gt;addformat(color =&gt; 'red');
+    my $font = $workbook-&gt;add_format(color =&gt; 'red');
 </PRE>
 </P>
 <P>
@@ -4471,7 +4688,7 @@ colour:
 </P>
 <P>
 <PRE>
-    my $format  = $workbook-&gt;addformat(
+    my $format  = $workbook-&gt;add_format(
                                         bg_color =&gt; $ferrari,
                                         pattern  =&gt; 1,
                                         border   =&gt; 1
@@ -4597,6 +4814,13 @@ different formats.
 
 </P>
 <P>
+See also the DateTime::Format::Excel
+module,http://search.cpan.org/search?dist=DateTime-Format-Excel which is
+part of the DateTime project and which deals specifically with converting
+dates and times to and from Excel's format.
+
+</P>
+<P>
 There is also the <CODE>excel_date1.pl</CODE> program in the <CODE>examples</CODE> directory of the WriteExcel distribution which was written by Andrew
 Benham. It contains a detailed description of the problems involved in
 calculating dates in Excel. It does not require any external modules.
@@ -4620,6 +4844,122 @@ deal with a large number of dates, unless you use it in conjunction with <CODE>s
 </P>
 <P>
 <HR>
+<H1><A NAME="OUTLINES_AND_GROUPING_IN_EXCEL">OUTLINES AND GROUPING IN EXCEL</A></H1>
+<P>
+Excel allows you to group rows or columns so that they can be hidden or
+displayed with a single mouse click. This feature is referred to as
+outlines.
+
+</P>
+<P>
+Outlines can reduce complex data down to a few salient sub-totals or
+summaries.
+
+</P>
+<P>
+This feature is best viewed in Excel but the following is an ASCII
+representation of what a worksheet with three outlines might look like.
+Rows 3-4 and rows 7-8 are grouped at level 2. Rows 2-9 are grouped at level
+1. The lines at the left hand side are called outline level bars.
+
+</P>
+<P>
+<PRE>
+            ------------------------------------------
+     1 2 3 |   |   A   |   B   |   C   |   D   |  ...
+            ------------------------------------------
+      _    | 1 |   A   |       |       |       |  ...
+     |  _  | 2 |   B   |       |       |       |  ...
+     | |   | 3 |  (C)  |       |       |       |  ...
+     | |   | 4 |  (D)  |       |       |       |  ...
+     | -   | 5 |   E   |       |       |       |  ...
+     |  _  | 6 |   F   |       |       |       |  ...
+     | |   | 7 |  (G)  |       |       |       |  ...
+     | |   | 8 |  (H)  |       |       |       |  ...
+     | -   | 9 |   I   |       |       |       |  ...
+     -     | . |  ...  |  ...  |  ...  |  ...  |  ...
+</PRE>
+</P>
+<P>
+Clicking the minus sign on each of the level 2 outlines will collapse and
+hide the data as shown in the next figure. The minus sign changes to a plus
+sign to indicate that the data in the outline is hidden.
+
+</P>
+<P>
+<PRE>
+            ------------------------------------------
+     1 2 3 |   |   A   |   B   |   C   |   D   |  ...
+            ------------------------------------------
+      _    | 1 |   A   |       |       |       |  ...
+     |     | 2 |   B   |       |       |       |  ...
+     | +   | 5 |   E   |       |       |       |  ...
+     |     | 6 |   F   |       |       |       |  ...
+     | +   | 9 |   I   |       |       |       |  ...
+     -     | . |  ...  |  ...  |  ...  |  ...  |  ...
+</PRE>
+</P>
+<P>
+Clicking on the minus sign on the level 1 outline will collapse the
+remaining rows as follows:
+
+</P>
+<P>
+<PRE>
+            ------------------------------------------
+     1 2 3 |   |   A   |   B   |   C   |   D   |  ...
+            ------------------------------------------
+           | 1 |   A   |       |       |       |  ...
+     +     | . |  ...  |  ...  |  ...  |  ...  |  ...
+</PRE>
+</P>
+<P>
+Grouping in <CODE>Spreadsheet::WriteExcel</CODE> is achieved by setting the outline level via the <CODE>set_row()</CODE> and <CODE>set_column()</CODE> worksheet methods:
+
+</P>
+<P>
+<PRE>
+    set_row($row, $height, $format, $hidden, $level)
+    set_column($first_col, $last_col, $width, $format, $hidden, $level)
+</PRE>
+</P>
+<P>
+The following example sets an outline level of 1 for rows 1 and 2
+(zero-indexed) and columns B to G. The parameters <CODE>$height</CODE> and <CODE>$XF</CODE> are assigned default values since they are undefined:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_row(1, undef, undef, 0, 1);
+    $worksheet-&gt;set_row(2, undef, undef, 0, 1);
+    $worksheet-&gt;set_column('B:G', undef, undef, 0, 1);
+</PRE>
+</P>
+<P>
+Excel allows up to 7 outline levels. Therefore the <CODE>$level</CODE> parameter should be in the range <CODE>0 &lt;= $level &lt;= 7</CODE>.
+
+</P>
+<P>
+Rows and columns can be collapsed by setting the <CODE>$hidden</CODE> flag:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_row(1, undef, undef, 1, 1);
+    $worksheet-&gt;set_row(2, undef, undef, 1, 1);
+    $worksheet-&gt;set_column('B:G', undef, undef, 1, 1);
+</PRE>
+</P>
+<P>
+For a more complete example see the <CODE>outline.pl</CODE> program in the examples directory of the distro.
+
+</P>
+<P>
+Some additional outline properties can be set via the <CODE>outline_settings()</CODE> worksheet method, see above.
+
+</P>
+<P>
+<HR>
 <H1><A NAME="FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A></H1>
 <P>
 <HR>
@@ -4633,7 +4973,7 @@ with the implementation of formulas and functions:
 <PRE>
     1. Writing a formula is much slower than writing the equivalent string.
     2. You cannot use embedded double quotes in strings.
-    3. You cannot use arrays constants, i.e. {1;2;3}, in functions.
+    3. You cannot use array constants, i.e. {1;2;3}, in functions.
     4. Unary minus isn't supported.
     5. Whitespace is not preserved around operators.
     6. Named ranges are not supported.
@@ -4723,7 +5063,7 @@ The sheet reference and the cell reference are separated by  <CODE>!</CODE> the 
 parentheses then Excel requires that the name is enclosed in single quotes
 as shown in the last two examples above. In order to avoid using a lot of
 escape characters you can use the quote operator <CODE>q{}</CODE> to protect the quotes. See <CODE>perlop</CODE> in the main Perl documentation. Only valid sheet names that have been added
-using the <CODE>addworksheet()</CODE> method can be used in formulas. You cannot reference external workbooks.
+using the <CODE>add_worksheet()</CODE> method can be used in formulas. You cannot reference external workbooks.
 
 </P>
 <P>
@@ -4997,7 +5337,7 @@ Spreadsheet::WriteExcel.
 <PRE>
     # Create a new workbook called simple.xls and add a worksheet
     my $workbook  = Spreadsheet::WriteExcel-&gt;new(&quot;simple.xls&quot;);
-    my $worksheet = $workbook-&gt;addworksheet();
+    my $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
@@ -5065,16 +5405,16 @@ working with multiple worksheets.
 <P>
 <PRE>
     # Add some worksheets
-    my $north = $workbook-&gt;addworksheet(&quot;North&quot;);
-    my $south = $workbook-&gt;addworksheet(&quot;South&quot;);
-    my $east  = $workbook-&gt;addworksheet(&quot;East&quot;);
-    my $west  = $workbook-&gt;addworksheet(&quot;West&quot;);
+    my $north = $workbook-&gt;add_worksheet(&quot;North&quot;);
+    my $south = $workbook-&gt;add_worksheet(&quot;South&quot;);
+    my $east  = $workbook-&gt;add_worksheet(&quot;East&quot;);
+    my $west  = $workbook-&gt;add_worksheet(&quot;West&quot;);
 </PRE>
 </P>
 <P>
 <PRE>
     # Add a Format
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_bold();
     $format-&gt;set_color('blue');
 </PRE>
@@ -5135,7 +5475,7 @@ to indicate if a share price has gone up or down.
 <PRE>
     # Create a new workbook and add a worksheet
     my $workbook  = Spreadsheet::WriteExcel-&gt;new(&quot;stocks.xls&quot;);
-    my $worksheet = $workbook-&gt;addworksheet();
+    my $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
@@ -5147,7 +5487,7 @@ to indicate if a share price has gone up or down.
 <P>
 <PRE>
     # Create a format for the column headings
-    my $header = $workbook-&gt;addformat();
+    my $header = $workbook-&gt;add_format();
     $header-&gt;set_bold();
     $header-&gt;set_size(12);
     $header-&gt;set_color('blue');
@@ -5156,7 +5496,7 @@ to indicate if a share price has gone up or down.
 <P>
 <PRE>
     # Create a format for the stock price
-    my $f_price = $workbook-&gt;addformat();
+    my $f_price = $workbook-&gt;add_format();
     $f_price-&gt;set_align('left');
     $f_price-&gt;set_num_format('$0.00');
 </PRE>
@@ -5164,21 +5504,21 @@ to indicate if a share price has gone up or down.
 <P>
 <PRE>
     # Create a format for the stock volume
-    my $f_volume = $workbook-&gt;addformat();
+    my $f_volume = $workbook-&gt;add_format();
     $f_volume-&gt;set_align('left');
     $f_volume-&gt;set_num_format('#,##0');
 </PRE>
 </P>
 <P>
 <PRE>
-    # Create a format for the price change. This is an example of a conditional
-    # format. The number is formatted as a percentage. If it is positive it is
-    # formatted in green, if it is negative it is formatted in red and if it is
-    # zero it is formatted as the default font colour (in this case black).
-    # Note: the [Green] format produces an unappealing lime green. Try
-    # [Color 10] instead for a dark green.
+    # Create a format for the price change. This is an example of a
+    # conditional format. The number is formatted as a percentage. If it is
+    # positive it is formatted in green, if it is negative it is formatted
+    # in red and if it is zero it is formatted as the default font colour
+    # (in this case black). Note: the [Green] format produces an unappealing
+    # lime green. Try [Color 10] instead for a dark green.
     #
-    my $f_change = $workbook-&gt;addformat();
+    my $f_change = $workbook-&gt;add_format();
     $f_change-&gt;set_align('left');
     $f_change-&gt;set_num_format('[Green]0.0%;[Red]-0.0%;0.0%');
 </PRE>
@@ -5241,7 +5581,7 @@ The following is a simple example of using functions.
 <PRE>
     # Create a new workbook and add a worksheet
     my $workbook  = Spreadsheet::WriteExcel-&gt;new(&quot;stats.xls&quot;);
-    my $worksheet = $workbook-&gt;addworksheet('Test data');
+    my $worksheet = $workbook-&gt;add_worksheet('Test data');
 </PRE>
 </P>
 <P>
@@ -5253,7 +5593,7 @@ The following is a simple example of using functions.
 <P>
 <PRE>
     # Create a format for the headings
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_bold();
 </PRE>
 </P>
@@ -5356,7 +5696,7 @@ The following example converts a tab separated file called <CODE>tab.txt</CODE> 
 <P>
 <PRE>
     my $workbook  = Spreadsheet::WriteExcel-&gt;new(&quot;tab.xls&quot;);
-    my $worksheet = $workbook-&gt;addworksheet();
+    my $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
@@ -5420,6 +5760,7 @@ features and options of the module.
     chess.pl            An example of formatting using properties.
     colors.pl           Demo of the colour palette and named colours.
     images.pl           Adding bitmap images to worksheets.
+    comments.pl         Add cell comments to Excel 5 worksheets.
     sendmail.pl         Send an Excel email attachment using Mail::Sender.
     stats_ext.pl        Same as stats.pl with external references.
     repeat.pl           Example of writing repeated formulas.
@@ -5433,6 +5774,7 @@ features and options of the module.
     merge3.pl           Add hyperlinks to merged cells.
     merge4.pl           An advanced example of merging with formatting.
     merge5.pl           An advanced example of merging with formatting.
+    outline.pl          An example of outlines and grouping.
     textwrap.pl         Demonstrates text wrapping options.
     panes.pl            An examples of how to create panes.
     protection.pl       Example of cell locking and formula hiding.
@@ -5461,17 +5803,8 @@ features and options of the module.
     function_locale.pl  Add non-English function names to Formula.pm.
     filehandle.pl       Examples of working with filehandles.
     writeA1.pl          Example of how to extend the module.
-    comments.pl         Add cell comments to Excel 5 worksheets.
     bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
 </PRE>
-</P>
-<P>
-There are additional examples of a CGI application that uses
-Spreadsheet::WriteExcel available at the website of the German Unix/web
-journal iX: <A
-HREF="ftp://ftp.heise.de/pub/ix/ix_listings/2001_06/perl.tgz">ftp://ftp.heise.de/pub/ix/ix_listings/2001_06/perl.tgz</A>
-
-
 </P>
 <P>
 <HR>
@@ -5501,7 +5834,7 @@ Note: the maximum row reference in a formula is the Excel 5 row limit of
 <P>
 The 255 character limit will be removed when the module moves to the Excel
 97+ format. In the meantime, you can work around this limit using a
-formula. See the <CODE>long_string.pl</CODE> program in the <CODE>examples</CODE> directory of the distro. See also  <A HREF="#TO_DO">TO DO</A> for information about the Excel97 pre-release version of this module. 
+formula. See the <CODE>long_string.pl</CODE> program in the <CODE>examples</CODE> directory of the distro. See also  <A HREF="#TO_DO">TO DO</A> for information about the Excel97 pre-release version of this module.
 
 </P>
 <P>
@@ -5535,7 +5868,7 @@ See the INSTALL or install.html docs that come with the distribution or:
 </P>
 <P>
 <A
-HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.38/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.38/WriteExcel/doc/install.html</A>
+HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.41/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.41/WriteExcel/doc/install.html</A>
 
 
 </P>
@@ -5846,7 +6179,7 @@ OLE Filters Project at <A
 HREF="http://atena.com/libole2.php">http://atena.com/libole2.php</A>
 
 </P>
-<LI>DBD::Excel
+<LI><A NAME="item_DBD">DBD::Excel (reading)</A>
 <P>
 You can also access Spreadsheet::ParseExcel using the standard DBI
 interface via Takanori Kawai's DBD::Excel module <A
@@ -5854,12 +6187,12 @@ HREF="http://search.cpan.org/search?dist=DBD-Excel.">http://search.cpan.org/sear
 
 
 </P>
-<LI>Win32::OLE module and office automation
+<LI><A NAME="item_Win32">Win32::OLE module and office automation (reading)</A>
 <P>
 See, the section <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A>.
 
 </P>
-<LI>HTML tables
+<LI><A NAME="item_HTML">HTML tables (reading)</A>
 <P>
 If the files are saved from Excel in a HTML format the data can be accessed
 using HTML::TableExtract <A
@@ -6006,10 +6339,10 @@ The roadmap is as follows:
 <UL>
 <LI><A NAME="item_Move">Move to Excel97/2000 format as standard.</A>
 <P>
-This will allow strings greater than 255 characters and eventually Unicode.
-A working pre-releases is available, see <A
-HREF="http://freshmeat.net/projects/writeexcel/#comment-22753.">http://freshmeat.net/projects/writeexcel/#comment-22753.</A>
-Others pre-release versions will be announced at Freshmeat, see below.
+This will allow strings greater than 255 characters and Unicode character.
+A stable pre-release is available, see <A
+HREF="http://freshmeat.net/projects/writeexcel/#comment-24916">http://freshmeat.net/projects/writeexcel/#comment-24916</A>
+. Others pre-release versions will be announced at Freshmeat, see below.
 
 </P>
 </UL>
@@ -6069,6 +6402,12 @@ HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB">http://s
 
 </P>
 <P>
+DateTime::Format::Excel: <A
+HREF="http://search.cpan.org/search?dist=DateTime-Format-Excel">http://search.cpan.org/search?dist=DateTime-Format-Excel</A>
+
+
+</P>
+<P>
 &quot;Reading and writing Excel files with Perl&quot; by Teodor Zlatanov,
 atIBM developerWorks: <A
 HREF="http://www-106.ibm.com/developerworks/library/l-pexcel/">http://www-106.ibm.com/developerworks/library/l-pexcel/</A>
@@ -6111,13 +6450,14 @@ Spreadsheet::WriteExcel:
 <P>
 Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha,
 Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN
-testers, Daniel Berger, Daniel Gardner, Ernesto Baschny, Felipe Pérez
-Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan
-Ekenberg, Johann Hanne, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom,
-Markus Schmitz, Michael Buschauer, Mike Blazer, Michael Erickson, Ning Xie,
-Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen
-Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve
-Sapovits, Sven Passig, Troy Daniels, Vahe Sarkissian.
+testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier,
+Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold
+Bamford, James Holmes, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff,
+J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael
+Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul
+J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha,
+Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits,
+Sven Passig, Troy Daniels, Vahe Sarkissian.
 
 </P>
 <P>
@@ -6126,8 +6466,8 @@ The following people contributed code, examples or Excel information:
 </P>
 <P>
 Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz,
-Ian Penman, Pierre-Jean Vouette, Marco Geri, Sam Kington, Takanori Kawai,
-Tom O'Sullivan.
+Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Pierre-Jean Vouette,
+Rubio, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 
 </P>
 <P>
@@ -6165,26 +6505,25 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    New Amsterdam,
-    It's become much too much.
-    Do I take possession
-    Of everything she touches.
-    Should I step on the brakes
-    To get out of your clutches.
-    Should I speak double Dutch
-    To a real double Duchess.
+    Millions of people swarming like flies 'round
+    Waterloo underground.
+    But Terry and Julie cross over the river
+    Where they feel safe and sound.
+    And they don't need no friends
+    As long as they gaze on Waterloo sunset
+    They are in paradise
 </PRE>
 </P>
 <P>
 <PRE>
-        -- Elvis Costello
+        -- Ray Davies
 </PRE>
 </P>
 <P>
 <HR>
 <H1><A NAME="COPYRIGHT">COPYRIGHT</A></H1>
 <P>
-© MM-MMII, John McNamara.
+© MM-MMIII, John McNamara.
 
 </P>
 <P>

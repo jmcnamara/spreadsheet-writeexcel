@@ -73,7 +73,7 @@ foreach my $sheetnum (1..$Excel->Workbooks(1)->Worksheets->Count) {
         my $name=$Excel->Workbooks(1)->Worksheets($sheetnum)->Name;
         print "Sheet $name\n" if ($opts{v});
         print OUTFILE "# Sheet $name\n";
-        print OUTFILE "\$worksheets{'$name'} = \$workbook->addworksheet('$name');\n";
+        print OUTFILE "\$worksheets{'$name'} = \$workbook->add_worksheet('$name');\n";
 
 
         # Get usedrange of cells in worksheet
@@ -110,7 +110,7 @@ foreach my $sheetnum (1..$Excel->Workbooks(1)->Worksheets->Count) {
 
                         # Start creating cell format
                         my $fname="\$formats{'".$name.'R'.$i.'C'.$j."'}";
-                        my $format="$fname=\$workbook->addformat();\n";
+                        my $format="$fname=\$workbook->add_format();\n";
                         my $print_format=0;
 
                         # Check for borders

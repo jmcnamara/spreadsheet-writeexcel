@@ -21,7 +21,7 @@ use IO::Scalar;
 #
 
 my $workbook1  = Spreadsheet::WriteExcel->new('fh_01.xls');
-my $worksheet1 = $workbook1->addworksheet();
+my $worksheet1 = $workbook1->add_worksheet();
 $worksheet1->write(0, 0,  "Hi Excel!");
 
 
@@ -37,7 +37,7 @@ open TEST, "> fh_02.xls";
 binmode(TEST); # Always do this regardless of whether the platform requires it.
 
 my $workbook2  = Spreadsheet::WriteExcel->new(\*TEST);
-my $worksheet2 = $workbook2->addworksheet();
+my $worksheet2 = $workbook2->add_worksheet();
 $worksheet2->write(0, 0,  "Hi Excel!");
 
 
@@ -53,7 +53,7 @@ my $fh = FileHandle->new("> fh_03.xls");
 binmode($fh);
 
 my $workbook3  = Spreadsheet::WriteExcel->new($fh);
-my $worksheet3 = $workbook3->addworksheet();
+my $worksheet3 = $workbook3->add_worksheet();
 $worksheet3->write(0, 0,  "Hi Excel!");
 
 
@@ -70,7 +70,7 @@ my $xls_str;
 tie *XLS, 'IO::Scalar', \$xls_str;
 
 my $workbook4  = Spreadsheet::WriteExcel->new(\*XLS);
-my $worksheet4 = $workbook4->addworksheet();
+my $worksheet4 = $workbook4->add_worksheet();
 $worksheet4->write(0, 0,  "Hi Excel!");
 $workbook4->close(); # This is required
 

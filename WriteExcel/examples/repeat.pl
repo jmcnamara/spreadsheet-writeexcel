@@ -11,7 +11,7 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 my $workbook  = Spreadsheet::WriteExcel->new("repeat.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 
 my $limit = 1000;

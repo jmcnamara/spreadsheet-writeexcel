@@ -4,7 +4,7 @@ package Spreadsheet::WriteExcel::Utility;
 #
 # Utility - Helper functions for Spreadsheet::WriteExcel.
 #
-# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2003, John McNamara, jmcnamara@cpan.org
 #
 #
 
@@ -61,7 +61,7 @@ Utility - Helper functions for Spreadsheet::WriteExcel.
 
 =head1 VERSION
 
-This document refers to version 0.02 of Spreadsheet::WriteExcel::Utility, released March, 2002.
+This document refers to version 0.03 of Spreadsheet::WriteExcel::Utility, released March, 2002.
 
 
 
@@ -455,6 +455,9 @@ Note, a date or time in Excel is like any other number. To display the number as
 
 To use these functions you must install the C<Date::Manip> and C<Date::Calc> modules. See L<REQUIREMENTS> and the individual requirements of each functions.
 
+See also the DateTime::Format::Excel module,http://search.cpan.org/search?dist=DateTime-Format-Excel which is part of the DateTime project and which deals specifically with converting dates and times to and from Excel's format.
+
+
 =cut
 
 
@@ -749,8 +752,8 @@ The date parsing is performed using the C<Decode_Date_US()> function of the Date
 
 "If the year is given as one or two digits only (i.e., if the year is less than 100), it is mapped to the window 1970 -2069 as follows":
 
-     0 E<lt>= $year E<lt>  70  ==>  $year += 2000;
-    70 E<lt>= $year E<lt> 100  ==>  $year += 1900;
+     0 <= $year <  70  ==>  $year += 2000;
+    70 <= $year < 100  ==>  $year += 1900;
 
 The time portion of the string is parsed using the C<xl_parse_time()> function described above.
 
@@ -866,7 +869,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMII, John McNamara.
+© MM-MMIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

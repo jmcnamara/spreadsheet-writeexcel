@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Workbook;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2003, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.17';
+$VERSION = '0.18';
 
 ###############################################################################
 #
@@ -62,7 +62,7 @@ sub new {
     bless $self, $class;
 
     # Add the default format for hyperlinks
-    $self->{_url_format} = $self->addformat(color => 'blue', underline => 1);
+    $self->{_url_format} = $self->add_format(color => 'blue', underline => 1);
 
 
     # Check for a filename
@@ -130,17 +130,24 @@ sub DESTROY {
 
 ###############################################################################
 #
-# sheets()
+# sheets(slice,...)
 #
 # An accessor for the _worksheets[] array
 #
-# Returns: a list of the worksheet objects in a workbook
+# Returns: an optionally sliced list of the worksheet objects in a workbook.
 #
 sub sheets {
 
     my $self = shift;
 
-    return @{$self->{_worksheets}};
+    if (@_) {
+        # Return a slice of the array
+        return @{$self->{_worksheets}}[@_];
+    }
+    else {
+        # Return the entire list
+        return @{$self->{_worksheets}};
+    }
 }
 
 
@@ -163,14 +170,14 @@ sub worksheets {
 
 ###############################################################################
 #
-# addworksheet($name)
+# add_worksheet($name)
 #
 # Add a new worksheet to the Excel workbook.
 # TODO: Add accessor for $self->{_sheetname} for international Excel versions.
 #
 # Returns: reference to a worksheet object
 #
-sub addworksheet {
+sub add_worksheet {
 
     my $self      = shift;
     my $name      = $_[0] || "";
@@ -220,12 +227,26 @@ sub addworksheet {
 
 ###############################################################################
 #
-# addformat(%properties)
+# addworksheet($name)
+#
+# This method is now deprecated. Use the add_worksheet() method instead.
+#
+sub addworksheet {
+
+    my $self = shift;
+
+    $self->add_worksheet(@_);
+}
+
+
+###############################################################################
+#
+# add_format(%properties)
 #
 # Add a new format to the Excel workbook. This adds an XF record and
 # a FONT record. Also, pass any properties to the Format::new().
 #
-sub addformat {
+sub add_format {
 
     my $self = shift;
 
@@ -235,6 +256,20 @@ sub addformat {
     push @{$self->{_formats}}, $format; # Store format reference
 
     return $format;
+}
+
+
+###############################################################################
+#
+# addformat()
+#
+# This method is now deprecated. Use the add_format() method instead.
+#
+sub addformat {
+
+    my $self = shift;
+
+    $self->add_format(@_);
 }
 
 
@@ -475,10 +510,13 @@ sub set_tempdir {
 
     my $self = shift;
 
-    croak "$_[0] is not a valid directory"                 unless -d $_[0];
-    croak "set_tempdir must be called before addworksheet" if $self->sheets();
+    # Windows workaround. See Worksheet::_initialize()
+    my $dir  = shift || '';
 
-    $self->{_tempdir} = $_[0];
+    croak "$dir is not a valid directory"       if $dir ne '' and not -d $dir;
+    croak "set_tempdir must be called before add_worksheet" if $self->sheets();
+
+    $self->{_tempdir} = $dir ;
 }
 
 
@@ -1301,6 +1339,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMII, John McNamara.
+© MM-MMIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

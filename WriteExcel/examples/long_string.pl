@@ -8,7 +8,7 @@
 #
 # For genuine long strings see the following link for information 
 # about the Excel97 pre-release version of this module:
-# http://freshmeat.net/projects/writeexcel/#comment-22753.
+# http://freshmeat.net/projects/writeexcel/#comment-24916
 #
 # reverse('©'), April 2002, John McNamara, jmcnamara@cpan.org
 #
@@ -18,13 +18,13 @@ use Spreadsheet::WriteExcel;
 
 
 my $workbook  = Spreadsheet::WriteExcel->new("long_string.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 
 #
 # The following formatting is optional.
 #
-my $wrap = $workbook->addformat(text_wrap => 1, valign => 'top');
+my $wrap = $workbook->add_format(text_wrap => 1, valign => 'top');
 $worksheet->set_column('B:B', 50);
 $worksheet->set_row(1, 170);
 $worksheet->set_row(2, 170);

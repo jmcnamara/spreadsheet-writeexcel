@@ -28,7 +28,7 @@ open (TABFILE, $ARGV[0]) or die "$ARGV[0]: $!";
 
 # Create a new Excel workbook
 my $workbook  = Spreadsheet::WriteExcel->new($ARGV[1]);
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 # Row and column are zero indexed
 my $row = 0;

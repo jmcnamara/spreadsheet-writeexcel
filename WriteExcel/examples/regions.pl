@@ -15,13 +15,13 @@ use Spreadsheet::WriteExcel;
 my $workbook = Spreadsheet::WriteExcel->new("regions.xls");
 
 # Add some worksheets
-my $north = $workbook->addworksheet("North");
-my $south = $workbook->addworksheet("South");
-my $east  = $workbook->addworksheet("East");
-my $west  = $workbook->addworksheet("West");
+my $north = $workbook->add_worksheet("North");
+my $south = $workbook->add_worksheet("South");
+my $east  = $workbook->add_worksheet("East");
+my $west  = $workbook->add_worksheet("West");
 
 # Add a Format
-my $format = $workbook->addformat();
+my $format = $workbook->add_format();
 $format->set_bold();
 $format->set_color('blue');
 

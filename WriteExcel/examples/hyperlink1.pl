@@ -14,7 +14,7 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("hyperlink.xls");
-my $worksheet = $workbook->addworksheet('Hyperlinks');
+my $worksheet = $workbook->add_worksheet('Hyperlinks');
 
 # Format the first column
 $worksheet->set_column('A:A', 30);
@@ -22,7 +22,7 @@ $worksheet->set_selection('B1');
 
 
 # Add a sample format
-my $format = $workbook->addformat();
+my $format = $workbook->add_format();
 $format->set_size(12);
 $format->set_bold();
 $format->set_color('red');

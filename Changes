@@ -1,6 +1,30 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+0.41 April 24 2003 - Minor
+
+    + Added facility for adding outlines to worksheets. Added
+      outline.pl example. Thanks to Franco Venturi.
+
+    + Moved write_comment() code into the core modules. It is now
+      possible to write cell comments.
+
+    + Added option to return a slice from the sheets() method.
+    
+    + Added link to latest Excel97 pre-release.
+      http://freshmeat.net/projects/writeexcel/#comment-24916    
+
+    ! Changed, once more, the handling of temp files to avoid several
+      file closing bugs. Thanks to many.
+
+    ! Fixed handling of column sizing for widths less than 1 unit.
+      Thanks Rubio.
+
+    ! Renamed addworksheet() and addformat() to add_worksheet()
+      and add_format() for consistency with other method names.
+      Older names are supported but deprecated.
+
+
 0.40 December 21 2002 - Minor
 
     ! Fixed internal sheet indexing in formulas on some platforms.
@@ -10,9 +34,6 @@ Revision history for Perl module Spreadsheet::WriteExcel.
     ! Fixed non-lexical filehandles to prevent problems in
       multi-threaded environments.
       Thanks Ning Xie.
-
-    + Added link about Excel97/long string pre-release.
-      http://freshmeat.net/projects/writeexcel/#comment-22753
 
 
 0.39 September 23 2002 - Minor

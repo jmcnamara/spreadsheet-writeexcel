@@ -70,7 +70,7 @@ sub handler {
     binmode(*XLS);
 
     my $workbook  = Spreadsheet::WriteExcel->new(\*XLS);
-    my $worksheet = $workbook->addworksheet();
+    my $worksheet = $workbook->add_worksheet();
 
 
     # Set the column width for column 1
@@ -78,7 +78,7 @@ sub handler {
 
 
     # Create a format
-    my $format = $workbook->addformat();
+    my $format = $workbook->add_format();
     $format->set_bold();
     $format->set_size(15);
     $format->set_color('blue');

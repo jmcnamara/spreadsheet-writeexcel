@@ -13,10 +13,10 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook called simple.xls and add a worksheet
 my $workbook   = Spreadsheet::WriteExcel->new("images.xls");
-my $worksheet1 = $workbook->addworksheet('Image 1');
-my $worksheet2 = $workbook->addworksheet('Image 2');
-my $worksheet3 = $workbook->addworksheet('Image 3');
-my $worksheet4 = $workbook->addworksheet('Image 4');
+my $worksheet1 = $workbook->add_worksheet('Image 1');
+my $worksheet2 = $workbook->add_worksheet('Image 2');
+my $worksheet3 = $workbook->add_worksheet('Image 3');
+my $worksheet4 = $workbook->add_worksheet('Image 4');
 
 # Insert a basic image
 $worksheet1->write('A10', "Image inserted into worksheet.");

@@ -17,7 +17,7 @@ use Mail::Sender;
 
 # Create an Excel file
 my $workbook  = Spreadsheet::WriteExcel->new("sendmail.xls");
-my $worksheet = $workbook->addworksheet;
+my $worksheet = $workbook->add_worksheet;
 
 $worksheet->write('A1', "Hello World!");
 

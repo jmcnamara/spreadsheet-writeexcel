@@ -14,11 +14,11 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 my $workbook=Spreadsheet::WriteExcel->new("writemany.xls");
-my $worksheet=$workbook->addworksheet("Test");
+my $worksheet=$workbook->add_worksheet("Test");
 
 my @contents;
 
-my $bold=$workbook->addformat;
+my $bold=$workbook->add_format;
 $bold->set_bold(1);
 $bold->set_color("red");
 $bold->set_font("Arial");

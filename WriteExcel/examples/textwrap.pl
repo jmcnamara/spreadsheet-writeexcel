@@ -17,7 +17,7 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("textwrap.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 # Set the column width for columns 1, 2 and 3
 $worksheet->set_column(1, 1, 24);
@@ -42,18 +42,18 @@ my $str2  = "For whatever we lose\n(like a you or a me)\n";
 
 
 # Create a format for the column headings
-my $header = $workbook->addformat();
+my $header = $workbook->add_format();
 $header->set_bold();
 $header->set_font("Courier New");
 $header->set_align('center');
 $header->set_align('vcenter');
 
 # Create a "vertical justification" format
-my $format1 = $workbook->addformat();
+my $format1 = $workbook->add_format();
 $format1->set_align('vjustify');
 
 # Create a "text wrap" format
-my $format2 = $workbook->addformat();
+my $format2 = $workbook->add_format();
 $format2->set_text_wrap();
 
 # Write the headers

@@ -18,14 +18,14 @@ use Date::Calc qw(Delta_DHMS); # You may need to install this module.
 
 # Create a new workbook and add a worksheet
 my $workbook = Spreadsheet::WriteExcel->new("excel_date2.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 # Expand the first column so that the date is visible.
 $worksheet->set_column("A:A", 25);
 
 
 # Add a format for the date
-my $format =  $workbook->addformat();
+my $format =  $workbook->add_format();
 $format->set_num_format('d mmmm yyy HH:MM:SS');
 
 

@@ -14,7 +14,7 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("merge2.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 
 # Increase the cell size of the merged cells to highlight the formatting.
@@ -23,7 +23,7 @@ $worksheet->set_row(2, 30);
 
 
 # Create a merged format
-my $format = $workbook->addformat(
+my $format = $workbook->add_format(
                                         merge        => 1,
                                         bold         => 1,
                                         size         => 15,

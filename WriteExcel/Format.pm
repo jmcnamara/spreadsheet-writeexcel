@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Format;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2003, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -84,7 +84,7 @@ sub new {
 
     bless  $self, $class;
 
-    # Set properties passed to Workbook::addformat()
+    # Set properties passed to Workbook::add_format()
     $self->set_properties(@_) if @_;
 
     return $self;
@@ -621,6 +621,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMII, John McNamara.
+© MM-MMIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -15,19 +15,19 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("stats_ext.xls");
-my $worksheet1 = $workbook->addworksheet('Test results');
-my $worksheet2 = $workbook->addworksheet('Data');
+my $worksheet1 = $workbook->add_worksheet('Test results');
+my $worksheet2 = $workbook->add_worksheet('Data');
 
 # Set the column width for columns 1
 $worksheet1->set_column('A:A', 20);
 
 
 # Create a format for the headings
-my $heading = $workbook->addformat();
+my $heading = $workbook->add_format();
 $heading->set_bold();
 
 # Create a numerical format
-my $numformat = $workbook->addformat();
+my $numformat = $workbook->add_format();
 $numformat->set_num_format('0.00');
 
 

@@ -46,7 +46,7 @@ my $preview   = "Select Print Preview to see the header and footer";
 #
 # A simple example to start
 #
-my $worksheet1  = $workbook->addworksheet('Simple');
+my $worksheet1  = $workbook->add_worksheet('Simple');
 
 my $header1     = '&CHere is some centred text.';
 
@@ -66,7 +66,7 @@ $worksheet1->write('A1', $preview);
 #
 # This is an example of some of the header/footer variables.
 #
-my $worksheet2  = $workbook->addworksheet('Variables');
+my $worksheet2  = $workbook->add_worksheet('Variables');
 
 my $header2     = '&LPage &P of &N'.
                   '&CFilename: &F' .
@@ -92,7 +92,7 @@ $worksheet2->set_h_pagebreaks(20);
 #
 # This example shows how to use more than one font
 #
-my $worksheet3 = $workbook->addworksheet('Mixed fonts');
+my $worksheet3 = $workbook->add_worksheet('Mixed fonts');
 
 my $header3    = '&C' .
                  '&"Courier New,Bold"Hello ' .
@@ -115,7 +115,7 @@ $worksheet3->write('A1', $preview);
 #
 # Example of line wrapping
 #
-my $worksheet4 = $workbook->addworksheet('Word wrap');
+my $worksheet4 = $workbook->add_worksheet('Word wrap');
 
 my $header4    = "&CHeading 1\nHeading 2\nHeading 3";
 
@@ -131,7 +131,7 @@ $worksheet4->write('A1', $preview);
 #
 # Example of inserting a literal ampersand &
 #
-my $worksheet5 = $workbook->addworksheet('Ampersand');
+my $worksheet5 = $workbook->add_worksheet('Ampersand');
 
 my $header5    = "&CCuriouser && Curiouser - Attorneys at Law";
 

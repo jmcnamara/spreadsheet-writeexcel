@@ -13,14 +13,14 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("stats.xls");
-my $worksheet = $workbook->addworksheet('Test data');
+my $worksheet = $workbook->add_worksheet('Test data');
 
 # Set the column width for columns 1
 $worksheet->set_column(0, 0, 20);
 
 
 # Create a format for the headings
-my $format = $workbook->addformat();
+my $format = $workbook->add_format();
 $format->set_bold();
 
 

@@ -27,7 +27,7 @@ open (CSVFILE, $ARGV[0]) or die "$ARGV[0]: $!";
 
 # Create a new Excel workbook
 my $workbook  = Spreadsheet::WriteExcel->new($ARGV[1]);
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 # Create a new CSV parsing ojbect
 my $csv = Text::CSV_XS->new;

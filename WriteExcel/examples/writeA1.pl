@@ -18,7 +18,7 @@ use Spreadsheet::WriteExcel;
 
 # Create a new workbook called simple.xls and add a worksheet
 my $workbook  = Spreadsheet::WriteExcel->new("writeA1.xls");
-my $worksheet = $workbook->addworksheet();
+my $worksheet = $workbook->add_worksheet();
 
 # Write numbers or text
 $worksheet->write  (0, 0, "Hello");

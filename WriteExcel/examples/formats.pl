@@ -13,8 +13,8 @@ use Spreadsheet::WriteExcel;
 my $workbook = Spreadsheet::WriteExcel->new('formats.xls');
 
 # Some common formats
-my $center  = $workbook->addformat(align => 'center');
-my $heading = $workbook->addformat(align => 'center', bold => 1);
+my $center  = $workbook->add_format(align => 'center');
+my $heading = $workbook->add_format(align => 'center', bold => 1);
 
 # The named colors
 my %colors = (
@@ -56,17 +56,17 @@ $workbook->close();
 #
 sub intro {
 
-    my $worksheet = $workbook->addworksheet('Introduction');
+    my $worksheet = $workbook->add_worksheet('Introduction');
 
     $worksheet->set_column(0, 0, 60);
 
-    my $format = $workbook->addformat();
+    my $format = $workbook->add_format();
     $format->set_bold();
     $format->set_size(14);
     $format->set_color('blue');
     $format->set_align('center');
 
-    my $format2 = $workbook->addformat();
+    my $format2 = $workbook->add_format();
     $format2->set_bold();
     $format2->set_color('blue');
 
@@ -93,7 +93,7 @@ sub intro {
 #
 sub named_colors {
 
-    my $worksheet = $workbook->addworksheet('Named colors');
+    my $worksheet = $workbook->add_worksheet('Named colors');
 
     $worksheet->set_column(0, 3, 15);
 
@@ -105,7 +105,7 @@ sub named_colors {
     my $i = 1;
 
     while (my($index, $color) = each %colors) {
-        my $format = $workbook->addformat(
+        my $format = $workbook->add_format(
                                             bg_color => $color,
                                             pattern  => 1,
                                             border   => 1
@@ -126,7 +126,7 @@ sub named_colors {
 #
 sub standard_colors {
 
-    my $worksheet = $workbook->addworksheet('Standard colors');
+    my $worksheet = $workbook->add_worksheet('Standard colors');
 
     $worksheet->set_column(0, 3, 15);
 
@@ -136,7 +136,7 @@ sub standard_colors {
     $worksheet->write(0, 3, "Name",  $heading);
 
     for my $i (8..63) {
-        my $format = $workbook->addformat(
+        my $format = $workbook->add_format(
                                             bg_color => $i,
                                             pattern  => 1,
                                             border   => 1
@@ -161,7 +161,7 @@ sub standard_colors {
 #
 sub numeric_formats {
 
-    my $worksheet = $workbook->addworksheet('Numeric formats');
+    my $worksheet = $workbook->add_worksheet('Numeric formats');
 
     $worksheet->set_column(0, 4, 15);
     $worksheet->set_column(5, 5, 45);
@@ -213,7 +213,7 @@ sub numeric_formats {
 
     my $i; # RFC 120
     foreach my $format (@formats){
-        my $style = $workbook->addformat();
+        my $style = $workbook->add_format();
         $style->set_num_format($$format[0]);
 
         $i++;
@@ -237,7 +237,7 @@ sub numeric_formats {
 #
 sub fonts {
 
-    my $worksheet = $workbook->addworksheet('Fonts');
+    my $worksheet = $workbook->add_worksheet('Fonts');
 
     $worksheet->set_column(0, 0, 30);
     $worksheet->set_column(1, 1, 10);
@@ -264,7 +264,7 @@ sub fonts {
 
     my $i;
     foreach my $font (@fonts){
-        my $format = $workbook->addformat();
+        my $format = $workbook->add_format();
 
         $format->set_size($$font[0]);
         $format->set_font($$font[1]);
@@ -283,7 +283,7 @@ sub fonts {
 #
 sub borders {
 
-    my $worksheet = $workbook->addworksheet('Borders');
+    my $worksheet = $workbook->add_worksheet('Borders');
 
     $worksheet->set_column(0, 4, 10);
     $worksheet->set_column(5, 5, 40);
@@ -295,7 +295,7 @@ sub borders {
     $worksheet->write(1, 5, "emphasis, the default color is black.", $heading);
 
     for my $i (0..7){
-        my $format = $workbook->addformat();
+        my $format = $workbook->add_format();
         $format->set_border($i);
         $format->set_border_color('red');
         $format->set_align('center');
@@ -315,7 +315,7 @@ sub borders {
 #
 sub patterns {
 
-    my $worksheet = $workbook->addworksheet('Patterns');
+    my $worksheet = $workbook->add_worksheet('Patterns');
 
     $worksheet->set_column(0, 4, 10);
     $worksheet->set_column(5, 5, 50);
@@ -328,7 +328,7 @@ sub patterns {
     $worksheet->write(1, 5, "The foreground colour has been set to green.",  $heading);
 
     for my $i (0..18){
-        my $format = $workbook->addformat();
+        my $format = $workbook->add_format();
 
         $format->set_pattern($i);
         $format->set_bg_color('silver');
@@ -353,27 +353,27 @@ sub patterns {
 #
 sub alignment {
 
-    my $worksheet = $workbook->addworksheet('Alignment');
+    my $worksheet = $workbook->add_worksheet('Alignment');
 
     $worksheet->set_column(0, 7, 12);
     $worksheet->set_row(0, 40);
     $worksheet->set_selection(7, 0);
 
-    my $format01 = $workbook->addformat();
-    my $format02 = $workbook->addformat();
-    my $format03 = $workbook->addformat();
-    my $format04 = $workbook->addformat();
-    my $format05 = $workbook->addformat();
-    my $format06 = $workbook->addformat();
-    my $format07 = $workbook->addformat();
-    my $format08 = $workbook->addformat();
-    my $format09 = $workbook->addformat();
-    my $format10 = $workbook->addformat();
-    my $format11 = $workbook->addformat();
-    my $format12 = $workbook->addformat();
-    my $format13 = $workbook->addformat();
-    my $format14 = $workbook->addformat();
-    my $format15 = $workbook->addformat();
+    my $format01 = $workbook->add_format();
+    my $format02 = $workbook->add_format();
+    my $format03 = $workbook->add_format();
+    my $format04 = $workbook->add_format();
+    my $format05 = $workbook->add_format();
+    my $format06 = $workbook->add_format();
+    my $format07 = $workbook->add_format();
+    my $format08 = $workbook->add_format();
+    my $format09 = $workbook->add_format();
+    my $format10 = $workbook->add_format();
+    my $format11 = $workbook->add_format();
+    my $format12 = $workbook->add_format();
+    my $format13 = $workbook->add_format();
+    my $format14 = $workbook->add_format();
+    my $format15 = $workbook->add_format();
 
     $format02->set_align('top');
     $format03->set_align('bottom');
@@ -422,17 +422,17 @@ sub alignment {
 #
 sub misc {
 
-    my $worksheet = $workbook->addworksheet('Miscellaneous');
+    my $worksheet = $workbook->add_worksheet('Miscellaneous');
 
     $worksheet->set_column(2, 2, 25);
 
-    my $format01 = $workbook->addformat();
-    my $format02 = $workbook->addformat();
-    my $format03 = $workbook->addformat();
-    my $format04 = $workbook->addformat();
-    my $format05 = $workbook->addformat();
-    my $format06 = $workbook->addformat();
-    my $format07 = $workbook->addformat();
+    my $format01 = $workbook->add_format();
+    my $format02 = $workbook->add_format();
+    my $format03 = $workbook->add_format();
+    my $format04 = $workbook->add_format();
+    my $format05 = $workbook->add_format();
+    my $format06 = $workbook->add_format();
+    my $format07 = $workbook->add_format();
 
     $format01->set_underline(0x01);
     $format02->set_underline(0x02);
