@@ -4,7 +4,7 @@
 #
 # Example of using Spreadsheet::WriteExcel to write to alternative filehandles.
 #
-# reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), April 2003, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -22,6 +22,7 @@ use IO::Scalar;
 
 my $workbook1  = Spreadsheet::WriteExcel->new('fh_01.xls');
 my $worksheet1 = $workbook1->add_worksheet();
+
 $worksheet1->write(0, 0,  "Hi Excel!");
 
 
@@ -33,11 +34,11 @@ $worksheet1->write(0, 0,  "Hi Excel!");
 #
 
 open TEST, "> fh_02.xls";
-
-binmode(TEST); # Always do this regardless of whether the platform requires it.
+binmode TEST; # Always do this regardless of whether the platform requires it.
 
 my $workbook2  = Spreadsheet::WriteExcel->new(\*TEST);
 my $worksheet2 = $workbook2->add_worksheet();
+
 $worksheet2->write(0, 0,  "Hi Excel!");
 
 
@@ -54,6 +55,7 @@ binmode($fh);
 
 my $workbook3  = Spreadsheet::WriteExcel->new($fh);
 my $worksheet3 = $workbook3->add_worksheet();
+
 $worksheet3->write(0, 0,  "Hi Excel!");
 
 
@@ -71,12 +73,40 @@ tie *XLS, 'IO::Scalar', \$xls_str;
 
 my $workbook4  = Spreadsheet::WriteExcel->new(\*XLS);
 my $worksheet4 = $workbook4->add_worksheet();
-$worksheet4->write(0, 0,  "Hi Excel!");
-$workbook4->close(); # This is required
+
+$worksheet4->write(0, 0, "Hi Excel 4");
+$workbook4->close(); # This is required before we use the scalar
+
 
 # The Excel file is now in $xls_str. As a demonstration, print it to a file.
-open TMP, "> fh_04.xls";
-binmode(TMP);
-print TMP $xls_str;
+open    TMP, "> fh_04.xls";
+binmode TMP;
+print   TMP  $xls_str;
+close   TMP;
+
+
+
+
+###############################################################################
+#
+# Example 5. Write an Excel file to a string via IO::Scalar newer interface.
+# Please refer to the IO::Scalar documentation for further details.
+#
+my $xls_str2;
+
+my $fh5 = IO::Scalar->new(\$xls_str2);
+
+
+my $workbook5  = Spreadsheet::WriteExcel->new($fh5);
+my $worksheet5 = $workbook5->add_worksheet();
+
+$worksheet5->write(0, 0, "Hi Excel 5");
+$workbook5->close();
+
+# The Excel file is now in $xls_str. As a demonstration, print it to a file.
+open    TMP, "> fh_05.xls";
+binmode TMP;
+print   TMP  $xls_str2; # This is required before we use the scalar
+close   TMP;
 
 

@@ -24,7 +24,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 ###############################################################################
 #
@@ -36,7 +36,7 @@ sub new {
 
     my $class  = shift;
     my $self   = {
-                    _OLEfilename   => $_[0],
+                    _olefilename   => $_[0],
                     _filehandle    => "",
                     _fileclosed    => 0,
                     _internal_fh   => 0,
@@ -60,33 +60,29 @@ sub new {
 #
 # _initialize()
 #
-# Check for a valid filename and store the filehandle.
-# Filehandle "-" writes to STDOUT
+# Create a new filehandle or use the provided filehandle.
 #
 sub _initialize {
 
     my $self    = shift;
-    my $OLEfile = $self->{_OLEfilename};
+    my $olefile = $self->{_olefilename};
     my $fh;
-
-    # Check for a filename. Workbook.pm will catch this first.
-    if ($OLEfile eq '') {
-        croak('Filename required by Spreadsheet::WriteExcel->new()');
-    }
 
     # If the filename is a reference it is assumed that it is a valid
     # filehandle, if not we create a filehandle.
     #
-    if (ref($OLEfile)) {
-        $fh = $OLEfile;
+    if (ref($olefile)) {
+        $fh = $olefile;
     }
     else{
+
         # Create a new file, open for writing
-        $fh = FileHandle->new("> $OLEfile");
+        $fh = FileHandle->new("> $olefile");
+
         # Workbook.pm also checks this but something may have happened since
         # then.
         if (not defined $fh) {
-            croak "Can't open $OLEfile. It may be in use or protected.\n";
+            croak "Can't open $olefile. It may be in use or protected.\n";
         }
 
         # binmode file whether platform requires it or not

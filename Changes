@@ -1,6 +1,20 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+0.42 August 26 2003 - Minor
+
+    ! Fixed bug when using IO::Sclalar object as a filehandle.
+      Thanks to Kyle R. Burton and David Robins.
+    
+    ! Fixed minor formula parser bug.
+      Thanks Michael Braig
+
+    ! Fixed handling of column sizing for widths less than 1
+      unit (again). Thanks to Rubio (again).
+
+    ! Failed new() returns undef instead of croak()ing as per docs.
+
+
 0.41 April 24 2003 - Minor
 
     + Added facility for adding outlines to worksheets. Added

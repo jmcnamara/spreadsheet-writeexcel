@@ -24,7 +24,7 @@ use strict;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 ###############################################################################
 #
@@ -254,6 +254,14 @@ sub get_xf {
 
     return($header . $data);
 }
+
+
+###############################################################################
+#
+# Note to porters. The majority of the set_property() methods are created
+# dynamically via Perl' AUTOLOAD sub, see below. You may prefer/have to specify
+# them explicitly in other implementation languages.
+#
 
 
 ###############################################################################
@@ -563,6 +571,8 @@ sub set_properties {
 #
 # AUTOLOAD. Deus ex machina.
 #
+# Dynamically create set methods that aren't already defined.
+#
 sub AUTOLOAD {
 
     my $self = shift;
@@ -582,16 +592,38 @@ sub AUTOLOAD {
     # The attribute value
     my $value;
 
-    # Determine the value of the attribute
+
+    # There are two types of set methods: set_property() and
+    # set_property_color(). When a method is AUTOLOADED we store a new anonymous
+    # sub in the appropriate slot in the symbol table. The speeds up subsequent
+    # calls to the same method.
+    #
+    no strict 'refs'; # To allow symbol table hackery
+
     if ($AUTOLOAD =~ /.*::set\w+color$/) {
-        $value =  _get_color($_[0]); # For "set_xxx_color" methods
-    }
-    elsif (not defined($_[0])) {
-        $value = 1; # Default is 1
+        # For "set_property_color" methods
+        $value =  _get_color($_[0]);
+
+        *{$AUTOLOAD} = sub {
+                             my $self  = shift;
+
+                             $self->{$attribute} = _get_color($_[0]);
+                           };
     }
     else {
+
         $value = $_[0];
+        $value = 1 if not defined $value; # The default value is always 1
+
+        *{$AUTOLOAD} = sub {
+                             my $self  = shift;
+                             my $value = shift;
+
+                             $value = 1 if not defined $value;
+                             $self->{$attribute} = $value;
+                           };
     }
+
 
     $self->{$attribute} = $value;
 }

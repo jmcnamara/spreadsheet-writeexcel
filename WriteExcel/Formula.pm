@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.07';
+$VERSION = '0.08';
 
 ###############################################################################
 #
@@ -82,7 +82,7 @@ sub _init_parser {
     eval { require Parse::RecDescent };
     die  "The Parse::RecDescent module must be installed in order ".
          "to write an Excel formula\n" if $@;
-            
+
     $self->_initialize_hashes();
 
     # The parsing grammar.
@@ -333,6 +333,7 @@ sub parse_tokens {
             $token = shift @_;
             $parse_str .= $self->_convert_function($token, $num_args);
             pop @class;
+            $num_args = 0; # Reset after use
         }
         elsif (exists $ptg{$token}) {
             $parse_str .= pack("C", $ptg{$token});
@@ -346,7 +347,7 @@ sub parse_tokens {
 
     if ($_debug) {
         print join(" ", map { sprintf "%02X", $_ } unpack("C*",$parse_str));
-        print "\n";
+        print "\n\n";
         print join(" ", @tokens), "\n\n";
     }
 
@@ -645,7 +646,7 @@ sub _convert_range3d {
 
     my $self      = shift;
     my $token     = shift;
-    my $class = shift;
+    my $class     = shift;
     my $ptgArea;
 
     # Split the ref at the ! symbol

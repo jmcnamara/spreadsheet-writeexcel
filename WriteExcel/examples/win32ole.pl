@@ -11,6 +11,8 @@
 use strict;
 use Cwd;
 use Win32::OLE;
+use Win32::OLE::Const 'Microsoft Excel';
+
 
 my $application = Win32::OLE->new("Excel.Application");
 my $workbook    = $application->Workbooks->Add;
@@ -35,5 +37,8 @@ $worksheet->Hyperlinks->Add({ Anchor => $range, Address => "http://www.perl.com/
 # Get current directory using Cwd.pm
 my $dir = cwd();
 
-$workbook->SaveAs($dir . '/win32ole.xls');
+$workbook->SaveAs({
+                    FileName   => $dir . '/win32ole.xls', 
+                    FileFormat => xlNormal,
+                  });
 $workbook->Close;

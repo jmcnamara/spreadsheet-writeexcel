@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.41'; # Waterloo sunset
+$VERSION = '0.42'; # Sexsmith
 
 
 
@@ -62,7 +62,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.41 of Spreadsheet::WriteExcel, released April 24, 2003.
+This document refers to version 0.42 of Spreadsheet::WriteExcel, released August 26, 2003.
 
 
 
@@ -1064,9 +1064,9 @@ The parameters C<$x> and C<$y> can be used to specify an offset from the top lef
 
 The default width of a cell is 63 pixels. The default height of a cell is 17 pixels. The pixels offsets can be calculated using the following relationships:
 
-    Wp = int 12.5We if We <  1
-    Wp = int 7We +5 if We >= 1
-    Hp = int 4/3He
+    Wp = int(12We)   if We <  1
+    Wp = int(7We +5) if We >= 1
+    Hp = int(4/3He)
 
     where:
     We is the cell width in Excels units
@@ -3386,7 +3386,7 @@ This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.41/WriteExcel/doc/install.html
+http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.42/WriteExcel/doc/install.html
 
 
 
@@ -3508,6 +3508,10 @@ Excel files contain an internal index table that allows them to act like a datab
 
 You can also access Spreadsheet::WriteExcel using the standard DBI interface via Takanori Kawai's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
 
+=item * Spreadsheet::WriteExcel::FromXML
+
+This module allows you to turn a simple XML file into an Excel file using Spreadsheet::WriteExcel as a backend. The format of the XML file is defined by a supplied DTD: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML
+
 =item * Spreadsheet::WriteExcel::Simple
 
 This provides an easier interface to Spreadsheet::WriteExcel: http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-Simple
@@ -3603,7 +3607,7 @@ To avoid this problems you should convert the output data to ASCII or ISO-8859-1
 
 If you are interested in creating an XML spreadsheet format you should be aware that Excel 2000 and later versions can read XML data directly. The Excel XML file specification is available at http://msdn.microsoft.com/library/officedev/ofxml2k/ofxml2k.htm
 
-
+Another approach is to use Spreadsheet::WriteExcel::FromXML. This uses a DTD to define a simple XML format that can be converted to an Excel file using Spreadsheet::WriteExcel as a backend. This is a potentially powerful approach since it effectively decouples your data from Perl, apart from a single filter program, and allows you to create Spreadsheet::WriteExcel files using your preferred XML tools. See http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML
 
 
 =head1 BUGS
@@ -3666,9 +3670,11 @@ If there is some feature of an Excel file that you really, really need then you 
 
 =head1 SEE ALSO
 
-Spreadsheet::ParseExcel. http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
+Spreadsheet::ParseExcel: http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
 
-Spreadsheet::WriteExcel::FromDB. http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB
+Spreadsheet-WriteExcel-FromXML: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML
+
+Spreadsheet::WriteExcel::FromDB: http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB
 
 DateTime::Format::Excel: http://search.cpan.org/search?dist=DateTime-Format-Excel
 
@@ -3689,11 +3695,11 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Troy Daniels, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Troy Daniels, Vahe Sarkissian.
 
-The following people contributed code, examples or Excel information:
+The following people contributed patches, examples or Excel information:
 
-Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Pierre-Jean Vouette, Rubio, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
+Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton,Pierre-Jean Vouette, Rubio, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 
 Many thanks to Ron McKelvey, Ronzo Consulting for Siemens, who sponsored the development of the formula caching routines.
 
@@ -3715,15 +3721,21 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 John McNamara jmcnamara@cpan.org
 
 
-    Millions of people swarming like flies 'round
-    Waterloo underground.
-    But Terry and Julie cross over the river
-    Where they feel safe and sound.
-    And they don't need no friends
-    As long as they gaze on Waterloo sunset
-    They are in paradise
+    There's a rhythm under the song
+    And it beats for the old and the young
+    And it pounds in the back of the sun
+    It's the sound of one drummer, one drum
 
-        -- Ray Davies
+    There's a rhythm, it's subtle yet strong
+    And it moves all the wallflowers on
+    To the dance floor that holds everyone
+    To the sound of one drummer, one drum
+
+    Dance, for the time marches on
+    Off to a war that can never be won
+    To the heartbeat of drums
+
+        -- Ron Sexsmith
 
 
 

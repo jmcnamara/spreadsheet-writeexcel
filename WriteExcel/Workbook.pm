@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.18';
+$VERSION = '0.19';
 
 ###############################################################################
 #
@@ -65,8 +65,8 @@ sub new {
     $self->{_url_format} = $self->add_format(color => 'blue', underline => 1);
 
 
-    # Check for a filename
-    if ($self->{_filename} eq '') {
+    # Check for a filename unless it is an existing filehandle
+    if (not ref $self->{_filename} and $self->{_filename} eq '') {
         carp 'Filename required by Spreadsheet::WriteExcel->new()';
         return undef;
     }
@@ -79,7 +79,7 @@ sub new {
     if (not ref $self->{_filename}) {
         my $fh = FileHandle->new('>'. $self->{_filename});
         if (not defined $fh) {
-            croak "Can't open " .
+            carp "Can't open " .
                   $self->{_filename} .
                   ". It may be in use or protected";
             return undef;

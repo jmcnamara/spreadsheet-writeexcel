@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.18';
+$VERSION = '0.19';
 
 ###############################################################################
 #
@@ -1145,7 +1145,7 @@ sub write_col {
 sub write_comment {
 
     my $self      = shift;
-    
+
     # Check for a cell reference in A1 notation and substitute row and column
     if ($_[0] =~ /^\D/) {
         @_ = $self->_substitute_cellref(@_);
@@ -2487,16 +2487,20 @@ sub _store_colinfo {
     my $colLast  = $_[1] || 0;      # Last formatted column
     my $width    = $_[2] || 8.43;   # Col width in user units, 8.43 is default
     my $coldx;                      # Col width in internal units
+    my $pixels;                     # Col width in pixels
 
-    # The following relationships between the users width and the internal units
-    # were derived via interpolation.
+    # Excel rounds the column width to the nearest pixel. Therefore we first
+    # convert to pixels and then to the internal units. The pixel to users-units
+    # relationship is different for values less than 1.
     #
     if ($width < 1) {
-        $coldx = int($width * 438);
+        $pixels = int($width *12);
     }
     else {
-        $coldx = int($width *256 +182);
+        $pixels = int($width *7 ) +5;
     }
+
+    $coldx = int($pixels *256/7);
 
 
     my $ixfe;                       # XF index
@@ -3513,11 +3517,9 @@ sub _position_image {
 #
 # _size_col($col)
 #
-#
-# Convert the width of a cell from user's units to pixels. By interpolation
-# the relationship is: y = 12.5x if x < 1 and y = 7x +5 if x >= 1.
-# If the width hasn't been set by the user we use the default value. If the
-# column is hidden we use a value of zero.
+# Convert the width of a cell from user's units to pixels. Excel rounds the
+# column width to the nearest pixel. If the width hasn't been set by the user
+# we use the default value. If the column is hidden we use a value of zero.
 #
 sub _size_col {
 
@@ -3528,11 +3530,12 @@ sub _size_col {
     if (exists $self->{_col_sizes}->{$col}) {
         my $width = $self->{_col_sizes}->{$col};
 
+        # The relationship is different for user units less than 1.
         if ($width < 1) {
-            return int(12.5 * $width);
+            return int($width *12);
         }
         else {
-            return int(7 * $width + 5);
+            return int($width *7 ) +5;
         }
     }
     else {
