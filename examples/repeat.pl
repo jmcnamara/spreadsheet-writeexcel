@@ -22,7 +22,7 @@ for my $row (0..$limit) {
 }
 
 
-# Store a fomula
+# Store a formula
 my $formula = $worksheet->store_formula('=A1*5+4');
 
 

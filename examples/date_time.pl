@@ -60,7 +60,7 @@ my @date_formats = (
 );
 
 
-# Write the same date and time using each of the above formats. The expty
+# Write the same date and time using each of the above formats. The empty
 # string formats create a blank line to make the example clearer.
 #
 for my $date_format (@date_formats) {
@@ -73,9 +73,9 @@ for my $date_format (@date_formats) {
                                         align      => 'left'
                                        );
 
-    # Use the longer write_date_time() if you which to be more explicit.
-    $worksheet->write($row, 0, '2004-08-01T12:30:45.123', $format);
-    $worksheet->write($row, 1, $date_format);
+    # Write the same date using different formats.
+    $worksheet->write_date_time($row, 0, '2004-08-01T12:30:45.123', $format);
+    $worksheet->write          ($row, 1, $date_format);
 }
 
 
@@ -83,8 +83,8 @@ for my $date_format (@date_formats) {
 # of a number. This is also Excel's default behaviour.
 #
 $row += 2;
-$worksheet->write($row, 0, '2004-13-01T12:30:45.123');
-$worksheet->write($row, 1, 'Invalid date. Written as string.', $bold);
+$worksheet->write_date_time($row, 0, '2004-13-01T12:30:45.123');
+$worksheet->write          ($row, 1, 'Invalid date. Written as string.', $bold);
 
 __END__
 

@@ -3,7 +3,7 @@
 ###############################################################################
 #
 # Example of how to use the Spreadsheet::WriteExcel merge_range() workbook
-# method with with complex formatting.
+# method with complex formatting.
 #
 # reverse('©'), September 2002, John McNamara, jmcnamara@cpan.org
 #

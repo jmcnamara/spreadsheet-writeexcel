@@ -22,14 +22,14 @@ if (($#ARGV < 1) || ($#ARGV > 2)) {
    die("Usage: csv2xls csvfile.txt newfile.xls\n");
 };
 
-# Open the Comma Seperated Variable file
+# Open the Comma Separated Variable file
 open (CSVFILE, $ARGV[0]) or die "$ARGV[0]: $!";
 
 # Create a new Excel workbook
 my $workbook  = Spreadsheet::WriteExcel->new($ARGV[1]);
 my $worksheet = $workbook->add_worksheet();
 
-# Create a new CSV parsing ojbect
+# Create a new CSV parsing object
 my $csv = Text::CSV_XS->new;
 
 # Row and column are zero indexed

@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.10'; # Five Sugars Please
+$VERSION = '2.11'; # Pining for the pork of the porcupine
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.10 of Spreadsheet::WriteExcel, released September 23, 2004.
+This document refers to version 2.11 of Spreadsheet::WriteExcel, released September 30, 2004.
 
 
 
@@ -484,6 +484,7 @@ The following methods are available through a new worksheet:
     write_formula()
     store_formula()
     repeat_formula()
+    add_write_handler()
     insert_bitmap()
     get_name()
     activate()
@@ -611,6 +612,8 @@ The C<$format> parameter is optional. It should be a valid Format object, see L<
 The write() method will ignore empty strings or C<undef> tokens unless a format is also supplied. As such you needn't worry about special handling for empty or C<undef> values in your data. See also the C<write_blank()> method.
 
 One problem with the C<write()> method is that occasionally data looks like a number but you don't want it treated as a number. For example, zip codes or ID numbers often start with a leading zero. If you write this data as a number then the leading zero(s) will be stripped. You can change this default behaviour by using the C<keep_leading_zeros()> method. While this property is in place any integers with leading zeros will be treated as strings and the zeros will be preserved. See the C<keep_leading_zeros()> section for a full discussion of this issue.
+
+You can also add your own data handlers to the C<write()> method using C<add_write_handler()>.
 
 On systems with C<perl 5.8> and later the C<write()> method will also handle strings in Perl's C<utf8> format.
 
@@ -827,7 +830,7 @@ The C<keep_leading_zeros()> property is off by default. The C<keep_leading_zeros
     $worksheet->keep_leading_zeros(1); # Set on
     $worksheet->keep_leading_zeros(0); # Set off
 
-
+See also the C<add_write_handler()> method.
 
 
 =head2 write_blank($row, $column, $format)
@@ -1248,6 +1251,81 @@ The following example shows how to add a comment to a cell:
 The cell comment can be up to 30,000 characters in length.
 
 
+
+
+=head2 add_write_handler($re, $code_ref)
+
+This method is used to extend the Spreadsheet::WriteExcel write() method to handle user defined data.
+
+If you refer to the section on C<write()> above you will see that it acts as an alias for several more specific C<write_*> methods. However, it doesn't always act in exactly the way that you would like it to.
+
+One solution is to filter the input data yourself and call the appropriate C<write_*> method. Another approach is to use the C<add_write_handler()> method to add your own automated behaviour to C<write()>.
+
+The C<add_write_handler()> method take two arguments, C<$re>, a regular expression to match incoming data and C<$code_ref> a callback function to handle the matched data:
+
+    $worksheet->add_write_handler(qr/^\d\d\d\d$/, \&my_write);
+
+(In the these examples the C<qr> operator is used to quote the regular expression strings, see L<perlop> for more details).
+
+The method is use as follows. say you wished to write 7 digit ID numbers as a string so that any leading zeros were preserved*, you could do something like the following:
+
+    $worksheet->add_write_handler(qr/^\d{7}$/, \&write_my_id);
+
+
+    sub write_my_id {
+        my $worksheet = shift;
+        return $worksheet->write_string(@_);
+    }
+
+* You could also use the C<keep_leading_zeros()> method for this.
+
+Then if you call C<write()> with an appropriate string it will be handled automatically:
+
+    # Writes 0000000. It would normally be written as a number; 0.
+    $worksheet->write('A1', '0000000');
+
+The callback function will receive a reference to the calling worksheet and all of the other arguments that were passed to C<write()>. The callback will see an C<@_> argument list that looks like the following:
+
+    $_[0]   A ref to the calling worksheet. *
+    $_[1]   Zero based row number.
+    $_[2]   Zero based column number.
+    $_[3]   A number or string or token.
+    $_[4]   A format ref if any.
+    $_[5]   Any other argruments.
+    ...
+
+    *  It is good style to shift this off the list so the @_ is the same
+       as the argument list seen by write().
+
+Your callback should C<return()> the return value of the C<write_*> method that was called or C<undef> to indicate that you rejected the match and want C<write()> to continue as normal.
+
+So for example if you wished to apply the previous filter only to ID values that occur in the first column you could modify your callback function as follows:
+
+
+    sub write_my_id {
+        my $worksheet = shift;
+        my $col       = $_[1];
+
+        if ($col == 0) {
+            return $worksheet->write_string(@_);
+        }
+        else {
+            # Reject the match and return control to write()
+            return undef;
+        }
+    }
+
+Now, you will get different behaviour for the first column and other columns:
+
+    $worksheet->write('A1', '0000000'); # Writes 0000000
+    $worksheet->write('B1', '0000000'); # Writes 0
+
+
+You may add more than one handler in which case they will be called in the order that they were added.
+
+Note, the C<add_write_handler()> method is particularly suited for handling dates.
+
+See the C<write_handler 1-4> programs in the C<examples> directory for further examples.
 
 
 
@@ -3552,6 +3630,10 @@ different features and options of the module.
     win32ole.pl             A sample Win32::OLE example for comparison.
     write_arrays.pl         Example of writing 1D or 2D arrays of data.
     write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
+    write_handler1.pl       Example of extending the write() method. Step 1.
+    write_handler2.pl       Example of extending the write() method. Step 2.
+    write_handler3.pl       Example of extending the write() method. Step 3.
+    write_handler4.pl       Example of extending the write() method. Step 4.
 
     Unicode
     =======
@@ -3627,7 +3709,7 @@ This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.10/WriteExcel/doc/install.html
+http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.11/WriteExcel/doc/install.html
 
 
 
@@ -3967,13 +4049,33 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    The difference between dogs and sheds
+    Under blue moon I saw you
+    So soon you'll take me
+    Up in your arms, too late to beg you
+    Or cancel it, though I know it must be
+    The killing time
+    Unwillingly mine
 
-    It's not a very good idea to give a dog
-    a coat
-    of creosote
+    Fate
+    Up against your will
+    Through the thick and thin
+    He will wait until
+    You give yourself to him
 
-        -- John Hegley
+    In starlit nights I saw you
+    So cruelly you kissed me
+    Your lips a magic world
+    Your sky all hung with jewels
+    The killing moon
+    Will come too soon
+
+    Fate
+    Up against your will
+    Through the thick and thin
+    He will wait until
+    You give yourself to him
+
+        -- Ian McCulloch
 
 
 

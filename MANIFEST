@@ -112,6 +112,10 @@ examples/unicode_shift_jis.txt
 examples/win32ole.pl
 examples/writeA1.pl
 examples/write_arrays.pl
+examples/write_handler1.pl
+examples/write_handler2.pl
+examples/write_handler3.pl
+examples/write_handler4.pl
 examples/write_to_scalar.pl
 
 charts/README

@@ -1,6 +1,17 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+2.11 September 30 2004 - Minor
+
+    - Removed undocumented date_time handling from write() to
+      avoid potential false matches.
+
+    + Added add_write_handler() method to allow users to add
+      their own data handlers to write().
+
+    + Added 4 write_handler examples.
+
+
 2.10 September 23 2004 - Major
 
     + Added chart support via external templates.

@@ -46,6 +46,10 @@ textwrap.pl             Demonstrates text wrapping options.
 win32ole.pl             A sample Win32::OLE example for comparison.
 write_arrays.pl         Example of writing 1D or 2D arrays of data.
 write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
+write_handler1.pl       Example of extending the write() method. Step 1.
+write_handler2.pl       Example of extending the write() method. Step 2.
+write_handler3.pl       Example of extending the write() method. Step 3.
+write_handler4.pl       Example of extending the write() method. Step 4.
 
 Unicode
 =======

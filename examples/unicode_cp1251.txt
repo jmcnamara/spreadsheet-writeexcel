@@ -1,5 +1,5 @@
 #
-# Spreadsheeet::WriteExcel Unicode examples.
+# Spreadsheet::WriteExcel Unicode examples.
 #
 # Sample encoded text borrowed from Sean Burke's Pod::Simple distro.
 #

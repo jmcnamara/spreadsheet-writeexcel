@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.10';
+$VERSION = '2.11';
 
 ###############################################################################
 #
@@ -133,6 +133,9 @@ sub new {
     $self->{_outline_below}     = 1;
     $self->{_outline_right}     = 1;
     $self->{_outline_on}        = 1;
+
+    $self->{_write_match}       = [];
+
 
     bless $self, $class;
     $self->_initialize();
@@ -978,6 +981,24 @@ sub keep_leading_zeros {
 
 ###############################################################################
 #
+# add_write_handler($re, $code_ref)
+#
+# Allow the user to add their own matches and handlers to the write() method.
+#
+sub add_write_handler {
+
+    my $self = shift;
+
+    return unless @_ == 2;
+    return unless ref $_[1] eq 'CODE';
+
+    push @{$self->{_write_match}}, [ @_ ];
+}
+
+
+
+###############################################################################
+#
 # write($row, $col, $token, $format)
 #
 # Parse $token and call appropriate write method. $row and $column are zero
@@ -998,6 +1019,19 @@ sub write {
 
     # Handle undefs as blanks
     $token = '' unless defined $token;
+
+
+    # First try user defined matches.
+    for my $aref (@{$self->{_write_match}}) {
+        my $re  = $aref->[0];
+        my $sub = $aref->[1];
+
+        if ($token =~ /$re/) {
+            my $match = &$sub($self, @_);
+            return $match if defined $match;
+        }
+    }
+
 
     # Match an array ref.
     if (ref $token eq "ARRAY") {
@@ -1032,15 +1066,6 @@ sub write {
         splice @_, 2, 1; # remove the empty string from the parameter list
         return $self->write_blank(@_);
     }
-    # Match ISO8601 style date string
-    elsif ($token =~ /^(\d\d\d\d)-(\d\d)-(\d\d)T/) {
-        return $self->write_date_time(@_);
-    }
-    # Match ISO8601 style time string
-    elsif ($token =~ /^T(\d\d):(\d\d)(:(\d\d(\.\d+)?))?/) {
-        return $self->write_date_time(@_);
-    }
-    # Default: match string
     else {
         return $self->write_string(@_);
     }
@@ -2277,7 +2302,7 @@ sub write_date_time {
     return -2 if $self->_check_dimensions($row, $col);
 
     my $error     = 0;
-    my $date_time = $self->_check_date_time($str);
+    my $date_time = $self->convert_date_time($str);
 
     if (defined $date_time) {
         $error = $self->write_number($row, $col, $date_time, $_[3]);
@@ -2294,7 +2319,7 @@ sub write_date_time {
 
 ###############################################################################
 #
-# _check_date_time($date_time_string)
+# convert_date_time($date_time_string)
 #
 # The function takes a date and time in ISO8601 "yyyy-mm-ddThh:mm:ss.ss" format
 # and converts it to a decimal number representing a valid Excel date.
@@ -2313,7 +2338,7 @@ sub write_date_time {
 #            A decimal number representing a valid Excel date, or
 #            undef if the date is invalid.
 #
-sub _check_date_time {
+sub convert_date_time {
 
     my $self      = shift;
     my $date_time = $_[0];

@@ -3,9 +3,10 @@
 ###############################################################################
 #
 # Example of how to use the Spreadsheet::WriteExcel merge_cells() workbook
-# method with with complex formatting and rotation.
+# method with complex formatting and rotation.
 #
-## reverse('©'), September 2002, John McNamara, jmcnamara@cpan.org
+#
+# reverse('©'), September 2002, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

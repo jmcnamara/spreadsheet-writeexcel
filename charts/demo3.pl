@@ -109,6 +109,6 @@ my @prices = (
 
 
 
-
-$worksheet->write_col('A2', \@dates, $date_format);
+my $row = 1;
+$worksheet->write_date_time($row++, 0, $_, $date_format) for @dates;
 $worksheet->write_col('B2', \@prices);

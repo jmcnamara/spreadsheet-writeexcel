@@ -42,7 +42,7 @@
 	<UL>
 
         <code>
-        <LI><A HREF="#new_">new()</A></LI>
+		<LI><A HREF="#new_">new()</A></LI>
 		<LI><A HREF="#close_">close()</A></LI>
 		<LI><A HREF="#set_tempdir_">set_tempdir()</A></LI>
 		<LI><A HREF="#add_worksheet_sheetname_">add_worksheet($sheetname)</A></LI>
@@ -51,7 +51,7 @@
 		<LI><A HREF="#set_custom_color_index_red_">set_custom_color($index, $red, $green, $blue)</A></LI>
 		<LI><A HREF="#sheets_0_1_">sheets(0, 1, ...)</A></LI>
 		<LI><A HREF="#set_1904_">set_1904()</A></LI>
-        <LI><A HREF="#set_codepage_codepage_">set_codepage($codepage)</A></LI>
+		<LI><A HREF="#set_codepage_codepage_">set_codepage($codepage)</A></LI>
         </code>
 	</UL>
 
@@ -76,6 +76,7 @@
 		<LI><A HREF="#repeat_formula_row_col_form">repeat_formula($row, $col, $formula, $format, ($pattern =&gt; $replace, ...))</A></LI>
 		<LI><A HREF="#write_date_time_row_col_dat">write_date_time($row, $col, $date_string, $format)</A></LI>
 		<LI><A HREF="#write_comment_row_column_st">write_comment($row, $column, $string)</A></LI>
+		<LI><A HREF="#add_write_handler_re_code_ref">add_write_handler($re, $code_ref)</A></LI>
 		<LI><A HREF="#insert_bitmap_row_col_filen">insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
 		<LI><A HREF="#get_name_">get_name()</A></LI>
 		<LI><A HREF="#activate_">activate()</A></LI>
@@ -955,6 +956,7 @@ The following methods are available through a new worksheet:
     write_formula()
     store_formula()
     repeat_formula()
+    add_write_handler()
     insert_bitmap()
     get_name()
     activate()
@@ -1178,6 +1180,10 @@ a leading zero. If you write this data as a number then the leading
 <CODE>zero(s)</CODE> will be stripped. You can change this default
 behaviour by using the <CODE>keep_leading_zeros()</CODE> method. While this property is in place any integers with leading zeros
 will be treated as strings and the zeros will be preserved. See the <CODE>keep_leading_zeros()</CODE> section for a full discussion of this issue.
+
+</P>
+<P>
+You can also add your own data handlers to the <CODE>write()</CODE> method using <CODE>add_write_handler()</CODE>.
 
 </P>
 <P>
@@ -1555,6 +1561,10 @@ specified:
     $worksheet-&gt;keep_leading_zeros(1); # Set on
     $worksheet-&gt;keep_leading_zeros(0); # Set off
 </PRE>
+</P>
+<P>
+See also the <CODE>add_write_handler()</CODE> method.
+
 </P>
 <P>
 <HR>
@@ -2333,6 +2343,144 @@ The following example shows how to add a comment to a cell:
 </P>
 <P>
 The cell comment can be up to 30,000 characters in length.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="add_write_handler_re_code_ref">add_write_handler($re, $code_ref)</A></H2>
+<P>
+This method is used to extend the Spreadsheet::WriteExcel
+<CODE>write()</CODE> method to handle user defined data.
+
+</P>
+<P>
+If you refer to the section on <CODE>write()</CODE> above you will see that it acts as an alias for several more specific <CODE>write_*</CODE> methods. However, it doesn't always act in exactly the way that you would
+like it to.
+
+</P>
+<P>
+One solution is to filter the input data yourself and call the appropriate <CODE>write_*</CODE> method. Another approach is to use the <CODE>add_write_handler()</CODE> method to add your own automated behaviour to <CODE>write()</CODE>.
+
+</P>
+<P>
+The <CODE>add_write_handler()</CODE> method take two arguments, <CODE>$re</CODE>, a regular expression to match incoming data and <CODE>$code_ref</CODE> a callback function to handle the matched data:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;add_write_handler(qr/^\d\d\d\d$/, \&amp;my_write);
+</PRE>
+</P>
+<P>
+(In the these examples the <CODE>qr</CODE> operator is used to quote the regular expression strings, see <EM>perlop</EM> for more details).
+
+</P>
+<P>
+The method is use as follows. say you wished to write 7 digit ID numbers as
+a string so that any leading zeros were preserved*, you could do something
+like the following:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;add_write_handler(qr/^\d{7}$/, \&amp;write_my_id);
+</PRE>
+</P>
+<P>
+<PRE>
+    sub write_my_id {
+        my $worksheet = shift;
+        return $worksheet-&gt;write_string(@_);
+    }
+</PRE>
+</P>
+<P>
+* You could also use the <CODE>keep_leading_zeros()</CODE> method for this.
+
+</P>
+<P>
+Then if you call <CODE>write()</CODE> with an appropriate string it will be handled automatically:
+
+</P>
+<P>
+<PRE>
+    # Writes 0000000. It would normally be written as a number; 0.
+    $worksheet-&gt;write('A1', '0000000');
+</PRE>
+</P>
+<P>
+The callback function will receive a reference to the calling worksheet and
+all of the other arguments that were passed to <CODE>write()</CODE>. The callback will see an <CODE>@_</CODE> argument list that looks like the following:
+
+</P>
+<P>
+<PRE>
+    $_[0]   A ref to the calling worksheet. *
+    $_[1]   Zero based row number.
+    $_[2]   Zero based column number.
+    $_[3]   A number or string or token.
+    $_[4]   A format ref if any.
+    $_[5]   Any other argruments.
+    ...
+</PRE>
+</P>
+<P>
+<PRE>
+    *  It is good style to shift this off the list so the @_ is the same
+       as the argument list seen by write().
+</PRE>
+</P>
+<P>
+Your callback should <CODE>return()</CODE> the return value of the <CODE>write_*</CODE> method that was called or <CODE>undef</CODE> to indicate that you rejected the match and want <CODE>write()</CODE> to continue as normal.
+
+</P>
+<P>
+So for example if you wished to apply the previous filter only to ID values
+that occur in the first column you could modify your callback function as
+follows:
+
+</P>
+<P>
+<PRE>
+    sub write_my_id {
+        my $worksheet = shift;
+        my $col       = $_[1];
+</PRE>
+</P>
+<P>
+<PRE>
+        if ($col == 0) {
+            return $worksheet-&gt;write_string(@_);
+        }
+        else {
+            # Reject the match and return control to write()
+            return undef;
+        }
+    }
+</PRE>
+</P>
+<P>
+Now, you will get different behaviour for the first column and other
+columns:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write('A1', '0000000'); # Writes 0000000
+    $worksheet-&gt;write('B1', '0000000'); # Writes 0
+</PRE>
+</P>
+<P>
+You may add more than one handler in which case they will be called in the
+order that they were added.
+
+</P>
+<P>
+Note, the <CODE>add_write_handler()</CODE> method is particularly suited for handling dates.
+
+</P>
+<P>
+See the <CODE>write_handler 1-4</CODE> programs in the <CODE>examples</CODE> directory for further examples.
 
 </P>
 <P>
@@ -6139,6 +6287,10 @@ features and options of the module.
     win32ole.pl             A sample Win32::OLE example for comparison.
     write_arrays.pl         Example of writing 1D or 2D arrays of data.
     write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
+    write_handler1.pl       Example of extending the write() method. Step 1.
+    write_handler2.pl       Example of extending the write() method. Step 2.
+    write_handler3.pl       Example of extending the write() method. Step 3.
+    write_handler4.pl       Example of extending the write() method. Step 4.
 </PRE>
 </P>
 <P>
@@ -6237,7 +6389,7 @@ See the INSTALL or install.html docs that come with the distribution or:
 </P>
 <P>
 <A
-HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.10/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.10/WriteExcel/doc/install.html</A>
+HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.11/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.11/WriteExcel/doc/install.html</A>
 
 
 </P>
