@@ -150,15 +150,15 @@ sub numeric_formats {
     push @formats, [ 0x0b, 1234.567,   0,         '0.00E+00' ];
     push @formats, [ 0x0c, 0.75,       0,         '# ?/?' ];
     push @formats, [ 0x0d, 0.3125,     0,         '# ??/??' ];
-    push @formats, [ 0x0e, 36870.016,  0,         'm/d/yy' ];
-    push @formats, [ 0x0f, 36870.016,  0,         'd-mmm-yy' ];
-    push @formats, [ 0x10, 36870.016,  0,         'd-mmm' ];
-    push @formats, [ 0x11, 36870.016,  0,         'mmm-yy' ];
-    push @formats, [ 0x12, 36870.016,  0,         'h:mm AM/PM' ];
-    push @formats, [ 0x13, 36870.016,  0,         'h:mm:ss AM/PM' ];
-    push @formats, [ 0x14, 36870.016,  0,         'h:mm' ];
-    push @formats, [ 0x15, 36870.016,  0,         'h:mm:ss' ];
-    push @formats, [ 0x16, 36870.016,  0,         'm/d/yy h:mm' ];
+    push @formats, [ 0x0e, 36892.521,  0,         'm/d/yy' ];
+    push @formats, [ 0x0f, 36892.521,  0,         'd-mmm-yy' ];
+    push @formats, [ 0x10, 36892.521,  0,         'd-mmm' ];
+    push @formats, [ 0x11, 36892.521,  0,         'mmm-yy' ];
+    push @formats, [ 0x12, 36892.521,  0,         'h:mm AM/PM' ];
+    push @formats, [ 0x13, 36892.521,  0,         'h:mm:ss AM/PM' ];
+    push @formats, [ 0x14, 36892.521,  0,         'h:mm' ];
+    push @formats, [ 0x15, 36892.521,  0,         'h:mm:ss' ];
+    push @formats, [ 0x16, 36892.521,  0,         'm/d/yy h:mm' ];
     push @formats, [ 0x25, 1234.567,   -1234.567, '(#,##0_);(#,##0)' ];
     push @formats, [ 0x26, 1234.567,   -1234.567, '(#,##0_);[Red](#,##0)' ];
     push @formats, [ 0x27, 1234.567,   -1234.567, '(#,##0.00_);(#,##0.00)' ];
@@ -167,9 +167,9 @@ sub numeric_formats {
     push @formats, [ 0x2a, 1234.567,   -1234.567, '_($* #,##0_);_($* (#,##0);_($* "-"_);_(@_)' ];
     push @formats, [ 0x2b, 1234.567,   -1234.567, '_(* #,##0.00_);_(* (#,##0.00);_(* "-"??_);_(@_)' ];
     push @formats, [ 0x2c, 1234.567,   -1234.567, '_($* #,##0.00_);_($* (#,##0.00);_($* "-"??_);_(@_)' ];
-    push @formats, [ 0x2d, 36870.016,  0,         'mm:ss' ];
+    push @formats, [ 0x2d, 36892.521,  0,         'mm:ss' ];
     push @formats, [ 0x2e, 3.0153,     0,         '[h]:mm:ss' ];
-    push @formats, [ 0x2f, 36870.016,  0,         'mm:ss.0' ];
+    push @formats, [ 0x2f, 36892.521,  0,         'mm:ss.0' ];
     push @formats, [ 0x30, 1234.567,   0,         '##0.0E+0' ];
     push @formats, [ 0x31, 1234.567,   0,         '@' ];
 

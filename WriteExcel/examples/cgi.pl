@@ -39,4 +39,4 @@ $format->set_color('blue');
 
 
 # Write to the workbook
-$workbook->write(0, 0, "Hi Excel!", $format);
+$worksheet->write(0, 0, "Hi Excel!", $format);

@@ -53,25 +53,25 @@ $f_change->set_num_format('[Green]0.0%;[Red]-0.0%;0.0%');
 
 
 # Write out the data
-$workbook->write(0, 0, 'Company', $header);
-$workbook->write(0, 1, 'Price',   $header);
-$workbook->write(0, 2, 'Volume',  $header);
-$workbook->write(0, 3, 'Change',  $header);
+$worksheet->write(0, 0, 'Company', $header);
+$worksheet->write(0, 1, 'Price',   $header);
+$worksheet->write(0, 2, 'Volume',  $header);
+$worksheet->write(0, 3, 'Change',  $header);
 
-$workbook->write(1, 0, 'Damage Inc.'     );
-$workbook->write(1, 1, 30.25,     $f_price);  # $30.25
-$workbook->write(1, 2, 1234567,   $f_volume); # 1,234,567
-$workbook->write(1, 3, 0.085,     $f_change); # 8.5% in green
+$worksheet->write(1, 0, 'Damage Inc.'     );
+$worksheet->write(1, 1, 30.25,     $f_price);  # $30.25
+$worksheet->write(1, 2, 1234567,   $f_volume); # 1,234,567
+$worksheet->write(1, 3, 0.085,     $f_change); # 8.5% in green
 
-$workbook->write(2, 0, 'Dump Corp.'      );
-$workbook->write(2, 1, 1.56,      $f_price);  # $1.56
-$workbook->write(2, 2, 7564,      $f_volume); # 7,564
-$workbook->write(2, 3, -0.015,    $f_change); # -1.5% in red
+$worksheet->write(2, 0, 'Dump Corp.'      );
+$worksheet->write(2, 1, 1.56,      $f_price);  # $1.56
+$worksheet->write(2, 2, 7564,      $f_volume); # 7,564
+$worksheet->write(2, 3, -0.015,    $f_change); # -1.5% in red
 
-$workbook->write(3, 0, 'Rev Ltd.'        );
-$workbook->write(3, 1, 0.13,      $f_price);  # $0.13
-$workbook->write(3, 2, 321,       $f_volume); # 321
-$workbook->write(3, 3, 0,         $f_change); # 0 in the font color (black)
+$worksheet->write(3, 0, 'Rev Ltd.'        );
+$worksheet->write(3, 1, 0.13,      $f_price);  # $0.13
+$worksheet->write(3, 2, 321,       $f_volume); # 321
+$worksheet->write(3, 3, 0,         $f_change); # 0 in the font color (black)
 
 
 

@@ -86,9 +86,9 @@ my $workbook = Spreadsheet::WriteExcel->new("dates.xls");
 my $worksheet = $workbook->addworksheet();
 
 my $format_date =  $workbook->addformat();
-$format_date->set_format('d mmmm yyy');
+$format_date->set_num_format('d mmmm yyy');
 
-$worksheet->set_col_width(0,1,21);
+$worksheet->set_column(0,1,21);
 
 $worksheet->write_string (0,0,"The epoch (GMT)");
 $worksheet->write_number (0,1,&calc_serial(0,1),0x16);

@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 ###############################################################################
 #
@@ -41,7 +41,6 @@ sub new {
     my $tmp_sheet   = Spreadsheet::WriteExcel::Worksheet->new('', 0, 0);
     my $tmp_format  = Spreadsheet::WriteExcel::Format->new();
 
-    $self->{_store_in_memory}   = $_[1] || 0;
     $self->{_OLEwriter}         = $ole_writer;
     $self->{_1904}              = 0;
     $self->{_activesheet}       = 0;
@@ -57,15 +56,16 @@ sub new {
     $self->{_formats}           = [];
 
     bless $self, $class;
-    
+
     # Add the default format for hyperlinks
     my $url_format = $self->addformat();
     $url_format->set_color('blue');
     $url_format->set_underline(1);
     $self->{_url_format} = $url_format;
 
+    $self->_tmpfile_warning();
+
     return $self;
-    
 }
 
 
@@ -143,7 +143,7 @@ sub addworksheet {
                         \$self->{_activesheet},
                         \$self->{_firstsheet},
                         $self->{_url_format},
-                        $self->{_store_in_memory},
+                        $self->{_use_tmp_files},
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
@@ -167,7 +167,7 @@ sub addformat {
     $self->{_xf_index} += 1;
 
     push @{$self->{_formats}}, $format;
-    
+
     return $format;
 }
 
@@ -197,12 +197,12 @@ sub set_1904{
 #
 # Return the date system: 0 = 1900, 1 = 1904
 #
-#sub get_1904{
-#
-#    my $self      = shift;
-#
-#    return $self->{_1904};
-#}
+sub get_1904{
+
+    my $self = shift;
+
+    return $self->{_1904};
+}
 
 
 ###############################################################################
@@ -265,6 +265,25 @@ sub write_number {
          " use write() in conjuction with a worksheet object instead"
         ) if $^W;
     return $self->{_worksheets}[0]->write_number(@_);
+}
+
+
+###############################################################################
+#
+# _tmpfile_warning()
+#
+# Check that tmp files can be created for use in Worksheet.pm. A CGI, mod_perl
+# or IIS might not have permission to create tmp files. The test is here rather
+# than in Worksheet.pm so that only one warning is given.
+#
+sub _tmpfile_warning{
+
+    my $fh = IO::File->new_tmpfile();
+
+    if ((not defined $fh) && ($^W)) {
+        carp("Unable to create tmp files via IO::File->new_tmpfile(). " .
+             "Storing data in memory ")
+    }
 }
 
 
@@ -373,14 +392,14 @@ sub _store_all_fonts {
     my %fonts;
     my $key;
     my $index = 6;                  # The first user defined FONT
-    
+
     $key = $format->get_font_key(); # The default font from _tmp_format
     $fonts{$key} = 0;               # Index of the default font
-    
-    
+
+
     foreach $format (@{$self->{_formats}}) {
         $key = $format->get_font_key();
-        
+
         if (exists $fonts{$key}) {
             # FONT has already been used
             $format->{_font_index} = $fonts{$key};
@@ -406,13 +425,13 @@ sub _store_all_fonts {
 sub _store_all_num_formats {
 
     my $self   = shift;
-    
+
     # Leaning num_format syndrome
     my %num_formats;
     my @num_formats;
     my $num_format;
-    my $index = 164;    
-    
+    my $index = 164;
+
     # Iterate through the XF objects and write a FORMAT record if it isn't a
     # built-in format type and if the FORMAT string hasn't already been used.
     #
@@ -518,7 +537,7 @@ sub _store_window1 {
 
     my $itabFirst = $self->{_firstsheet};  # 1st displayed worksheet
     my $itabCur   = $self->{_activesheet}; # Selected worksheet
-    
+
     my $header    = pack("vv",        $record, $length);
     my $data      = pack("vvvvvvvvv", $xWn, $yWn, $dxWn, $dyWn,
                                       $grbit,
@@ -575,24 +594,6 @@ sub _store_style {
     my $data      = pack("vCC", $ixfe, $BuiltIn, $iLevel);
 
     $self->_append($header, $data);
-
-    
-    my $hexdata;
-    my $newdata;
-    
-    #$hexdata  = "93020400148008ff";
-    #$newdata  = pack("H*", $hexdata);
-    #$self->_append($newdata);
-    
-    #$hexdata  = "fc001f000100000001000000140000687474";
-    #$hexdata .= "703a2f2f7777772e7065726c2e636f6d2f";
-    #$newdata  = pack("H*", $hexdata);
-    #$self->_append($newdata);
-    
-    
-    
-
-    
 }
 
 

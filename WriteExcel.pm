@@ -22,7 +22,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.25'; # 19 January 2001, McLennan tr|\r||
+$VERSION = '0.26'; # 1 February 2001, Zevon
 
 ###############################################################################
 #
@@ -38,7 +38,7 @@ $VERSION = '0.25'; # 19 January 2001, McLennan tr|\r||
 sub new {
 
     my $class = shift;
-    my $self  = Spreadsheet::WriteExcel::Workbook->new($_[0]);
+    my $self  = Spreadsheet::WriteExcel::Workbook->new(@_);
 
     bless  $self, $class;
     return $self;
@@ -61,7 +61,7 @@ Spreadsheet::WriteExcel - Write formatted text and numbers to a cross-platform E
 
 =head1 VERSION
 
-This document refers to version 0.25 of Spreadsheet::WriteExcel, released January 19, 2001.
+This document refers to version 0.26 of Spreadsheet::WriteExcel, released February 1, 2001.
 
 
 
@@ -102,7 +102,7 @@ The module will work on the majority of Windows, UNIX and Macintosh platforms. G
 
 =head1 WORKBOOK METHODS
 
-The Spreadsheet::WriteExcel module provides an object oriented interface to a new Excel workbook.The following methods are available through a new workbook.
+The Spreadsheet::WriteExcel module provides an object oriented interface to a new Excel workbook. The following methods are available through a new workbook.
 
 If you are unfamiliar with object oriented interfaces or the way that they are implemented in Perl have a look at C<perlobj> and C<perltoot> in the main Perl documentation.
 
@@ -239,7 +239,7 @@ C<write_blank()> if C<$token> is a blank string: C<""> or C<''>.
 
 C<write_url()> if C<$token> is a URL based on the following regex: C<$token =~ m|[fh]tt?p://|>
 
-C<write_string()> if none of the previous conditions matched.
+C<write_string()> if none of the previous conditions apply.
 
 Here are some examples:
 
@@ -310,7 +310,7 @@ This method is useful for adding formatting to a cell that doesn't contain a str
 
 =head2 write_url($row, $col, $url, $format, $string)
 
-Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative string is specified. The alternative C<$string> and C<$format> are optional. 
+Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative string is specified. The C<$format> and the alternative C<$string> are optional. 
 
     $worksheet->write_url(0, 0, 'http://www.perl.com/'                    );
     $worksheet->write_url(1, 0, 'http://www.perl.com/', $format           );
@@ -318,7 +318,7 @@ Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The 
 
 The label is written using the C<write_string()> method. Therefore the 255 characters string limit applies to the label: the URL can be any length. Use C<undef> if you want to specify an alternative string but don't wish to specify a format.
 
-
+Note: Hyperlinks are not available in Excel 5. They will appear as a string only.
 
 
 =head2 activate()
@@ -360,8 +360,8 @@ This method is not required very often. The default value is the first worksheet
 This method can be used to specify which cell or cells are selected in a worksheet. The most common requirement is to select a single cell, in which case C<$last_row> and C<$last_col> are not required. The active cell within a selected range is determined by the order in which C<$first> and C<$last> are specified:
 
     $worksheet1->set_selection(3, 3);       # Cell D4
-    $worksheet2->set_selection(3, 3, 6, 6); # Cell D4 to G7
-    $worksheet3->set_selection(6, 6, 3, 3); # Cell G7 to D4
+    $worksheet2->set_selection(3, 3, 6, 6); # Cells D4 to G7
+    $worksheet3->set_selection(6, 6, 3, 3); # Cells G7 to D4
 
 The default is cell (0, 0).
 
@@ -425,6 +425,7 @@ The format object holds all the formatting properties that can be applied to a c
                     Rotation            set_rotation()
                     Text wrap           set_text_wrap()
                     Justify last        set_text_justlast()
+                    Merge               set_merge()
     
     Pattern         Cell pattern        set_pattern()
                     Background color    set_bg_color()
@@ -482,7 +483,7 @@ It is important to understand that a Format is applied to a cell not in its curr
 
 Cell A1 is assigned the Format C<$format> which is initially set to the colour red. However, the colour is subsequently set to green. When Excel displays Cell A1 it will display the final state of the Format which in this case will be the colour green.
 
-The Format object methods are described in more detail in the following sections. In addition, there is a Perl program in the WriteExcel distribution called C<formats.pl>. This program it creates an Excel workbook called C<formats.xls> that contains examples of almost all the format types.
+The Format object methods are described in more detail in the following sections. In addition, there is a Perl program called C<formats.pl> in the C<examples> directory of the WriteExcel distribution. This program creates an Excel workbook called C<formats.xls> that contains examples of almost all the format types.
 
 
 
@@ -532,7 +533,7 @@ Note: this is not a copy constructor, both objects must exist prior to copying.
 
 Example:
 
-    $format->set_font('Arial');
+    $format->set_font('Times New Roman');
 
 Excel can only display fonts that are installed on the system that it is running on. Therefore it is best to use the fonts that come as standard such as 'Arial', 'Times New Roman' and 'Courier New'. For examples see the Fonts worksheet created by formats.pl
 
@@ -683,8 +684,8 @@ The numerical format of a cell can be specified by using a format string or an i
     $format1->set_num_format('d mmm yyyy'); # Format string
     $format2->set_num_format(0x0f);         # Format index
     
-    $worksheet->write(0, 0, 36870.016, $format1); # 10 Dec 2000
-    $worksheet->write(0, 0, 36870.016, $format2); # 10-Dec-00
+    $worksheet->write(0, 0, 36892.521, $format1);      # 1 Jan 2001
+    $worksheet->write(0, 0, 36892.521, $format2);      # 1-Jan-01
 
 
 Using format strings you can define very sophisticated formatting of numbers.
@@ -697,7 +698,7 @@ Using format strings you can define very sophisticated formatting of numbers.
     $worksheet->write(1,  0, 1234.56,   $format02);    # 1,235
 
     $format03->set_num_format('#,##0.00');
-    $worksheet->write(2,  0, 1234.56,   $format03);    # 1,234.57
+    $worksheet->write(2,  0, 1234.56,   $format03);    # 1,234.56
 
     $format04->set_num_format('$0.00');
     $worksheet->write(3,  0, 49.99,     $format04);    # $49.99
@@ -709,16 +710,16 @@ Using format strings you can define very sophisticated formatting of numbers.
     $worksheet->write(5,  0, 49.99,     $format06);    # ¥49.99
 
     $format07->set_num_format('mm/dd/yy');
-    $worksheet->write(6,  0, 36870.016, $format07);    # 12/10/00
+    $worksheet->write(6,  0, 36892.521, $format07);    # 01/01/01
 
-    $format08->set_num_format('mmm dd yyyy');
-    $worksheet->write(7,  0, 36870.016, $format08);    # Dec 10 2000
+    $format08->set_num_format('mmm d yyyy');
+    $worksheet->write(7,  0, 36892.521, $format08);    # Jan 1 2001
 
-    $format09->set_num_format('dd mmmm yyyy');
-    $worksheet->write(8,  0, 36870.016, $format09);    # 10 December 2000
+    $format09->set_num_format('d mmmm yyyy');
+    $worksheet->write(8,  0, 36892.521, $format09);    # 1 January 2001
 
     $format10->set_num_format('dd/mm/yyyy hh:mm AM/PM');
-    $worksheet->write(9,  0, 36870.016, $format10);    # 10/12/2000 12:23 AM
+    $worksheet->write(9,  0, 36892.521, $format10);    # 01/01/2001 12:30 AM
 
     $format11->set_num_format('0 "dollar and" .00 "cents"');
     $worksheet->write(10, 0, 1.87,      $format11);    # 1 dollar and .87 cents
@@ -1176,7 +1177,7 @@ The minimum file size is 6K due to the OLE overhead. The maximum file size is ap
 
 =head1 PORTABILITY
 
-WriteExcel.pm will only work on systems where perl packs floats in 64 bit IEEE format. The float must also be in little-endian format but WriteExcel.pm will reverse it as necessary. Thus:
+Spreadsheet::WriteExcel.pm will work on the majority of Windows, UNIX and Macintosh platforms. Specifically, the module will work on any system where perl packs floats in the 64 bit IEEE format. The float must also be in little-endian format but WriteExcel.pm will reverse it as necessary. Thus:
 
     print join(" ", map { sprintf "%#02x", $_ } unpack("C*", pack "d", 1.2345)), "\n";
 
@@ -1184,8 +1185,7 @@ should give (or in reverse order):
 
     0x8d 0x97 0x6e 0x12 0x83 0xc0 0xf3 0x3f
 
-
-In general, if you don't know whether your system supports a 64 bit IEEE float or not, it probably does. If your system doesn't, WriteExcel will C<croak()> with the message given in the Diagnostics section.
+In general, if you don't know whether your system supports a 64 bit IEEE float or not, it probably does. If your system doesn't, WriteExcel will C<croak()> with the message given in the L<DIAGNOSTICS> section. You can check which platforms the module has been tested on at the CPAN testers site: http://testers.cpan.org/search?request=dist&dist=Spreadsheet-WriteExcel
 
 
 
@@ -1200,12 +1200,15 @@ A filename must be given in the constructor.
 
 =item Can't open filename. It may be in use.
 
-The file cannot be opened for writing. It may be protected or already in use.
+The file cannot be opened for writing. The directory that you are writing to  may be protected or the file may be in use by another program.
 
 =item Required floating point format not supported on this platform.
 
 Operating system doesn't support 64 bit IEEE float or it is byte-ordered in a way unknown to WriteExcel.
 
+=item Unable to create tmp files via IO::File->new_tmpfile().
+
+By default Spreadsheet::WriteExcel uses temporary files to store data while creating an Excel file. For large files this reduces the amount of data stored in memory and greatly increases the speed of execution. If you are using Spreadsheet::WriteExcel in an environment where temporary files cannot be created and the C<-w> flag is on this warning will be raised. The warning is for information only. It does not affect the execution of the program.
 
 =item Maximum file size, 7087104, exceeded.
 
@@ -1266,7 +1269,7 @@ Depending on your requirements, background and general sensibilities you may pre
 
 =head1 READING EXCEL FILES
 
-Despite the title of this module the most commonly asked questions are in relation to reading Excel files. To read data from Excel files try:
+To read data from Excel files try:
 
 * Spreadsheet::ParseExcel. This is a wrapper around the OLE::Storage module which makes it easy to extract data from an Excel file. http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
 
@@ -1289,7 +1292,7 @@ If you wish to view Excel files on a Windows platform which doesn't have Excel i
 
 Orange isn't.
 
-OpenOffice: Numerical formats are not displayed due to some missing records in Spreadsheet::WriteExcel. Someone with a good knowledge of C++ and, possibly, of German might help me to track this down in the OpenOffice source. URLs are not displayed as links.
+OpenOffice: Numerical formats are not displayed due to some missing records in Spreadsheet::WriteExcel. Someone with a good knowledge of C++, and possibly of German, might help me to track this down in the OpenOffice source. URLs are not displayed as links.
 
 Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as links.
 
@@ -1305,7 +1308,7 @@ The lack of a portable way of writing a little-endian 64 bit IEEE float.
 
 It is frustrating to use a program or library or module that does everything except what you want it to do. As such I am committed to adding new features to Spreadsheet::WriteExcel. If there is something that you would like to see, write and let me know. The features that are requested most will be implemented where possible. To save you some time:
 
-* Formulas will be implemented (hopefully by early February).
+* Formulas will be implemented (Before the end of February. Arrgh, short month).
 
 * Worksheet formatting such as headers, footers, linebreaks will be implemented.
 
@@ -1322,7 +1325,7 @@ While you are waiting try Win32::OLE.
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Arthur@ais, Artur Silveira da Cunha, Cedric Bouvier, CPAN testers, Daniel Gardner, Harold Bamford, Johan Ekenberg, John Wren, Michael Buschauer, Mike Blazer, Paul J. Falbe, Paul Medynski, Rich Sorden.
+Arthur@ais, Artur Silveira da Cunha, Cedric Bouvier, CPAN testers, Daniel Gardner, Harold Bamford, Johan Ekenberg, John Wren, Michael Buschauer, Mike Blazer, Paul J. Falbe, Paul Medynski, Shenyu Zheng, Rich Sorden.
 
 The following people contributed code or examples:
 
@@ -1337,11 +1340,11 @@ If you have a representative example of using Spreadsheet::WriteExcel either on 
 
 John McNamara jmcnamara@cpan.org
 
-    When the rain hit the roof
-    With the sound of a finished kiss
-    Like when a lip lifts from a lip
-    I took the Wrong Road round
-            - Grant McLennan
+    I saw a werewolf with a Chinese menu in his hand,
+    Walking through the streets of Soho in the rain,
+    He was looking for a place called Lee Ho Fook's,
+    Going to get himself a big dish of beef chow mein.
+        - Warren Zevon
 
 
 

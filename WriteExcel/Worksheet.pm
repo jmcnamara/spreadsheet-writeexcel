@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 ###############################################################################
 #
@@ -34,31 +34,31 @@ $VERSION = '0.05';
 #
 sub new {
 
-    my $class                = shift;
-    my $self                 = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $rowmax               = 65536; # 16384 in Excel 5
-    my $colmax               = 256;
-    my $strmax               = 255;
+    my $class               = shift;
+    my $self                = Spreadsheet::WriteExcel::BIFFwriter->new();
+    my $rowmax              = 65536; # 16384 in Excel 5
+    my $colmax              = 256;
+    my $strmax              = 255;
 
-    $self->{ name}           = $_[0];
-    $self->{_index}          = $_[1];
-    $self->{_activesheet}    = $_[2];
-    $self->{_firstsheet}     = $_[3];
-    $self->{_url_format}     = $_[4];
-    $self->{store_in_memory} = $_[5];
+    $self->{ name}          = $_[0];
+    $self->{_index}         = $_[1];
+    $self->{_activesheet}   = $_[2];
+    $self->{_firstsheet}    = $_[3];
+    $self->{_url_format}    = $_[4];
 
-    $self->{_filehandle}     = "";
-    $self->{_fileclosed}     = 0;
-    $self->{_offset}         = 0;
-    $self->{_xls_rowmax}     = $rowmax;
-    $self->{_xls_colmax}     = $colmax;
-    $self->{_xls_strmax}     = $strmax;
-    $self->{_dim_rowmin}     = $rowmax +1;
-    $self->{_dim_rowmax}     = 0;
-    $self->{_dim_colmin}     = $colmax +1;
-    $self->{_dim_colmax}     = 0;
-    $self->{_colinfo}        = [];
-    $self->{_selection}      = [0, 0];
+    $self->{_using_tmpfile} = 1;
+    $self->{_filehandle}    = "";
+    $self->{_fileclosed}    = 0;
+    $self->{_offset}        = 0;
+    $self->{_xls_rowmax}    = $rowmax;
+    $self->{_xls_colmax}    = $colmax;
+    $self->{_xls_strmax}    = $strmax;
+    $self->{_dim_rowmin}    = $rowmax +1;
+    $self->{_dim_rowmax}    = 0;
+    $self->{_dim_colmin}    = $colmax +1;
+    $self->{_dim_colmax}    = 0;
+    $self->{_colinfo}       = [];
+    $self->{_selection}     = [0, 0];
 
 
     bless $self, $class;
@@ -71,29 +71,29 @@ sub new {
 #
 # _initialize()
 #
-# If not storing all data in memory open a tmp file for the main
-# Worksheet data.
+# Open a tmp file to store the majority of the Worksheet data. If this fails,
+# for example due to write permissions, store the data in memory. This can be
+# slow for large files.
 #
 sub _initialize {
 
     my $self    = shift;
 
-    if (not $self->{store_in_memory}) {
-        # Open tmp file for storing Worksheet data
-        my $fh = IO::File->new_tmpfile();
+    # Open tmp file for storing Worksheet data
+    my $fh = IO::File->new_tmpfile();
 
-        if (not defined $fh) {
-            croak "Can't open tmp file to store worksheet data.";
-        }
-
+    if (defined $fh) {
         # binmode file whether platform requires it or not
         binmode($fh);
 
         # Store filehandle
         $self->{_filehandle} = $fh;
     }
+    else {
+        # If new_tmpfile() fails store data in memory
+        $self->{_using_tmpfile} = 0;
+    }
 }
-
 
 
 ###############################################################################
@@ -141,13 +141,13 @@ sub _append {
 
     my $self = shift;
 
-    if ($self->{store_in_memory}) {
-        $self->SUPER::_append(@_);
-    }
-    else {
+    if ($self->{_using_tmpfile}) {
         my $data    = join('', @_);
         print {$self->{_filehandle}} $data;
         $self->{_datasize} += length($data);
+    }
+    else {
+        $self->SUPER::_append(@_);
     }
 }
 
@@ -170,12 +170,12 @@ sub get_data {
         $tmp           = $self->{_data};
         $self->{_data} = undef;
         my $fh         = $self->{_filehandle};
-        seek($fh, 0, 0) if not $self->{store_in_memory};
+        seek($fh, 0, 0) if $self->{_using_tmpfile};
         return $tmp;
     }
 
     # Return data stored on disk
-    if (not $self->{store_in_memory}) {
+    if ($self->{_using_tmpfile}) {
         return $tmp if read($self->{_filehandle}, $tmp, $buffer);
     }
 
@@ -259,6 +259,7 @@ sub set_selection {
     $self->{_selection} = [ @_ ];
 }
 
+
 ###############################################################################
 #
 # _XF()
@@ -282,6 +283,7 @@ sub _XF {
 #
 # BIFF RECORDS
 #
+
 
 ###############################################################################
 #
@@ -561,6 +563,7 @@ sub write_string {
 
     return $str_error;
 }
+
 
 ###############################################################################
 #

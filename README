@@ -2,6 +2,7 @@ NAME
     Spreadsheet::WriteExcel - Write formatted text and numbers to a 
     cross-platform Excel binary file.
 
+
 DESCRIPTION
     This module can be used to write numbers and text in the native
     Excel binary file format. Multiple worksheets can be added to a
@@ -19,13 +20,37 @@ DESCRIPTION
     Spreadsheet::ParseExcel or look at the main documentation for some
     suggestions.
 
-INSTALLATION
 
+SYNOPSIS
+    To write a string, a number and a formatted string to the first 
+    worksheet in an Excel workbook called perl.xls:
+
+    use Spreadsheet::WriteExcel;
+
+    $row1 = $col1 = 0;
+    $row2 = 1;
+    $row3 = 2;
+
+    my $workbook = Spreadsheet::WriteExcel->new("perl.xls");
+    $worksheet   = $workbook->addworksheet();
+    $format      = $workbook->addformat();
+    
+    $format->set_bold();
+    $format->set_color('red');
+    $format->set_align('center');
+
+    $worksheet->write($row1, $col1, "Hi Excel!");
+    $worksheet->write($row2, $col1, 1.2345);
+    $worksheet->write($row3, $col1, "Hi Excel!", $format);
+
+
+INSTALLATION
+    Method 1
     Download the zipped tar file from:
         http://search.cpan.org/search?dist=Spreadsheet-WriteExcel
 
     Unzip the module as follows or use winzip:
-           tar -zxvf Spreadsheet-WriteExcel-0.24.tar.gz
+           tar -zxvf Spreadsheet-WriteExcel-0.xx.tar.gz
 
     The module can be installed using the standard Perl procedure:
 
@@ -38,6 +63,12 @@ INSTALLATION
     Windows users without a working "make" can get nmake from:
         ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
 
+    Method 2
+    If you have CPAN.pm configured you can install the module as
+    follows:
+        perl -MCPAN -e "install 'Spreadsheet-WriteExcel'"
+
+    Method 3
     ActivePerl users can use PPM as follows:
 
         C:\> ppm
@@ -46,13 +77,15 @@ INSTALLATION
         PPM> quit
         C:\>
 
-    NOTE: Version 0.23 changed the WriteExcel namespace. To tidy up stray
-    files it would be best to uninstall any older versions older than this
-    prior to installation. 
+        If this fails try the following:
 
-VERSION
-    This document refers to version 0.24 of Spreadsheet::WriteExcel,
-    released Jan 14, 2001.
+        PPM>install http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
+
+
+    NOTE: Version 0.23 changed the WriteExcel namespace. To tidy up 
+    stray files it would be best to uninstall any version older than
+    this prior to installation. 
+
 
 AUTHOR
     John McNamara (jmcnamara@cpan.org)

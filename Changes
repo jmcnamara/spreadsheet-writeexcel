@@ -1,6 +1,15 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-0.25 Jan 15 2001
+0.26 Feb 1 2001
+    Minor
+    Fixed bug when using a border with the default colour. This 
+    caused the cell format to become unchangeable from within Excel.
+    Thanks Shenyu Zheng.
+    Changed worksheet code to automatically fall back to storing
+    data in memory if opening a tmp file fails.
+    
+    
+0.25 Jan 19 2001
     Minor
     Changed distro file format back to Unix line endings. The
     accidental DOS format was causing install problems.
@@ -34,7 +43,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
     Minor
     Replaced direct access to worksheets array with a workbook method;
     worksheets(). Added set_selection() and set_col_width() worksheet
-    methods. Replaced the missings thats, including the that that were
+    methods. Replaced the missing thats, including the that that were
     in the icebox. Added MS Access bug warning; thanks Harold Bamford.
 
 0.20 Aug 27 2000:

@@ -71,10 +71,10 @@ sub new {
                     _left           => 0,
                     _right          => 0,
 
-                    _bottom_color   => 0x0,
-                    _top_color      => 0x0,
-                    _left_color     => 0x0,
-                    _right_color    => 0x0,
+                    _bottom_color   => 0x40,
+                    _top_color      => 0x40,
+                    _left_color     => 0x40,
+                    _right_color    => 0x40,
                  };
 
     bless  $self, $class;
@@ -140,6 +140,11 @@ sub get_xf {
                        $self->{_pattern});
     my $atr_prot    = 0;
 
+    # Zero the default border colour if the border has not been set
+    $self->{_bottom_color} = 0 if $self->{_bottom} == 0;
+    $self->{_top_color}    = 0 if $self->{_top}    == 0;
+    $self->{_right_color}  = 0 if $self->{_right}  == 0;
+    $self->{_left_color}   = 0 if $self->{_left}   == 0;
 
     $record         = 0x00E0;
     $length         = 0x0010;
@@ -254,7 +259,7 @@ sub get_font {
 sub get_font_key {
 
     my $self    = shift;
-    
+
     # The following elements are arranged to increase the probability of
     # generating a unique key. Elements that hold a large range of numbers
     # eg. _color are placed between two binary elements such as _italic
@@ -358,7 +363,7 @@ sub set_align {
 #
 # set_merge()
 #
-# This is an alias for the unintuitive set_align('merge') 
+# This is an alias for the unintuitive set_align('merge')
 #
 sub set_merge {
 

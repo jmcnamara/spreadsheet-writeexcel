@@ -124,8 +124,8 @@ cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.25 of Spreadsheet::WriteExcel, released
-January 19, 2001.
+This document refers to version 0.26 of Spreadsheet::WriteExcel, released
+February 1, 2001.
 
 </P>
 <P>
@@ -192,7 +192,7 @@ are not compatible with MS Access.
 <H1><A NAME="WORKBOOK_METHODS">WORKBOOK METHODS</A></H1>
 <P>
 The Spreadsheet::WriteExcel module provides an object oriented interface to
-a new Excel workbook.The following methods are available through a new
+a new Excel workbook. The following methods are available through a new
 workbook.
 
 </P>
@@ -411,7 +411,7 @@ in Excel. <CODE>write()</CODE> calls one of the following methods depending on t
 
 </P>
 <P>
-<CODE>write_string()</CODE> if none of the previous conditions matched.
+<CODE>write_string()</CODE> if none of the previous conditions apply.
 
 </P>
 <P>
@@ -521,7 +521,7 @@ a string or number value.
 <P>
 Write a hyperlink to a URL in the cell specified by <CODE>$row</CODE> and <CODE>$column</CODE>. The hyperlink is comprised of two elements: the visible label and the
 invisible link. The visible label is the same as the link unless an
-alternative string is specified. The alternative <CODE>$string</CODE> and <CODE>$format</CODE> are optional. 
+alternative string is specified. The <CODE>$format</CODE> and the alternative <CODE>$string</CODE> are optional. 
 
 </P>
 <P>
@@ -535,6 +535,11 @@ alternative string is specified. The alternative <CODE>$string</CODE> and <CODE>
 The label is written using the <CODE>write_string()</CODE> method. Therefore the 255 characters string limit applies to the label: the
 URL can be any length. Use <CODE>undef</CODE> if you want to specify an alternative string but don't wish to specify a
 format.
+
+</P>
+<P>
+Note: Hyperlinks are not available in Excel 5. They will appear as a string
+only.
 
 </P>
 <P>
@@ -609,8 +614,8 @@ the order in which <CODE>$first</CODE> and <CODE>$last</CODE> are specified:
 <P>
 <PRE>
     $worksheet1-&gt;set_selection(3, 3);       # Cell D4
-    $worksheet2-&gt;set_selection(3, 3, 6, 6); # Cell D4 to G7
-    $worksheet3-&gt;set_selection(6, 6, 3, 3); # Cell G7 to D4
+    $worksheet2-&gt;set_selection(3, 3, 6, 6); # Cells D4 to G7
+    $worksheet3-&gt;set_selection(6, 6, 3, 3); # Cells G7 to D4
 </PRE>
 </P>
 <P>
@@ -710,6 +715,7 @@ object method to do so:
                     Rotation            set_rotation()
                     Text wrap           set_text_wrap()
                     Justify last        set_text_justlast()
+                    Merge               set_merge()
     
     Pattern         Cell pattern        set_pattern()
                     Background color    set_bg_color()
@@ -804,8 +810,7 @@ final state of the Format which in this case will be the colour green.
 </P>
 <P>
 The Format object methods are described in more detail in the following
-sections. In addition, there is a Perl program in the WriteExcel
-distribution called <CODE>formats.pl</CODE>. This program it creates an Excel workbook called <CODE>formats.xls</CODE> that contains examples of almost all the format types.
+sections. In addition, there is a Perl program called <CODE>formats.pl</CODE> in the <CODE>examples</CODE> directory of the WriteExcel distribution. This program creates an Excel workbook called <CODE>formats.xls</CODE> that contains examples of almost all the format types.
 
 </P>
 <P>
@@ -878,7 +883,7 @@ Example:
 </P>
 <P>
 <PRE>
-    $format-&gt;set_font('Arial');
+    $format-&gt;set_font('Times New Roman');
 </PRE>
 </P>
 <P>
@@ -1082,8 +1087,8 @@ an index to one of Excel's built-in formats:
     $format1-&gt;set_num_format('d mmm yyyy'); # Format string
     $format2-&gt;set_num_format(0x0f);         # Format index
     
-    $worksheet-&gt;write(0, 0, 36870.016, $format1); # 10 Dec 2000
-    $worksheet-&gt;write(0, 0, 36870.016, $format2); # 10-Dec-00
+    $worksheet-&gt;write(0, 0, 36892.521, $format1);      # 1 Jan 2001
+    $worksheet-&gt;write(0, 0, 36892.521, $format2);      # 1-Jan-01
 </PRE>
 </P>
 <P>
@@ -1106,7 +1111,7 @@ numbers.
 <P>
 <PRE>
     $format03-&gt;set_num_format('#,##0.00');
-    $worksheet-&gt;write(2,  0, 1234.56,   $format03);    # 1,234.57
+    $worksheet-&gt;write(2,  0, 1234.56,   $format03);    # 1,234.56
 </PRE>
 </P>
 <P>
@@ -1130,25 +1135,25 @@ numbers.
 <P>
 <PRE>
     $format07-&gt;set_num_format('mm/dd/yy');
-    $worksheet-&gt;write(6,  0, 36870.016, $format07);    # 12/10/00
+    $worksheet-&gt;write(6,  0, 36892.521, $format07);    # 01/01/01
 </PRE>
 </P>
 <P>
 <PRE>
-    $format08-&gt;set_num_format('mmm dd yyyy');
-    $worksheet-&gt;write(7,  0, 36870.016, $format08);    # Dec 10 2000
+    $format08-&gt;set_num_format('mmm d yyyy');
+    $worksheet-&gt;write(7,  0, 36892.521, $format08);    # Jan 1 2001
 </PRE>
 </P>
 <P>
 <PRE>
-    $format09-&gt;set_num_format('dd mmmm yyyy');
-    $worksheet-&gt;write(8,  0, 36870.016, $format09);    # 10 December 2000
+    $format09-&gt;set_num_format('d mmmm yyyy');
+    $worksheet-&gt;write(8,  0, 36892.521, $format09);    # 1 January 2001
 </PRE>
 </P>
 <P>
 <PRE>
     $format10-&gt;set_num_format('dd/mm/yyyy hh:mm AM/PM');
-    $worksheet-&gt;write(9,  0, 36870.016, $format10);    # 10/12/2000 12:23 AM
+    $worksheet-&gt;write(9,  0, 36892.521, $format10);    # 01/01/2001 12:30 AM
 </PRE>
 </P>
 <P>
@@ -1517,8 +1522,7 @@ The following example shows some of the basic features of
 Spreadsheet::WriteExcel.
 
 </P>
-<br>
-<center><img SRC="simple.gif" ALT="The output from simple.pl"></center>
+
 <P>
 <PRE>
     #!/usr/bin/perl -w
@@ -1548,6 +1552,8 @@ Spreadsheet::WriteExcel.
     $worksheet-&gt;write(4, 2, &quot;207 E9&quot;);          # writes a string
 </PRE>
 </P>
+<br>
+<center><img SRC="simple.gif" ALT="The output from simple.pl"></center>
 <P>
 <HR>
 <H2><A NAME="Example_2">Example 2</A></H2>
@@ -1556,8 +1562,7 @@ The following is a general example which demonstrates most of the features
 of the Spreadsheet::WriteExcel module:
 
 </P>
-<br>
-<center><img SRC="regions.gif" ALT="The output from regions.pl"></center>
+
 <P>
 <PRE>
     #!/usr/bin/perl -w
@@ -1600,6 +1605,8 @@ of the Spreadsheet::WriteExcel module:
     $south-&gt;set_selection(0, 1);
 </PRE>
 </P>
+<br>
+<center><img SRC="regions.gif" ALT="The output from regions.pl"></center>
 <P>
 <HR>
 <H2><A NAME="Example_3">Example 3</A></H2>
@@ -1609,7 +1616,7 @@ to indicate if a share price has gone up or down.
 
 </P>
 <br>
-<center><img SRC="stocks.gif" ALT="The output from stocks.pl"></center>
+
 <P>
 <PRE>
     use strict;
@@ -1701,6 +1708,8 @@ to indicate if a share price has gone up or down.
     $workbook-&gt;write(3, 3, 0,         $f_change); # 0 in the font color (black)
 </PRE>
 </P>
+<br>
+<center><img SRC="stocks.gif" ALT="The output from stocks.pl"></center>
 <P>
 <HR>
 <H2><A NAME="Example_4">Example 4</A></H2>
@@ -1770,9 +1779,10 @@ see the <CODE>big.pl</CODE> example in the <CODE>examples</CODE> directory of th
 <HR>
 <H1><A NAME="PORTABILITY">PORTABILITY</A></H1>
 <P>
-WriteExcel.pm will only work on systems where perl packs floats in 64 bit
-IEEE format. The float must also be in little-endian format but
-WriteExcel.pm will reverse it as necessary. Thus:
+Spreadsheet::WriteExcel.pm will work on the majority of Windows, UNIX and
+Macintosh platforms. Specifically, the module will work on any system where
+perl packs floats in the 64 bit IEEE format. The float must also be in
+little-endian format but WriteExcel.pm will reverse it as necessary. Thus:
 
 </P>
 <P>
@@ -1791,7 +1801,10 @@ should give (or in reverse order):
 </P>
 <P>
 In general, if you don't know whether your system supports a 64 bit IEEE
-float or not, it probably does. If your system doesn't, WriteExcel will <CODE>croak()</CODE> with the message given in the Diagnostics section.
+float or not, it probably does. If your system doesn't, WriteExcel will <CODE>croak()</CODE> with the message given in the <A HREF="#DIAGNOSTICS">DIAGNOSTICS</A> section. You can check which platforms the module has been tested on at the
+CPAN testers site: <A
+HREF="http://testers.cpan.org/search?request=dist&dist=Spreadsheet-WriteExcel">http://testers.cpan.org/search?request=dist&dist=Spreadsheet-WriteExcel</A>
+
 
 </P>
 <P>
@@ -1805,14 +1818,24 @@ A filename must be given in the constructor.
 </P>
 <DT><A NAME="item_Can">Can't open filename. It may be in use.</A><DD>
 <P>
-The file cannot be opened for writing. It may be protected or already in
-use.
+The file cannot be opened for writing. The directory that you are writing
+to may be protected or the file may be in use by another program.
 
 </P>
 <DT><A NAME="item_Required">Required floating point format not supported on this platform.</A><DD>
 <P>
 Operating system doesn't support 64 bit IEEE float or it is byte-ordered in
 a way unknown to WriteExcel.
+
+</P>
+<DT><A NAME="item_Unable">Unable to create tmp files via IO::File-&gt;new_tmpfile().</A><DD>
+<P>
+By default Spreadsheet::WriteExcel uses temporary files to store data while
+creating an Excel file. For large files this reduces the amount of data
+stored in memory and greatly increases the speed of execution. If you are
+using Spreadsheet::WriteExcel in an environment where temporary files
+cannot be created and the <CODE>-w</CODE> flag is on this warning will be raised. The warning is for information
+only. It does not affect the execution of the program.
 
 </P>
 <DT><A NAME="item_Maximum">Maximum file size, 7087104, exceeded.</A><DD>
@@ -1953,8 +1976,7 @@ HREF="http://msdn.microsoft.com/library/officedev/ofxml2k/ofxml2k.htm">http://ms
 <HR>
 <H1><A NAME="READING_EXCEL_FILES">READING EXCEL FILES</A></H1>
 <P>
-Despite the title of this module the most commonly asked questions are in
-relation to reading Excel files. To read data from Excel files try:
+To read data from Excel files try:
 
 </P>
 <P>
@@ -2015,8 +2037,8 @@ Orange isn't.
 </P>
 <P>
 OpenOffice: Numerical formats are not displayed due to some missing records
-in Spreadsheet::WriteExcel. Someone with a good knowledge of C++ and,
-possibly, of German might help me to track this down in the OpenOffice
+in Spreadsheet::WriteExcel. Someone with a good knowledge of C++, and
+possibly of German, might help me to track this down in the OpenOffice
 source. URLs are not displayed as links.
 
 </P>
@@ -2052,7 +2074,7 @@ most will be implemented where possible. To save you some time:
 
 </P>
 <P>
-* Formulas will be implemented (hopefully by early February).
+* Formulas will be implemented (Before the end of February. Arrgh, short month).
 
 </P>
 <P>
@@ -2083,7 +2105,7 @@ Spreadsheet::WriteExcel:
 <P>
 Arthur@ais, Artur Silveira da Cunha, Cedric Bouvier, CPAN testers, Daniel
 Gardner, Harold Bamford, Johan Ekenberg, John Wren, Michael Buschauer, Mike
-Blazer, Paul J. Falbe, Paul Medynski, Rich Sorden.
+Blazer, Paul J. Falbe, Paul Medynski, Shenyu Zheng, Rich Sorden.
 
 </P>
 <P>
@@ -2109,11 +2131,11 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    When the rain hit the roof
-    With the sound of a finished kiss
-    Like when a lip lifts from a lip
-    I took the Wrong Road round
-            - Grant McLennan
+    I saw a werewolf with a Chinese menu in his hand,
+    Walking through the streets of Soho in the rain,
+    He was looking for a place called Lee Ho Fook's,
+    Going to get himself a big dish of beef chow mein.
+        - Warren Zevon
 </PRE>
 </P>
 <P>

@@ -117,7 +117,7 @@ sub set_size {
     else {
         $self->{_booksize} = 4096;
     }
-    
+
     return $self->{_size_allowed} = 1;
 
 }
@@ -402,7 +402,7 @@ __END__
 
 =head1 NAME
 
-OLEwriter - A write class to store BIFF data in a OLE compound storage file.
+OLEwriter - A writer class to store BIFF data in a OLE compound storage file.
 
 =head1 SYNOPSIS
 
