@@ -1,14 +1,29 @@
 #!/usr/bin/perl -w
 
+#
+# DON'T USE THIS EXAMPLE.
+#
+# If you need to write strings longer than Excel 5's  255 character
+# limit you should upgrade to a 2.xx version of this module which
+# supports the Excel 97+ format and 32k strings.
+#
+#
+
+
+
+
+
+
+
+
+
+
+
 ######################################################################
 #
 # This is a example of how to work around Spreadsheet::WriteExcel and
 # Excel5's 255 character string limitation using a formula to create
 # a long string from shorter strings.
-#
-# For genuine long strings see the following link for information 
-# about the Excel97 pre-release version of this module:
-# http://freshmeat.net/projects/writeexcel/#comment-24916
 #
 # reverse('©'), April 2002, John McNamara, jmcnamara@cpan.org
 #

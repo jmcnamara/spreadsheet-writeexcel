@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.19';
+$VERSION = '1.01';
 
 ###############################################################################
 #
@@ -1164,12 +1164,10 @@ sub write_comment {
     my $str_max   = 30831;
     my $note_max  = 2048;
 
-    if ($row >= $self->{_xls_rowmax}) { return -2 }
-    if ($col >= $self->{_xls_colmax}) { return -2 }
-    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
-    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
-    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
-    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+
+    # Check that row and col are valid and store max and min values
+    return -2 if $self->_check_dimensions($row, $col);
+
 
     # String must be <= 30831 chars
     if ($strlen > $str_max) {

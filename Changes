@@ -1,6 +1,10 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+1.01 May 24 2004 - Minor
+
+    ! Small non-bug fix to write_comment().
+
 0.43 April 28 2004 - Minor
 
     ! Fixed lonstanding bug where page setup features didn't

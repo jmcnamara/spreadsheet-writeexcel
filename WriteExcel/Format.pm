@@ -24,7 +24,7 @@ use strict;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.08';
+$VERSION = '1.01';
 
 ###############################################################################
 #

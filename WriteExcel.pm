@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.43'; # Via con me
+$VERSION = '1.01'; # Via con me (bis)
 
 
 
@@ -60,9 +60,12 @@ __END__
 
 Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
+
+
+
 =head1 VERSION
 
-This document refers to version 0.43 of Spreadsheet::WriteExcel, released April 28, 2004.
+This document refers to version 1.01 of Spreadsheet::WriteExcel, released May 24, 2004.
 
 
 
@@ -631,7 +634,7 @@ However, if the user edits this string Excel may convert it back to a number. To
 
 See also the note about L<Cell notation>.
 
-The 255 character limit will be removed when the module moves to the Excel 97+ format. See L<TO DO> for information about the Excel97 pre-release version of this module.
+The 255 character limit is removed in the 2.xx versions of this module which support the Excel 97+ format and 32k strings.
 
 
 
@@ -2720,7 +2723,7 @@ The C<Spreadsheet::WriteExcel::Utility> module that is included in the distro co
     $time = xl_parse_time('3:21:36 PM');      # 0.64
     $date = xl_decode_date_EU("13 May 2002"); # 37389
 
-These functions deal automatically with the s1900 leap year issue described above.
+These functions deal automatically with the 1900 leap year issue described above.
 
 The date and time functions are based on functions provided by the C<Date::Calc> and C<Date::Manip> modules. These modules are very useful if you plan to manipulate dates in different formats.
 
@@ -3367,7 +3370,7 @@ The following limits are imposed by Excel or the version of the BIFF file that h
 
 Note: the maximum row reference in a formula is the Excel 5 row limit of 16384.
 
-The 255 character limit will be removed when the module moves to the Excel 97+ format. In the meantime, you can work around this limit using a formula. See the C<long_string.pl> program in the C<examples> directory of the distro. See also  L<TO DO> for information about the Excel97 pre-release version of this module.
+The 255 character limit is removed in the 2.xx versions of this module which support the Excel 97+ format and 32k strings.
 
 The minimum file size is 6K due to the OLE overhead. The maximum file size is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by using Takanori Kawai's OLE::Storage_Lite module http://search.cpan.org/search?dist=OLE-Storage_Lite see the C<bigfile.pl> example in the C<examples> directory of the distro.
 
@@ -3395,7 +3398,7 @@ This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.43/WriteExcel/doc/install.html
+http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-1.01/WriteExcel/doc/install.html
 
 
 
@@ -3646,36 +3649,9 @@ If you wish to submit a bug report run the C<bug_report.pl> program in the C<exa
 
 =head1 TO DO
 
-The roadmap is as follows:
-
-=over 4
-
-=item * Move to Excel97/2000 format as standard.
-
-This will allow strings greater than 255 characters and Unicode character. A stable pre-release is available, see http://freshmeat.net/projects/writeexcel/#comment-24916 . Others pre-release versions will be announced at Freshmeat, see below.
-
-=back
-
 You can keep up to date with future releases by registering as a user with Freshmeat http://freshmeat.net/ and subscribing to Spreadsheet::WriteExcel at the project page http://freshmeat.net/projects/writeexcel/ You will then receive mailed updates when a new version is released. Alternatively you can keep an eye on news://comp.lang.perl.announce
 
 Also, here are some of the most requested features that probably won't get added:
-
-=over 4
-
-=item * Graphs.
-
-The format is documented but it would require too much work to implement. It would also require too much work to design a useable interface to the hundreds of features in an Excel graph. So that's two too much works. Nevertheless, I do hope to *try* implement graphs. However, it is a long term goal. It won't be available for at least 6 months, even if you read this in 6 months time.
-
-=item * Macros.
-
-This would solve the previous problem neatly. However, the format of Excel macros isn't documented.
-
-=item * Some feature that you really need. ;-)
-
-
-=back
-
-If there is some feature of an Excel file that you really, really need then you should use Win32::OLE with Excel on Windows. If you are on Unix you could consider connecting to a Windows server via Docserver or SOAP, see L<WRITING EXCEL FILES>.
 
 
 

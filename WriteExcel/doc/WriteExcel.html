@@ -1200,8 +1200,8 @@ See also the note about <A HREF="#Cell_notation">Cell notation</A>.
 
 </P>
 <P>
-The 255 character limit will be removed when the module moves to the Excel
-97+ format. See <A HREF="#TO_DO">TO DO</A> for information about the Excel97 pre-release version of this module.
+The 255 character limit is removed in the 2.xx versions of this module
+which support the Excel 97+ format and 32k strings.
 
 </P>
 <P>
@@ -4811,7 +4811,7 @@ with dates and times in Excel, for example:
 </PRE>
 </P>
 <P>
-These functions deal automatically with the s1900 leap year issue described
+These functions deal automatically with the 1900 leap year issue described
 above.
 
 </P>
@@ -5841,9 +5841,8 @@ Note: the maximum row reference in a formula is the Excel 5 row limit of
 
 </P>
 <P>
-The 255 character limit will be removed when the module moves to the Excel
-97+ format. In the meantime, you can work around this limit using a
-formula. See the <CODE>long_string.pl</CODE> program in the <CODE>examples</CODE> directory of the distro. See also  <A HREF="#TO_DO">TO DO</A> for information about the Excel97 pre-release version of this module.
+The 255 character limit is removed in the 2.xx versions of this module
+which support the Excel 97+ format and 32k strings.
 
 </P>
 <P>
@@ -5886,7 +5885,7 @@ See the INSTALL or install.html docs that come with the distribution or:
 </P>
 <P>
 <A
-HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.43/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.43/WriteExcel/doc/install.html</A>
+HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-1.01/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-1.01/WriteExcel/doc/install.html</A>
 
 
 </P>
@@ -6375,20 +6374,6 @@ If you wish to submit a bug report run the <CODE>bug_report.pl</CODE> program in
 <HR>
 <H1><A NAME="TO_DO">TO DO</A></H1>
 <P>
-The roadmap is as follows:
-
-</P>
-<UL>
-<LI><A NAME="item_Move">Move to Excel97/2000 format as standard.</A>
-<P>
-This will allow strings greater than 255 characters and Unicode character.
-A stable pre-release is available, see <A
-HREF="http://freshmeat.net/projects/writeexcel/#comment-24916">http://freshmeat.net/projects/writeexcel/#comment-24916</A>
-. Others pre-release versions will be announced at Freshmeat, see below.
-
-</P>
-</UL>
-<P>
 You can keep up to date with future releases by registering as a user with
 Freshmeat <A HREF="http://freshmeat.net/">http://freshmeat.net/</A> and
 subscribing to Spreadsheet::WriteExcel at the project page <A
@@ -6401,31 +6386,6 @@ HREF="news://comp.lang.perl.announce">news://comp.lang.perl.announce</A>
 <P>
 Also, here are some of the most requested features that probably won't get
 added:
-
-</P>
-<UL>
-<LI><A NAME="item_Graphs">Graphs.</A>
-<P>
-The format is documented but it would require too much work to implement.
-It would also require too much work to design a useable interface to the
-hundreds of features in an Excel graph. So that's two too much works.
-Nevertheless, I do hope to *try* implement graphs. However, it is a long
-term goal. It won't be available for at least 6 months, even if you read
-this in 6 months time.
-
-</P>
-<LI><A NAME="item_Macros">Macros.</A>
-<P>
-This would solve the previous problem neatly. However, the format of Excel
-macros isn't documented.
-
-</P>
-<LI><A NAME="item_Some">Some feature that you really need. ;-)</A>
-</UL>
-<P>
-If there is some feature of an Excel file that you really, really need then
-you should use Win32::OLE with Excel on Windows. If you are on Unix you
-could consider connecting to a Windows server via Docserver or SOAP, see <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A>.
 
 </P>
 <P>
