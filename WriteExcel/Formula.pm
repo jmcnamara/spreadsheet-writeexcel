@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 ###############################################################################
 #
@@ -70,6 +70,9 @@ sub new {
 # There is a small overhead involved in generating the parser. Therefore, the
 # initialisation is delayed until a formula is required.
 # TODO: use a pre-compiled grammar.
+#
+# Porters take note, a recursive descent parser isn't mandatory. A future
+# version of this module may use a YACC based parser instead.
 #
 sub _init_parser {
 
@@ -712,8 +715,8 @@ sub _pack_ext_ref {
         $sheet2 = $sheet1;
     }
 
-    # References are stored relative to 0xFFFF.
-    my $offset = -1 - $sheet1;
+    # References are stored relative to 0xFFFF (-1).
+    my $offset = 0xFFFF - $sheet1;
 
     return pack("vdvv",$offset, 0x00, $sheet1, $sheet2);
 }

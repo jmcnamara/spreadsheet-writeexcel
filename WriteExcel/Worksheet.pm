@@ -24,7 +24,7 @@ use File::Temp 'tempfile';
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.16';
+$VERSION = '0.17';
 
 ###############################################################################
 #
@@ -3443,23 +3443,25 @@ sub _process_bitmap {
     my $bitmap = shift;
 
     # Open file and binmode the data in case the platform needs it.
-    open    BMP, $bitmap  or croak "Couldn't import $bitmap: $!\n";
-    binmode BMP;
+    my $fh = FileHandle->new($bitmap);
+    croak "Couldn't import $bitmap: $!" unless defined $fh;
+    binmode $fh;
 
 
     # Slurp the file into a string.
-    my $data = do {local $/; <BMP>};
+    my $data = do {local $/; <$fh>};
 
+    $fh->close;
 
     # Check that the file is big enough to be a bitmap.
     if (length $data <= 0x36) {
-        croak "$bitmap doesn't contain enough data.\n";
+        croak "$bitmap doesn't contain enough data.";
     }
 
 
     # The first 2 bytes are used to identify the bitmap.
     if (unpack("A2", $data) ne "BM") {
-        croak "$bitmap doesn't appear to to be a valid bitmap image.\n";
+        croak "$bitmap doesn't appear to to be a valid bitmap image.";
     }
 
 
@@ -3483,22 +3485,22 @@ sub _process_bitmap {
     my ($width, $height) = unpack "V2", substr $data, 0, 8, "";
 
     if ($width > 0xFFFF) {
-        croak "$bitmap: largest image width supported is 65k.\n";
+        croak "$bitmap: largest image width supported is 65k.";
     }
 
     if ($height > 0xFFFF) {
-        croak "$bitmap: largest image height supported is 65k.\n";
+        croak "$bitmap: largest image height supported is 65k.";
     }
 
     # Read and remove the bitmap planes and bpp data. Verify them.
     my ($planes, $bitcount) = unpack "v2", substr $data, 0, 4, "";
 
     if ($bitcount != 24) {
-        croak "$bitmap isn't a 24bit true color bitmap.\n";
+        croak "$bitmap isn't a 24bit true color bitmap.";
     }
 
     if ($planes != 1) {
-        croak "$bitmap: only 1 plane supported in bitmap image.\n";
+        croak "$bitmap: only 1 plane supported in bitmap image.";
     }
 
 
@@ -3506,7 +3508,7 @@ sub _process_bitmap {
     my $compression = unpack "V", substr $data, 0, 4, "";
 
     if ($compression != 0) {
-        croak "$bitmap: compression not supported in bitmap image.\n";
+        croak "$bitmap: compression not supported in bitmap image.";
     }
 
     # Remove bitmap data: data size, hres, vres, colours, imp. colours.

@@ -1,6 +1,20 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+0.40 December 21 2002 - Minor
+
+    ! Fixed internal sheet indexing in formulas on some platforms.
+      This caused multi-sheet workbooks with formulas to crash.
+      Thanks Troy Daniels.
+
+    ! Fixed non-lexical filehandles to prevent problems in
+      multi-threaded environments.
+      Thanks Ning Xie.
+
+    + Added link about Excel97/long string pre-release.
+      http://freshmeat.net/projects/writeexcel/#comment-22753
+
+
 0.39 September 23 2002 - Minor
 
     + Added the set_codepage() workbook method. This is mainly to
@@ -8,8 +22,8 @@ Revision history for Perl module Spreadsheet::WriteExcel.
       useful for people working with non ascii chars on the Macintosh.
       Thanks Jody Goldberg.
 
-    ! Fixed the non-deletion of temporary files. Windows users of
-      version 0.38 should probably clean up their tmp dirs manually.
+    ! Fixed the non-deletion of temporary files. Users of version
+      0.38 should probably clean up their tmp dirs manually.
       Thanks Pierre Laplante.
 
     ! Changed default handling of set_fg_color and set_bg_color from

@@ -115,7 +115,7 @@ $worksheet3->write('A1', $preview);
 #
 # Example of line wrapping
 #
-my $worksheet4 = $workbook->addworksheet('Work wrap');
+my $worksheet4 = $workbook->addworksheet('Word wrap');
 
 my $header4    = "&CHeading 1\nHeading 2\nHeading 3";
 

@@ -73,7 +73,7 @@ INSTALLATION
 
     A failure here will indicate that your ppm isn't configured
     correctly or, more likely, that you are behind a firewall. Have a
-    look at the perlwin32faq11 documentation that comes with
+    look at the "Using PPM" documentation that comes with
     ActivePerl to see how to resolve these issues.
 
     Method 4, ActivePerl local ppm

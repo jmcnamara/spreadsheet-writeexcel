@@ -6,6 +6,10 @@
 # Excel5's 255 character string limitation using a formula to create
 # a long string from shorter strings.
 #
+# For genuine long strings see the following link for information 
+# about the Excel97 pre-release version of this module:
+# http://freshmeat.net/projects/writeexcel/#comment-22753.
+#
 # reverse('©'), April 2002, John McNamara, jmcnamara@cpan.org
 #
 

@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.39'; # How soon is now?
+$VERSION = '0.40'; # Declan MacManus
 
 
 
@@ -65,7 +65,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.39 of Spreadsheet::WriteExcel, released September 23, 2002.
+This document refers to version 0.40 of Spreadsheet::WriteExcel, released December 20, 2002.
 
 
 
@@ -604,7 +604,7 @@ However, if the user edits this string Excel may convert it back to a number. To
 
 See also the note about L<Cell notation>.
 
-The 255 character limit will be removed when the module moves to the Excel 97+ format. In the meantime, you can work around this limit using a formula. See the C<long_string.pl> program in the C<examples> directory of the distro.
+The 255 character limit will be removed when the module moves to the Excel 97+ format. In the meantime, you can work around this limit using a formula. See the C<long_string.pl> program in the C<examples> directory of the distro. See also  L<TO DO> for information about the Excel97 pre-release version of this module.
 
 
 
@@ -3190,7 +3190,7 @@ The following limits are imposed by Excel or the version of the BIFF file that h
 
 Note: the maximum row reference in a formula is the Excel 5 row limit of 16384.
 
-The 255 character limit will be removed when the module moves to the Excel 97+ format. In the meantime, you can work around this limit using a formula. See the C<long_string.pl> program in the C<examples> directory of the distro.
+The 255 character limit will be removed when the module moves to the Excel 97+ format. In the meantime, you can work around this limit using a formula. See the C<long_string.pl> program in the C<examples> directory of the distro. See also  L<TO DO> for information about the Excel97 pre-release version of this module. 
 
 The minimum file size is 6K due to the OLE overhead. The maximum file size is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by using Takanori Kawai's OLE::Storage_Lite module http://search.cpan.org/search?dist=OLE-Storage_Lite see the C<bigfile.pl> example in the C<examples> directory of the distro.
 
@@ -3449,7 +3449,7 @@ Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as 
 
 MS Access: The Excel files that are produced by this module are not compatible with MS Access. Use DBI or ODBC instead.
 
-The lack of a portable way of writing a little-endian 64 bit IEEE float.
+The lack of a portable way of writing a little-endian 64 bit IEEE float. There is beta code available to fix this. Let me know if you wish to test it on your platform.
 
 
 
@@ -3461,11 +3461,11 @@ The roadmap is as follows:
 
 =item * Move to Excel97/2000 format as standard.
 
-This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. Work is already in progress. Pre-releases will be announced on Freshmeat, see below.
+This will allow strings greater than 255 characters and eventually Unicode. A working pre-releases is available, see http://freshmeat.net/projects/writeexcel/#comment-22753. Others pre-release versions will be announced at Freshmeat, see below.
 
 =back
 
-You can keep up to date with future release by registering as a user with Freshmeat http://freshmeat.net/ and subscribing to Spreadsheet::WriteExcel at the project page http://freshmeat.net/projects/writeexcel/ You will then receive mailed updates when a new version is released. Alternatively you can keep an eye on news://comp.lang.perl.announce
+You can keep up to date with future releases by registering as a user with Freshmeat http://freshmeat.net/ and subscribing to Spreadsheet::WriteExcel at the project page http://freshmeat.net/projects/writeexcel/ You will then receive mailed updates when a new version is released. Alternatively you can keep an eye on news://comp.lang.perl.announce
 
 Also, here are some of the most requested features that probably won't get added:
 
@@ -3512,7 +3512,7 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Buschauer, Mike Blazer, Michael Erickson, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Buschauer, Mike Blazer, Michael Erickson, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Troy Daniels, Vahe Sarkissian.
 
 The following people contributed code, examples or Excel information:
 
@@ -3537,12 +3537,12 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    When you say it's gonna happen "now"
-    Well, when exactly do you mean?
-    See I've already waited too long
-    And all my hope is gone.
+    New Amsterdam it's become much too much
+    Till I have the possession of everything she touches
+    Till I step on the brakes to get out of her clutches
+    Till I speak double dutch to a real double duchess 
 
-        -- Morrissey
+        -- Elvis Costello
 
 
 

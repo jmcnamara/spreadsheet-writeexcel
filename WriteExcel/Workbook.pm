@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.16';
+$VERSION = '0.17';
 
 ###############################################################################
 #
@@ -77,13 +77,16 @@ sub new {
     # filehandle and ignored
     #
     if (not ref $self->{_filename}) {
-        open  TMP, '>'. $self->{_filename} or do {
-            carp "Can't open " . $self->{_filename} . ". " .
-                 "It may be in use or protected";
+        my $fh = FileHandle->new('>'. $self->{_filename});
+        if (not defined $fh) {
+            croak "Can't open " .
+                  $self->{_filename} .
+                  ". It may be in use or protected";
             return undef;
-        };
-        close TMP;
+        }
+        $fh->close;
     }
+
 
     # Set colour palette.
     $self->set_palette_xl97();
@@ -190,6 +193,13 @@ sub addworksheet {
         croak "Worksheet '$name' already exists" if $name eq $tmp->get_name();
     }
 
+
+    # Porters take note, the following scheme of passing references to Workbook
+    # data (in the \$self->{_foo} cases) instead of a reference to the Workbook
+    # itself is a workaround to avoid circular references between Workbook and
+    # Worksheet objects. Feel free to implement this in any way the suits your
+    # language.
+    #
     my @init_data = (
                         $name,
                         $index,

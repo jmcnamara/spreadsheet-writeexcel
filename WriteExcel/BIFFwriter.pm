@@ -24,7 +24,7 @@ use strict;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 ###############################################################################
 #
@@ -203,7 +203,7 @@ sub _add_continue {
     # the length field of the record.
     #
     $tmp = substr($data, 0, $limit, "");
-    substr($tmp, 2, 2, pack "v", $limit-4);
+    substr($tmp, 2, 2, pack("v", $limit-4));
 
     # Strip out chunks of 2080/8224 bytes +4 for the header.
     while (length($data) > $limit) {
