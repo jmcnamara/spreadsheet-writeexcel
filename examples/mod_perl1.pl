@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Example of how to use the Spreadsheet::WriteExcel module to send an Excel
-# file to a browser using mod_perl and Apache
+# file to a browser using mod_perl 1 and Apache
 #
 # This module ties *XLS directly to Apache, and with the correct
 # content-disposition/types it will prompt the user to save
@@ -65,7 +65,6 @@ sub handler {
     # Tie a filehandle to Apache's STDOUT.
     # Create a new workbook and add a worksheet.
     ####################################################
-    my $xls_str;
     tie *XLS => 'Apache';
     binmode(*XLS);
 

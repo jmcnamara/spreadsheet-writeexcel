@@ -4,12 +4,12 @@
 <LINK REV="made" HREF="mailto:">
 </HEAD>
 
-<style type="text/css">
+<style type="text/css">   
 
 
 
    <!--
-
+   
    pre  {
         font-family : courier new, sans-serif;
         font-size : 10pt;
@@ -21,8 +21,8 @@
         font-size : 10pt;
         color : #0066cc;
    }
-
-
+   
+         
    -->
 </style>
 
@@ -201,8 +201,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.02 of Spreadsheet::WriteExcel, released
-May 28, 2004.
+This document refers to version 2.03 of Spreadsheet::WriteExcel, released
+July 4, 2004.
 
 </P>
 <P>
@@ -272,7 +272,7 @@ and 2003.
 <P>
 The module will work on the majority of Windows, UNIX and Macintosh
 platforms. Generated files are also compatible with the Linux/UNIX
-spreadsheet applications Gnumeric and OpenOffice.
+spreadsheet applications Gnumeric and OpenOffice.org.
 
 </P>
 <P>
@@ -442,13 +442,26 @@ However, this special case will not work in <CODE>mod_perl</CODE> programs where
 </P>
 <P>
 <PRE>
+    # mod_perl 1
+    ...
     tie *XLS, 'Apache';
     binmode(XLS);
     my $workbook  = Spreadsheet::WriteExcel-&gt;new(\*XLS);
+    ...
 </PRE>
 </P>
 <P>
-See also, the <CODE>mod_perl.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
+<PRE>
+    # mod_perl 2
+    ...
+    tie *XLS =&gt; $r;  # Tie to the Apache::RequestRec object
+    binmode(*XLS);
+    my $workbook  = Spreadsheet::WriteExcel-&gt;new(\*XLS);
+    ...
+</PRE>
+</P>
+<P>
+See also, the <CODE>mod_perl1.pl</CODE> and <CODE>mod_perl2.pl</CODE> programs in the <CODE>examples</CODE> directory of the distro.
 
 </P>
 <P>
@@ -633,7 +646,7 @@ Sheet1, Sheet2, etc.
 <P>
 The worksheet name must be a valid Excel worksheet name, i.e. it cannot
 contain any of the following characters, <CODE>: * ? / \</CODE> and it must be less than 32 characters. In addition, you cannot use the
-same <CODE>$sheetname</CODE> for more than one worksheet.
+same, case insensitive, <CODE>$sheetname</CODE> for more than one worksheet.
 
 </P>
 <P>
@@ -1212,7 +1225,7 @@ strings:
 <P>
 <PRE>
     my $workbook  = Spreadsheet::WriteExcel-&gt;new('unicode.xls');
-    my $worksheet = $workbook-&gt;addworksheet();
+    my $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
@@ -1231,7 +1244,7 @@ strings:
 <P>
 <PRE>
     # Increase the font size for legibility.
-    my $big_font = $workbook-&gt;addformat(size =&gt; 72);
+    my $big_font = $workbook-&gt;add_format(size =&gt; 72);
 </PRE>
 </P>
 <P>
@@ -1284,16 +1297,16 @@ text. You will need to have a Unicode font installed, such as <CODE>Arial Unicod
 <P>
 <PRE>
     my $workbook  = Spreadsheet::WriteExcel-&gt;new('unicode.xls');
-    my $worksheet = $workbook-&gt;addworksheet();
+    my $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
 <P>
 <PRE>
-    # It is only required to specify a Unicode font via addformat() if
+    # It is only required to specify a Unicode font via add_format() if
     # you are using Excel 97. For Excel 2000+ the text will display
     # with the default font (if you have Unicode fonts installed).
     #
-    my $uni_font  = $workbook-&gt;addformat(font =&gt; 'Arial Unicode MS');
+    my $uni_font  = $workbook-&gt;add_format(font =&gt; 'Arial Unicode MS');
 </PRE>
 </P>
 <P>
@@ -4585,7 +4598,7 @@ the range -90 to 90 degrees.
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_rotation(30);
     $worksheet-&gt;write(0, 0, &quot;This text is rotated&quot;, $format);
 </PRE>
@@ -4612,7 +4625,7 @@ integer, is taken as the level of indentation:
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_indent(2);
     $worksheet-&gt;write(0, 0, &quot;This text is indented&quot;, $format);
 </PRE>
@@ -4639,7 +4652,7 @@ This method can be used to shrink text so that it fits in a cell.
 </P>
 <P>
 <PRE>
-    my $format = $workbook-&gt;addformat();
+    my $format = $workbook-&gt;add_format();
     $format-&gt;set_shrink();
     $worksheet-&gt;write(0, 0, &quot;Honey, I shrunk the text!&quot;, $format);
 </PRE>
@@ -5226,7 +5239,7 @@ uppercase.
 <P>
 Cells in Excel are referenced using the A1 notation system where the column
 is designated by a letter and the row by a number. Columns range from A to
-IV i.e. 0 to 255, rows range from 1 to 16384. The <CODE>Spreadsheet::WriteExcel::Utility</CODE> module that is included in the distro contains helper functions for dealing
+IV i.e. 0 to 255, rows range from 1 to 65536. The <CODE>Spreadsheet::WriteExcel::Utility</CODE> module that is included in the distro contains helper functions for dealing
 with A1 notation, for example:
 
 </P>
@@ -5428,7 +5441,7 @@ If your formula doesn't work in Spreadsheet::WriteExcel try the following:
 </P>
 <P>
 <PRE>
-    1. Verify that the formula works in Excel (or Gnumeric or OpenOffice).
+    1. Verify that the formula works in Excel (or Gnumeric or OpenOffice.org).
     2. Ensure that it isn't on the Caveats list shown above.
     3. Ensure that cell references and formula names are in uppercase.
     4. Ensure that you are using ':' as the range operator, A1:A4.
@@ -5984,7 +5997,8 @@ features and options of the module.
     merge3.pl           Add hyperlinks to merged cells.
     merge4.pl           An advanced example of merging with formatting.
     merge5.pl           An advanced example of merging with formatting.
-    mod_perl.pl         A simple mod_perl program.
+    mod_perl1.pl        A simple mod_perl 1 program.
+    mod_perl2.pl        A simple mod_perl 2 program.
     outline.pl          An example of outlines and grouping.
     panes.pl            An examples of how to create panes.
     protection.pl       Example of cell locking and formula hiding.
@@ -6211,8 +6225,8 @@ HREF="http://chicago.sourceforge.net/devel/">http://chicago.sourceforge.net/deve
 
 </P>
 <P>
-Daniel Rentz of OpenOffice has also written a detailed description of the
-Excel workbook records, see <A
+Daniel Rentz of OpenOffice.org has also written a detailed description of
+the Excel workbook records, see <A
 HREF="http://sc.openoffice.org/excelfileformat.pdf">http://sc.openoffice.org/excelfileformat.pdf</A>
 
 
@@ -6263,7 +6277,7 @@ HREF="ftp://ftp.ximian.com/pub/ximian-source/">ftp://ftp.ximian.com/pub/ximian-s
 
 </P>
 <P>
-In addition the source code for OpenOffice is available at <A
+In addition the source code for OpenOffice.org is available at <A
 HREF="http://www.openoffice.org/">http://www.openoffice.org/</A>
 
 </P>
@@ -6453,7 +6467,7 @@ HREF="http://search.cpan.org/search?mode=module&query=excel">http://search.cpan.
 If you wish to view Excel files on a UNIX/Linux platform check out the
 excellent Gnumeric spreadsheet application at <A
 HREF="http://www.gnome.org/projects/gnumeric/">http://www.gnome.org/projects/gnumeric/</A>
-or OpenOffice at <A
+or OpenOffice.org at <A
 HREF="http://www.openoffice.org/">http://www.openoffice.org/</A>
 
 </P>
@@ -6547,7 +6561,7 @@ only stores the formula and not the calculated result.
 
 </P>
 <P>
-OpenOffice: Some formatting is not displayed correctly.
+OpenOffice.org: Some formatting is not displayed correctly.
 
 </P>
 <P>
@@ -6692,14 +6706,14 @@ Spreadsheet::WriteExcel:
 Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha,
 Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN
 testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier,
-Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold
-Bamford, James Holmes, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff,
-J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael
-Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West,
-Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante,
-Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng,
-Stephan Loescher, Steve Sapovits, Sven Passig, Tamas Gulacsi, Troy Daniels,
-Vahe Sarkissian.
+Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc Pavel, Harold
+Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne,
+Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom,
+Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike
+Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul
+Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto
+Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher,
+Steve Sapovits, Sven Passig, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
 
 </P>
 <P>
@@ -6709,8 +6723,8 @@ The following people contributed patches, examples or Excel information:
 <P>
 Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz,
 David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R.
-Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Sam Kington, Takanori
-Kawai, Tom O'Sullivan.
+Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Matisse Enzer, Sam Kington,
+Takanori Kawai, Tom O'Sullivan.
 
 </P>
 <P>
@@ -6748,27 +6762,34 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Filling her compact &amp; delicious body
-    with chicken páprika, she glanced at me
-    twice.
-    Fainting with interest, I hungered back
-    and only the fact of her husband &amp; four other people
-    kept me from springing on her
+    Did you never call? I waited for your call
+    These rivers of suggestion are driving me away
+    The trees will bend, the cities wash away
+    The city on the river there is a girl without a dream
 </PRE>
 </P>
 <P>
 <PRE>
-    or falling at her little feet and crying
-    'You are the hottest one for years of night
-    Henry's dazed eyes
-    have enjoyed, Brilliance.' I advanced upon
-    (despairing) my spumoni.--Sir Bones: is stuffed,
-    de world, wif feeding girls.
+    I'm sorry
 </PRE>
 </P>
 <P>
 <PRE>
-        -- John Berryman
+    Eastern to Mountain, third party call, the lines are down
+    The wise man built his words upon the rocks
+    But I'm not bound to follow suit
+    The trees will bend, the conversation's dimmed
+    Go build yourself another home, this choice isn't mine
+</PRE>
+</P>
+<P>
+<PRE>
+    I'm sorry
+</PRE>
+</P>
+<P>
+<PRE>
+        -- Michael Stipe
 </PRE>
 </P>
 <P>

@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.02'; # Begin again with Berryman
+$VERSION = '2.03'; # So. Central Rain
 
 
 
@@ -62,7 +62,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.02 of Spreadsheet::WriteExcel, released May 28, 2004.
+This document refers to version 2.03 of Spreadsheet::WriteExcel, released July 4, 2004.
 
 
 
@@ -103,7 +103,7 @@ The Spreadsheet::WriteExcel module can be used to create a cross-platform Excel 
 
 The Excel file produced by this module is compatible with 97, 2000, 2002 and 2003.
 
-The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.
+The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.org.
 
 This module cannot be used to write to an existing Excel file.
 
@@ -193,11 +193,21 @@ See also, the C<cgi.pl> program in the C<examples> directory of the distro.
 
 However, this special case will not work in C<mod_perl> programs where you will have to do something like the following:
 
+    # mod_perl 1
+    ...
     tie *XLS, 'Apache';
     binmode(XLS);
     my $workbook  = Spreadsheet::WriteExcel->new(\*XLS);
+    ...
 
-See also, the C<mod_perl.pl> program in the C<examples> directory of the distro.
+    # mod_perl 2
+    ...
+    tie *XLS => $r;  # Tie to the Apache::RequestRec object
+    binmode(*XLS);
+    my $workbook  = Spreadsheet::WriteExcel->new(\*XLS);
+    ...
+
+See also, the C<mod_perl1.pl> and C<mod_perl2.pl> programs in the C<examples> directory of the distro.
 
 Filehandles can also be useful if you want to stream an Excel file over a socket or if you want to store an Excel file in a tied scalar. For some examples of using filehandles with Spreadsheet::WriteExcel see the C<filehandle.pl> program in the C<examples> directory of the distro.
 
@@ -290,7 +300,7 @@ At least one worksheet should be added to a new workbook. A worksheet is used to
 
 If C<$sheetname> is not specified the default Excel convention will be followed, i.e. Sheet1, Sheet2, etc.
 
-The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<: * ? / \> and it must be less than 32 characters. In addition, you cannot use the same C<$sheetname> for more than one worksheet.
+The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<: * ? / \> and it must be less than 32 characters. In addition, you cannot use the same, case insensitive, C<$sheetname> for more than one worksheet.
 
 
 
@@ -637,7 +647,7 @@ The following is a simple example showing how to write some Unicode strings:
     use Unicode::Map();
 
     my $workbook  = Spreadsheet::WriteExcel->new('unicode.xls');
-    my $worksheet = $workbook->addworksheet();
+    my $worksheet = $workbook->add_worksheet();
 
     # Increase the column width for clarity
     $worksheet->set_column('A:A', 25);
@@ -648,7 +658,7 @@ The following is a simple example showing how to write some Unicode strings:
     my $smiley = pack "n", 0x263a;
 
     # Increase the font size for legibility.
-    my $big_font = $workbook->addformat(size => 72);
+    my $big_font = $workbook->add_format(size => 72);
 
     $worksheet->write_unicode('A3', $smiley, $big_font);
 
@@ -682,14 +692,14 @@ The following is an example of creating an Excel file with some Japanese text. Y
 
 
     my $workbook  = Spreadsheet::WriteExcel->new('unicode.xls');
-    my $worksheet = $workbook->addworksheet();
+    my $worksheet = $workbook->add_worksheet();
 
 
-    # It is only required to specify a Unicode font via addformat() if
+    # It is only required to specify a Unicode font via add_format() if
     # you are using Excel 97. For Excel 2000+ the text will display
     # with the default font (if you have Unicode fonts installed).
     #
-    my $uni_font  = $workbook->addformat(font => 'Arial Unicode MS');
+    my $uni_font  = $workbook->add_format(font => 'Arial Unicode MS');
 
 
     my $kanji     = pack 'n*', 0x65e5, 0x672c;
@@ -2592,7 +2602,7 @@ Excel will adjust the height of the row to accommodate the wrapped text. A simil
 
 Set the rotation of the text in a cell. The rotation can be any angle in the range -90 to 90 degrees.
 
-    my $format = $workbook->addformat();
+    my $format = $workbook->add_format();
     $format->set_rotation(30);
     $worksheet->write(0, 0, "This text is rotated", $format);
 
@@ -2612,7 +2622,7 @@ The angle 270 is also supported. This indicates text where the letters run from 
 This method can be used to indent text. The argument, which should be an integer, is taken as the level of indentation:
 
 
-    my $format = $workbook->addformat();
+    my $format = $workbook->add_format();
     $format->set_indent(2);
     $worksheet->write(0, 0, "This text is indented", $format);
 
@@ -2633,7 +2643,7 @@ Indentation is a horizontal alignment property. It will override any other horiz
 This method can be used to shrink text so that it fits in a cell.
 
 
-    my $format = $workbook->addformat();
+    my $format = $workbook->add_format();
     $format->set_shrink();
     $worksheet->write(0, 0, "Honey, I shrunk the text!", $format);
 
@@ -2978,7 +2988,7 @@ A formula is a string that begins with an equals sign:
 
 The formula can contain numbers, strings, boolean values, cell references, cell ranges and functions. Named ranges are not supported. Formulas should be written as they appear in Excel, that is cells and functions must be in uppercase.
 
-Cells in Excel are referenced using the A1 notation system where the column is designated by a letter and the row by a number. Columns range from A to IV i.e. 0 to 255, rows range from 1 to 16384. The C<Spreadsheet::WriteExcel::Utility> module that is included in the distro contains helper functions for dealing with A1 notation, for example:
+Cells in Excel are referenced using the A1 notation system where the column is designated by a letter and the row by a number. Columns range from A to IV i.e. 0 to 255, rows range from 1 to 65536. The C<Spreadsheet::WriteExcel::Utility> module that is included in the distro contains helper functions for dealing with A1 notation, for example:
 
     use Spreadsheet::WriteExcel::Utility;
 
@@ -3108,7 +3118,7 @@ For a general introduction to Excel's formulas and an explanation of the syntax 
 
 If your formula doesn't work in Spreadsheet::WriteExcel try the following:
 
-    1. Verify that the formula works in Excel (or Gnumeric or OpenOffice).
+    1. Verify that the formula works in Excel (or Gnumeric or OpenOffice.org).
     2. Ensure that it isn't on the Caveats list shown above.
     3. Ensure that cell references and formula names are in uppercase.
     4. Ensure that you are using ':' as the range operator, A1:A4.
@@ -3455,7 +3465,8 @@ different features and options of the module.
     merge3.pl           Add hyperlinks to merged cells.
     merge4.pl           An advanced example of merging with formatting.
     merge5.pl           An advanced example of merging with formatting.
-    mod_perl.pl         A simple mod_perl program.
+    mod_perl1.pl        A simple mod_perl 1 program.
+    mod_perl2.pl        A simple mod_perl 2 program.
     outline.pl          An example of outlines and grouping.
     panes.pl            An examples of how to create panes.
     protection.pl       Example of cell locking and formula hiding.
@@ -3605,7 +3616,7 @@ Excel data is stored in the "Binary Interchange File Format" (BIFF) file format.
 
 Charles Wybble has collected together almost all of the available information about the Excel file format. See "The Chicago Project" at http://chicago.sourceforge.net/devel/
 
-Daniel Rentz of OpenOffice has also written a detailed description of the Excel workbook records, see http://sc.openoffice.org/excelfileformat.pdf
+Daniel Rentz of OpenOffice.org has also written a detailed description of the Excel workbook records, see http://sc.openoffice.org/excelfileformat.pdf
 
 The BIFF portion of the Excel file is comprised of contiguous binary records that have different functions and that hold different types of data. Each BIFF record is comprised of the following three parts:
 
@@ -3621,7 +3632,7 @@ For a open source implementation of the OLE library see the 'cole' library at ht
 
 The source code for the Excel plugin of the Gnumeric spreadsheet also contains information relevant to the Excel BIFF format and the OLE container, http://www.gnome.org/projects/gnumeric/ and ftp://ftp.ximian.com/pub/ximian-source/
 
-In addition the source code for OpenOffice is available at http://www.openoffice.org/
+In addition the source code for OpenOffice.org is available at http://www.openoffice.org/
 
 An article describing Spreadsheet::WriteExcel and how it works appears in Issue #19 of The Perl Journal, http://www.samag.com/documents/s=1272/sam05030004/ It is reproduced, by kind permission, in the C<doc> directory of the distro.
 
@@ -3728,7 +3739,7 @@ This is a Perl interface to OLE file formats. In particular, the distro contains
 
 For other Perl-Excel modules try the following search: http://search.cpan.org/search?mode=module&query=excel
 
-If you wish to view Excel files on a UNIX/Linux platform check out the excellent Gnumeric spreadsheet application at http://www.gnome.org/projects/gnumeric/ or OpenOffice at http://www.openoffice.org/
+If you wish to view Excel files on a UNIX/Linux platform check out the excellent Gnumeric spreadsheet application at http://www.gnome.org/projects/gnumeric/ or OpenOffice.org at http://www.openoffice.org/
 
 If you wish to view Excel files on a Windows platform which doesn't have Excel installed you can use the free Microsoft Excel Viewer http://office.microsoft.com/downloads/2000/xlviewer.aspx
 
@@ -3769,7 +3780,7 @@ Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE".
 
 Spreadsheet::ParseExcel: All formulas created by Spreadsheet::WriteExcel are read as having a value of zero. This is because Spreadsheet::WriteExcel only stores the formula and not the calculated result.
 
-OpenOffice: Some formatting is not displayed correctly.
+OpenOffice.org: Some formatting is not displayed correctly.
 
 Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as links.
 
@@ -3846,11 +3857,11 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
 
 The following people contributed patches, examples or Excel information:
 
-Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
+Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Matisse Enzer, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 
 Many thanks to Ron McKelvey, Ronzo Consulting for Siemens, who sponsored the development of the formula caching routines.
 
@@ -3872,21 +3883,23 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 John McNamara jmcnamara@cpan.org
 
 
-    Filling her compact & delicious body
-    with chicken páprika, she glanced at me
-    twice.
-    Fainting with interest, I hungered back
-    and only the fact of her husband & four other people
-    kept me from springing on her
+    Did you never call? I waited for your call
+    These rivers of suggestion are driving me away
+    The trees will bend, the cities wash away
+    The city on the river there is a girl without a dream
 
-    or falling at her little feet and crying
-    'You are the hottest one for years of night
-    Henry's dazed eyes
-    have enjoyed, Brilliance.' I advanced upon
-    (despairing) my spumoni.--Sir Bones: is stuffed,
-    de world, wif feeding girls.
+    I'm sorry
 
-        -- John Berryman
+    Eastern to Mountain, third party call, the lines are down
+    The wise man built his words upon the rocks
+    But I'm not bound to follow suit
+    The trees will bend, the conversation's dimmed
+    Go build yourself another home, this choice isn't mine
+
+    I'm sorry
+
+        -- Michael Stipe
+
 
 
 

@@ -68,7 +68,8 @@ examples/merge2.pl
 examples/merge3.pl
 examples/merge4.pl
 examples/merge5.pl
-examples/mod_perl.pl
+examples/mod_perl1.pl
+examples/mod_perl2.pl
 examples/outline.pl
 examples/panes.pl
 examples/protection.pl

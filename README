@@ -17,7 +17,7 @@ DESCRIPTION
 
     The module will work on the majority of Windows, UNIX and
     Macintosh platforms. Generated files are also compatible with the
-    spreadsheet applications Gnumeric and OpenOffice.
+    spreadsheet applications Gnumeric and OpenOffice.org.
     The generated files are not compatible with MS Access.
 
     This module cannot be used to read an Excel file. See
@@ -37,10 +37,10 @@ SYNOPSIS
         my $workbook = Spreadsheet::WriteExcel->new("perl.xls");
 
         # Add a worksheet
-        $worksheet = $workbook->addworksheet();
+        $worksheet = $workbook->add_worksheet();
 
         #  Add and define a format
-        $format = $workbook->addformat();    # Add a format
+        $format = $workbook->add_format();    # Add a format
         $format->set_bold();
         $format->set_color('red');
         $format->set_align('center');

@@ -92,7 +92,7 @@ Here is some code that demonstrates the problem.
     __END__
 
 
-I tested using Excel XX (or Gnumeric or OpenOffice).
+I tested using Excel XX (or Gnumeric or OpenOffice.org).
 
 My system details are as follows:
 EMAIL

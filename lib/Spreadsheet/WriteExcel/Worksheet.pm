@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.01';
+$VERSION = '2.02';
 
 ###############################################################################
 #
@@ -36,7 +36,7 @@ sub new {
 
     my $class                   = shift;
     my $self                    = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $rowmax                  = 65536; # 16384 in Excel 5
+    my $rowmax                  = 65536;
     my $colmax                  = 256;
     #my $strmax                  = 1023; # TODO
     my $strmax                  = 0;
@@ -226,8 +226,9 @@ sub _close {
 
     # Prepend the COLINFO records if they exist
     if (@{$self->{_colinfo}}){
-        while (@{$self->{_colinfo}}) {
-            my $arrayref = pop @{$self->{_colinfo}};
+        my @colinfo = @{$self->{_colinfo}};
+        while (@colinfo) {
+            my $arrayref = pop @colinfo;
             $self->_store_colinfo(@$arrayref);
         }
 
@@ -1231,10 +1232,10 @@ sub _substitute_cellref {
     my $cell = uc(shift);
 
     # Convert a column range: 'A:A' or 'B:G'.
-    # A range such as A:A is equivalent to A1:A16384, so add rows as required
+    # A range such as A:A is equivalent to A1:65536, so add rows as required
     if ($cell =~ /\$?([A-I]?[A-Z]):\$?([A-I]?[A-Z])/) {
         my ($row1, $col1) =  $self->_cell_to_rowcol($1 .'1');
-        my ($row2, $col2) =  $self->_cell_to_rowcol($2 .'16384');
+        my ($row2, $col2) =  $self->_cell_to_rowcol($2 .'65536');
         return $row1, $col1, $row2, $col2, @_;
     }
 
@@ -3677,7 +3678,7 @@ sub _process_bitmap {
 
     # The first 2 bytes are used to identify the bitmap.
     if (unpack("A2", $data) ne "BM") {
-        croak "$bitmap doesn't appear to to be a valid bitmap image.";
+        croak "$bitmap doesn't appear to be a valid bitmap image.";
     }
 
 

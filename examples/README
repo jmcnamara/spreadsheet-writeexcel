@@ -33,7 +33,8 @@ merge2.pl           A simple example of cell merging with formatting.
 merge3.pl           Add hyperlinks to merged cells.
 merge4.pl           An advanced example of merging with formatting.
 merge5.pl           An advanced example of merging with formatting.
-mod_perl.pl         A simple mod_perl program.
+mod_perl1.pl        A simple mod_perl 1 program.
+mod_perl2.pl        A simple mod_perl 2 program.
 outline.pl          An example of outlines and grouping.
 panes.pl            An examples of how to create panes.
 protection.pl       Example of cell locking and formula hiding.

@@ -1,6 +1,20 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+2.03 July 4 2004 - Minor
+
+    ! Fixed bug that prevented column outlines from displaying.
+      Thanks to Marc Rosenthal.
+
+    ! Enhanced add_worksheet() name checking to exclude case-
+      insensitive duplicate names.
+      Thanks to James Wilkinson.
+
+    ! Internal fix to number of rows in several (unseen) places.
+
+    + Added mod_perl 2 example program from Matisse Enzer.
+
+
 2.02 May 28 2004 - Minor
 
     + Fixed internal version numbers to keep CPAN.pm happy.
@@ -33,7 +47,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
     + Improved speed in relation to pre-release versions.
       However, it is still slower than the 1.xx versions.
 
-    + Improved OpenOffice support.
+    + Improved OpenOffice.org support.
 
     + Added more examples: diag_border.pl, indent.pl,
       unicode.pl, unicode_japan.pl, unicode_list.pl
@@ -52,7 +66,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
 0.43 April 28 2004 - Minor
 
     ! Fixed longstanding bug where page setup features didn't
-      show up in OpenOffice.
+      show up in OpenOffice.org.
 
     ! Fixed localised @_ bug when using threaded perls.
       Thanks Tamas Gulacsi and Stephan Loescher.

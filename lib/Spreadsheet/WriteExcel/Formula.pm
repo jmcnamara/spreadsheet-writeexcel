@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.01';
+$VERSION = '2.03';
 
 ###############################################################################
 #
@@ -768,7 +768,7 @@ sub _get_sheet_index {
 # set_ext_sheets()
 #
 # This semi-public method is used to update the hash of sheet names. It is
-# updated by the addworksheet() method of the Workbook class.
+# updated by the add_worksheet() method of the Workbook class.
 #
 sub set_ext_sheets {
 
@@ -803,7 +803,7 @@ sub set_ext_sheets {
 # get_ext_sheets()
 #
 # This semi-public method is used to update the hash of sheet names. It is
-# updated by the addworksheet() method of the Workbook class.
+# updated by the add_worksheet() method of the Workbook class.
 #
 # TODO
 #
@@ -830,7 +830,7 @@ sub get_ext_sheets {
 # get_ext_ref_count()
 #
 # TODO This semi-public method is used to update the hash of sheet names. It is
-# updated by the addworksheet() method of the Workbook class.
+# updated by the add_worksheet() method of the Workbook class.
 #
 sub get_ext_ref_count {
 

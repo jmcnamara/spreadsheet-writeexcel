@@ -25,7 +25,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.01';
+$VERSION = '2.03';
 
 ###############################################################################
 #
@@ -341,7 +341,7 @@ sub add_worksheet {
     croak 'Invalid Excel character [:*?/\\] in worksheet name: ' . $name
           if $encoding == 0 and $name =~ m{[:*?/\\]};
 
-    # Check that unicode sheetname has an even number of bytes
+    # Check that Unicode sheetname has an even number of bytes
     croak 'Odd number of bytes in Unicode worksheet name:' . $name
           if $encoding == 1 and length($name) % 2;
 
@@ -355,8 +355,12 @@ sub add_worksheet {
     }
 
     # Check that the worksheet name doesn't already exist: a fatal Excel error.
+    # The check must also exclude case insensitive matches.
     foreach my $tmp (@{$self->{_worksheets}}) {
-        croak "Worksheet '$name' already exists" if $name eq $tmp->get_name();
+        if (lc $name eq lc $tmp->get_name()) {
+            croak "Worksheet name '$name', with case ignored, " .
+                  "is already in use";
+        }
     }
 
 
