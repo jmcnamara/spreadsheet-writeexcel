@@ -436,6 +436,7 @@ sub set_border_color {
 sub set_format {
     my $self = shift;
     $self->set_num_format(@_);
+    carp("set_format() is deprecated, use set_num_format() instead") if $^W;
 }
 
 

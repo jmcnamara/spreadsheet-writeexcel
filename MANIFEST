@@ -34,9 +34,9 @@ WriteExcel/doc/tpj0503-0004-05.gif
 WriteExcel/doc/win32ole.gif
 
 
-WriteExcel/examples/Big.pm
-WriteExcel/examples/WorkbookBig.pm
-WriteExcel/examples/big.pl
+WriteExcel/examples/Big.pl
+WriteExcel/examples/WorkbookBig.pl
+WriteExcel/examples/bigfile.pl
 WriteExcel/examples/cgi.pl
 WriteExcel/examples/copyformat.pl
 WriteExcel/examples/csv2xls.pl

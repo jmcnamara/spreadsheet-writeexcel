@@ -1,10 +1,15 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.25 Jan 15 2001
+    Minor
+    Changed distro file format back to Unix line endings. The
+    accidental DOS format was causing install problems.
+    
 0.24 Jan 14 2001
     Minor
     Added write_url method.
     Added set_merge() alias for set_align('merge') method.
-    Added warnings about deprected code when running under -w flag.
+    Added warnings about deprecated code when running under -w flag.
     Documentation changes.
     
 0.23 Dec 10 2000

@@ -124,8 +124,8 @@ cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.24 of Spreadsheet::WriteExcel, released
-January 14, 2001.
+This document refers to version 0.25 of Spreadsheet::WriteExcel, released
+January 19, 2001.
 
 </P>
 <P>
@@ -236,13 +236,22 @@ You can redirect the output to STDOUT using the special Perl filehandle <CODE>&q
 </P>
 <P>
 <PRE>
-    print &quot;Content-type: application/vnd.ms-excel\n\n&quot;;
+    # Set the filename and send the content type and disposition
+    my $filename =&quot;cgitest.xls&quot;;
 </PRE>
 </P>
 <P>
 <PRE>
-    my $workbook = Spreadsheet::WriteExcel-&gt;new(&quot;-&quot;);
-    $workbook-&gt;write(0, 0, &quot;Hi Excel!&quot;);
+    print &quot;Content-type: application/vnd.ms-excel\n&quot;;
+    print &quot;Content-Disposition: attachment; filename=$filename\n\n&quot;;
+</PRE>
+</P>
+<P>
+<PRE>
+    my $workbook  = Spreadsheet::WriteExcel-&gt;new(&quot;-&quot;);
+    my $worksheet = $workbook-&gt;addworksheet();
+    
+    $workbook-&gt;write(0, 0, &quot;Hi Excel!&quot;, $format);
 </PRE>
 </P>
 <P>
@@ -2074,7 +2083,7 @@ Spreadsheet::WriteExcel:
 <P>
 Arthur@ais, Artur Silveira da Cunha, Cedric Bouvier, CPAN testers, Daniel
 Gardner, Harold Bamford, Johan Ekenberg, John Wren, Michael Buschauer, Mike
-Blazer, Paul J. Falbe, Rich Sorden.
+Blazer, Paul J. Falbe, Paul Medynski, Rich Sorden.
 
 </P>
 <P>
@@ -2082,7 +2091,7 @@ The following people contributed code or examples:
 
 </P>
 <P>
-Andrew Benham, Takanori Kawai, Sam Kington.
+Andrew Benham, Marco Geri, Sam Kington, Takanori Kawai.
 
 </P>
 <P>

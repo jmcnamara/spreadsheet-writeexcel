@@ -1,4 +1,20 @@
-package Spreadsheet::WriteExcel::Workbook;
+package Spreadsheet::WriteExcel::WorkbookBig;
+
+###############################################################################
+#
+# Used in conjuction with the big.pl program. Change the extension to .pm
+# and copy the file to the Spreadsheet/WriteExcel directory.
+#
+
+###############################################################################
+#
+# Example of how to use extend the  Spreadsheet::WriteExcel 7MB limit with
+# OLE::Storage_Lite http://search.cpan.org/search?dist=OLE-Storage_Lite
+#
+# Nov 2000, Kawai, Takanori (Hippo2000)
+#   Mail: GCD00051@nifty.ne.jp
+#   http://member.nifty.ne.jp/hippo2000
+
 
 ###############################################################################
 #
@@ -7,7 +23,7 @@ package Spreadsheet::WriteExcel::Workbook;
 #
 # Used in conjuction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
+# Copyright 2000, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -15,16 +31,17 @@ package Spreadsheet::WriteExcel::Workbook;
 require Exporter;
 
 use strict;
-use Carp;
 use Spreadsheet::WriteExcel::BIFFwriter;
 use Spreadsheet::WriteExcel::Worksheet;
-use Spreadsheet::WriteExcel::OLEwriter;
+#use Spreadsheet::WriteExcel::OLEwriter;    # BIG Commented out
+use OLE::Storage_Lite;                      # BIG Added
+use IO::File;                               # BIG Added
 use Spreadsheet::WriteExcel::Format;
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.05';
+$VERSION = '0.04';
 
 ###############################################################################
 #
@@ -37,35 +54,28 @@ sub new {
     my $class       = shift;
     my $filename    = $_[0] || '';
     my $self        = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $ole_writer  = Spreadsheet::WriteExcel::OLEwriter->new($filename);
+    # BIG Commented out    
+    #my $ole_writer  = Spreadsheet::WriteExcel::OLEwriter->new($filename);
     my $tmp_sheet   = Spreadsheet::WriteExcel::Worksheet->new('', 0, 0);
     my $tmp_format  = Spreadsheet::WriteExcel::Format->new();
 
     $self->{_store_in_memory}   = $_[1] || 0;
-    $self->{_OLEwriter}         = $ole_writer;
+    #$self->{_OLEwriter}         = $ole_writer; # BIG Commented out
+    $self->{_Filename}          = $filename;    # BIG Added
     $self->{_1904}              = 0;
     $self->{_activesheet}       = 0;
     $self->{_firstsheet}        = 0;
-    $self->{_xf_index}          = 16; # 15 style XF's and 1 cell XF.
+    $self->{_xf_index}          = 16;
     $self->{_fileclosed}        = 0;
     $self->{_biffsize}          = 0;
     $self->{_sheetname}         = "Sheet";
     $self->{_tmp_worksheet}     = $tmp_sheet;
     $self->{_tmp_format}        = $tmp_format;
-    $self->{_url_format}        = '';
     $self->{_worksheets}        = [];
     $self->{_formats}           = [];
 
     bless $self, $class;
-    
-    # Add the default format for hyperlinks
-    my $url_format = $self->addformat();
-    $url_format->set_color('blue');
-    $url_format->set_underline(1);
-    $self->{_url_format} = $url_format;
-
     return $self;
-    
 }
 
 
@@ -83,7 +93,7 @@ sub close {
     return if $self->{_fileclosed}; # Prevent calling close() twice
 
     $self->_store_workbook();
-    $self->{_OLEwriter}->close();
+    # $self->{_OLEwriter}->close(); # BIG Commented out
     $self->{_fileclosed} = 1;
 }
 
@@ -142,7 +152,6 @@ sub addworksheet {
                         $index,
                         \$self->{_activesheet},
                         \$self->{_firstsheet},
-                        $self->{_url_format},
                         $self->{_store_in_memory},
                     );
 
@@ -219,9 +228,6 @@ sub write {
     my $self    = shift;
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
-    carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjuction with a worksheet object instead"
-        ) if $^W;
     return $self->{_worksheets}[0]->write(@_);
 }
 
@@ -240,9 +246,6 @@ sub write_string {
     my $self    = shift;
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
-    carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjuction with a worksheet object instead"
-        ) if $^W;
     return $self->{_worksheets}[0]->write_string(@_);
 }
 
@@ -261,12 +264,8 @@ sub write_number {
     my $self    = shift;
 
     if (@{$self->{_worksheets}} == 0) { $self->addworksheet() }
-    carp("Calling write() methods on a workbook object is deprecated," .
-         " use write() in conjuction with a worksheet object instead"
-        ) if $^W;
     return $self->{_worksheets}[0]->write_number(@_);
 }
-
 
 ###############################################################################
 #
@@ -306,7 +305,7 @@ sub _calc_sheet_offsets {
 sub _store_workbook {
 
     my $self = shift;
-    my $OLE  = $self->{_OLEwriter};
+    #my $OLE  = $self->{_OLEwriter}; # BIG Commented out
 
     # Call the finalization methods for each worksheet
     foreach my $sheet (@{$self->{_worksheets}}) {
@@ -331,17 +330,38 @@ sub _store_workbook {
     # End Workbook globals
     $self->_store_eof();
 
+    # BIG Commented out
     # Write Worksheet data if data <~ 7MB
-    if ($OLE->set_size($self->{_biffsize})) {
-        $OLE->write_header();
-        $OLE->write($self->{_data});
+    #if ($OLE->set_size($self->{_biffsize})) {
+    #    $OLE->write_header();
+    #    $OLE->write($self->{_data});
 
-        foreach my $sheet (@{$self->{_worksheets}}) {
-            while (my $tmp = $sheet->get_data()) {
-                $OLE->write($tmp);
-            }
+    #    foreach my $sheet (@{$self->{_worksheets}}) {
+    #        while (my $tmp = $sheet->get_data()) {
+    #            $OLE->write($tmp);
+    #        }
+    #    }
+    #}
+    
+    # BIG added
+    my $sData = $self->{_data};
+    foreach my $sheet (@{$self->{_worksheets}}) {
+        while (my $tmp = $sheet->get_data()) {
+                $sData .= $tmp;
         }
-    }
+    }    
+    
+    my @aLtime = localtime();
+    splice(@aLtime, 6);
+    my $oF = OLE::Storage_Lite::PPS::File->new(
+                OLE::Storage_Lite::Asc2Ucs('Workbook'), 
+            $sData);
+    my $oDt = OLE::Storage_Lite::PPS::Root->new(
+            \@aLtime,
+            \@aLtime,
+            [$oF,]);
+    return $oDt->save($self->{_Filename});
+    
 }
 
 
@@ -550,7 +570,7 @@ sub _store_boundsheet {
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("VvC", $offset, $grbit, $cch);
 
-    $self->_append($header, $data, $sheetname);
+    $self->_append($header, $data, $sheetname)
 }
 
 
@@ -575,24 +595,6 @@ sub _store_style {
     my $data      = pack("vCC", $ixfe, $BuiltIn, $iLevel);
 
     $self->_append($header, $data);
-
-    
-    my $hexdata;
-    my $newdata;
-    
-    #$hexdata  = "93020400148008ff";
-    #$newdata  = pack("H*", $hexdata);
-    #$self->_append($newdata);
-    
-    #$hexdata  = "fc001f000100000001000000140000687474";
-    #$hexdata .= "703a2f2f7777772e7065726c2e636f6d2f";
-    #$newdata  = pack("H*", $hexdata);
-    #$self->_append($newdata);
-    
-    
-    
-
-    
 }
 
 
@@ -666,6 +668,5 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMI, John McNamara.
+Copyright (c) 2000, John McNamara. All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 
-All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -19,11 +19,10 @@ use Spreadsheet::WriteExcel::Workbook;
 
 
 
-
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.24'; # 14 January 2001, McLennan
+$VERSION = '0.25'; # 19 January 2001, McLennan tr|\r||
 
 ###############################################################################
 #
@@ -62,7 +61,7 @@ Spreadsheet::WriteExcel - Write formatted text and numbers to a cross-platform E
 
 =head1 VERSION
 
-This document refers to version 0.24 of Spreadsheet::WriteExcel, released January 14, 2001.
+This document refers to version 0.25 of Spreadsheet::WriteExcel, released January 19, 2001.
 
 
 
@@ -123,10 +122,17 @@ You can redirect the output to STDOUT using the special Perl filehandle C<"-">. 
     use strict;
     use Spreadsheet::WriteExcel;
 
-    print "Content-type: application/vnd.ms-excel\n\n";
+    # Set the filename and send the content type and disposition
+    my $filename ="cgitest.xls";
 
-    my $workbook = Spreadsheet::WriteExcel->new("-");
-    $workbook->write(0, 0, "Hi Excel!");
+    print "Content-type: application/vnd.ms-excel\n";
+    print "Content-Disposition: attachment; filename=$filename\n\n";
+
+
+    my $workbook  = Spreadsheet::WriteExcel->new("-");
+    my $worksheet = $workbook->addworksheet();
+    
+    $workbook->write(0, 0, "Hi Excel!", $format);
 
 
 
@@ -1316,11 +1322,11 @@ While you are waiting try Win32::OLE.
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Arthur@ais, Artur Silveira da Cunha, Cedric Bouvier, CPAN testers, Daniel Gardner, Harold Bamford, Johan Ekenberg, John Wren, Michael Buschauer, Mike Blazer, Paul J. Falbe, Rich Sorden.
+Arthur@ais, Artur Silveira da Cunha, Cedric Bouvier, CPAN testers, Daniel Gardner, Harold Bamford, Johan Ekenberg, John Wren, Michael Buschauer, Mike Blazer, Paul J. Falbe, Paul Medynski, Rich Sorden.
 
 The following people contributed code or examples:
 
-Andrew Benham, Takanori Kawai, Sam Kington.
+Andrew Benham, Marco Geri, Sam Kington, Takanori Kawai.
 
 If you have a representative example of using Spreadsheet::WriteExcel either on its own or in conjunction with another module and would like to have it included in the C<examples> directory of the distro please send it along.
 

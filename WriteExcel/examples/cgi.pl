@@ -14,9 +14,11 @@
 use strict;
 use Spreadsheet::WriteExcel;
 
-# Send the content type
-print "Content-type: application/vnd.ms-excel\n\n";
+# Set the filename and send the content type
+my $filename ="cgitest.xls";
 
+print "Content-type: application/vnd.ms-excel\n";
+print "Content-Disposition: attachment; filename=$filename\n\n";
 
 # Create a new workbook and add a worksheet. The special Perl filehandle - will
 # redirect the output to STDOUT

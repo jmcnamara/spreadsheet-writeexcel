@@ -1,4 +1,11 @@
-#!/usr/bin/perl -w
+package Spreadsheet::WriteExcel::Big;
+
+###############################################################################
+#
+# Used in conjuction with the big.pl program. Change the extension to .pm
+# and copy the file to the Spreadsheet/WriteExcel directory.
+#
+
 
 ###############################################################################
 #
@@ -8,29 +15,55 @@
 # Nov 2000, Kawai, Takanori (Hippo2000)
 #   Mail: GCD00051@nifty.ne.jp
 #   http://member.nifty.ne.jp/hippo2000
+
+
+###############################################################################
 #
-# To run this program you need to copy Big.pm and WorkbookBig.pm to
-# yourperl/site/lib/Spreadsheet/WriteExcel
+# WriteExcel::Big
 #
-# Currently the Excel data is transfered to OLE::Storage_Lite as a single
-# scalar. This is slow and requires a lot of memory. 
+# Spreadsheet::WriteExcel - Write formatted text and numbers to a
+# cross-platform Excel binary file.
+#
+# Copyright 2000, John McNamara, jmcnamara@cpan.org
+#
+# Documentation after __END__
 #
 
-# Create a BIG Excel file
-
+require Exporter;
 
 use strict;
-use Spreadsheet::WriteExcel::Big; # Note the name
+use Spreadsheet::WriteExcel::WorkbookBig;
 
 
-my $oExW = Spreadsheet::WriteExcel::Big->new("big.xls");
-my $oWorksheet = $oExW->addworksheet();
-$oWorksheet->set_column(0, 50, 18);
 
-for(my $iCol=0; $iCol< 50; $iCol++) {
-    for(my $iRow=0; $iRow< 6000; $iRow++) {
-        $oWorksheet->write($iRow, $iCol, "ROW:$iRow COL:$iCol");
-    }
+
+use vars qw($VERSION @ISA);
+@ISA = qw(Spreadsheet::WriteExcel::WorkbookBig Exporter);
+
+$VERSION = '0.23'; # 10 December 2000
+
+###############################################################################
+#
+# new()
+#
+# Constructor. Wrapper for a Workbook object.
+# uses: Spreadsheet::WriteExcel::BIFFwriter
+#       Spreadsheet::WriteExcel::OLEwriter
+#       Spreadsheet::WriteExcel::WorkbookBig
+#       Spreadsheet::WriteExcel::Worksheet
+#       Spreadsheet::WriteExcel::Format
+#
+sub new {
+
+    my $class = shift;
+    my $self  = Spreadsheet::WriteExcel::WorkbookBig->new($_[0]);
+
+    bless  $self, $class;
+    return $self;
 }
 
-$oExW->close();
+
+1;
+
+
+__END__
