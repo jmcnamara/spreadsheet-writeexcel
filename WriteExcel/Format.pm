@@ -24,7 +24,7 @@ use strict;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 ###############################################################################
 #
@@ -153,8 +153,17 @@ sub get_xf {
                        $self->{_right});
     my $atr_pat     = ($self->{_fg_color} ||
                        $self->{_bg_color} ||
-                       $self->{_pattern});
+                       $self->{_pattern}) ? 1: 0;
     my $atr_prot    = 0;
+
+
+    # Reset the default colours for the non-font properties
+    $self->{_fg_color}     = 0x40 if $self->{_fg_color}     == 0x7FFF;
+    $self->{_bg_color}     = 0x41 if $self->{_bg_color}     == 0x7FFF;
+    $self->{_bottom_color} = 0x40 if $self->{_bottom_color} == 0x7FFF;
+    $self->{_top_color}    = 0x40 if $self->{_top_color}    == 0x7FFF;
+    $self->{_left_color}   = 0x40 if $self->{_left_color}   == 0x7FFF;
+    $self->{_right_color}  = 0x40 if $self->{_right_color}  == 0x7FFF;
 
 
     # Zero the default border colour if the border has not been set.

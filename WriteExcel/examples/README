@@ -23,15 +23,19 @@ write_array.pl      Example of writing 1D or 2D arrays of data.
 chess.pl            An example of formatting using properties.
 colors.pl           Demo of the colour palette and named colours.
 images.pl           Adding bitmap images to worksheets.
+sendmail.pl         Send an Excel email attachment using Mail::Sender.
 stats_ext.pl        Same as stats.pl with external references.
+repeat.pl           Example of writing repeated formulas.
 long_string.pl      Workaround long string limitation with a formula.
 cgi.pl              A simple CGI program.
 mod_perl.pl         A simple mod_perl program.
 hyperlink1.pl       Shows how to create web hyperlinks.
 hyperlink2.pl       Examples of internal and external hyperlinks.
 merge1.pl           A simple example of cell merging.
-merge2.pl           A more advanced example of cell merging.
-merge3.pl           Merge hyperlinks and merge vertically.
+merge2.pl           A simple example of cell merging with formatting.
+merge3.pl           Add hyperlinks to merged cells.
+merge4.pl           An advanced example of merging with formatting.
+merge5.pl           An advanced example of merging with formatting.
 textwrap.pl         Demonstrates text wrapping options.
 panes.pl            An examples of how to create panes.
 protection.pl       Example of cell locking and formula hiding.
@@ -58,6 +62,3 @@ filehandle.pl       Examples of working with filehandles.
 writeA1.pl          Example of how to extend the module.
 comments.pl         Add cell comments to Excel 5 worksheets.
 bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
-
-
-

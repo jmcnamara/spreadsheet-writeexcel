@@ -24,7 +24,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 ###############################################################################
 #
@@ -113,16 +113,10 @@ sub _initialize {
 sub set_size {
 
     my $self    = shift;
-
-    my $maxsize = 7_087_104; # TODO: extend max size
+    my $maxsize = 7_087_104; # Use Spreadsheet::WriteExcel::Big to exceed this
 
     if ($_[0] > $maxsize) {
-        # croak() won't work here if close() called via DESTROY
-        print STDERR "Maximum file size, $maxsize, exceeded. To create files ".
-                     "bigger than this limit please refer to the "            .
-                     "Spreadsheet::WriteExcel::Big documentation.\n";
-
-        return $self->{_size_allowed} = 0; # TODO Fix this for DESTROY
+        return $self->{_size_allowed} = 0;
     }
 
     $self->{_biffsize} = $_[0];
@@ -161,11 +155,6 @@ sub _calculate_sizes {
     # depot + 1 end of chain block
     $self->{_list_blocks} = int(($self->{_big_blocks})/127) +1;
     $self->{_root_start}  = $self->{_big_blocks};
-
-    #print $self->{_biffsize},    "\n";
-    #print $self->{_big_blocks},  "\n";
-    #print $self->{_list_blocks}, "\n";
-
 }
 
 
@@ -182,14 +171,19 @@ sub close {
     my $self = shift;
 
     return if not $self->{_size_allowed};
+
     $self->_write_padding()          if not $self->{_biff_only};
     $self->_write_property_storage() if not $self->{_biff_only};
     $self->_write_big_block_depot()  if not $self->{_biff_only};
 
+    my $close;
+
     # Close the filehandle if it was created internally.
-    CORE::close($self->{_filehandle}) if $self->{_internal_fh};
+    $close = CORE::close($self->{_filehandle}) if $self->{_internal_fh};
 
     $self->{_fileclosed} = 1;
+
+    return $close;
 }
 
 
@@ -202,7 +196,8 @@ sub close {
 sub DESTROY {
 
     my $self = shift;
-    if (not $self->{_fileclosed}) { $self->close() }
+
+    $self->close() unless $self->{_fileclosed};
 }
 
 

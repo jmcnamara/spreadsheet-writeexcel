@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.14';
+$VERSION = '0.15';
 
 ###############################################################################
 #
@@ -73,7 +73,7 @@ sub new {
 
     # Try to open the named file and see if it throws any errors.
     # If the filename is a reference it is assumed that it is a valid
-    # filehandle and ignore
+    # filehandle and ignored
     #
     if (not ref $self->{_filename}) {
         open  TMP, '>'. $self->{_filename} or do {
@@ -104,8 +104,9 @@ sub close {
 
     return if $self->{_fileclosed}; # Prevent close() from being called twice.
 
-    $self->_store_workbook();
     $self->{_fileclosed} = 1;
+
+    return $self->_store_workbook();
 }
 
 
@@ -172,6 +173,11 @@ sub addworksheet {
 
     # Check that sheetname is <= 31 chars (Excel limit).
     croak "Sheetname $name must be <= 31 chars" if length $name > 31;
+
+    # Check that sheetname doesn't contain any invalid characters
+    croak 'Invalid Excel character [:*?/\\] in worksheet name: ' . $name
+          if $name =~ m{[:*?/\\]};
+
 
     my $index     = @{$self->{_worksheets}};
     my $sheetname = $self->{_sheetname};
@@ -510,7 +516,7 @@ sub _store_workbook {
     $self->_store_eof();
 
     # Store the workbook in an OLE container
-    $self->_store_OLE_file
+    return $self->_store_OLE_file
 }
 
 
@@ -537,9 +543,21 @@ sub _store_OLE_file {
                 $OLE->write($tmp);
             }
         }
+
+        return $OLE->close();
+    }
+    else {
+        # File in greater than limit, set $! to "File too large"
+        $! = 27; # Perl error code "File too large"
+        my $maxsize = 7_087_104;
+
+        croak "Maximum Spreadsheet::WriteExcel filesize, $maxsize bytes, "    .
+              "exceeded. To create files bigger than this limit please refer ".
+              "to the \"Spreadsheet::WriteExcel::Big\" documentation.\n"      ;
+
+        # return 0;
     }
 
-    $OLE->close();
 }
 
 

@@ -2,73 +2,79 @@
 
 ###############################################################################
 #
-# Example of how to use the merge_cells() workbook method with 
-# Spreadsheet::WriteExcel.
+# Example of how to use Spreadsheet::WriteExcel to write a hyperlink in a
+# merged cell. There are two options write_url_range() with a standard merge
+# format or merge_cells().
 #
-# The usual way to merge cells with Spreadsheet::WriteExcel is to set the merge
-# property of a format and to apply that format to the cells to be merged.
-# However, in some circumstances this isn't sufficient, for example if the
-# merged cells contain a hyperlink or if you wish to merge cells in more than
-# one row. In this case you need to cell the merge_cells() workbook method in
-# addition to setting the format.
-#
-# Merged hyperlinks can also be created using write_url_range(). 
-#
-# reverse('©'), March 2002, John McNamara, jmcnamara@cpan.org
+# reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
 use Spreadsheet::WriteExcel;
 
-# Create a new workbook called simple.xls and add a worksheet
-my $workbook  = Spreadsheet::WriteExcel->new("merge3.xls");
+# Create a new workbook and add a worksheet
+my $workbook  = Spreadsheet::WriteExcel->new('merge3.xls');
 my $worksheet = $workbook->addworksheet();
 
 
+# Increase the cell size of the merged cells to highlight the formatting.
+$worksheet->set_row($_, 30) for (1, 3, 6, 7);
+$worksheet->set_column('B:D', 20);
 
-# Create a format that looks like a hyperlink and that has the merge property
-# set. Note the border is applied around the merged cells and not around each
-# individual cell.
+
+###############################################################################
 #
-my $format = $workbook->addformat(
+# Example 1: Merge cells containing a hyperlink using write_url_range()
+# and the standard Excel 5+ merge property.
+#
+my $format1 = $workbook->addformat(
                                     merge       => 1,
                                     border      => 1,
-                                    color       => 'blue',
                                     underline   => 1,
+                                    color       => 'blue',
                                  );
 
-#
-# Merge cells containing a hyperlink, Method 1: using write_url_range().
-#
-
 # Write the cells to be merged
-$worksheet->write_url_range("B2:D2", "http://www.perl.com", $format);
-$worksheet->write("C2", "", $format);
-$worksheet->write("D2", "", $format);
+$worksheet->write_url_range('B2:D2', 'http://www.perl.com', $format1);
+$worksheet->write_blank('C2', $format1);
+$worksheet->write_blank('D2', $format1);
 
+
+
+###############################################################################
 #
-# Merge cells containing a hyperlink, Method 2: using merge_cells().
-# Note: Call merge_cells *before* writing the cells to be merged.
+# Example 2: Merge cells containing a hyperlink using merge_cells().
 #
-$worksheet->merge_cells("B4:D4");
-
-
-# Write the cells to be merged
-$worksheet->write("B4", "http://www.perl.com", $format);
-$worksheet->write("C4", "", $format);
-$worksheet->write("D4", "", $format);
-
-
-
+# Note:
+#      1. You should call merge_cells() after you write the cells to be merged
+#      2. You must specify a format for every cell in the merged region
+#      3. The merge property doesn't have to be set when using merge_cells()
+#      4. A border is applied around the merged cells and not around each cell
+#      5. merge_cells() doesn't work with Excel versions before Excel 97
 #
-# Merge cells over two rows using merge_cells
-#
-$worksheet->merge_cells("B7:D8");
+my $format2 = $workbook->addformat(
+                                    border      => 1,
+                                    underline   => 1,
+                                    color       => 'blue',
+                                    align       => 'center',
+                                    valign      => 'vcenter',
+                                  );
 
-$worksheet->write("B7", "http://www.perl.com", $format);
-$worksheet->write("C7", "", $format);
-$worksheet->write("D7", "", $format);
-$worksheet->write("B8", "", $format);
-$worksheet->write("C8", "", $format);
-$worksheet->write("D8", "", $format);
+# Merge 3 cells
+$worksheet->write('B4', 'http://www.perl.com', $format2);
+$worksheet->write_blank('C4', $format2);
+$worksheet->write_blank('D4', $format2);
+
+$worksheet->merge_cells('B4:D4');
+
+
+# Merge 3 cells over two rows
+$worksheet->write('B7', 'http://www.perl.com', $format2);
+$worksheet->write_blank('C7', $format2);
+$worksheet->write_blank('D7', $format2);
+$worksheet->write_blank('B8', $format2);
+$worksheet->write_blank('C8', $format2);
+$worksheet->write_blank('D8', $format2);
+
+$worksheet->merge_cells('B7:D8');
 

@@ -24,7 +24,7 @@ $worksheet->set_column(1, 1, 24);
 $worksheet->set_column(2, 2, 34);
 $worksheet->set_column(3, 3, 34);
 
-# Set the row height for rows 1, 4, and 6. The heigt of row 2 will adjust
+# Set the row height for rows 1, 4, and 6. The height of row 2 will adjust
 # automatically to fit the text.
 #
 $worksheet->set_row(0, 30);

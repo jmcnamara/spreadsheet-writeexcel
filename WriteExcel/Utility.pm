@@ -26,7 +26,7 @@ my @rowcol      = qw(
                         xl_inc_col
                         xl_dec_col
                     );
-                  
+
 # Date and Time functions
 my @dates       = qw(
                         xl_date_list
@@ -42,7 +42,7 @@ my @dates       = qw(
 @ISA            = qw(Exporter);
 @EXPORT_OK      =   ();
 @EXPORT         =   (@rowcol, @dates);
-%EXPORT_TAGS    =   ( 
+%EXPORT_TAGS    =   (
                         rowcol  => \@rowcol,
                         dates   => \@dates
                     );
@@ -72,7 +72,7 @@ Functions to help with some common tasks when using Spreadsheet::WriteExcel.
 These functions mainly relate to dealing with rows and columns in A1 notation and to handling dates and times.
 
     use Spreadsheet::WriteExcel::Utility;               # Import everything
-    
+
     ($row, $col)    = xl_cell_to_rowcol('C2');          # (1, 2)
     $str            = xl_rowcol_to_cell(1, 2);          # C2
     $str            = xl_inc_col('Z1'  );               # AA1
@@ -112,7 +112,7 @@ Date and Time functions: these are used to convert dates and times to the numeri
 All of these functions are exported by default. However, you can use import lists if you wish to limit the functions that are imported:
 
     use Spreadsheet::WriteExcel::Utility;                  # Import everything
-    use Spreadsheet::WriteExcel::Utility qw(xl_date_list); # xl_date_list only 
+    use Spreadsheet::WriteExcel::Utility qw(xl_date_list); # xl_date_list only
     use Spreadsheet::WriteExcel::Utility qw(:rowcol);      # Row/col functions
     use Spreadsheet::WriteExcel::Utility qw(:dates);       # Date functions
 
@@ -231,7 +231,7 @@ sub xl_rowcol_to_cell {
 
 
     Parameters: $string         String in A1 format
-    
+
     Returns:    List            ($row, $col)
 
 This function converts an Excel cell reference in A1 notation to a zero based row and column. The function will also handle Excel's absolute, C<$>, cell notation.
@@ -293,7 +293,7 @@ sub xl_cell_to_rowcol {
 
 
     Parameters: $string, a string in A1 format
-    
+
     Returns:    Incremented string in A1 format
 
 This functions takes a cell reference string in A1 notation and increments the row. The function will also handle Excel's absolute, C<$>, cell notation:
@@ -327,7 +327,7 @@ sub xl_inc_row {
 
 
     Parameters: $string, a string in A1 format
-    
+
     Returns:    Decremented string in A1 format
 
 This functions takes a cell reference string in A1 notation and decrements the row. The function will also handle Excel's absolute, C<$>, cell notation:
@@ -366,7 +366,7 @@ sub xl_dec_row {
 
 
     Parameters: $string, a string in A1 format
-    
+
     Returns:    Incremented string in A1 format
 
 This functions takes a cell reference string in A1 notation and increments the column. The function will also handle Excel's absolute, C<$>, cell notation:
@@ -404,7 +404,7 @@ sub xl_inc_col {
 =head2 xl_dec_col($string)
 
     Parameters: $string, a string in A1 format
-    
+
     Returns:    Decremented string in A1 format
 
 This functions takes a cell reference string in A1 notation and decrements the column. The function will also handle Excel's absolute, C<$>, cell notation:
@@ -445,7 +445,7 @@ The epoch can be either 1900 or 1904. Excel for Windows uses 1900 and Excel for 
 
 Excel on Windows and the Macintosh will convert automatically between one system and the other. By default Spreadsheet::WriteExcel uses the 1900 format. To use the 1904 epoch you must use the C<set_1904()> workbook method, see the Spreadsheet::WriteExcel documentation.
 
-There are two things to note about the 1900 date format. The first is that the epoch starts on 0 January 1900. The second is that the year 1900 is erroneously but deliberately treated as a leap year. Therefore you must add an extra day to dates after 28 February 1900. The functions in the following section will deal with these issues automatically. The reason for this anomaly is explained at http://support.microsoft.com/support/kb/articles/Q181/3/70.asp 
+There are two things to note about the 1900 date format. The first is that the epoch starts on 0 January 1900. The second is that the year 1900 is erroneously but deliberately treated as a leap year. Therefore you must add an extra day to dates after 28 February 1900. The functions in the following section will deal with these issues automatically. The reason for this anomaly is explained at http://support.microsoft.com/support/kb/articles/Q181/3/70.asp
 
 Note, a date or time in Excel is like any other number. To display the number as a date you must apply a number format to it: Refer to the C<set_num_format()> method in the Spreadsheet::WriteExcel documentation:
 
@@ -851,7 +851,7 @@ For more information about "autousing" refer to the documentation on the C<autou
 
 When using the autoused functions from C<Date::Manip> and C<Date::Calc> on Perl 5.6.0 with C<-w> you will get a warning like this:
 
-    "Subroutine xxx redefined ..." 
+    "Subroutine xxx redefined ..."
 
 The current workaround for this is to put C<use warnings;> near the beginning of your program.
 

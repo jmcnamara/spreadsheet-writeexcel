@@ -1,153 +1,261 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-0.37 April 29 2002
-    Minor
-    
-    Added set_tempdir() method to allow a user defined temp directory.
-    This is mainly of use to IIS users.
-    
-    Fixed default format behaviour for formats set via the set_row()
-    and set_column() methods.
-    
-    Extended the hide_gridlines() method to allow hiding of screen
-    gridlines as well as print gridlines.
-    
-    Added long_string.pl a workaround example for the 255 char limit.
-    
-    Added https match to url regex. Thanks The Tilghman.
-    
 
-0.36 April 9 2002
-    Minor
-    Added user definable colour palette. Thanks Bill Young.
-    Added headers.pl and colors.pl examples.
 
-0.35 March 18 2002
-    Minor
-    Added internal and external hyperlinks, thanks Ian Penman.
-    Added worksheet set_zoom() and set_print_scale(). 
-    Changed default value of fit_to_pages() to allow printed output to
-    be one page wide and as long as required. Thanks Michael Erickson.
-    Changed handling of undefs in write() method, thanks Hanc Pavel.
-    Changed new() to return undef for file creation errors, thanks
-    Felipe Pérez Galiana.
-    Added check for header/footer length, thanks Peter Dintelmann. 
-    Added check for duplicate worksheet names, thanks Keith Miller.
-    Removed spurious return() to fix bug in set_repeat_rows().
-    Thanks Brian White.
-    Added "use integer" when using shift << to avoid bug with
-	Perl 5.6.0 on HP-UX. Thanks Markus Schmitz, VSarkiss.
-    Fixed minor bug in Formula.pm. Thanks Sven Passig.
+0.38 August 29 2002 - Minor
 
-0.34 October 23 2001
-    Major
-    Added Spreadsheet::WriteExcel::Utility module with helper
-    functions for row/col and dates.
-    Added write_row and write_col methods after many requests.
-    Added ability to insert bitmap images.
-    Added cell protection and formula hiding.
-    Added more examples.
+    + Added formula caching to speed up the writing of formulas.
+      Thanks to Ron McKelvey.
 
-0.33 July 30 2001
-    Minor
-    Added (hopefully) easier mechanism to add format properties.
-    Added more page setup options: repeat rows and columns, hide
-    gridlines, print area, fit to pages and page breaks.
-    Added fix to protect print() from -l on the command line. Thanks
-    Cedric Bouvier and Kyle Krom.
-    Added more examples.
+    + Added handling of A:A column notation in formulas and
+      applicable worksheet methods.
 
-0.32 May 17 2001
-    Minor
-    Added panes option.
-    Added page setup options: paper type, orientation, headers
-    footers, centering.
-    Added panes example.
+    + Changed handling of numbers with leading zeroes so that they
+      can be treated as strings and the zeroes maintained.
 
-0.31 April 12 2001
-    Major
-    Fixed several minor and major bugs in Formula.pm. Thanks Shane
-    Ashby and Borgar Olsen and Christian Kirsch.
-    Added external worksheet references to formulas.
-    Added A1 notation.
-    Added facility to new() to accept valid filehandles. Thanks Peter Dintelmann.
-    Added more examples. Thanks Tom O'Sullivan.
-    Updated bigfile.pl example. Thanks to Takanori Kawai.
-    
-0.30 Feb 26 2001
-    Major
-    Added formulas.
-    Fixed docs for write_url(). Thanks James Holmes.
-    Fixed bug when using a numeric format string of zeros. Thanks
-    Kenneth Stacey.
+    + Modified $workbook->close() to return the value of the system
+      file close.
 
-0.26 Feb 1 2001
-    Minor
-    Fixed bug when using a border with the default colour. This
-    caused the cell format to become unchangeable from within Excel.
-    Thanks Shenyu Zheng.
-    Changed worksheet code to automatically fall back to storing
-    data in memory if opening a tmp file fails.
+    + Made file size exceeded a die() error instead of a warning.
 
-0.25 Jan 19 2001
-    Minor
-    Changed distro file format back to Unix line endings. The
-    accidental DOS format was causing install problems.
+    + Added option to hide row with the set_row() method
 
-0.24 Jan 14 2001
-    Minor
-    Added write_url method.
-    Added set_merge() alias for set_align('merge') method.
-    Added warnings about deprecated code when running under -w flag.
-    Documentation changes.
+    + Added more examples: merge4.pl, merge5.pl, sendmail.pl and
+      repeat.pl
 
-0.23 Dec 10 2000
-    Minor
-    Added customisable numeric formats.
-    Added set_row() method.
-    Added set_1904() method.
-    Added extra examples including contributions. Thanks to all.
-    Moved secondary modules to WriteExcel namespace to clean-up
-    Spreadsheet namespace which is now shared with ParseExcel.
-    Fixed class data bug, thanks Cedric Bouvier.
-    Fixed Excel crashing!! bug in STYLE, thanks Rich Sorden.
-    Tidied up internal storage of FONTs and XFs.
-    Renamed set_col_width() method to set_column().
-    Renamed set_format() method to set_num_format().
+    ! Fixed write_url() when handling relative links in the current
+      directory. Thanks Bob Mackay Andre de Bruin
 
-0.22 Oct 22 2000:
-    Major
-    Added Format.pm and the facility for cell formatting.
+    ! Fixed handling of multiple AND()'s and OR()'s in formulas.
 
-0.21 Oct 1 2000:
-    Minor
-    Replaced direct access to worksheets array with a workbook method;
-    worksheets(). Added set_selection() and set_col_width() worksheet
-    methods. Replaced the missing thats, including the that that were
-    in the icebox. Added MS Access bug warning; thanks Harold Bamford.
+    ! Fixed bug when creating a very large number of files within a
+      single program on Windows.
 
-0.20 Aug 27 2000:
-    Major
-    Added multiple worksheets and OLE wrapper. Now compatible with
-    Star Office, Gnumeric and XESS.
+    ! Added warning about Excel97 crashing bug with merge_cells().
 
-0.11 Aug 25 2000:
-    Minor
-    Changes to documentation. Explanation of how to use WriteExcel
-    in CGI's. Thanks Daniel Gardner.
+    ! Fixed handling of parentheses in Worksheet names.
+      Thanks Jann Linder.
 
-0.10 May 13 2000:
-    Minor
-    Bug in close() and DESTROY sequence fixed, thanks John Wren.
-    Biff version number fixed, thanks Aurthur@ais, and then unfixed.
-    Shakey test and distro fixed, thanks to many.
+    ! Fixed minor bugs in Format.pm. Thanks Johann Hanne.
 
-0.09 Feb 1 2000:
-    Minor
-    Code for writing DIMENSIONS updated to account for bug when
-    reading files with QuickView.
-    Renamed xl_write methods to write.
+    ! Fixed File::Temp dependency in Makefile. Thanks to many.
 
-0.08 Jan 16 2000:
+
+0.37 April 29 2002 - Minor
+
+    + Added set_tempdir() method to allow a user defined temp
+      directory. This is mainly of use to IIS users.
+
+    + Fixed default format behaviour for formats set via the set_row()
+      and set_column() methods.
+
+    + Extended the hide_gridlines() method to allow hiding of screen
+      gridlines as well as print gridlines.
+
+    + Added long_string.pl a workaround example for the 255 char
+      limit.
+
+    + Added https match to url regex. Thanks The Tilghman.
+
+
+0.36 April 9 2002 - Minor
+
+    + Added user definable colour palette. Thanks Bill Young.
+
+    + Added headers.pl and colors.pl examples.
+
+
+0.35 March 18 2002 - Minor
+
+    + Added internal and external hyperlinks. Thanks Ian Penman.
+
+    + Added worksheet set_zoom() and set_print_scale().
+
+    ! Changed default value of fit_to_pages() to allow printed output
+      to be one page wide and as long as required.
+      Thanks Michael Erickson.
+
+    ! Changed handling of undefs in write() method. Thanks Hanc Pavel.
+
+    ! Changed new() to return undef for file creation errors
+      Thanks Felipe Pérez Galiana.
+
+    ! Added check for header/footer length. Thanks Peter Dintelmann.
+
+    ! Added check for duplicate worksheet names. Thanks Keith Miller.
+
+    - Removed spurious return() to fix bug in set_repeat_rows().
+      Thanks Brian White.
+
+    ! Added "use integer" when using shift << to avoid bug with
+	  Perl 5.6.0 on HP-UX. Thanks Markus Schmitz, VSarkiss.
+
+    ! Fixed minor bug in Formula.pm. Thanks Sven Passig.
+
+
+0.34 October 23 2001 - Major
+
+    + Added Spreadsheet::WriteExcel::Utility module with helper
+      functions for row/col and dates.
+
+    + Added write_row and write_col methods after many requests.
+
+    + Added ability to insert bitmap images.
+
+    + Added cell protection and formula hiding.
+
+    + Added more examples.
+
+
+0.33 July 30 2001 - Minor
+
+    + Added (hopefully) easier mechanism to add format properties.
+
+    + Added more page setup options: repeat rows and columns, hide
+      gridlines, print area, fit to pages and page breaks.
+
+    ! Added fix to protect print() from -l on the command line.
+      Thanks Cedric Bouvier and Kyle Krom.
+
+    + Added more examples.
+
+
+0.32 May 17 2001 - Minor
+
+    + Added panes option.
+
+    + Added page setup options: paper type, orientation, headers
+      footers, centering.
+
+    + Added panes example.
+
+
+0.31 April 12 2001 - Major
+
+    ! Fixed several minor and major bugs in Formula.pm.
+      Thanks Shane Ashby and Borgar Olsen and Christian Kirsch.
+
+    + Added external worksheet references to formulas.
+
+    + Added A1 notation.
+
+    + Added facility to new() to accept valid filehandles.
+      Thanks  Peter Dintelmann.
+
+    + Added more examples. Thanks Tom O'Sullivan.
+
+    ! Updated bigfile.pl example. Thanks to Takanori Kawai.
+
+
+0.30 Feb 26 2001 - Major
+
+    + Added formulas.
+
+    ! Fixed docs for write_url(). Thanks James Holmes.
+
+    ! Fixed bug when using a numeric format string of zeros.
+      Thanks Kenneth Stacey.
+
+
+0.26 Feb 1 2001 - Minor
+
+    ! Fixed bug when using a border with the default colour. This
+      caused the cell format to become unchangeable from within Excel.
+      Thanks Shenyu Zheng.
+
+    ! Changed worksheet code to automatically fall back to storing
+      data in memory if opening a tmp file fails.
+
+
+0.25 Jan 19 2001 - Minor
+
+    ! Changed distro file format back to Unix line endings. The
+      accidental DOS format was causing install problems.
+
+
+0.24 Jan 14 2001 - Minor
+
+    + Added write_url method.
+
+    + Added set_merge() alias for set_align('merge') method.
+
+    + Added warnings about deprecated code when running under -w flag.
+
+    ! Documentation changes.
+
+
+0.23 Dec 10 2000 - Minor
+
+    + Added customisable numeric formats.
+
+    + Added set_row() method.
+
+    + Added set_1904() method.
+
+    + Added extra examples including contributions. Thanks to all.
+
+    + Moved secondary modules to WriteExcel namespace to clean-up
+      Spreadsheet namespace which is now shared with ParseExcel.
+
+    ! Fixed class data bug. Thanks Cedric Bouvier.
+
+    ! Fixed Excel crashing!! bug in STYLE. Thanks Rich Sorden.
+
+    ! Tidied up internal storage of FONTs and XFs.
+
+    + Renamed set_col_width() method to set_column().
+
+    + Renamed set_format() method to set_num_format().
+
+
+0.22 Oct 22 2000 - Major
+
+    + Added Format.pm and the facility for cell formatting.
+
+
+0.21 Oct 1 2000 - Minor
+
+    + Replaced direct access to worksheets array with a workbook
+      method;worksheets().
+
+    + Added set_selection() and set_col_width() worksheet methods.
+
+    ! Replaced the missing thats, including the that that were
+      in the icebox.
+
+    + Added MS Access bug warning; thanks Harold Bamford.
+
+
+0.20 Aug 27 2000 - Major
+
+    + Added multiple worksheets and OLE wrapper. Now compatible with
+      Star Office, Gnumeric and XESS.
+
+
+0.11 Aug 25 2000 - Minor
+
+    ! Changes to documentation. Explanation of how to use WriteExcel
+      in CGI's. Thanks Daniel Gardner.
+
+
+0.10 May 13 2000 - Minor
+
+    ! Bug in close() and DESTROY sequence fixed. Thanks John Wren.
+
+    ! Biff version number fixed. Thanks Aurthur@ais, and then unfixed.
+
+    ! Shakey test and distro fixed. Thanks to many.
+
+
+0.09 Feb 1 2000 - Minor
+
+    ! Code for writing DIMENSIONS updated to account for bug when
+      reading files with QuickView.
+
+    + Renamed xl_write methods to write.
+
+
+0.08 Jan 16 2000
+
     First CPAN release. Spreadsheet::WriteExcel - Write text and
     numbers to minimal Excel binary file.

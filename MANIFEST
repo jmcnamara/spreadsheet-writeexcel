@@ -67,12 +67,16 @@ WriteExcel/examples/long_string.pl
 WriteExcel/examples/merge1.pl
 WriteExcel/examples/merge2.pl
 WriteExcel/examples/merge3.pl
+WriteExcel/examples/merge4.pl
+WriteExcel/examples/merge5.pl
 WriteExcel/examples/mod_perl.pl
 WriteExcel/examples/panes.pl
 WriteExcel/examples/protection.pl
 WriteExcel/examples/regions.pl
+WriteExcel/examples/repeat.pl
 WriteExcel/examples/republic.bmp
 WriteExcel/examples/sales.pl
+WriteExcel/examples/sendmail.pl
 WriteExcel/examples/simple.pl
 WriteExcel/examples/stats.pl
 WriteExcel/examples/stats_ext.pl

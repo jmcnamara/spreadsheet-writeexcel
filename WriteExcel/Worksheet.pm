@@ -24,7 +24,7 @@ use File::Temp 'tempfile';
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.14';
+$VERSION = '0.15';
 
 ###############################################################################
 #
@@ -60,6 +60,7 @@ sub new {
     $self->{_dim_rowmax}        = 0;
     $self->{_dim_colmin}        = $colmax +1;
     $self->{_dim_colmax}        = 0;
+    $self->{_dim_changed}       = 0;
     $self->{_colinfo}           = [];
     $self->{_selection}         = [0, 0];
     $self->{_panes}             = [];
@@ -112,6 +113,8 @@ sub new {
     $self->{_zoom}              = 100;
     $self->{_print_scale}       = 100;
 
+    $self->{_leading_zeros}     = 0;
+
     bless $self, $class;
     $self->_initialize();
     return $self;
@@ -134,7 +137,7 @@ sub _initialize {
     # Open tmp file for storing Worksheet data. We do this in an eval block
     # to trap any File::Temp errors.
     #
-    eval { $fh = File::Temp::tempfile(DIR => $self->{_tempdir}) };
+    eval { ($fh) = File::Temp::tempfile(DIR => $self->{_tempdir}) };
 
     if ($fh) {
         # binmode file whether platform requires it or not
@@ -387,6 +390,10 @@ sub set_column {
     # Check for a cell reference in A1 notation and substitute row and column
     if ($cell =~ /^\D/) {
         @_ = $self->_substitute_cellref(@_);
+
+        # Returned values $row1 and $row2 aren't required here. Remove them.
+        shift  @_;       # $row1
+        splice @_, 1, 1; # $row2
     }
 
     push @{$self->{_colinfo}}, [ @_ ];
@@ -396,7 +403,7 @@ sub set_column {
     # hidden columns into account. Also store the column formats.
     #
     return if @_ < 3; # Ensure at least $firstcol, $lastcol and $width
-    
+
     my $width  = $_[4] ? 0 : $_[2]; # Set width to zero if column is hidden
     my $format = $_[3];
 
@@ -720,6 +727,10 @@ sub repeat_columns {
     # Check for a cell reference in A1 notation and substitute row and column
     if ($_[0] =~ /^\D/) {
         @_ = $self->_substitute_cellref(@_);
+
+        # Returned values $row1 and $row2 aren't required here. Remove them.
+        shift  @_;       # $row1
+        splice @_, 1, 1; # $row2
     }
 
     $self->{_title_colmin}  = $_[0];
@@ -762,7 +773,7 @@ sub print_area {
 # and subsequently the print gridline. The second method is to via the
 # PRINTGRIDLINES and GRIDSET records, this turns off the printed gridlines
 # only. The first method is probably sufficient for most cases. The second
-# method is supported for backwards compatibility.
+# method is supported for backwards compatibility. Porters take note.
 #
 sub hide_gridlines {
 
@@ -770,7 +781,7 @@ sub hide_gridlines {
     my $option = $_[0];
 
     $option = 1 unless defined $option; # Default to hiding printed gridlines
-    
+
     if ($option == 0) {
         $self->{_print_gridlines}  = 1; # 1 = display, 0 = hide
         $self->{_screen_gridlines} = 1;
@@ -898,9 +909,29 @@ sub set_print_scale {
 
 ###############################################################################
 #
+# keep_leading_zeros()
+#
+# Causes the write() method to treat integers with a leading zero as a string.
+# This ensures that any leading zeros such, as in zip codes, are maintained.
+#
+sub keep_leading_zeros {
+
+    my $self = shift;
+
+    if (defined $_[0]) {
+        $self->{_leading_zeros} = $_[0];
+    }
+    else {
+        $self->{_leading_zeros} = 1;
+    }
+}
+
+
+###############################################################################
+#
 # write($row, $col, $token, $format)
 #
-# Parse $token call appropriate write method. $row and $column are zero
+# Parse $token and call appropriate write method. $row and $column are zero
 # indexed. $format is optional.
 #
 # Returns: return value of called subroutine
@@ -923,9 +954,12 @@ sub write {
     if (ref $token eq "ARRAY") {
         return $self->write_row(@_);
     }
-
+    # Match integer with leading zero(s)
+    elsif ($self->{_leading_zeros} and $token =~ /^0\d+$/) {
+        return $self->write_string(@_);
+    }
     # Match number
-    if ($token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
+    elsif ($token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
         return $self->write_number(@_);
     }
     # Match http, https or ftp URL
@@ -1057,7 +1091,6 @@ sub write_col {
 # _XF()
 #
 # Returns an index to the XF record in the workbook.
-# TODO
 #
 # Note: this is a function, not a method.
 #
@@ -1133,11 +1166,12 @@ sub _substitute_cellref {
     my $self = shift;
     my $cell = uc(shift);
 
-    # Convert a column range: 'A:A' or 'B:G'
-    if ($cell =~ /([A-I]?[A-Z]):([A-I]?[A-Z])/) {
-        my (undef, $col1) =  $self->_cell_to_rowcol($1 .'1'); # Add a dummy row
-        my (undef, $col2) =  $self->_cell_to_rowcol($2 .'1'); # Add a dummy row
-        return $col1, $col2, @_;
+    # Convert a column range: 'A:A' or 'B:G'.
+    # A range such as A:A is equivalent to A1:A16384, so add rows as required
+    if ($cell =~ /\$?([A-I]?[A-Z]):\$?([A-I]?[A-Z])/) {
+        my ($row1, $col1) =  $self->_cell_to_rowcol($1 .'1');
+        my ($row2, $col2) =  $self->_cell_to_rowcol($2 .'16384');
+        return $row1, $col1, $row2, $col2, @_;
     }
 
     # Convert a cell range: 'A1:B7'
@@ -1154,7 +1188,7 @@ sub _substitute_cellref {
 
     }
 
-    croak("Unknown cell reference $cell ");
+    croak("Unknown cell reference $cell");
 }
 
 
@@ -1307,12 +1341,7 @@ sub write_number {
     my $xf      = _XF($self, $row, $col, $_[3]); # The cell format
 
     # Check that row and col are valid and store max and min values
-    if ($row >= $self->{_xls_rowmax}) { return -2 }
-    if ($col >= $self->{_xls_colmax}) { return -2 }
-    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
-    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
-    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
-    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+    return -2 if $self->_check_dimensions($row, $col);
 
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("vvv", $row, $col, $xf);
@@ -1361,12 +1390,7 @@ sub write_string {
     my $str_error = 0;
 
     # Check that row and col are valid and store max and min values
-    if ($row >= $self->{_xls_rowmax}) { return -2 }
-    if ($col >= $self->{_xls_colmax}) { return -2 }
-    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
-    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
-    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
-    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+    return -2 if $self->_check_dimensions($row, $col);
 
     if ($strlen > $self->{_xls_strmax}) { # LABEL must be < 255 chars
         $str       = substr($str, 0, $self->{_xls_strmax});
@@ -1424,12 +1448,7 @@ sub write_blank {
     my $xf      = _XF($self, $row, $col, $_[2]); # The cell format
 
     # Check that row and col are valid and store max and min values
-    if ($row >= $self->{_xls_rowmax}) { return -2 }
-    if ($col >= $self->{_xls_colmax}) { return -2 }
-    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
-    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
-    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
-    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+    return -2 if $self->_check_dimensions($row, $col);
 
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("vvv", $row, $col, $xf);
@@ -1485,24 +1504,135 @@ sub write_formula{
 
 
     # Check that row and col are valid and store max and min values
-    if ($row >= $self->{_xls_rowmax}) { return -2 }
-    if ($col >= $self->{_xls_colmax}) { return -2 }
-    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
-    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
-    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
-    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
-
+    return -2 if $self->_check_dimensions($row, $col);
 
     # Strip the = sign at the beginning of the formula string
-    $formula =~ s(^=)();
+    $formula    =~ s(^=)();
+
+    my $tmp     = $formula;
 
     # Parse the formula using the parser in Formula.pm
-    my $parser = $self->{_parser};
-    $formula   = $parser->parse_formula($formula);
-
+    my $parser  = $self->{_parser};
+    $formula    = $parser->parse_formula($formula)
+                  or croak "Couldn't parse formula $tmp";
 
     my $formlen = length($formula); # Length of the binary string
     $length     = 0x16 + $formlen;  # Length of the record data
+
+    my $header    = pack("vv",      $record, $length);
+    my $data      = pack("vvvdvVv", $row, $col, $xf, $num,
+                                    $grbit, $chn, $formlen);
+
+    $self->_append($header, $data, $formula);
+
+    return 0;
+}
+
+
+###############################################################################
+#
+# store_formula($formula)
+#
+# Pre-parse a formula. This is used in conjunction with repeat_formula()
+# to repetitively rewrite a formula without re-parsing it.
+#
+sub store_formula{
+
+    my $self    = shift;
+    my $formula = $_[0];      # The formula text string
+
+    # Strip the = sign at the beginning of the formula string
+    $formula    =~ s(^=)();
+
+    # Parse the formula using the parser in Formula.pm
+    my $parser  = $self->{_parser};
+    my @tokens  = $parser->parse_formula($formula)
+                  or croak "Couldn't parse formula $formula";
+
+    # Return the parsed tokens in an anonymous array
+    return [@tokens];
+}
+
+
+###############################################################################
+#
+# repeat_formula($row, $col, $formula, $format, ($pattern => $replacement,...))
+#
+# Write a formula to the specified row and column (zero indexed) by
+# substituting $pattern $replacement pairs in the $formula created via
+# store_formula(). This allows the user to repetitively rewrite a formula
+# without the significant overhead of parsing.
+#
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#
+sub repeat_formula {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    if (@_ < 2) { return -1 }   # Check the number of args
+
+    my $record      = 0x0006;   # Record identifier
+    my $length;                 # Bytes to follow
+
+    my $row         = shift;    # Zero indexed row
+    my $col         = shift;    # Zero indexed column
+    my $formula_ref = shift;    # Array ref with formula tokens
+    my $format       = shift;   # XF format
+    my @pairs       = @_;       # Pattern/replacement pairs
+
+
+    # Enforce an even number of arguments in the pattern/replacement list
+    croak "Odd number of elements in pattern/replacement list" if @pairs %2;
+
+    # Check that $formula is an array ref
+    croak "Not a valid formula" if ref $formula_ref ne 'ARRAY';
+
+    my @tokens  = @$formula_ref;
+
+    # Ensure that there are tokens to substitute
+    croak "No tokens in formula" unless @tokens;
+
+    while (@pairs) {
+        my $pattern = shift @pairs;
+        my $replace = shift @pairs;
+
+        foreach my $token (@tokens) {
+            last if $token =~ s/$pattern/$replace/;
+        }
+    }
+
+
+    # Change the parameters in the formula cached by the Formula.pm object
+    my $parser    = $self->{_parser};
+    my $formula   = $parser->parse_tokens(@tokens);
+
+    croak "Unrecognised token in formula" unless defined $formula;
+
+
+    # Excel normally stores the last calculated value of the formula in $num.
+    # Clearly we are not in a position to calculate this a priori. Instead
+    # we set $num to zero and set the option flags in $grbit to ensure
+    # automatic calculation of the formula when the file is opened.
+    #
+    my $xf        = _XF($self, $row, $col, $format); # The cell format
+    my $num       = 0x00;                            # Current value of formula
+    my $grbit     = 0x03;                            # Option flags
+    my $chn       = 0x0000;                          # Must be zero
+
+    # Check that row and col are valid and store max and min values
+    return -2 if $self->_check_dimensions($row, $col);
+
+
+    my $formlen   = length($formula); # Length of the binary string
+    $length       = 0x16 + $formlen;  # Length of the record data
+
 
     my $header    = pack("vv",      $record, $length);
     my $data      = pack("vvvdvVv", $row, $col, $xf, $num,
@@ -1773,13 +1903,11 @@ sub _write_url_external {
 
 
     # Determine if the link is relative or absolute:
-    #   relative if link contains no dir separator, "somefile.xls"
-    #   relative if link starts with up-dir, "..\..\somefile.xls"
-    #   otherwise, absolute
+    # Absolute if link starts with DOS drive specifier like C:
+    # Otherwise default to 0x00 for relative link.
     #
-    my $absolute    = 0x02; # Bit mask
-       $absolute    = 0x00  if $url !~ m[\\];
-       $absolute    = 0x00  if $url =~ m[^\.\.\\];
+    my $absolute    = 0x00;
+       $absolute    = 0x02  if $url =~ m/^[A-Za-z]:/;
 
 
     # Determine if the link contains a sheet reference and change some of the
@@ -1797,15 +1925,16 @@ sub _write_url_external {
         $sheet     .= "\0\0\0";
     }
     else {
-        $sheet_len   = '';
-        $sheet       = '';
+        $sheet_len  = '';
+        $sheet      = '';
     }
+
 
     # Pack the link type
     $link_type      = pack("V", $link_type);
 
 
-    # Calculate the up-level dir count e.g.. (..\..\..\ == 3)
+    # Calculate the up-level dir count e.g. (..\..\..\ == 3)
     my $up_count    = 0;
     $up_count++       while $dir_long =~ s[^\.\.\\][];
     $up_count       = pack("v", $up_count);
@@ -1866,7 +1995,7 @@ sub _write_url_external {
 
 ###############################################################################
 #
-# write_url_xxx($row1, $col1, $row2, $col2, $url, $string, $format)
+# _write_url_external_net($row1, $col1, $row2, $col2, $url, $string, $format)
 #
 # Write links to external MS/Novell network drives and shares such as
 # '//NETWORK/share/foo.xls' and '//NETWORK/share/foo.xls#Sheet1!A1'.
@@ -1965,7 +2094,7 @@ sub _write_url_external_net {
 
 ###############################################################################
 #
-# set_row($row, $height, $XF)
+# set_row($row, $height, $XF, $hidden)
 #
 # This method is used to set the height and XF format for a row.
 # Writes the  BIFF record ROW.
@@ -1982,13 +2111,15 @@ sub set_row {
     my $miyRw;                              # Row height
     my $irwMac      = 0x0000;               # Used by Excel to optimise loading
     my $reserved    = 0x0000;               # Reserved
-    my $grbit       = 0x01C0;               # Option flags. (monkey) see $1 do
+    my $grbit       = 0x0140;               # Options: fUnsynced
     my $ixfe;                               # XF index
+    my $height      = $_[1];                # Format object
     my $format      = $_[2];                # Format object
+    my $hidden      = $_[3];                # Hidden flag
 
 
     # Check for a format object
-    if (ref $_[2]) {
+    if (ref $format) {
         $ixfe = $format->get_xf_index();
     }
     else {
@@ -1996,13 +2127,21 @@ sub set_row {
     }
 
 
-    # Use set_row($row, undef, $XF) to set XF without setting height
-    if (defined ($_[1])) {
-        $miyRw = $_[1] *20;
+    # Set the row height in units of 1/20 of a point. Note, some heights may
+    # not be obtained exactly due to rounding in Excel.
+    #
+    if (defined $height) {
+        $miyRw = $height *20;
     }
     else {
-        $miyRw = 0xff;
+        $miyRw = 0xff; # The default row height
     }
+
+
+    # Set the options flags
+    $grbit |= 0x80 if $format;
+    $grbit |= 0x20 if $hidden;
+
 
     my $header   = pack("vv",       $record, $length);
     my $data     = pack("vvvvvvvv", $rw, $colMic, $colMac, $miyRw,
@@ -2015,8 +2154,35 @@ sub set_row {
     #
     return if @_ < 2;# Ensure at least $row and $height
 
-    $self->{_row_sizes}->{$_[0]}  = $_[1];
-    $self->{_row_formats}->{$_[0]} = $_[2] if defined $_[2];
+    $self->{_row_sizes}->{$_[0]}   = $height;
+    $self->{_row_formats}->{$_[0]} = $format if defined $format;
+}
+
+
+###############################################################################
+#
+# _check_dimensions($row, $col)
+#
+# Check that $row and $col are valid and store max and min values for use in
+# DIMENSIONS record. See, _store_dimensions().
+#
+sub _check_dimensions {
+
+    my $self    = shift;
+    my $row     = $_[0];
+    my $col     = $_[1];
+
+    if ($row >= $self->{_xls_rowmax}) { return -2 }
+    if ($col >= $self->{_xls_colmax}) { return -2 }
+
+    $self->{_dim_changed} = 1;
+
+    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
+    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
+    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
+    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+
+    return 0;
 }
 
 
@@ -2029,13 +2195,31 @@ sub set_row {
 sub _store_dimensions {
 
     my $self      = shift;
-    my $record    = 0x0000;               # Record identifier
-    my $length    = 0x000A;               # Number of bytes to follow
-    my $row_min   = $self->{_dim_rowmin}; # First row
-    my $row_max   = $self->{_dim_rowmax}; # Last row plus 1
-    my $col_min   = $self->{_dim_colmin}; # First column
-    my $col_max   = $self->{_dim_colmax}; # Last column plus 1
-    my $reserved  = 0x0000;               # Reserved by Excel
+    my $record    = 0x0000;         # Record identifier
+    my $length    = 0x000A;         # Number of bytes to follow
+    my $row_min;                    # First row
+    my $row_max;                    # Last row plus 1
+    my $col_min;                    # First column
+    my $col_max;                    # Last column plus 1
+    my $reserved  = 0x0000;         # Reserved by Excel
+
+
+    # Set the data range if data has been written to the worksheet
+    if ($self->{_dim_changed}) {
+        $row_min = $self->{_dim_rowmin};
+        $row_max = $self->{_dim_rowmax} +1;
+        $col_min = $self->{_dim_colmin};
+        $col_max = $self->{_dim_colmax} +1;
+    }
+    else {
+        # Special case, not data was written
+        $row_min = 0;
+        $row_max = 0;
+        $col_min = 0;
+        $col_max = 256;
+
+    }
+
 
     my $header    = pack("vv",    $record, $length);
     my $data      = pack("vvvvv", $row_min, $row_max,
@@ -2145,7 +2329,7 @@ sub _store_colinfo {
     my $format   = $_[3];           # Format object
 
     # Check for a format object
-    if (ref $_[3]) {
+    if (ref $format) {
         $ixfe = $format->get_xf_index();
     }
     else {
@@ -2621,14 +2805,13 @@ sub merge_cells {
     my $rwLast   = $_[2] || $rwFirst;       # Last  row in reference
     my $colLast  = $_[3] || $colFirst;      # Last  col in reference
 
-    # Swap last row/col for first row/col as necessary
-    if ($rwFirst > $rwLast) {
-        ($rwFirst, $rwLast) = ($rwLast, $rwFirst);
-    }
 
-    if ($colFirst > $colLast) {
-        ($colFirst, $colLast) = ($colLast, $colFirst);
-    }
+    # Excel doesn't allow a single cell to be merged
+    return if $rwFirst == $rwLast and $colFirst == $colLast;
+
+    # Swap last row/col with first row/col as necessary
+    ($rwFirst,  $rwLast ) = ($rwLast,  $rwFirst ) if $rwFirst  > $rwLast;
+    ($colFirst, $colLast) = ($colLast, $colFirst) if $colFirst > $colLast;
 
     my $header   = pack("vv",       $record, $length);
     my $data     = pack("vvvvv",    $cref,

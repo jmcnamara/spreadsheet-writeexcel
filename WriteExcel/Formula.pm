@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.04';
+$VERSION = '0.05';
 
 ###############################################################################
 #
@@ -54,7 +54,6 @@ sub new {
 
     my $self   = {
                     _byte_order     => $_[1],
-                    _volatile       => 0,
                     _workbook       => "",
                     _ext_sheets     => {},
                  };
@@ -69,8 +68,8 @@ sub new {
 # _init_parser()
 #
 # There is a small overhead involved in generating the parser. Therefore, the
-# initialisation is delayed until a formula is required. TODO: use a pre-
-# compiled header.
+# initialisation is delayed until a formula is required.
+# TODO: use a pre-compiled grammar.
 #
 sub _init_parser {
 
@@ -113,8 +112,8 @@ sub _init_parser {
         mult:           '*' { 'ptgMul' }
         div:            '/' { 'ptgDiv' }
 
-        # Right associative
-        exponention:    <rightop: factor exp_op factor>
+        # Left associative (apparently)
+        exponention:    <leftop: factor exp_op factor>
 
         exp_op:         '^' { 'ptgPower' }
 
@@ -132,44 +131,42 @@ sub _init_parser {
         # Match a string.
         # TODO: Define a regex or subrule to handle embedded quotes.
         #
-        string:         /"[^"]*"/     #" For editors
+        string:           /"[^"]*"/     #" For editors
                         { [ '_str', $item[1]] }
 
         # Match float or integer
-        number:          /([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?/
+        number:           /([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?/
                         { ['_num', $item[1]] }
 
+        # Note: The highest column values is IV. The following regexes match
+        # up to IZ. Out of range values are caught in the code.
         #
-        # The highest column values is IV. The following regexes match to IZ.
-        # Out of range values are caught in the code.
+        # Note: sheetnames with whitespace, commas, or parentheses must be in
+        # single quotes. Applies to ref3d and range3d
         #
 
         # Match A1, $A1, A$1 or $A$1.
-        ref2d:           /\$?[A-I]?[A-Z]\$?\d+/
+        ref2d:            /\$?[A-I]?[A-Z]\$?\d+/
                         { ['_ref2d', $item[1]] }
 
-        # Match an external sheet reference.
-        # A Sheetname with a comma must be in single quotes: 'Sheet, 1'.
-        #
-        ref3d:          /([^':!(,]+:)?[^':!(,]+[!]\$?[A-I]?[A-Z]\$?\d+/
+        # Match an external sheet reference: Sheet1!A1 or 'Sheet (1)'!A1
+        ref3d:            /[^!(,]+!\$?[A-I]?[A-Z]\$?\d+/
                         { ['_ref3d', $item[1]] }
-                        |/[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+/
+                        | /'[^']+'!\$?[A-I]?[A-Z]\$?\d+/
                         { ['_ref3d', $item[1]] }
 
-        # Match A1:C5 etc.
-        range2d:          /\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
+        # Match A1:C5, $A1:$C5 or A:C etc.
+        range2d:          /\$?[A-I]?[A-Z]\$?(\d+)?:\$?[A-I]?[A-Z]\$?(\d+)?/
                         { ['_range2d', $item[1]] }
 
-        # Match an external sheet range.
-        # A Sheetname with a comma must be in single quotes: 'Sheet, 1'.
-        #
-        range3d:        /([^':!(,]+:)?[^':!(,]+[!]\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
+        # Match an external sheet range. 'Sheet 1:Sheet 2'!B2:C5
+        range3d:          /[^!(,]+!\$?[A-I]?[A-Z]\$?(\d+)?:\$?[A-I]?[A-Z]\$?(\d+)?/
                         { ['_range3d', $item[1]] }
-                        |/[']([^':!(]+:)?[^':!(]+['][!]\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
+                        | /'[^']+'!\$?[A-I]?[A-Z]\$?(\d+)?:\$?[A-I]?[A-Z]\$?(\d+)?/
                         { ['_range3d', $item[1]] }
 
         # Match a function name.
-        function:       /[A-Z0-9À-Ü_.]+/ '()'
+        function:         /[A-Z0-9À-Ü_.]+/ '()'
                         { ['_func', $item[1]] }
                         | /[A-Z0-9À-Ü_.]+/ '(' expr ')'
                         { ['_class', $item[1], $item[3], '_func', $item[1]] }
@@ -183,7 +180,7 @@ sub _init_parser {
 
 EndGrammar
 
-    print "Init_parser.\n\n" if $_debug;
+print "Init_parser.\n\n" if $_debug;
 }
 
 
@@ -192,8 +189,8 @@ EndGrammar
 #
 # parse_formula()
 #
-# This is the only public method. It takes a textual description of a formula
-# and returns a RPN encoded byte string.
+# Takes a textual description of a formula and returns a RPN encoded byte
+# string.
 #
 sub parse_formula {
 
@@ -203,7 +200,6 @@ sub parse_formula {
     $self->_init_parser() if not defined $parser;
 
     my $formula = shift @_;
-    my $str;
     my $tokens;
 
     print $formula, "\n" if $_debug;
@@ -215,26 +211,134 @@ sub parse_formula {
     if (defined $parsetree) {
         my @tokens = $self->_reverse_tree(@$parsetree);
 
-        # Convert parsed tokens to a byte stream
-        $str = $self->_parse_tokens(@tokens);
-        $tokens = join " ", @tokens; # For debugging
+        # Add a volatile token if the formula contains a volatile function.
+        # This must be the first token in the list
+        #
+        unshift @tokens, '_vol' if $self->_check_volatile(@tokens);
+
+        # The return value depends on which Worksheet.pm method is the caller
+        if (wantarray) {
+            # Return raw tokens to Worksheet::store_formula()
+            return @tokens;
+        }
+        else{
+            # Return byte stream to Worksheet::write_formula()
+            return $self->parse_tokens(@tokens);
+        }
     }
     else {
-        croak("Couldn't parse formula: $formula ")
+        # Couldn't parse formula
+        return wantarray() ? () : undef;
+    }
+}
+
+
+###############################################################################
+#
+# parse_tokens()
+#
+# Convert each token or token pair to its Excel 'ptg' equivalent.
+#
+sub parse_tokens {
+
+    my $self        = shift;
+    my $parse_str   = '';
+    my $last_type   = '';
+    my $modifier    = '';
+    my $num_args    = 0;
+    my $class       = 0;
+    my @class       = 1;
+    my @tokens      = @_;
+
+
+    # A note about the class modifiers used below. In general the class,
+    # "reference" or "value", of a function is applied to all of its operands.
+    # However, in certain circumstances the operands can have mixed classes,
+    # e.g. =VLOOKUP with external references. These will eventually be dealt
+    # with by the parser. However, as a workaround the class type of a token
+    # can be changed via the repeat_formula interface. Thus, a _ref2d token can
+    # be changed by the user to _ref2dA or _ref2dR to change its token class.
+    #
+    while (@_) {
+        my $token = shift @_;
+
+        if ($token eq '_arg') {
+            $num_args = shift @_;
+        }
+        elsif ($token eq '_class') {
+            $token = shift @_;
+            $class = $functions{$token}[2];
+            push @class, $class;
+        }
+        elsif ($token eq '_vol') {
+            $parse_str  .= $self->_convert_volatile();
+        }
+        elsif ($token eq 'ptgBool') {
+            $token = shift @_;
+            $parse_str .= $self->_convert_bool($token);
+        }
+        elsif ($token eq '_num') {
+            $token = shift @_;
+            $parse_str .= $self->_convert_number($token);
+        }
+        elsif ($token eq '_str') {
+            $token = shift @_;
+            $parse_str .= $self->_convert_string($token);
+        }
+        elsif ($token =~ /^_ref2d/) {
+            ($modifier  = $token) =~ s/_ref2d//;
+            $class      = $class[-1];
+            $class      = 0 if $modifier eq 'R';
+            $class      = 1 if $modifier eq 'V';
+            $token      = shift @_;
+            $parse_str .= $self->_convert_ref2d($token, $class);
+        }
+        elsif ($token =~ /^_ref3d/) {
+            ($modifier  = $token) =~ s/_ref3d//;
+            $class      = $class[-1];
+            $class      = 0 if $modifier eq 'R';
+            $class      = 1 if $modifier eq 'V';
+            $token      = shift @_;
+            $parse_str .= $self->_convert_ref3d($token, $class);
+        }
+        elsif ($token =~ /^_range2d/) {
+            ($modifier  = $token) =~ s/_range2d//;
+            $class      = $class[-1];
+            $class      = 0 if $modifier eq 'R';
+            $class      = 1 if $modifier eq 'V';
+            $token      = shift @_;
+            $parse_str .= $self->_convert_range2d($token, $class);
+        }
+        elsif ($token =~ /^_range3d/) {
+            ($modifier  = $token) =~ s/_range3d//;
+            $class      = $class[-1];
+            $class      = 0 if $modifier eq 'R';
+            $class      = 1 if $modifier eq 'V';
+            $token      = shift @_;
+            $parse_str .= $self->_convert_range3d($token, $class);
+        }
+        elsif ($token eq '_func') {
+            $token = shift @_;
+            $parse_str .= $self->_convert_function($token, $num_args);
+            pop @class;
+        }
+        elsif (exists $ptg{$token}) {
+            $parse_str .= pack("C", $ptg{$token});
+        }
+        else {
+            # Unrecognised token
+            return undef;
+        }
     }
 
-    # Prepend the volatile attribute if the function is volatile.
-    # Then reset the volatile flag.
-    #
-    $str = ($self->_add_volatile() . $str) if $self->{_volatile};
-    $self->{_volatile} = 0;
 
     if ($_debug) {
-        print join(" ", map { sprintf "%02X", $_ } unpack("C*",$str)), "\n";
-        print $tokens, "\n\n";
+        print join(" ", map { sprintf "%02X", $_ } unpack("C*",$parse_str));
+        print "\n";
+        print join(" ", @tokens), "\n\n";
     }
 
-    return $str;
+    return $parse_str;
 }
 
 
@@ -299,85 +403,40 @@ sub _reverse_tree
 
 ###############################################################################
 #
-# _parse_tokens()
+#  _check_volatile()
 #
-# Convert each token or token pair to its Excel 'ptg' equivalent.
+# Check if the formula contains a volatile function, i.e. a function that must
+# be recalculated each time a cell is updated. These formulas require a ptgAttr
+# with the volatile flag set as the first token in the parsed expression.
 #
-sub _parse_tokens {
+# Examples of volatile functions: RAND(), NOW(), TODAY()
+#
+sub _check_volatile {
 
-    my $self        = shift;
-    my $parse_str   = '';
-    my $last_type   = '';
-    my $num_args    = 0;
-    my $class       = 0;
-    my @class       = 1;
+    my $self     = shift;
+    my @tokens   = @_;
+    my $volatile = 0;
 
-
-    while (@_) {
-        my $token = shift @_;
-
-        if ($token eq '_arg') {
-            $num_args = shift @_;
-        }
-        elsif ($token eq '_class') {
-            $token = shift @_;
-            $class = $functions{$token}[2];
-            push @class, $class;
-        }
-        elsif ($token eq 'ptgBool') {
-            $token = shift @_;
-            $parse_str .= $self->_convert_bool($token);
-        }
-        elsif ($token eq '_num') {
-            $token = shift @_;
-            $parse_str .= $self->_convert_number($token);
-        }
-        elsif ($token eq '_str') {
-            $token = shift @_;
-            $parse_str .= $self->_convert_string($token);
-        }
-        elsif ($token eq '_ref2d') {
-            $token = shift @_;
-            $parse_str .= $self->_convert_ref2d($token, $class[-1]);
-        }
-        elsif ($token eq '_ref3d') {
-            $token = shift @_;
-            $parse_str .= $self->_convert_ref3d($token, $class[-1]);
-        }
-        elsif ($token eq '_range2d') {
-            $token = shift @_;
-            $parse_str .= $self->_convert_range2d($token, $class[-1]);
-        }
-        elsif ($token eq '_range3d') {
-            $token = shift @_;
-            $parse_str .= $self->_convert_range3d($token, $class[-1]);
-        }
-        elsif ($token eq '_func') {
-            $token = shift @_;
-            $parse_str .= $self->_convert_function($token, $num_args);
-            pop @class;
-        }
-        elsif (exists $ptg{$token}) {
-            $parse_str .= pack("C", $ptg{$token});
-        }
-        else {
-            print("Unrecognised token: $token ");
+    for my $i (0..@tokens-1) {
+        # If the next token is a function check if it is volatile.
+        if ($tokens[$i] eq '_func' and $functions{$tokens[$i+1]}[3]) {
+            $volatile = 1;
+            last;
         }
     }
 
-    return $parse_str;
+    return $volatile;
 }
 
 
 ###############################################################################
 #
-# _add_volatile()
+# _convert_volatile()
 #
-# Returns a ptgAttr tag formatted to indicate that the formula contains a
-# volatile function, i.e. a function that must be recalculated each time a cell
-# is updated. Examples: RAND(), NOW(), TIME()
+# Convert _vol to a ptgAttr tag formatted to indicate that the formula contains
+# a volatile function. See _check_volatile()
 #
-sub _add_volatile {
+sub _convert_volatile {
 
     my $self = shift;
 
@@ -440,7 +499,7 @@ sub _convert_string {
     $str =~ s/""/"/g; # Substitute Excel's escaped double quote "" for "
 
     my $length = length($str);
-    croak("String: $str greater than 255 chars ") if $length > 255;
+    croak("String: $str greater than 255 chars") if $length > 255;
 
     return pack("CC", $ptg{ptgStr}, $length) . $str;
 }
@@ -473,7 +532,7 @@ sub _convert_ref2d {
         $ptgRef = pack("C", $ptg{ptgRefA});
     }
     else{
-        croak("Unknown class ");
+        croak("Unknown class");
     }
 
     return $ptgRef . $row . $col;
@@ -514,7 +573,7 @@ sub _convert_ref3d {
         $ptgRef = pack("C", $ptg{ptgRef3dA});
     }
     else{
-        croak("Unknown class ");
+        croak("Unknown class");
     }
 
     return $ptgRef . $ext_ref. $row . $col;
@@ -525,7 +584,7 @@ sub _convert_ref3d {
 #
 # _convert_range2d()
 #
-# Convert an Excel range such as A1:D4 to a ptgRefV.
+# Convert an Excel range such as A1:D4 or A:D to a ptgRefV.
 #
 sub _convert_range2d {
 
@@ -536,6 +595,10 @@ sub _convert_range2d {
 
     # Split the range into 2 cell refs
     my ($cell1, $cell2) = split ':', $range;
+
+    # A range such as A:D is equivalent to A1:D16384, so add rows as required
+    $cell1 .= '1'     if $cell1 !~ /\d/;
+    $cell2 .= '16384' if $cell2 !~ /\d/;
 
     # Convert the cell references
     my ($row1, $col1) = $self->_cell_to_packed_rowcol($cell1);
@@ -552,7 +615,7 @@ sub _convert_range2d {
         $ptgArea = pack("C", $ptg{ptgAreaA});
     }
     else{
-        croak("Unknown class ");
+        croak("Unknown class");
     }
 
     return $ptgArea . $row1 . $row2 . $col1. $col2;
@@ -582,6 +645,10 @@ sub _convert_range3d {
     # Split the range into 2 cell refs
     my ($cell1, $cell2) = split ':', $range;
 
+    # A range such as A:D is equivalent to A1:D16384, so add rows as required
+    $cell1 .= '1'     if $cell1 !~ /\d/;
+    $cell2 .= '16384' if $cell2 !~ /\d/;
+
     # Convert the cell references
     my ($row1, $col1) = $self->_cell_to_packed_rowcol($cell1);
     my ($row2, $col2) = $self->_cell_to_packed_rowcol($cell2);
@@ -597,7 +664,7 @@ sub _convert_range3d {
         $ptgArea = pack("C", $ptg{ptgArea3dA});
     }
     else{
-        croak("Unknown class ");
+        croak("Unknown class");
     }
 
     return $ptgArea . $ext_ref . $row1 . $row2 . $col1. $col2;
@@ -661,7 +728,7 @@ sub _get_sheet_index {
     my $sheet_name  = shift;
 
     if (not exists $self->{_ext_sheets}->{$sheet_name}) {
-        croak("Unknown sheet name:  $sheet_name ");
+        croak("Unknown sheet name:  $sheet_name");
     }
     else {
         return $self->{_ext_sheets}->{$sheet_name};
@@ -699,16 +766,15 @@ sub _convert_function {
     my $token    = shift;
     my $num_args = shift;
 
-    my $args     = $functions{$token}[1];
-    my $volatile = $functions{$token}[3];
+    croak "Unknown function $token()" unless defined $functions{$token}[0];
 
-    $self->{_volatile} = 1 if $volatile;
+    my $args = $functions{$token}[1];
 
     # Fixed number of args eg. TIME($i,$j,$k).
     if ($args >= 0) {
         # Check that the number of args is valid.
         if ($args != $num_args) {
-            croak ("Incorrect number of arguments in function $token() ");
+            croak ("Incorrect number of arguments in function $token()");
         }
         else {
             return pack("Cv", $ptg{ptgFuncV}, $functions{$token}[0]);
@@ -778,8 +844,8 @@ sub _cell_to_packed_rowcol {
 
     my ($row, $col, $row_rel, $col_rel) = $self->_cell_to_rowcol($cell);
 
-    croak("Column in: $cell greater than 255 ") if $col >= 256;
-    croak("Row in: $cell greater than 16384 " ) if $row >= 16384;
+    croak("Column in: $cell greater than 255") if $col >= 256;
+    croak("Row in: $cell greater than 16384" ) if $row >= 16384;
 
     # Set the high bits to indicate if row or col are relative.
     $row    |= $col_rel << 14;
@@ -948,8 +1014,8 @@ sub _initialize_hashes {
         'VALUE'                         => [  33,    1,    1,    0 ],
         'TRUE'                          => [  34,    0,    1,    0 ],
         'FALSE'                         => [  35,    0,    1,    0 ],
-        'AND'                           => [  36,   -1,    0,    0 ],
-        'OR'                            => [  37,   -1,    0,    0 ],
+        'AND'                           => [  36,   -1,    1,    0 ],
+        'OR'                            => [  37,   -1,    1,    0 ],
         'NOT'                           => [  38,    1,    1,    0 ],
         'MOD'                           => [  39,    2,    1,    0 ],
         'DCOUNT'                        => [  40,    3,    0,    0 ],
@@ -1222,6 +1288,7 @@ The additional tokens are:
     _func       The next token is a function
     _arg        The next token is the number of args for a function
     _class      The next token is a function name
+    _vol        The formula contains a voltile function
 
 The C<_arg> token is generated for all lists but is only used for functions that take a variable number of arguments.
 
@@ -1229,7 +1296,7 @@ The C<_class> token indicates the start of the arguments to a function. This all
 
 Certain Excel functions such as RAND() and NOW() are designated as volatile and must be recalculated by Excel every time that a cell is updated. Any formulas that contain one of these functions has a specially formatted C<ptgAttr> tag prepended to it to indicate that it is volatile.
 
-A secondary parsing stage is carried out by C<_parse_tokens()> which converts these tokens into a binary string. For the C<1+2*3> example this would give:
+A secondary parsing stage is carried out by C<parse_tokens()> which converts these tokens into a binary string. For the C<1+2*3> example this would give:
 
     1E 01 00 1E 02 00 1E 03 00 05 03
 
