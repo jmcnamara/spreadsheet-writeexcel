@@ -4,7 +4,7 @@ package Spreadsheet::WriteExcel;
 #
 # WriteExcel - Write text and numbers to minimal Excel binary file.
 #
-# Copyright 1999-2000, John McNamara, john.exeng@abanet.it
+# Copyright 1999-2000, John McNamara, writeexcel@eircom.net
 #
 # Documentation after __END__
 #
@@ -18,23 +18,23 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 
 @ISA = qw(Exporter);
-$VERSION = '0.09'; # 27 Jan 2000, Bragg
+$VERSION = '0.10.00'; # 13 May 2000, cummings
 
 
 ######################################################################
 #
 # Constructor
 #
-
 sub new {
     my $class  = $_[0];
     my $rowmax = 65536;
     my $colmax = 256;
     my $strmax = 255;
-    
+
     my $self   = {
                     _xlsfilename   => $_[1] || "",
                     _filehandle    => "",
+                    _fileclosed     => 0,
                     _byte_order    => "",
                     _xls_rowmax    => $rowmax,
                     _xls_colmax    => $colmax,
@@ -56,7 +56,6 @@ sub new {
 #
 # Initialization routines
 #
-
 sub _initialize {
     my $self    = shift;
     my $xlsfile = $self->{_xlsfilename};
@@ -66,16 +65,14 @@ sub _initialize {
         croak('Filename required in WriteExcel("Filename")');
     }
 
-    # Open file for writing and reading (to read size)
-    my $fh = FileHandle->new("+> $xlsfile");
+    # Open file for writing
+    my $fh = FileHandle->new("> $xlsfile");
     if (not defined $fh) {
         croak "Can't open $xlsfile. It may be in use by Excel.";
     }
 
-    # Use binmode if "\n" is encoded as 2 bytes
-    print $fh "\n";
-    seek($fh, 0, 0);
-    if (-s $fh == 2) { binmode($fh) }
+    # binmode file whether platform requires it or not
+    binmode($fh);
 
     # Store filehandle
     $self->{_filehandle} = $fh;
@@ -111,9 +108,11 @@ sub _initialize {
 #
 # Finalization routine
 #
-
 sub close {
-    DESTROY;
+    my $self = shift;
+    $self->_write_eof();
+    CORE::close($self->{_filehandle});
+    $self->{_fileclosed} = 1;
 }
 
 
@@ -121,11 +120,9 @@ sub close {
 #
 # Destructor
 #
-
 sub DESTROY {
     my $self = shift;
-    $self->_write_eof();
-    CORE::close($self->{_filehandle});
+    if (not $self->{_fileclosed}) { $self->close() }
 }
 
 
@@ -136,13 +133,13 @@ sub DESTROY {
 # Writes Excel BOF record to indicate the beginning of a file
 # in the compound document format.
 #
-
 sub _write_bof {
     my $self      = shift;
     my $name      = 0x0809; # Record identifier
     my $length    = 0x0008; # Number of bytes to follow
 
-    my $version   = 0x0005; # Excel BIFF version 5
+    # Use Biff2 version to avoid "Previous version" warnings in Excel
+    my $version   = 0x0000; # Should be 0x0500 for Biff 5
     my $type      = 0x0010; # Worksheet
     my $build     = 0x0000; # Set to zero
     my $year      = 0x0000; # Set to zero
@@ -161,7 +158,6 @@ sub _write_bof {
 # Writes Excel DIMENSIONS to define the area in which there is data.
 # The initial default values are overwritten before closing the file.
 #
-
 sub _write_dimensions {
     my $self      = shift;
     my $name      = 0x0000;          # Record identifier
@@ -178,7 +174,7 @@ sub _write_dimensions {
 
     # Store offset of DIMENSIONS record
     $self->{_dim_offset} = tell($self->{_filehandle});
-    
+
     print {$self->{_filehandle}} $header . $data;
 }
 
@@ -190,7 +186,6 @@ sub _write_dimensions {
 # Writes Excel EOF record to indicate the end of a file in the
 # compound document format. Rewrite DIMENSIONS record.
 #
-
 sub _write_eof {
     my $self      = shift;
     my $row_min   = $self->{_dim_rowmin};
@@ -224,7 +219,6 @@ sub _write_eof {
 #
 # Returns: return value of called subroutine
 #
-
 sub write {
     my $self  = shift;
     my $token = $_[2];
@@ -251,7 +245,6 @@ sub write {
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
 #
-
 sub write_number {
     my $self      = shift;
     if (@_ < 3) { return -1 }
@@ -293,7 +286,6 @@ sub write_number {
 #         -2 : row or column out of range
 #         -3 : long string truncated to 255 chars
 #
-
 sub write_string {
     my $self      = shift;
     if (@_ < 3) { return -1 }
@@ -333,7 +325,7 @@ sub write_string {
 #####################################################################
 #
 # Routines to map older version method names to new method names
-
+#
 sub xl_write {
     my $self  = shift;
     return $self->write(@_);
@@ -361,7 +353,7 @@ Spreadsheet::WriteExcel - Write text and numbers to minimal Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.09 of Spreadsheet::WriteExcel, released Jan 27, 2000.
+This document refers to version 0.10.00 of Spreadsheet::WriteExcel, released May 13, 2000.
 
 =head1 SYNOPSIS
 
@@ -426,7 +418,7 @@ The C<write> methods return:
    -1 for insufficient number of arguments
    -2 for row or column out of bounds
    -3 for string too long.
-   
+
 
 See also the section about limits.
 
@@ -472,7 +464,7 @@ The following limits are imposed by Excel or the version of the BIFF file that h
     Maximum number of rows in Excel 5    16,384  Excel 5
     Maximum number of rows in Excel 97   65,536  Excel 97
 
-=head2 The Excel "BIFF" binary format
+=head2 The Excel BIFF binary format
 
 The binary format of an Excel file is referred to as the Excel "Binary Interchange File Format" (BIFF) file format. For details of this file format refer to the "Excel Developer's Kit", Microsoft Press. This module is based on the BIFF5 specification. To facilitate portability and ease of implementation the Compound Document wrapper is not used. This effectively limits the scope of the BIFF file to the records given below.
 
@@ -502,19 +494,19 @@ should give (or in reverse order):
 
     0x8d 0x97 0x6e 0x12 0x83 0xc0 0xf3 0x3f
 
-If your system doesn't support this format of float then WriteExcel will croak with the message given in the Diagnostics section. A future version will correct this, if possible. In the meantime, if this doesn't work for your OS let me know about it.
+If your system doesn't support this format of float then WriteExcel will croak with the message given in the Diagnostics section. A future version will correct this, if possible. 
 
 =head1 DIAGNOSTICS
 
 =over 4
 
-=item Filename required in WriteExcel("Filename")
+=item Filename required in WriteExcel('Filename')
 
 A filename must be given in the constructor.
 
 =item Can't open filename. It may be in use by Excel.
 
-The file cannot be opened for writing or reading. It may be protected or already in use.
+The file cannot be opened for writing. It may be protected or already in use.
 
 =item Required floating point format not supported on this platform.
 
@@ -522,7 +514,7 @@ Operating system doesn't support 64 bit IEEE float or it is byte-ordered in a wa
 
 =back
 
-=head1 ALTERNATIVES
+=head1 WRITING EXCEL FILES
 
 Depending on your requirements, background and general sensibilities you may prefer one of the following methods of getting data into Excel:
 
@@ -532,24 +524,27 @@ Depending on your requirements, background and general sensibilities you may pre
 
 * ODBC. Connect to an Excel file as a database.
 
-* Win32::OLE module and office automation. This is very flexible and gives you access to multiple worksheets, formatting, and Excel's built-in functions.
+* Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. However, it is easy to use and gives access to the complete range of Excel's features such as: multiple worksheets, charts, cell formatting, macros and the built-in functions. See http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html and http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html
 
+=head1 READING EXCEL FILES
 
-To read data from Excel files try:
+Despite the title of this module the most commonly asked questions are in relation to reading Excel files. To read data from Excel files try:
+
+* HTML tables. If the files are saved from Excel in a HTML format the data can be accessed using HTML::TableExtract http://search.cpan.org/search?dist=HTML-TableExtract
 
 * ODBC.
 
-* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats, see CPAN.
+* OLE::Storage, aka LAOLA. This is a Perl interface to OLE file formats. In particular, the distro contains an Excel to HTML converter called Herbert, http://user.cs.tu-berlin.de/~schwartz/pmh/ There is also an open source C/C++ project based on the LAOLA work. Try the Filters Project at http://arturo.directmail.org/filtersweb/ and the xlHtml Project at http://www.gate.net/~ddata/xlHtml/index.htm The xlHtml filter is more complete than Herbert.
 
-* Win32::OLE. 
+* Win32::OLE module and office automation. This requires a Windows platform and an installed copy of Excel. This is the most powerful and complete method for interfacing with Excel. See http://www.activestate.com/ActivePerl/docs/faq/Windows/ActivePerl-Winfaq12.html and http://www.activestate.com/ActivePerl/docs/site/lib/Win32/OLE.html
 
-
-Also, if you wish to view Excel files on Windows platforms which don't have Excel installed you can use the free Microsoft Excel Viewer. At the time of writing this was at:
-http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm
+Also, if you wish to view Excel files on Windows platforms which don't have Excel installed you can use the free Microsoft Excel Viewer http://officeupdate.microsoft.com/downloadDetails/xlviewer.htm
 
 =head1 BUGS
 
 The main bug is the lack of a portable way of writing a little-endian 64 bit IEEE float. This is to-do.
+
+Other Spreadsheets: The binary file created by WriteExcel is not a complete Excel file. As a result it is not compatible with XESS, Applix, Star Office or anything else. This may be fixed indirectly in a later version. In the meantime write to non-Excel spreadsheets in their native format.
 
 QuickView: Excel files written with Version 0.08 are not displayed correctly in MS or JASC QuickView. This is partially fixed in Version 0.09 onwards. However, if you wish to write files that are fully compatible with QuickView it is necessary to write the cells in a sequential row by row order. This does not apply to Excel or to Excel Viewer.
 
@@ -561,17 +556,25 @@ If possible, this module will be extended to include multiple worksheets, and fo
 
 The following people contributed to the debugging and testing of WriteExcel.pm:
 
-Mike Blazer.
+Arthur@ais, Mike Blazer, CPAN testers, Johan Ekenberg, Paul J. Falbe, Artur Silveira da Cunha, John Wren.
+
 
 =head1 AUTHOR
 
-John McNamara john.exeng@abanet.it
+John McNamara writeexcel@eircom.net
 
-    I saw two shooting stars last night,
-    I wished on them but they were only satellites. 
-    It is wrong to wish on space hardware, 
-    I wish, I wish, I wish you'd care.
-          - Billy Bragg
+    Buffalo Bill's
+    defunct
+            who used to
+            ride a watersmooth-silver
+                                            stallion
+    and break onetwothreefourfive pigeonsjustlikethat
+                                                                Jesus
+    he was a handsome man
+                                    and what i want to know is
+    how do you like your blueeyed boy
+    Mister Death
+    --e.e. cummings
 
 =head1 COPYRIGHT
 

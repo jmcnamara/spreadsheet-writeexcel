@@ -7,20 +7,24 @@ DESCRIPTION
     Excel binary file format. This is a minimal implementation of an
     Excel file; no formatting can be applied to cells and only a
     single worksheet can be written to a workbook.
+    
+    This module cannot be used to read an Excel file. Look at the main
+    documentation for some suggestions.
 
     It is intended to be cross-platform, however, this is not
     guaranteed. See the section on portability in the main
     documentation.
 
-CHANGES
-    Minor.
-    Code for writing DIMENSIONS updated to account for bug when
-    reading file with QuickView. Renamed xl_write methods to write.
-    
+INSTALLATION
+    Use the standard installation procedure:
+        perl Makefile.PL
+        make
+        make test
+        make install
 
 VERSION
-    This document refers to version 0.09 of Spreadsheet::WriteExcel,
-    released Feb 1, 2000.
+    This document refers to version 0.10 of Spreadsheet::WriteExcel,
+    released May 13, 2000.
 
 AUTHOR
-    John McNamara (john.exeng@abanet.it)
+    John McNamara (writeexcel@eircom.net)

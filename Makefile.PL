@@ -1,6 +1,7 @@
 use ExtUtils::MakeMaker;
+
     @if5005 = (
-        'AUTHOR'    => 'John McNamara (john.exeng@abanet.it)',
+        'AUTHOR'    => 'John McNamara (writeexcel@eircom.net)',
         'ABSTRACT'  => 'Write to minimal Excel binary file',
     ) if $] ge '5.005';
 
