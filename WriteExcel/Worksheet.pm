@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2003, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2004, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -173,7 +173,7 @@ sub _initialize {
     }
 
 
-    # Check if the temp file creation was sucessful. Else store data in memory.
+    # Check if the temp file creation was successful. Else store data in memory.
     if ($fh) {
 
         # binmode file whether platform requires it or not.
@@ -218,11 +218,31 @@ sub _close {
     # Prepend the sheet dimensions
     $self->_store_dimensions();
 
+    # Prepend the COLINFO records if they exist
+    if (@{$self->{_colinfo}}){
+        while (@{$self->{_colinfo}}) {
+            my $arrayref = pop @{$self->{_colinfo}};
+            $self->_store_colinfo(@$arrayref);
+        }
+
+        # Add the DEFCOLWIDTH record
+        $self->_store_defcol();
+    }
+
     # Prepend the sheet password
     $self->_store_password();
 
     # Prepend the sheet protection
     $self->_store_protect();
+
+    # Prepend EXTERNSHEET references
+    for (my $i = $num_sheets; $i > 0; $i--) {
+        my $sheetname = @{$sheetnames}[$i-1];
+        $self->_store_externsheet($sheetname);
+    }
+
+    # Prepend the EXTERNCOUNT of external references.
+    $self->_store_externcount($num_sheets);
 
     # Prepend the page setup
     $self->_store_setup();
@@ -260,35 +280,17 @@ sub _close {
     # Prepend WSBOOL
     $self->_store_wsbool();
 
-    # Prepend GRIDSET
-    $self->_store_gridset();
-
     # Prepend GUTS
     $self->_store_guts();
+
+    # Prepend GRIDSET
+    $self->_store_gridset();
 
     # Prepend PRINTGRIDLINES
     $self->_store_print_gridlines();
 
     # Prepend PRINTHEADERS
     $self->_store_print_headers();
-
-    # Prepend EXTERNSHEET references
-    for (my $i = $num_sheets; $i > 0; $i--) {
-        my $sheetname = @{$sheetnames}[$i-1];
-        $self->_store_externsheet($sheetname);
-    }
-
-    # Prepend the EXTERNCOUNT of external references.
-    $self->_store_externcount($num_sheets);
-
-    # Prepend the COLINFO records if they exist
-    if (@{$self->{_colinfo}}){
-        while (@{$self->{_colinfo}}) {
-            my $arrayref = pop @{$self->{_colinfo}};
-            $self->_store_colinfo(@$arrayref);
-        }
-        $self->_store_defcol();
-    }
 
     # Prepend the BOF record
     $self->_store_bof(0x0010);
@@ -601,7 +603,7 @@ sub set_footer {
 #
 # center_horizontally()
 #
-# Center the page horinzontally.
+# Center the page horizontally.
 #
 sub center_horizontally {
 
@@ -1853,18 +1855,23 @@ sub write_url_range {
     # Check the number of args
     return -1 if @_ < 5;
 
-    # Reverse the order of $string and $format if necessary.
-    local @_ = @_; # Protect the callers args
-    ($_[5], $_[6]) = ($_[6], $_[5]) if ref $_[5];
 
-    my $url = $_[4];
+    # Reverse the order of $string and $format if necessary. We work on a copy
+    # in order to protect the callers args. We don't use "local @_" in case of
+    # perl50005 threads.
+    #
+    my @args = @_;
+
+    ($args[5], $args[6]) = ($args[6], $args[5]) if ref $args[5];
+
+    my $url = $args[4];
+
 
     # Check for internal/external sheet links or default to web link
-    return $self->_write_url_internal(@_) if $url =~ m[^internal:];
-    return $self->_write_url_external(@_) if $url =~ m[^external:];
-    return $self->_write_url_web(@_);
+    return $self->_write_url_internal(@args) if $url =~ m[^internal:];
+    return $self->_write_url_external(@args) if $url =~ m[^external:];
+    return $self->_write_url_web(@args);
 }
-
 
 
 ###############################################################################
@@ -2810,7 +2817,7 @@ sub _store_header {
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("C",   $cch);
 
-    $self->_append($header, $data, $str);
+    $self->_prepend($header, $data, $str);
 }
 
 
@@ -2834,7 +2841,7 @@ sub _store_footer {
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("C",   $cch);
 
-    $self->_append($header, $data, $str);
+    $self->_prepend($header, $data, $str);
 }
 
 
@@ -2856,7 +2863,7 @@ sub _store_hcenter {
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("v",   $fHCenter);
 
-    $self->_append($header, $data);
+    $self->_prepend($header, $data);
 }
 
 
@@ -2878,7 +2885,7 @@ sub _store_vcenter {
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("v",   $fVCenter);
 
-    $self->_append($header, $data);
+    $self->_prepend($header, $data);
 }
 
 
@@ -2902,7 +2909,7 @@ sub _store_margin_left {
 
     if ($self->{_byte_order}) { $data = reverse $data }
 
-    $self->_append($header, $data);
+    $self->_prepend($header, $data);
 }
 
 
@@ -2926,7 +2933,7 @@ sub _store_margin_right {
 
     if ($self->{_byte_order}) { $data = reverse $data }
 
-    $self->_append($header, $data);
+    $self->_prepend($header, $data);
 }
 
 
@@ -2950,7 +2957,7 @@ sub _store_margin_top {
 
     if ($self->{_byte_order}) { $data = reverse $data }
 
-    $self->_append($header, $data);
+    $self->_prepend($header, $data);
 }
 
 
@@ -2974,7 +2981,7 @@ sub _store_margin_bottom {
 
     if ($self->{_byte_order}) { $data = reverse $data }
 
-    $self->_append($header, $data);
+    $self->_prepend($header, $data);
 }
 
 
@@ -3844,7 +3851,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMIII, John McNamara.
+© MM-MMIV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

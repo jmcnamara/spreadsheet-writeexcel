@@ -4,7 +4,7 @@ package Spreadsheet::WriteExcel::Utility;
 #
 # Utility - Helper functions for Spreadsheet::WriteExcel.
 #
-# Copyright 2000-2003, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2004, John McNamara, jmcnamara@cpan.org
 #
 #
 
@@ -869,7 +869,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMIII, John McNamara.
+© MM-MMIV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

@@ -126,10 +126,10 @@
 		<LI><A HREF="#set_bold_">set_bold()</A></LI>
 		<LI><A HREF="#set_italic_">set_italic()</A></LI>
 		<LI><A HREF="#set_underline_">set_underline()</A></LI>
-		<LI><A HREF="#set_strikeout_">set_strikeout()</A></LI>
-		<LI><A HREF="#set_script_">set_script()</A></LI>
-		<LI><A HREF="#set_outline_">set_outline()</A></LI>
-		<LI><A HREF="#set_shadow_">set_shadow()</A></LI>
+		<LI><A HREF="#set_font_strikeout_">set_font_strikeout()</A></LI>
+		<LI><A HREF="#set_font_script_">set_font_script()</A></LI>
+		<LI><A HREF="#set_font_outline_">set_font_outline()</A></LI>
+		<LI><A HREF="#set_font_shadow_">set_font_shadow()</A></LI>
 		<LI><A HREF="#set_num_format_">set_num_format()</A></LI>
 		<LI><A HREF="#set_locked_">set_locked()</A></LI>
 		<LI><A HREF="#set_hidden_">set_hidden()</A></LI>
@@ -169,6 +169,7 @@
 	</UL>
 
 	<LI><A HREF="#LIMITATIONS">LIMITATIONS</A></LI>
+	<LI><A HREF="#DOWNLOADING">DOWNLOADING</A></LI>
 	<LI><A HREF="#REQUIREMENTS">REQUIREMENTS</A></LI>
 	<LI><A HREF="#INSTALLATION">INSTALLATION</A></LI>
 	<LI><A HREF="#PORTABILITY">PORTABILITY</A></LI>
@@ -197,8 +198,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.42 of Spreadsheet::WriteExcel, released
-August 26, 2003.
+This document refers to version 0.43 of Spreadsheet::WriteExcel, released
+April 28, 2004.
 
 </P>
 <P>
@@ -455,11 +456,17 @@ examples of using filehandles with Spreadsheet::WriteExcel see the <CODE>filehan
 
 </P>
 <P>
-Note about the requirement for <CODE>binmode()</CODE>: An Excel file is comprised of binary data. Therefore, if you are using a
-filehandle you should ensure that you <CODE>binmode()</CODE> it prior to passing it to <CODE>new()</CODE>.You can safely do this regardless of whether your platform requires it or
-not. For more information about <CODE>binmode()</CODE> see <CODE>perlfunc</CODE> and <CODE>perlopentut</CODE> in the main Perl documentation. It is equally important to note that you do
-not need to <CODE>binmode()</CODE> a filename. In fact it would cause an error. Spreadsheet::WriteExcel
-performs the <CODE>binmode()</CODE> internally when it converts the filename to a filehandle.
+<STRONG>Note about the requirement for</STRONG>  <CODE>binmode()</CODE>: An Excel file is comprised of binary data. Therefore, if you are using a
+filehandle you should ensure that you <CODE>binmode()</CODE> it prior to passing it to <CODE>new()</CODE>.You should do this regardless of whether you are on a Windows platform or
+not. This applies especially to users of perl 5.8 on systems where utf8 is
+likely to be in operation such as RedHat Linux 9. If your program, either
+intentionally or not, writes UTF8 data to a filehandle that is passed to <CODE>new()</CODE> it will corrupt the Excel file that is created.
+
+</P>
+<P>
+You don't have to worry about <CODE>binmode()</CODE> if you are using filenames instead of filehandles. Spreadsheet::WriteExcel
+performs the <CODE>binmode()</CODE> internally when it converts the filename to a filehandle. For more
+information about <CODE>binmode()</CODE> see <CODE>perlfunc</CODE> and <CODE>perlopentut</CODE> in the main Perl documentation.
 
 </P>
 <P>
@@ -1103,7 +1110,7 @@ The <CODE>$format</CODE> parameter is optional. It should be a valid Format obje
 </P>
 <P>
 The <CODE>write()</CODE> method will ignore empty strings or <CODE>undef</CODE> tokens unless a format is also supplied. As such you needn't worry about
-special handling for empty or <CODE>undef</CODE> values in your data. See also the the <CODE>write_blank()</CODE> method.
+special handling for empty or <CODE>undef</CODE> values in your data. See also the <CODE>write_blank()</CODE> method.
 
 </P>
 <P>
@@ -1220,8 +1227,8 @@ manually in Excel.
 
 </P>
 <P>
-To get around this you can one of three options. Write a formatted number,
-write the number as a string or use the <CODE>keep_leading_zeros()</CODE> method to change the default behaviour of <CODE>write()</CODE>:
+To get around this you can use one of three options. Write a formatted
+number, write the number as a string or use the <CODE>keep_leading_zeros()</CODE> method to change the default behaviour of <CODE>write()</CODE>:
 
 </P>
 <P>
@@ -1999,8 +2006,8 @@ row using <CODE>set_row()</CODE> if it contains a font size that will change the
 
 </P>
 <P>
-The parameters <CODE>$x</CODE> and <CODE>$y</CODE> can be used to specify an offset from the top left hand corner of the the
-cell specified by <CODE>$row</CODE> and <CODE>$col</CODE>. The offset values are in pixels.
+The parameters <CODE>$x</CODE> and <CODE>$y</CODE> can be used to specify an offset from the top left hand corner of the cell
+specified by <CODE>$row</CODE> and <CODE>$col</CODE>. The offset values are in pixels.
 
 </P>
 <P>
@@ -3924,7 +3931,7 @@ Set the underline property of the font.
 </P>
 <P>
 <HR>
-<H2><A NAME="set_strikeout_">set_strikeout()</A></H2>
+<H2><A NAME="set_font_strikeout_">set_font_strikeout()</A></H2>
 <P>
 <PRE>
     Default state:      Strikeout is off
@@ -3938,7 +3945,7 @@ Set the strikeout property of the font.
 </P>
 <P>
 <HR>
-<H2><A NAME="set_script_">set_script()</A></H2>
+<H2><A NAME="set_font_script_">set_font_script()</A></H2>
 <P>
 <PRE>
     Default state:      Super/Subscript is off
@@ -3955,7 +3962,7 @@ currently not very useful.
 </P>
 <P>
 <HR>
-<H2><A NAME="set_outline_">set_outline()</A></H2>
+<H2><A NAME="set_font_outline_">set_font_outline()</A></H2>
 <P>
 <PRE>
     Default state:      Outline is off
@@ -3969,7 +3976,7 @@ Macintosh only.
 </P>
 <P>
 <HR>
-<H2><A NAME="set_shadow_">set_shadow()</A></H2>
+<H2><A NAME="set_font_shadow_">set_font_shadow()</A></H2>
 <P>
 <PRE>
     Default state:      Shadow is off
@@ -4977,6 +4984,7 @@ with the implementation of formulas and functions:
     4. Unary minus isn't supported.
     5. Whitespace is not preserved around operators.
     6. Named ranges are not supported.
+    7. Array formulas are not supported.
 </PRE>
 </P>
 <P>
@@ -5747,6 +5755,7 @@ features and options of the module.
     stats.pl            Basic formulas and functions.
     formats.pl          Creates a demo of the available formatting.
     demo.pl             Creates a demo of some of the features.
+    bug_report.pl       A template for submitting bug reports.
 </PRE>
 </P>
 <P>
@@ -5847,6 +5856,15 @@ see the <CODE>bigfile.pl</CODE> example in the <CODE>examples</CODE> directory o
 </P>
 <P>
 <HR>
+<H1><A NAME="DOWNLOADING">DOWNLOADING</A></H1>
+<P>
+The latest version of this module is always available at: <A
+HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel/">http://search.cpan.org/search?dist=Spreadsheet-WriteExcel/</A>
+
+
+</P>
+<P>
+<HR>
 <H1><A NAME="REQUIREMENTS">REQUIREMENTS</A></H1>
 <P>
 This module requires Perl 5.005 (or later), Parse::RecDescent and
@@ -5855,8 +5873,8 @@ File::Temp:
 </P>
 <P>
 <PRE>
-    <A HREF="http://search.cpan.org/search?dist=Parse-RecDescent">http://search.cpan.org/search?dist=Parse-RecDescent</A>
-    <A HREF="http://search.cpan.org/search?dist=File-Temp">http://search.cpan.org/search?dist=File-Temp</A>
+    <A HREF="http://search.cpan.org/search?dist=Parse-RecDescent/">http://search.cpan.org/search?dist=Parse-RecDescent/</A>
+    <A HREF="http://search.cpan.org/search?dist=File-Temp/">http://search.cpan.org/search?dist=File-Temp/</A>
 </PRE>
 </P>
 <P>
@@ -5868,7 +5886,7 @@ See the INSTALL or install.html docs that come with the distribution or:
 </P>
 <P>
 <A
-HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.42/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.42/WriteExcel/doc/install.html</A>
+HREF="http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.43/WriteExcel/doc/install.html">http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.43/WriteExcel/doc/install.html</A>
 
 
 </P>
@@ -6350,6 +6368,10 @@ it on your platform.
 
 </P>
 <P>
+If you wish to submit a bug report run the <CODE>bug_report.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
+
+</P>
+<P>
 <HR>
 <H1><A NAME="TO_DO">TO DO</A></H1>
 <P>
@@ -6483,7 +6505,8 @@ J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael
 Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West,
 Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante,
 Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng,
-Steve Sapovits, Sven Passig, Troy Daniels, Vahe Sarkissian.
+Stephan Loescher, Steve Sapovits, Sven Passig, Tamas Gulacsi, Troy Daniels,
+Vahe Sarkissian.
 
 </P>
 <P>
@@ -6493,8 +6516,8 @@ The following people contributed patches, examples or Excel information:
 <P>
 Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz,
 David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R.
-Burton,Pierre-Jean Vouette, Rubio, Marco Geri, Sam Kington, Takanori Kawai,
-Tom O'Sullivan.
+Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Sam Kington, Takanori
+Kawai, Tom O'Sullivan.
 
 </P>
 <P>
@@ -6532,31 +6555,24 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    There's a rhythm under the song
-    And it beats for the old and the young
-    And it pounds in the back of the sun
-    It's the sound of one drummer, one drum
-    
-    There's a rhythm, it's subtle yet strong
-    And it moves all the wallflowers on
-    To the dance floor that holds everyone
-    To the sound of one drummer, one drum
-    
-    Dance, for the time marches on
-    Off to a war that can never be won
-    To the heartbeat of drums 
+    Via, via, vieni via di qui,
+    niente più ti lega a questi luoghi,
+    neanche questi fiori azzurri...
+    Via, via, neanche questo tempo grigio
+    pieno di musiche e di uomini
+    che ti son' piaciuti
 </PRE>
 </P>
 <P>
 <PRE>
-        -- Ron Sexsmith
+        -- Paolo Conte
 </PRE>
 </P>
 <P>
 <HR>
 <H1><A NAME="COPYRIGHT">COPYRIGHT</A></H1>
 <P>
-© MM-MMIII, John McNamara.
+© MM-MMIV, John McNamara.
 
 </P>
 <P>

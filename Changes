@@ -1,11 +1,19 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+0.43 April 28 2004 - Minor
+
+    ! Fixed lonstanding bug where page setup features didn't
+      show up in OpenOffice.
+
+    ! Fixed localised @_ bug when using threaded perls.
+      Thanks Tamas Gulacsi and Stephan Loescher.
+
 0.42 August 26 2003 - Minor
 
     ! Fixed bug when using IO::Sclalar object as a filehandle.
       Thanks to Kyle R. Burton and David Robins.
-    
+
     ! Fixed minor formula parser bug.
       Thanks Michael Braig
 
@@ -24,9 +32,9 @@ Revision history for Perl module Spreadsheet::WriteExcel.
       possible to write cell comments.
 
     + Added option to return a slice from the sheets() method.
-    
+
     + Added link to latest Excel97 pre-release.
-      http://freshmeat.net/projects/writeexcel/#comment-24916    
+      http://freshmeat.net/projects/writeexcel/#comment-24916
 
     ! Changed, once more, the handling of temp files to avoid several
       file closing bugs. Thanks to many.

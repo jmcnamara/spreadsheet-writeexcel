@@ -12,7 +12,7 @@ regions.pl          Demonstrates multiple worksheets.
 stats.pl            Basic formulas and functions.
 formats.pl          Creates a demo of the available formatting.
 demo.pl             Creates a demo of some of the features.
-
+bug_report.pl       A template for submitting bug reports.
 
 Advanced
 ========

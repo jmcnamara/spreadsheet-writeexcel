@@ -44,6 +44,7 @@ WriteExcel/doc/win32ole.gif
 
 WriteExcel/examples/README
 WriteExcel/examples/bigfile.pl
+WriteExcel/examples/bug_report.pl
 WriteExcel/examples/cgi.pl
 WriteExcel/examples/chess.pl
 WriteExcel/examples/colors.pl

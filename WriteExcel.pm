@@ -6,7 +6,7 @@ package Spreadsheet::WriteExcel;
 #
 # Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 #
-# Copyright 2000-2003, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2004, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.42'; # Sexsmith
+$VERSION = '0.43'; # Via con me
 
 
 
@@ -62,7 +62,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.42 of Spreadsheet::WriteExcel, released August 26, 2003.
+This document refers to version 0.43 of Spreadsheet::WriteExcel, released April 28, 2004.
 
 
 
@@ -202,7 +202,9 @@ See also, the C<mod_perl.pl> program in the C<examples> directory of the distro.
 
 Filehandles can also be useful if you want to stream an Excel file over a socket or if you want to store an Excel file in a tied scalar. For some examples of using filehandles with Spreadsheet::WriteExcel see the C<filehandle.pl> program in the C<examples> directory of the distro.
 
-Note about the requirement for C<binmode()>: An Excel file is comprised of binary data. Therefore, if you are using a filehandle you should ensure that you C<binmode()> it prior to passing it to C<new()>.You can safely do this regardless of whether your platform requires it or not. For more information about C<binmode()> see C<perlfunc> and C<perlopentut> in the main Perl documentation. It is equally important to note that you do not need to C<binmode()> a filename. In fact it would cause an error. Spreadsheet::WriteExcel performs the C<binmode()> internally when it converts the filename to a filehandle.
+B<Note about the requirement for> C<binmode()>: An Excel file is comprised of binary data. Therefore, if you are using a filehandle you should ensure that you C<binmode()> it prior to passing it to C<new()>.You should do this regardless of whether you are on a Windows platform or not. This applies especially to users of perl 5.8 on systems where utf8 is likely to be in operation such as RedHat Linux 9. If your program, either intentionally or not, writes UTF8 data to a filehandle that is passed to C<new()> it will corrupt the Excel file that is created.
+
+You don't have to worry about C<binmode()> if you are using filenames instead of filehandles. Spreadsheet::WriteExcel performs the C<binmode()> internally when it converts the filename to a filehandle. For more information about C<binmode()> see C<perlfunc> and C<perlopentut> in the main Perl documentation.
 
 
 
@@ -579,7 +581,7 @@ The C<$format> parameter is optional. It should be a valid Format object, see L<
 
     $worksheet->write(4, 0, "Hello", $format ); # Formatted string
 
-The write() method will ignore empty strings or C<undef> tokens unless a format is also supplied. As such you needn't worry about special handling for empty or C<undef> values in your data. See also the the C<write_blank()> method.
+The write() method will ignore empty strings or C<undef> tokens unless a format is also supplied. As such you needn't worry about special handling for empty or C<undef> values in your data. See also the C<write_blank()> method.
 
 One problem with the C<write()> method is that occasionally data looks like a number but you don't want it treated as a number. For example, zip codes or ID numbers often start with a leading zero. If you write this data as a number then the leading zero(s) will be stripped. You can change this default behaviour by using the C<keep_leading_zeros()> method. While this property is in place any integers with leading zeros will be treated as strings and the zeros will be preserved. See the C<keep_leading_zeros()> section for a full discussion of this issue.
 
@@ -642,7 +644,7 @@ The C<write()> method uses regular expressions to determine what type of data to
 
 Zip codes and ID numbers, for example, often start with a leading zero. If you write this data as a number then the leading zero(s) will be stripped. This is the also the default behaviour when you enter data manually in Excel.
 
-To get around this you can one of three options. Write a formatted number, write the number as a string or use the C<keep_leading_zeros()> method to change the default behaviour of C<write()>:
+To get around this you can use one of three options. Write a formatted number, write the number as a string or use the C<keep_leading_zeros()> method to change the default behaviour of C<write()>:
 
     # Implicitly write a number, the leading zero is removed: 1209
     $worksheet->write('A1', '01209');
@@ -1058,7 +1060,7 @@ This method can be used to insert a bitmap into a worksheet. The bitmap must be 
 
 Note: you must call C<set_row()> or C<set_column()> before C<insert_bitmap()> if you wish to change the default dimensions of any of the rows or columns that the images occupies. The height of a row can also change if you use a font that is larger than the default. This in turn will affect the scaling of your image. To avoid this you should explicitly set the height of the row using C<set_row()> if it contains a font size that will change the row height.
 
-The parameters C<$x> and C<$y> can be used to specify an offset from the top left hand corner of the the cell specified by C<$row> and C<$col>. The offset values are in pixels.
+The parameters C<$x> and C<$y> can be used to specify an offset from the top left hand corner of the cell specified by C<$row> and C<$col>. The offset values are in pixels.
 
     $worksheet1->insert_bitmap('A1', 'perl.bmp', 32, 10);
 
@@ -2184,7 +2186,7 @@ Set the underline property of the font.
 
 
 
-=head2 set_strikeout()
+=head2 set_font_strikeout()
 
     Default state:      Strikeout is off
     Default action:     Turn strikeout on
@@ -2195,7 +2197,7 @@ Set the strikeout property of the font.
 
 
 
-=head2 set_script()
+=head2 set_font_script()
 
     Default state:      Super/Subscript is off
     Default action:     Turn Superscript on
@@ -2208,7 +2210,7 @@ Set the superscript/subscript property of the font. This format is currently not
 
 
 
-=head2 set_outline()
+=head2 set_font_outline()
 
     Default state:      Outline is off
     Default action:     Turn outline on
@@ -2219,7 +2221,7 @@ Macintosh only.
 
 
 
-=head2 set_shadow()
+=head2 set_font_shadow()
 
     Default state:      Shadow is off
     Default action:     Turn shadow on
@@ -2350,7 +2352,6 @@ Excel's built-in formats are shown in the following table:
 
 
 For examples of these formatting codes see the 'Numerical formats' worksheet created by formats.pl. See also the number_formats1.html and the number_formats2.html documents in the C<doc> directory of the distro.
-
 
 Note 1. Numeric formats 23 to 36 are not documented by Microsoft and may differ in international versions.
 
@@ -2822,6 +2823,7 @@ The first thing to note is that there are still some outstanding issues with the
     4. Unary minus isn't supported.
     5. Whitespace is not preserved around operators.
     6. Named ranges are not supported.
+    7. Array formulas are not supported.
 
 However, these constraints will be removed in future versions. They are here because of a trade-off between features and time. Also, it is possible to work around issues 1 and 2 using the C<store_formula()> and C<repeat_formula()> methods as described later in this section.
 
@@ -3294,7 +3296,7 @@ different features and options of the module.
     stats.pl            Basic formulas and functions.
     formats.pl          Creates a demo of the available formatting.
     demo.pl             Creates a demo of some of the features.
-
+    bug_report.pl       A template for submitting bug reports.
 
     Advanced
     ========
@@ -3372,12 +3374,19 @@ The minimum file size is 6K due to the OLE overhead. The maximum file size is ap
 
 
 
+=head1 DOWNLOADING
+
+The latest version of this module is always available at: http://search.cpan.org/search?dist=Spreadsheet-WriteExcel/
+
+
+
+
 =head1 REQUIREMENTS
 
 This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
-    http://search.cpan.org/search?dist=Parse-RecDescent
-    http://search.cpan.org/search?dist=File-Temp
+    http://search.cpan.org/search?dist=Parse-RecDescent/
+    http://search.cpan.org/search?dist=File-Temp/
 
 
 
@@ -3386,7 +3395,7 @@ This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.42/WriteExcel/doc/install.html
+http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-0.43/WriteExcel/doc/install.html
 
 
 
@@ -3630,6 +3639,9 @@ MS Access: The Excel files that are produced by this module are not compatible w
 
 The lack of a portable way of writing a little-endian 64 bit IEEE float. There is beta code available to fix this. Let me know if you wish to test it on your platform.
 
+If you wish to submit a bug report run the C<bug_report.pl> program in the C<examples> directory of the distro.
+
+
 
 
 =head1 TO DO
@@ -3695,11 +3707,11 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Troy Daniels, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
 
 The following people contributed patches, examples or Excel information:
 
-Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton,Pierre-Jean Vouette, Rubio, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
+Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 
 Many thanks to Ron McKelvey, Ronzo Consulting for Siemens, who sponsored the development of the formula caching routines.
 
@@ -3721,27 +3733,20 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 John McNamara jmcnamara@cpan.org
 
 
-    There's a rhythm under the song
-    And it beats for the old and the young
-    And it pounds in the back of the sun
-    It's the sound of one drummer, one drum
+    Via, via, vieni via di qui,
+    niente più ti lega a questi luoghi,
+    neanche questi fiori azzurri...
+    Via, via, neanche questo tempo grigio
+    pieno di musiche e di uomini
+    che ti son' piaciuti
 
-    There's a rhythm, it's subtle yet strong
-    And it moves all the wallflowers on
-    To the dance floor that holds everyone
-    To the sound of one drummer, one drum
-
-    Dance, for the time marches on
-    Off to a war that can never be won
-    To the heartbeat of drums
-
-        -- Ron Sexsmith
+        -- Paolo Conte
 
 
 
 =head1 COPYRIGHT
 
-© MM-MMIII, John McNamara.
+© MM-MMIV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 
