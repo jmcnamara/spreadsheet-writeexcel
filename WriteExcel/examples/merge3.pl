@@ -4,9 +4,9 @@
 #
 # Example of how to use Spreadsheet::WriteExcel to write a hyperlink in a
 # merged cell. There are two options write_url_range() with a standard merge
-# format or merge_cells().
+# format or merge_range().
 #
-# reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
+# reverse('©'), September 2002, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -43,14 +43,7 @@ $worksheet->write_blank('D2', $format1);
 
 ###############################################################################
 #
-# Example 2: Merge cells containing a hyperlink using merge_cells().
-#
-# Note:
-#      1. You should call merge_cells() after you write the cells to be merged
-#      2. You must specify a format for every cell in the merged region
-#      3. The merge property doesn't have to be set when using merge_cells()
-#      4. A border is applied around the merged cells and not around each cell
-#      5. merge_cells() doesn't work with Excel versions before Excel 97
+# Example 2: Merge cells containing a hyperlink using merge_range().
 #
 my $format2 = $workbook->addformat(
                                     border      => 1,
@@ -61,20 +54,12 @@ my $format2 = $workbook->addformat(
                                   );
 
 # Merge 3 cells
-$worksheet->write('B4', 'http://www.perl.com', $format2);
-$worksheet->write_blank('C4', $format2);
-$worksheet->write_blank('D4', $format2);
-
-$worksheet->merge_cells('B4:D4');
+$worksheet->merge_range('B4:D4', 'http://www.perl.com', $format2);
 
 
 # Merge 3 cells over two rows
-$worksheet->write('B7', 'http://www.perl.com', $format2);
-$worksheet->write_blank('C7', $format2);
-$worksheet->write_blank('D7', $format2);
-$worksheet->write_blank('B8', $format2);
-$worksheet->write_blank('C8', $format2);
-$worksheet->write_blank('D8', $format2);
+$worksheet->merge_range('B7:D8', 'http://www.perl.com', $format2);
 
-$worksheet->merge_cells('B7:D8');
+
+
 

@@ -5,14 +5,7 @@
 # Example of how to use the Spreadsheet::WriteExcel merge_cells() workbook
 # method with with complex formatting and rotation.
 #
-# Note:
-#      1. You should call merge_cells() after you write the cells to be merged
-#      2. You must specify a format for every cell in the merged region
-#      3. The merge property doesn't have to be set when using merge_cells()
-#      4. A border is applied around the merged cells and not around each cell
-#      5. merge_cells() doesn't work with Excel versions before Excel 97
-#
-# reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
+## reverse('©'), September 2002, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -42,14 +35,7 @@ my $format1 = $workbook->addformat(
                                   );
 
 
-$worksheet->write('B4', 'Rotation 1: Top to bottom', $format1);
-$worksheet->write_blank('B5', $format1);
-$worksheet->write_blank('B6', $format1);
-$worksheet->write_blank('B7', $format1);
-$worksheet->write_blank('B8', $format1);
-$worksheet->write_blank('B9', $format1);
-
-$worksheet->merge_cells('B4:B9');
+$worksheet->merge_range('B4:B9', 'Rotation 1: Top to bottom', $format1);
 
 
 ###############################################################################
@@ -66,14 +52,8 @@ my $format2 = $workbook->addformat(
                                   );
 
 
-$worksheet->write('D4', 'Rotation 2: 90° anticlockwise', $format2);
-$worksheet->write_blank('D5', $format2);
-$worksheet->write_blank('D6', $format2);
-$worksheet->write_blank('D7', $format2);
-$worksheet->write_blank('D8', $format2);
-$worksheet->write_blank('D9', $format2);
+$worksheet->merge_range('D4:D9', 'Rotation 2: 90° anticlockwise', $format2);
 
-$worksheet->merge_cells('D4:D9');
 
 
 ###############################################################################
@@ -90,12 +70,5 @@ my $format3 = $workbook->addformat(
                                   );
 
 
-$worksheet->write('F4', 'Rotation 3: 90° clockwise', $format3);
-$worksheet->write_blank('F5', $format3);
-$worksheet->write_blank('F6', $format3);
-$worksheet->write_blank('F7', $format3);
-$worksheet->write_blank('F8', $format3);
-$worksheet->write_blank('F9', $format3);
-
-$worksheet->merge_cells('F4:F9');
+$worksheet->merge_range('F4:F9', 'Rotation 3: 90° clockwise', $format3);
 

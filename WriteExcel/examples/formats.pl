@@ -4,13 +4,13 @@
 #
 # Examples of formatting using the Spreadsheet::WriteExcel module
 #
-# reverse('©'), March 2002, John McNamara, jmcnamara@cpan.org
+# reverse('©'), September 2002, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
 use Spreadsheet::WriteExcel;
 
-my $workbook = Spreadsheet::WriteExcel->new("formats.xls");
+my $workbook = Spreadsheet::WriteExcel->new('formats.xls');
 
 # Some common formats
 my $center  = $workbook->addformat(align => 'center');
@@ -106,7 +106,7 @@ sub named_colors {
 
     while (my($index, $color) = each %colors) {
         my $format = $workbook->addformat(
-                                            fg_color => $color,
+                                            bg_color => $color,
                                             pattern  => 1,
                                             border   => 1
                                          );
@@ -137,7 +137,7 @@ sub standard_colors {
 
     for my $i (8..63) {
         my $format = $workbook->addformat(
-                                            fg_color => $i,
+                                            bg_color => $i,
                                             pattern  => 1,
                                             border   => 1
                                          );
@@ -327,7 +327,7 @@ sub patterns {
     $worksheet->write(0, 5, "The background colour has been set to silver.", $heading);
     $worksheet->write(1, 5, "The foreground colour has been set to green.",  $heading);
 
-    for my $i (0..31){
+    for my $i (0..18){
         my $format = $workbook->addformat();
 
         $format->set_pattern($i);

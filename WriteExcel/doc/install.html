@@ -42,9 +42,10 @@ HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel">Spreadsheet::Wr
 <HR>
 <H1><A NAME="Requirements">Requirements</A></H1>
 <P>
-This module requires <CODE>Perl 5.005</CODE> (or later), <CODE>Parse::RecDescent</CODE> and <CODE>File::Temp</CODE>:
+This module requires <CODE>Perl 5.005</CODE> (or later) and <CODE>Parse::RecDescent</CODE> and <CODE>File::Temp</CODE>:
 
-<PRE>    <A HREF="http://search.cpan.org/search?dist=Parse-RecDescent">Parse::RecDescent</A>
+<PRE>    
+    <A HREF="http://search.cpan.org/search?dist=Parse-RecDescent">Parse::RecDescent</A>
     <A HREF="http://search.cpan.org/search?dist=File-Temp">File::Temp</A>
 </PRE>
 </P>
@@ -52,7 +53,8 @@ This module requires <CODE>Perl 5.005</CODE> (or later), <CODE>Parse::RecDescent
 <HR>
 <H1><A NAME="Installation">Installation</A></H1>
 <P>
-<H2><A NAME="Method_1">Method 1</A></H2>
+<HR>
+<H2><A NAME="Method_1_standard_install_with_">Method 1, standard install with make</A></H2>
 <P>
 Download the zipped tar file from one of the following:
 
@@ -83,7 +85,7 @@ Change to the directory that <CODE>tar</CODE> creates. The module can be install
     make
     make test
     make install    # You may need to be root
-    make clean      # or make realclean
+    make clean      # optional
 </PRE>
 </P>
 <P>
@@ -97,9 +99,9 @@ Windows users without a working <CODE>make</CODE> can get <CODE>nmake</CODE> fro
 </P>
 <P>
 <HR>
-<H2><A NAME="Method_2">Method 2</A></H2>
+<H2><A NAME="Method_2_CPAN_pm_install">Method 2, CPAN.pm install</A></H2>
 <P>
-If you have CPAN.pm configured you can install the module as follows:
+If you have <CODE>CPAN.pm</CODE> configured you can install the module as follows:
 
 </P>
 <P>
@@ -109,7 +111,7 @@ If you have CPAN.pm configured you can install the module as follows:
 </P>
 <P>
 <HR>
-<H2><A NAME="Method_3">Method 3</A></H2>
+<H2><A NAME="Method_3_ActivePerl_ppm">Method 3, ActivePerl ppm</A></H2>
 <P>
 ActivePerl users can use PPM as follows:
 
@@ -133,8 +135,32 @@ If this fails try the following:
 </PRE>
 </P>
 <P>
-If you wish to perform a local PPM install you can get the files from (xx
-is the version number):
+If both of these fail you should ensure that ppm is working correctly. Try
+to install the File::Slurp module as a test:
+
+</P>
+<P>
+<PRE>
+    C:\&gt; ppm
+    PPM&gt; install File-Test
+    PPM&gt; quit
+    C:\&gt;
+</PRE>
+</P>
+<P>
+A failure here will indicate that your ppm isn't configured correctly or,
+more likely, that you are behind a firewall. Have a look at the
+perlwin32faq11 documentation that comes with ActivePerl to see how to
+resolve these issues.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="Method_4_ActivePerl_local_ppm">Method 4, ActivePerl local ppm</A></H2>
+<P>
+If the previous ppm methods fail you can try a local ppm install as
+follows. Download the following two files (xx is the most recent version
+number):
 
 </P>
 <P>
@@ -142,6 +168,36 @@ is the version number):
     <A HREF="http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd">http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd</A>
     <A HREF="http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel-0.xx-PPM.tar.gz">http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel-0.xx-PPM.tar.gz</A>
 </PRE>
+</P>
+<P>
+Copy them to a suitable temp directory. There is no need to un-tar or unzip
+the PPM file.
+
+</P>
+<P>
+In the DOS shell change to the temp directory and run ppm:
+
+</P>
+<P>
+<PRE>
+     C:\&gt; cd c:\temp
+     C:\Temp&gt; ppm
+</PRE>
+</P>
+<P>
+<PRE>
+     PPM&gt; install Spreadsheet-WriteExcel.ppd
+     Install package 'Spreadsheet-WriteExcel.ppd?' (y/N): y
+     Retrieving package 'Spreadsheet-WriteExcel.ppd'...
+     Writing C:\perl\site\lib\auto\Spreadsheet\WriteExcel\.packlist
+     PPM&gt; quit
+     Quit!
+</PRE>
+</P>
+<P>
+The module should now be installed. Note, you will also have to install
+Parse::RecDescent and possibly File::Temp if it isn't already installed .
+
 </P>
 <P>
 <HR>
@@ -177,3 +233,4 @@ John McNamara (<A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>)
 </BODY>
 
 </HTML>
+

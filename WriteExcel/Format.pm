@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Format;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use strict;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.06';
+$VERSION = '0.07';
 
 ###############################################################################
 #
@@ -78,6 +78,8 @@ sub new {
                     _top_color      => 0x40,
                     _left_color     => 0x40,
                     _right_color    => 0x40,
+
+                    _merge_range    => 0,
                  };
 
     bless  $self, $class;
@@ -144,17 +146,25 @@ sub get_xf {
 
 
     # Flags to indicate if attributes have been set.
-    my $atr_num     = ($self->{_num_format} != 0);
-    my $atr_fnt     = ($self->{_font_index} != 0);
-    my $atr_alc     =  $self->{_text_wrap};
-    my $atr_bdr     = ($self->{_bottom}   ||
-                       $self->{_top}      ||
-                       $self->{_left}     ||
-                       $self->{_right});
-    my $atr_pat     = ($self->{_fg_color} ||
-                       $self->{_bg_color} ||
-                       $self->{_pattern}) ? 1: 0;
-    my $atr_prot    = 0;
+    my $atr_num     = ($self->{_num_format}     != 0);
+
+    my $atr_fnt     = ($self->{_font_index}     != 0);
+
+    my $atr_alc     = ($self->{_text_h_align}   != 0  ||
+                       $self->{_text_v_align}   != 2  ||
+                       $self->{_text_wrap}      != 0) ? 1 : 0;
+
+    my $atr_bdr     = ($self->{_bottom}         != 0  ||
+                       $self->{_top}            != 0  ||
+                       $self->{_left}           != 0  ||
+                       $self->{_right}          != 0) ? 1: 0;
+
+    my $atr_pat     = ($self->{_fg_color}       != 0x40  ||
+                       $self->{_bg_color}       != 0x41  ||
+                       $self->{_pattern}        != 0x00) ? 1 : 0;
+
+    my $atr_prot    = ($self->{_hidden}         != 0  ||
+                       $self->{_locked}         != 1) ? 1 : 0;
 
 
     # Reset the default colours for the non-font properties
@@ -171,6 +181,32 @@ sub get_xf {
     $self->{_top_color}    = 0 if $self->{_top}    == 0;
     $self->{_right_color}  = 0 if $self->{_right}  == 0;
     $self->{_left_color}   = 0 if $self->{_left}   == 0;
+
+
+    # The following 2 logical statements take care of special cases in relation
+    # to cell colours and patterns:
+    # 1. For a solid fill (_pattern == 1) Excel reverses the role of foreground
+    #    and background colours.
+    # 2. If the user specifies a foreground or background colour without a
+    #    pattern they probably wanted a solid fill, so we fill in the defaults.
+    #
+    if ($self->{_pattern}  <= 0x01 and
+        $self->{_bg_color} != 0x41 and
+        $self->{_fg_color} == 0x40    )
+    {
+        $self->{_fg_color} = $self->{_bg_color};
+        $self->{_bg_color} = 0x40;
+        $self->{_pattern}  = 1;
+    }
+
+    if ($self->{_pattern}  <= 0x01 and
+        $self->{_bg_color} == 0x41 and
+        $self->{_fg_color} != 0x40    )
+    {
+        $self->{_bg_color} = 0x40;
+        $self->{_pattern}  = 1;
+    }
+
 
     $record         = 0x00E0;
     $length         = 0x0010;

@@ -4,7 +4,7 @@ package Spreadsheet::WriteExcel::Utility;
 #
 # Utility - Helper functions for Spreadsheet::WriteExcel.
 #
-# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
 #
 #
 

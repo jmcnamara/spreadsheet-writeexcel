@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Workbook;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.15';
+$VERSION = '0.16';
 
 ###############################################################################
 #
@@ -53,6 +53,7 @@ sub new {
     $self->{_sheetname}         = "Sheet";
     $self->{_tmp_format}        = $tmp_format;
     $self->{_url_format}        = '';
+    $self->{_codepage}          = 0x04E4;
     $self->{_worksheets}        = [];
     $self->{_sheetnames}        = [];
     $self->{_formats}           = [];
@@ -202,7 +203,7 @@ sub addworksheet {
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
     $self->{_worksheets}->[$index] = $worksheet;    # Store ref for iterator
     $self->{_sheetnames}->[$index] = $name;         # Store EXTERNSHEET names
-    $self->{_parser}->set_ext_sheet($name, $index); # Store names in Formula.pm
+    $self->{_parser}->set_ext_sheets($name, $index);# Store names in Formula.pm
     return $worksheet;
 }
 
@@ -473,6 +474,23 @@ sub set_tempdir {
 
 ###############################################################################
 #
+# set_codepage()
+#
+# See also the _store_codepage method. This is used to store the code page, i.e.
+# the character set used in the workbook.
+#
+sub set_codepage {
+
+    my $self        = shift;
+    my $codepage    = $_[0] || 1;
+    $codepage   = 0x04E4 if $codepage == 1;
+    $codepage   = 0x8000 if $codepage == 2;
+    $self->{_codepage} = $codepage;
+}
+
+
+###############################################################################
+#
 # _store_workbook()
 #
 # Assemble worksheets into a workbook and send the BIFF data to an OLE
@@ -496,6 +514,7 @@ sub _store_workbook {
 
     # Add Workbook globals
     $self->_store_bof(0x0005);
+    $self->_store_codepage();
     $self->_store_externs();    # For print area and repeat rows
     $self->_store_names();      # For print area and repeat rows
     $self->_store_window1();
@@ -516,7 +535,7 @@ sub _store_workbook {
     $self->_store_eof();
 
     # Store the workbook in an OLE container
-    return $self->_store_OLE_file
+    return $self->_store_OLE_file();
 }
 
 
@@ -557,7 +576,6 @@ sub _store_OLE_file {
 
         # return 0;
     }
-
 }
 
 
@@ -857,6 +875,7 @@ sub _store_names {
 sub _store_window1 {
 
     my $self      = shift;
+
     my $record    = 0x003D;                 # Record identifier
     my $length    = 0x0012;                 # Number of bytes to follow
 
@@ -1222,6 +1241,27 @@ sub _store_palette {
     $data .= pack "CCCC", @$_ for @$aref;
 
     my $header = pack("vvv",  $record, $length, $ccv);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_codepage()
+#
+# Stores the CODEPAGE biff record.
+#
+sub _store_codepage {
+
+    my $self            = shift;
+
+    my $record          = 0x0042;               # Record identifier
+    my $length          = 0x0002;               # Number of bytes to follow
+    my $cv              = $self->{_codepage};   # The code page
+
+    my $header          = pack("vv", $record, $length);
+    my $data            = pack("v",  $cv);
 
     $self->_append($header, $data);
 }

@@ -49,7 +49,8 @@
         <LI><A HREF="#set_custom_color_index_red_">set_custom_color($index, $red, $green, $blue)</A></LI>
         <LI><A HREF="#set_palette_xl5_">set_palette_xl5()</A></LI>
         <LI><A HREF="#sheets_">sheets()</A></LI>
-        <LI><A HREF="#set_1904_">set_1904()</A></LI></code>
+        <LI><A HREF="#set_1904_">set_1904()</A></LI>
+        <LI><A HREF="#set_codepage_codepage_">set_codepage($codepage)</A></LI></code>
 	</UL>
 
 	<LI><A HREF="#WORKSHEET_METHODS">WORKSHEET METHODS</A></LI>
@@ -79,7 +80,7 @@
         <LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden)</A></LI>
         <LI><A HREF="#freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col)</A></LI>
         <LI><A HREF="#thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col)</A></LI>
-        <LI><A HREF="#merge_cells_first_row_first_c">merge_cells($first_row, $first_col, $last_row, $last_col)</A></LI>
+        <LI><A HREF="#merge_range_first_row_first_c">merge_range($first_row, $first_col, $last_row, $last_col, $token, $format)</A></LI>
         <LI><A HREF="#set_zoom_scale_">set_zoom($scale)</A></LI></code>
 	</UL>
 
@@ -136,8 +137,8 @@
         <LI><A HREF="#set_rotation_">set_rotation()</A></LI>
         <LI><A HREF="#set_text_justlast_">set_text_justlast()</A></LI>
         <LI><A HREF="#set_pattern_">set_pattern()</A></LI>
-        <LI><A HREF="#set_fg_color_">set_fg_color()</A></LI>
         <LI><A HREF="#set_bg_color_">set_bg_color()</A></LI>
+        <LI><A HREF="#set_fg_color_">set_fg_color()</A></LI>
         <LI><A HREF="#set_border_">set_border()</A></LI>
         <LI><A HREF="#set_border_color_">set_border_color()</A></LI>
         <LI><A HREF="#copy_format_">copy($format)</A></LI></code>
@@ -160,8 +161,8 @@
         <LI><A HREF="#Example_2">Example 2</A></LI>
         <LI><A HREF="#Example_3">Example 3</A></LI>
         <LI><A HREF="#Example_4">Example 4</A></LI>
-        <LI><A HREF="#Example_5">Example 5</A></LI></code>
-		<LI><A HREF="#Additional_Examples">Additional Examples</A></LI>
+        <LI><A HREF="#Example_5">Example 5</A></LI>
+        <LI><A HREF="#Additional_Examples">Additional Examples</A></LI></code>
 	</UL>
 
 	<LI><A HREF="#LIMITATIONS">LIMITATIONS</A></LI>
@@ -193,8 +194,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.38 of Spreadsheet::WriteExcel, released
-August 29, 2002.
+This document refers to version 0.39 of Spreadsheet::WriteExcel, released
+September 23, 2002.
 
 </P>
 <P>
@@ -342,6 +343,7 @@ workbook.
     set_palette_xl5()
     sheets()
     set_1904()
+    set_codepage()
 </PRE>
 </P>
 <P>
@@ -697,7 +699,7 @@ The return value from <CODE>set_custom_color()</CODE> is the index of the colour
 <P>
 <PRE>
     my $format  = $workbook-&gt;addformat(
-                                        fg_color =&gt; $ferrari,
+                                        bg_color =&gt; $ferrari,
                                         pattern  =&gt; 1,
                                         border   =&gt; 1
                                       );
@@ -783,6 +785,31 @@ In general you probably won't need to use <CODE>set_1904()</CODE>.
 </P>
 <P>
 <HR>
+<H2><A NAME="set_codepage_codepage_">set_codepage($codepage)</A></H2>
+<P>
+The default code page or character set used by Spreadsheet::WriteExcel is
+ANSI. This is also the default used by Excel for Windows. Occasionally
+however it may be necessary to change the code page via the <CODE>set_codepage()</CODE> method.
+
+</P>
+<P>
+Changing the code page may be required if your are using
+Spreadsheet::WriteExcel on the Macintosh and you are using characters
+outside the ASCII 128 character set:
+
+</P>
+<P>
+<PRE>
+    $workbook-&gt;set_codepage(1); # ANSI, MS Windows
+    $workbook-&gt;set_codepage(2); # Apple Macintosh
+</PRE>
+</P>
+<P>
+The <CODE>set_codepage()</CODE> method is rarely required.
+
+</P>
+<P>
+<HR>
 <H1><A NAME="WORKSHEET_METHODS">WORKSHEET METHODS</A></H1>
 <P>
 A new worksheet is created by calling the <CODE>addworksheet()</CODE> method from a workbook object:
@@ -823,7 +850,7 @@ The following methods are available through a new worksheet:
     set_column()
     freeze_panes()
     thaw_panes()
-    merge_cells()
+    merge_range()
     set_zoom()
 </PRE>
 </P>
@@ -1633,7 +1660,7 @@ for a range of cells:
 </P>
 <P>
 This method is generally only required when used in conjunction with merged
-cells. See the <CODE>merge_cells()</CODE> method and the <CODE>merge</CODE> property of a Format object, <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>.
+cells. See the <CODE>merge_range()</CODE> method and the <CODE>merge</CODE> property of a Format object, <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>.
 
 </P>
 <P>
@@ -2373,14 +2400,19 @@ See also the <CODE>freeze_panes()</CODE> method and the <CODE>panes.pl</CODE> pr
 </P>
 <P>
 <HR>
-<H2><A NAME="merge_cells_first_row_first_c">merge_cells($first_row, $first_col, $last_row, $last_col)</A></H2>
+<H2><A NAME="merge_range_first_row_first_c">merge_range($first_row, $first_col, $last_row, $last_col, $token, $format)</A></H2>
 <P>
-Merging cells is generally achieved by setting the <CODE>merge</CODE> property of a Format object, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. However, this only allows simple Excel5 style horizontal merging.
+Note, the <CODE>merge_range()</CODE> method replaces the <CODE>merge_cells()</CODE> method as a simpler and safer way of generating a merged range. <CODE>merge_cells()</CODE> is still available but it is deprecated and no longer documented.
 
 </P>
 <P>
-The <CODE>merge_cells()</CODE> method allows you to do Excel97+ style merging with horizontally and
-vertically merged cells:
+Merging cells is generally achieved by setting the <CODE>merge</CODE> property of a Format object, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. However, this only allows simple Excel5 style horizontal merging which
+Excel refers to as &quot;center across selection&quot;.
+
+</P>
+<P>
+The <CODE>merge_range()</CODE> method allows you to do Excel97+ style formatting where the cells can
+contain other types of alignment in addition to the merging:
 
 </P>
 <P>
@@ -2394,41 +2426,30 @@ vertically merged cells:
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;write('B3', 'Vertical and horizontal', $format);
-    $worksheet-&gt;write_blank('C3', $format);
-    $worksheet-&gt;write_blank('D3', $format);
-    $worksheet-&gt;write_blank('B4', $format);
-    $worksheet-&gt;write_blank('C4', $format);
-    $worksheet-&gt;write_blank('D4', $format);
+    $worksheet-&gt;merge_range('B3:D4', 'Vertically and horizontal', $format);
 </PRE>
 </P>
 <P>
-<PRE>
-    $worksheet-&gt;merge_cells('B3:D4');
-</PRE>
-</P>
-<P>
-You must specify a format for every cell in the merged region. This is very
-important. If you don't add a format to every cell in the merged region
-then Excel97 will crash when the file is opened.
+The format object that is used with a <CODE>merge_range()</CODE> method call is marked internally as being associated with a merged range.
+As such, it shouldn't be used for other formatting.
 
 </P>
 <P>
-It is also important to call <CODE>merge_cells()</CODE> after you write the
-cells to be merged.
+<CODE>merge_range()</CODE> writes its <CODE>$token</CODE> argument using the worksheet <CODE>write()</CODE> method. Therefore it will handle numbers, strings, formulas or urls as
+required.
 
 </P>
 <P>
-Setting the <CODE>merge</CODE> property of the format isn't required when you are using <CODE>merge_cells()</CODE>. In fact using it will exclude the use of any other horizontal alignment
+Setting the <CODE>merge</CODE> property of the format isn't required when you are using <CODE>merge_range()</CODE>. In fact using it will exclude the use of any other horizontal alignment
 option.
 
 </P>
 <P>
-The <CODE>merge_cells()</CODE> method doesn't work with Excel versions before Excel 97.
+The full possibilities of this method are shown in the <CODE>merge3.pl</CODE>, <CODE>merge4.pl</CODE> and <CODE>merge5.pl</CODE> programs in the <CODE>examples</CODE> directory of the distribution.
 
 </P>
 <P>
-The full possibilities of this method are shown in the <CODE>merge3.pl</CODE>, <CODE>merge4.pl</CODE> and <CODE>merge5.pl</CODE> programs in the <CODE>examples</CODE> directory of the distribution.
+The <CODE>merge_range()</CODE> method doesn't work with Excel versions before Excel 97.
 
 </P>
 <P>
@@ -3330,7 +3351,7 @@ to the required method:
 <P>
 <PRE>
     my %shading = (
-                    fg_color =&gt; 'green',
+                    bg_color =&gt; 'green',
                     pattern  =&gt; 1,
                   );
 </PRE>
@@ -3614,7 +3635,7 @@ Set the font colour. The <CODE>set_color()</CODE> method is used as follows:
 </P>
 <P>
 Note: The <CODE>set_color()</CODE> method is used to set the colour of the font in a cell. To set the colour
-of a cell use the <CODE>set_fg_color()</CODE> and <CODE>set_pattern()</CODE> methods.
+of a cell use the <CODE>set_bg_color()</CODE> and <CODE>set_pattern()</CODE> methods.
 
 </P>
 <P>
@@ -4148,7 +4169,7 @@ Only one cell should contain the text, the other cells should be blank:
 </PRE>
 </P>
 <P>
-See also the <CODE>merge1.pl</CODE>, <CODE>merge2.pl</CODE> and <CODE>merge3.pl</CODE> programs in the <CODE>examples</CODE> directory and the <CODE>merge_cells()</CODE> method.
+See also the <CODE>merge1.pl</CODE>, <CODE>merge2.pl</CODE> and <CODE>merge3.pl</CODE> programs in the <CODE>examples</CODE> directory and the <CODE>merge_range()</CODE> method.
 
 </P>
 <P>
@@ -4217,31 +4238,34 @@ Only applies to Far Eastern versions of Excel.
 <PRE>
     Default state:      Pattern is off
     Default action:     Solid fill is on
-    Valid args:         0 .. 31
+    Valid args:         0 .. 18
 </PRE>
 </P>
 <P>
 Examples of the available patterns are shown in the 'Patterns' worksheet
 created by formats.pl. However, it is unlikely that you will ever need
-anything other than Pattern 1 which is a solid fill of the foreground
+anything other than Pattern 1 which is a solid fill of the background
 color.
 
 </P>
 <P>
 <HR>
-<H2><A NAME="set_fg_color_">set_fg_color()</A></H2>
+<H2><A NAME="set_bg_color_">set_bg_color()</A></H2>
 <P>
 <PRE>
     Default state:      Color is off
-    Default action:     Undefined
+    Default action:     Solid fill.
     Valid args:         See set_color()
 </PRE>
 </P>
 <P>
-The <CODE>set_fg_color()</CODE> method can be used to set the foreground colour of a pattern. If you are
-using a solid fill pattern then you must set the foreground colour and not
-the background colour. Here is an example of how to set up a solid fill in
-a cell:
+The <CODE>set_bg_color()</CODE> method can be used to set the background colour of a pattern. Patterns are
+defined via the <CODE>set_pattern()</CODE> method. If a pattern hasn't been defined then a solid fill pattern is used
+as the default.
+
+</P>
+<P>
+Here is an example of how to set up a solid fill in a cell:
 
 </P>
 <P>
@@ -4251,19 +4275,14 @@ a cell:
 </P>
 <P>
 <PRE>
-    $format-&gt;set_pattern(); # Set pattern to 1, i.e. solid fill
-    $format-&gt;set_fg_color('green');
+    $format-&gt;set_pattern(); # This is optional when using a solid fill
 </PRE>
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;write(0, 0, &quot;Ray&quot;, $format);
+    $format-&gt;set_bg_color('green');
+    $worksheet-&gt;write('A1', 'Ray', $format);
 </PRE>
-</P>
-<P>
-Since the <CODE>set_fg_color()</CODE> method defines the foreground colour of a pattern it must always be used in
-conjunction with <CODE>set_pattern()</CODE>.
-
 </P>
 <P>
 For further examples see the 'Patterns' worksheet created by formats.pl.
@@ -4271,31 +4290,22 @@ For further examples see the 'Patterns' worksheet created by formats.pl.
 </P>
 <P>
 <HR>
-<H2><A NAME="set_bg_color_">set_bg_color()</A></H2>
+<H2><A NAME="set_fg_color_">set_fg_color()</A></H2>
 <P>
 <PRE>
     Default state:      Color is off
-    Default action:     Undefined
+    Default action:     Solid fill.
     Valid args:         See set_color()
 </PRE>
 </P>
 <P>
-It is a common mistake to use the <CODE>set_bg_color()</CODE> method instead of the <CODE>set_fg_color()</CODE> method.
+The <CODE>set_fg_color()</CODE> method can be used to set the foreground colour of a pattern.
 
 </P>
 <P>
-In Excel the background colour refers to the colour behind the currently
-displayed pattern. Therefore, if you are using a solid fill pattern you
-will only see the foreground colour and not the background colour.
-
-</P>
-<P>
-In the rare cases where you need to use <CODE>set_bg_color()</CODE> you will also have to use <CODE>set_fg_color()</CODE>.
-
-</P>
-<P>
-Since the <CODE>set_bg_color()</CODE> method defines the background colour of a pattern it must always be used in
-conjunction with <CODE>set_pattern()</CODE>.
+Note, in older versions of Spreadsheet::WriteExcel it was recommended to
+use <CODE>set_fg_color()</CODE> to set the colour of a solid fill pattern. The preferred method is now to
+use <CODE>set_bg_color()</CODE>, although for backward compatibility the role of <CODE>set_fg_color()</CODE> and <CODE>set_bg_color()</CODE> are interchangeable when using a solid fill pattern.
 
 </P>
 <P>
@@ -4462,7 +4472,7 @@ colour:
 <P>
 <PRE>
     my $format  = $workbook-&gt;addformat(
-                                        fg_color =&gt; $ferrari,
+                                        bg_color =&gt; $ferrari,
                                         pattern  =&gt; 1,
                                         border   =&gt; 1
                                       );
@@ -5950,7 +5960,7 @@ corrupt. See <A HREF="#WORKING_WITH_XML">WORKING WITH XML</A> for further detail
 
 </P>
 <P>
-If you do not add a format to each cell of a <CODE>merge_cells()</CODE> range it will cause Excel97 to crash, see the <CODE>merge_cells()</CODE> section.
+If you do not add a format to each cell of a <CODE>merge_cells()</CODE> range it will cause Excel97 to crash, use the safer <CODE>merge_range()</CODE> method instead.
 
 </P>
 <P>
@@ -5995,7 +6005,8 @@ The roadmap is as follows:
 <LI><A NAME="item_Move">Move to Excel97/2000 format as standard.</A>
 <P>
 This will allow strings greater than 255 characters and hopefully Unicode.
-The Excel 5 format will be optional. This is a priority feature.
+The Excel 5 format will be optional. Work is already in progress.
+Pre-releases will be announced on Freshmeat, see below.
 
 </P>
 </UL>
@@ -6101,9 +6112,9 @@ testers, Daniel Berger, Daniel Gardner, Ernesto Baschny, Felipe Pérez
 Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan
 Ekenberg, Johann Hanne, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom,
 Markus Schmitz, Michael Buschauer, Mike Blazer, Michael Erickson, Paul J.
-Falbe, Paul Medynski, Peter Dintelmann, Praveen Kotha, Reto Badertscher,
-Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Vahe
-Sarkissian.
+Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha,
+Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits,
+Sven Passig, Vahe Sarkissian.
 
 </P>
 <P>
@@ -6135,7 +6146,7 @@ Thanks to Damian Conway for the excellent Parse::RecDescent.
 
 </P>
 <P>
-Thanks to Tim Jenness for the File::Temp.
+Thanks to Tim Jenness for File::Temp.
 
 </P>
 <P>
@@ -6151,21 +6162,15 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    When I embarked from Italy with my Mother's body,
-    the whole shoreline of the Golfo di Genova
-    was breaking into fiery flower.
-    The crazy yellow and azure sea-sleds
-    blasting like jack hammers across
-    the spumante-bubbling wake of our liner,
-    recalled the clashing colors of my Ford.
-    Mother travelled first-class in the hold,
-    her Risorgimento black and gold casket
-    was like Napolean's at the Invalides...
+    When you say it's gonna happen &quot;now&quot;
+    Well, when exactly do you mean?
+    See I've already waited too long
+    And all my hope is gone.
 </PRE>
 </P>
 <P>
 <PRE>
-        -- Robert Lowell
+        -- Morrissey
 </PRE>
 </P>
 <P>

@@ -6,7 +6,7 @@ package Spreadsheet::WriteExcel;
 #
 # Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 #
-# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '0.38'; # Sailing Home from Rapallo.
+$VERSION = '0.39'; # How soon is now?
 
 
 
@@ -65,7 +65,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 0.38 of Spreadsheet::WriteExcel, released August 29, 2002.
+This document refers to version 0.39 of Spreadsheet::WriteExcel, released September 23, 2002.
 
 
 
@@ -151,7 +151,7 @@ The Spreadsheet::WriteExcel module provides an object oriented interface to a ne
     set_palette_xl5()
     sheets()
     set_1904()
-
+    set_codepage()
 
 If you are unfamiliar with object oriented interfaces or the way that they are implemented in Perl have a look at C<perlobj> and C<perltoot> in the main Perl documentation.
 
@@ -344,7 +344,7 @@ The return value from C<set_custom_color()> is the index of the colour that was 
     my $ferrari = $workbook->set_custom_color(40, 216, 12, 12);
 
     my $format  = $workbook->addformat(
-                                        fg_color => $ferrari,
+                                        bg_color => $ferrari,
                                         pattern  => 1,
                                         border   => 1
                                       );
@@ -396,6 +396,20 @@ In general you probably won't need to use C<set_1904()>.
 
 
 
+=head2 set_codepage($codepage)
+
+The default code page or character set used by Spreadsheet::WriteExcel is ANSI. This is also the default used by Excel for Windows. Occasionally however it may be necessary to change the code page via the C<set_codepage()> method.
+
+Changing the code page may be required if your are using Spreadsheet::WriteExcel on the Macintosh and you are using characters outside the ASCII 128 character set:
+
+    $workbook->set_codepage(1); # ANSI, MS Windows
+    $workbook->set_codepage(2); # Apple Macintosh
+
+The C<set_codepage()> method is rarely required.
+
+
+
+
 =head1 WORKSHEET METHODS
 
 A new worksheet is created by calling the C<addworksheet()> method from a workbook object:
@@ -428,7 +442,7 @@ The following methods are available through a new worksheet:
     set_column()
     freeze_panes()
     thaw_panes()
-    merge_cells()
+    merge_range()
     set_zoom()
 
 
@@ -868,7 +882,7 @@ This method is essentially the same as the C<write_url()> method described above
     $worksheet->write_url('A4:D4',    'external:c:\temp\foo.xls'         );
 
 
-This method is generally only required when used in conjunction with merged cells. See the C<merge_cells()> method and the C<merge> property of a Format object, L<CELL FORMATTING>.
+This method is generally only required when used in conjunction with merged cells. See the C<merge_range()> method and the C<merge> property of a Format object, L<CELL FORMATTING>.
 
 There is no way to force this behaviour through the C<write()> method.
 
@@ -1254,11 +1268,13 @@ See also the C<freeze_panes()> method and the C<panes.pl> program in the C<examp
 
 
 
-=head2 merge_cells($first_row, $first_col, $last_row, $last_col)
+=head2 merge_range($first_row, $first_col, $last_row, $last_col, $token, $format)
 
-Merging cells is generally achieved by setting the C<merge> property of a Format object, see L<CELL FORMATTING>. However, this only allows simple Excel5 style horizontal merging.
+Note, the C<merge_range()> method replaces the C<merge_cells()> method as a simpler and safer way of generating a merged range. C<merge_cells()> is still available but it is deprecated and no longer documented.
 
-The C<merge_cells()> method allows you to do Excel97+ style merging with horizontally and vertically merged cells:
+Merging cells is generally achieved by setting the C<merge> property of a Format object, see L<CELL FORMATTING>. However, this only allows simple Excel5 style horizontal merging which Excel refers to as "center across selection".
+
+The C<merge_range()> method allows you to do Excel97+ style formatting where the cells can contain other types of alignment in addition to the merging:
 
     my $format = $workbook->addformat(
                                         border  => 6,
@@ -1266,25 +1282,18 @@ The C<merge_cells()> method allows you to do Excel97+ style merging with horizon
                                         align   => 'center',
                                       );
 
-    $worksheet->write('B3', 'Vertical and horizontal', $format);
-    $worksheet->write_blank('C3', $format);
-    $worksheet->write_blank('D3', $format);
-    $worksheet->write_blank('B4', $format);
-    $worksheet->write_blank('C4', $format);
-    $worksheet->write_blank('D4', $format);
+    $worksheet->merge_range('B3:D4', 'Vertically and horizontal', $format);
 
-    $worksheet->merge_cells('B3:D4');
+The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range. As such, it shouldn't be used for other formatting.
 
+C<merge_range()> writes its $token argument using the worksheet C<write()> method. Therefore it will handle numbers, strings, formulas or urls as required.
 
-You must specify a format for every cell in the merged region. This is very important. If you don't add a format to every cell in the merged region then Excel97 will crash when the file is opened.
-
-It is also important to call merge_cells() after you write the cells to be merged.
-
-Setting the C<merge> property of the format isn't required when you are using C<merge_cells()>. In fact using it will exclude the use of any other horizontal alignment option.
-
-The C<merge_cells()> method doesn't work with Excel versions before Excel 97.
+Setting the C<merge> property of the format isn't required when you are using C<merge_range()>. In fact using it will exclude the use of any other horizontal alignment option.
 
 The full possibilities of this method are shown in the C<merge3.pl>, C<merge4.pl> and C<merge5.pl> programs in the C<examples> directory of the distribution.
+
+The C<merge_range()> method doesn't work with Excel versions before Excel 97.
+
 
 
 
@@ -1838,7 +1847,7 @@ You can also store the properties in one or more named hashes and pass them to t
                   );
 
     my %shading = (
-                    fg_color => 'green',
+                    bg_color => 'green',
                     pattern  => 1,
                   );
 
@@ -2020,7 +2029,7 @@ Set the font colour. The C<set_color()> method is used as follows:
     $format->set_color('red');
     $worksheet->write(0, 0, "wheelbarrow", $format);
 
-Note: The C<set_color()> method is used to set the colour of the font in a cell. To set the colour of a cell use the C<set_fg_color()> and C<set_pattern()> methods.
+Note: The C<set_color()> method is used to set the colour of the font in a cell. To set the colour of a cell use the C<set_bg_color()> and C<set_pattern()> methods.
 
 For additional examples see the 'Named colors' and 'Standard colors' worksheets created by formats.pl in the examples directory.
 
@@ -2352,7 +2361,7 @@ Only one cell should contain the text, the other cells should be blank:
     $worksheet->write(1, 1, 'Merged cells', $format);
     $worksheet->write_blank(1, 2, $format);
 
-See also the C<merge1.pl>, C<merge2.pl> and C<merge3.pl> programs in the C<examples> directory and the C<merge_cells()> method.
+See also the C<merge1.pl>, C<merge2.pl> and C<merge3.pl> programs in the C<examples> directory and the C<merge_range()> method.
 
 
 
@@ -2405,33 +2414,10 @@ Only applies to Far Eastern versions of Excel.
 
     Default state:      Pattern is off
     Default action:     Solid fill is on
-    Valid args:         0 .. 31
+    Valid args:         0 .. 18
 
 
-Examples of the available patterns are shown in the 'Patterns' worksheet created by formats.pl. However, it is unlikely that you will ever need anything other than Pattern 1 which is a solid fill of the foreground color.
-
-
-
-
-=head2 set_fg_color()
-
-    Default state:      Color is off
-    Default action:     Undefined
-    Valid args:         See set_color()
-
-
-The C<set_fg_color()> method can be used to set the foreground colour of a pattern. If you are using a solid fill pattern then you must set the foreground colour and not the background colour. Here is an example of how to set up a solid fill in a cell:
-
-    my $format = $workbook->addformat();
-
-    $format->set_pattern(); # Set pattern to 1, i.e. solid fill
-    $format->set_fg_color('green');
-
-    $worksheet->write(0, 0, "Ray", $format);
-
-Since the C<set_fg_color()> method defines the foreground colour of a pattern it must always be used in conjunction with C<set_pattern()>.
-
-For further examples see the 'Patterns' worksheet created by formats.pl.
+Examples of the available patterns are shown in the 'Patterns' worksheet created by formats.pl. However, it is unlikely that you will ever need anything other than Pattern 1 which is a solid fill of the background color.
 
 
 
@@ -2439,16 +2425,35 @@ For further examples see the 'Patterns' worksheet created by formats.pl.
 =head2 set_bg_color()
 
     Default state:      Color is off
-    Default action:     Undefined
+    Default action:     Solid fill.
     Valid args:         See set_color()
 
-It is a common mistake to use the C<set_bg_color()> method instead of the C<set_fg_color()> method.
+The C<set_bg_color()> method can be used to set the background colour of a pattern. Patterns are defined via the C<set_pattern()> method. If a pattern hasn't been defined then a solid fill pattern is used as the default.
 
-In Excel the background colour refers to the colour behind the currently displayed pattern. Therefore, if you are using a solid fill pattern you will only see the foreground colour and not the background colour.
+Here is an example of how to set up a solid fill in a cell:
 
-In the rare cases where you need to use C<set_bg_color()> you will also have to use C<set_fg_color()>.
+    my $format = $workbook->addformat();
 
-Since the C<set_bg_color()> method defines the background colour of a pattern it must always be used in conjunction with C<set_pattern()>.
+    $format->set_pattern(); # This is optional when using a solid fill
+
+    $format->set_bg_color('green');
+    $worksheet->write('A1', 'Ray', $format);
+
+For further examples see the 'Patterns' worksheet created by formats.pl.
+
+
+
+
+=head2 set_fg_color()
+
+    Default state:      Color is off
+    Default action:     Solid fill.
+    Valid args:         See set_color()
+
+
+The C<set_fg_color()> method can be used to set the foreground colour of a pattern.
+
+Note, in older versions of Spreadsheet::WriteExcel it was recommended to use C<set_fg_color()> to set the colour of a solid fill pattern. The preferred method is now to use C<set_bg_color()>, although for backward compatibility the role of C<set_fg_color()> and C<set_bg_color()> are interchangeable when using a solid fill pattern.
 
 For further examples see the 'Patterns' worksheet created by formats.pl.
 
@@ -2558,7 +2563,7 @@ If the default palette does not provide a required colour you can override one o
     my $ferrari = $workbook->set_custom_color(40, 216, 12, 12);
 
     my $format  = $workbook->addformat(
-                                        fg_color => $ferrari,
+                                        bg_color => $ferrari,
                                         pattern  => 1,
                                         border   => 1
                                       );
@@ -3432,7 +3437,7 @@ Formulas are formulae.
 
 XML data can cause Excel files created by Spreadsheet::WriteExcel to become corrupt. See L<WORKING WITH XML> for further details.
 
-If you do not add a format to each cell of a C<merge_cells()> range it will cause Excel97 to crash, see the C<merge_cells()> section.
+If you do not add a format to each cell of a C<merge_cells()> range it will cause Excel97 to crash, use the safer C<merge_range()> method instead.
 
 Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE". If you come across a formula that parses like this, let me know.
 
@@ -3456,7 +3461,7 @@ The roadmap is as follows:
 
 =item * Move to Excel97/2000 format as standard.
 
-This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. This is a priority feature.
+This will allow strings greater than 255 characters and hopefully Unicode. The Excel 5 format will be optional. Work is already in progress. Pre-releases will be announced on Freshmeat, see below.
 
 =back
 
@@ -3507,7 +3512,7 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Buschauer, Mike Blazer, Michael Erickson, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Ernesto Baschny, Felipe Pérez Galiana, Gordon.Simpson, Hanc Pavel, Harold Bamford, James Holmes, Johan Ekenberg, Johann Hanne, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Markus Schmitz, Michael Buschauer, Mike Blazer, Michael Erickson, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Steve Sapovits, Sven Passig, Vahe Sarkissian.
 
 The following people contributed code, examples or Excel information:
 
@@ -3521,7 +3526,7 @@ Dirk Eddelbuettel maintains the Debian distro.
 
 Thanks to Damian Conway for the excellent Parse::RecDescent.
 
-Thanks to Tim Jenness for the File::Temp.
+Thanks to Tim Jenness for File::Temp.
 
 Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
@@ -3532,18 +3537,13 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    When I embarked from Italy with my Mother's body,
-    the whole shoreline of the Golfo di Genova
-    was breaking into fiery flower.
-    The crazy yellow and azure sea-sleds
-    blasting like jack hammers across
-    the spumante-bubbling wake of our liner,
-    recalled the clashing colors of my Ford.
-    Mother travelled first-class in the hold,
-    her Risorgimento black and gold casket
-    was like Napolean's at the Invalides...
+    When you say it's gonna happen "now"
+    Well, when exactly do you mean?
+    See I've already waited too long
+    And all my hope is gone.
 
-        -- Robert Lowell
+        -- Morrissey
+
 
 
 =head1 COPYRIGHT

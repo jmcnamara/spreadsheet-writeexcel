@@ -1,6 +1,31 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+0.39 September 23 2002 - Minor
+
+    + Added the set_codepage() workbook method. This is mainly to
+      prevent a bug that caused Gnumeric to crash but it is also
+      useful for people working with non ascii chars on the Macintosh.
+      Thanks Jody Goldberg.
+
+    ! Fixed the non-deletion of temporary files. Windows users of
+      version 0.38 should probably clean up their tmp dirs manually.
+      Thanks Pierre Laplante.
+
+    ! Changed default handling of set_fg_color and set_bg_color from
+      what Excel expected to what everyone else expected. Setting the
+      fill colour of a cell should now be more intuitive.
+
+    + Replaced the merge_cells() method with the merge_range() method.
+      This is mainly to prevent the Excel 97 crashing bug that occurs
+      when merge_cells() is used correctly. It also provide a simpler
+      interface to the merge feature. Updated merge example programs.
+
+    ! Refactored the error raising mechanism for formulas. The source
+      of errors should now be clearer.
+
+    ! Minor internal fixes to Format.pm.
+
 
 0.38 August 29 2002 - Minor
 

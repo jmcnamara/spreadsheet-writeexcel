@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use File::Temp 'tempfile';
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '0.15';
+$VERSION = '0.16';
 
 ###############################################################################
 #
@@ -51,6 +51,7 @@ sub new {
     $self->{_ext_sheets}        = [];
     $self->{_using_tmpfile}     = 1;
     $self->{_filehandle}        = "";
+    $self->{_filename}          = "";
     $self->{_fileclosed}        = 0;
     $self->{_offset}            = 0;
     $self->{_xls_rowmax}        = $rowmax;
@@ -133,11 +134,16 @@ sub _initialize {
 
     my $self = shift;
     my $fh;
+    my $filename;
 
     # Open tmp file for storing Worksheet data. We do this in an eval block
     # to trap any File::Temp errors.
     #
-    eval { ($fh) = File::Temp::tempfile(DIR => $self->{_tempdir}) };
+    # Note it would be better to call tempfile in a scalar context here and
+    # have $fh unlinked automatically. However, that would limit us to ~800
+    # tempfiles on some Windows system. So this is a workaround:
+    #
+    eval { ($fh, $filename) = File::Temp::tempfile(DIR => $self->{_tempdir}) };
 
     if ($fh) {
         # binmode file whether platform requires it or not
@@ -145,6 +151,7 @@ sub _initialize {
 
         # Store filehandle
         $self->{_filehandle} = $fh;
+        $self->{_filename}   = $filename;
     }
     else {
         # If tempfile() failed store data in memory
@@ -1513,8 +1520,17 @@ sub write_formula{
 
     # Parse the formula using the parser in Formula.pm
     my $parser  = $self->{_parser};
-    $formula    = $parser->parse_formula($formula)
-                  or croak "Couldn't parse formula $tmp";
+
+    # In order to raise formula errors from the point of view of the calling
+    # program we use an eval block and reraise the error from here.
+    #
+    eval { $formula = $parser->parse_formula($formula) };
+
+    if ($@) {
+        $@ =~ s/\n$//;  # Strip the \n used in the Formula.pm die()
+        croak $@;       # Reraise the error
+    }
+
 
     my $formlen = length($formula); # Length of the binary string
     $length     = 0x16 + $formlen;  # Length of the record data
@@ -1546,8 +1562,18 @@ sub store_formula{
 
     # Parse the formula using the parser in Formula.pm
     my $parser  = $self->{_parser};
-    my @tokens  = $parser->parse_formula($formula)
-                  or croak "Couldn't parse formula $formula";
+
+    # In order to raise formula errors from the point of view of the calling
+    # program we use an eval block and reraise the error from here.
+    #
+    my @tokens;
+    eval { @tokens = $parser->parse_formula($formula) };
+
+    if ($@) {
+        $@ =~ s/\n$//;  # Strip the \n used in the Formula.pm die()
+        croak $@;       # Reraise the error
+    }
+
 
     # Return the parsed tokens in an anonymous array
     return [@tokens];
@@ -1703,7 +1729,8 @@ sub write_url_range {
     return -1 if @_ < 5;
 
     # Reverse the order of $string and $format if necessary.
-    ($_[5], $_[6]) = ($_[6], $_[5]) if (ref $_[5]);
+    local @_ = @_; # Protect the callers args
+    ($_[5], $_[6]) = ($_[6], $_[5]) if ref $_[5];
 
     my $url = $_[4];
 
@@ -2824,6 +2851,60 @@ sub merge_cells {
 
 ###############################################################################
 #
+# merge_range($first_row, $first_col, $last_row, $last_col, $string, $format)
+#
+# This is a wrapper to ensure correct use of the merge_cells method, i.e., write
+# the first cell of the range, write the formatted blank cells in the range and
+# then call the merge_cells record. Failing to do the steps in this order will
+# cause Excel 97 to crash.
+#
+sub merge_range {
+
+    my $self    = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+    croak "Incorrect number of arguments" if @_ != 6;
+    croak "Final argument must be a format ojbect" unless ref $_[5];
+
+    my $rwFirst  = $_[0];
+    my $colFirst = $_[1];
+    my $rwLast   = $_[2];
+    my $colLast  = $_[3];
+    my $string   = $_[4];
+    my $format   = $_[5];
+
+
+    # Set the merge_range property of the format object. For BIFF8+.
+    $format->set_merge_range();
+
+    # Excel doesn't allow a single cell to be merged
+    croak "Can't merge single cell" if $rwFirst  == $rwLast and
+                                       $colFirst == $colLast;
+
+    # Swap last row/col with first row/col as necessary
+    ($rwFirst,  $rwLast ) = ($rwLast,  $rwFirst ) if $rwFirst  > $rwLast;
+    ($colFirst, $colLast) = ($colLast, $colFirst) if $colFirst > $colLast;
+
+    # Write the first cell
+    $self->write($rwFirst, $colFirst, $string, $format);
+
+    # Pad out the rest of the area with formatted blank cells.
+    for my $row ($rwFirst .. $rwLast) {
+        for my $col ($colFirst .. $colLast) {
+            next if $row == $rwFirst and $col == $colFirst;
+            $self->write_blank($row, $col, $format);
+        }
+    }
+
+    $self->merge_cells($rwFirst, $colFirst, $rwLast, $colLast);
+}
+
+
+###############################################################################
+#
 # _store_print_headers()
 #
 # Write the PRINTHEADERS BIFF record.
@@ -3464,6 +3545,20 @@ sub _store_zoom {
 }
 
 
+###############################################################################
+#
+# DESTROY()
+#
+# Close and unlink the tempfile.
+#
+sub DESTROY {
+
+    my $self = shift;
+
+    CORE::close $self->{_filehandle} or carp
+                                      "Couldn't close $self->{_filename}}: $!";
+    unlink $self->{_filename} or carp "Couldn't unlink $self->{_filename}: $!";
+}
 
 
 1;

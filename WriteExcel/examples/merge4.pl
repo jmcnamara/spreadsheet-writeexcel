@@ -2,17 +2,10 @@
 
 ###############################################################################
 #
-# Example of how to use the Spreadsheet::WriteExcel merge_cells() workbook
+# Example of how to use the Spreadsheet::WriteExcel merge_range() workbook
 # method with with complex formatting.
 #
-# Note:
-#      1. You should call merge_cells() after you write the cells to be merged
-#      2. You must specify a format for every cell in the merged region
-#      3. The merge property doesn't have to be set when using merge_cells()
-#      4. A border is applied around the merged cells and not around each cell
-#      5. merge_cells() doesn't work with Excel versions before Excel 97
-#
-# reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
+# reverse('©'), September 2002, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -42,14 +35,7 @@ my $format1 = $workbook->addformat(
 
 
 
-$worksheet->write('B2', 'Centered vertically and horizontally', $format1);
-$worksheet->write_blank('C2', $format1);
-$worksheet->write_blank('D2', $format1);
-$worksheet->write_blank('B3', $format1);
-$worksheet->write_blank('C3', $format1);
-$worksheet->write_blank('D3', $format1);
-
-$worksheet->merge_cells('B2:D3');
+$worksheet->merge_range('B2:D3', 'Vertical and horizontal', $format1);
 
 
 ###############################################################################
@@ -66,14 +52,7 @@ my $format2 = $workbook->addformat(
 
 
 
-$worksheet->write('B5', 'Aligned to the top and left', $format2);
-$worksheet->write_blank('C5', $format2);
-$worksheet->write_blank('D5', $format2);
-$worksheet->write_blank('B6', $format2);
-$worksheet->write_blank('C6', $format2);
-$worksheet->write_blank('D6', $format2);
-
-$worksheet->merge_cells('B5:D6');
+$worksheet->merge_range('B5:D6', 'Aligned to the top and left', $format2);
 
 
 ###############################################################################
@@ -90,14 +69,7 @@ my $format3 = $workbook->addformat(
 
 
 
-$worksheet->write('B8', 'Aligned to the bottom and right', $format3);
-$worksheet->write_blank('C8', $format3);
-$worksheet->write_blank('D8', $format3);
-$worksheet->write_blank('B9', $format3);
-$worksheet->write_blank('C9', $format3);
-$worksheet->write_blank('D9', $format3);
-
-$worksheet->merge_cells('B8:D9');
+$worksheet->merge_range('B8:D9', 'Aligned to the bottom and right', $format3);
 
 
 ###############################################################################
@@ -114,11 +86,5 @@ my $format4 = $workbook->addformat(
 
 
 
-$worksheet->write('B11', 'Justified: '.'so on and ' x18, $format4);
-$worksheet->write_blank('C11', $format4);
-$worksheet->write_blank('D11', $format4);
-$worksheet->write_blank('B12', $format4);
-$worksheet->write_blank('C12', $format4);
-$worksheet->write_blank('D12', $format4);
+$worksheet->merge_range('B11:D12', 'Justified: '.'so on and ' x18, $format4);
 
-$worksheet->merge_cells('B11:D12');

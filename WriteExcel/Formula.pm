@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Formula;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2001, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2002, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.05';
+$VERSION = '0.06';
 
 ###############################################################################
 #
@@ -218,17 +218,19 @@ sub parse_formula {
 
         # The return value depends on which Worksheet.pm method is the caller
         if (wantarray) {
-            # Return raw tokens to Worksheet::store_formula()
+            # Parse formula to see if it throws any errors and then
+            # return raw tokens to Worksheet::store_formula()
+            #
+            $self->parse_tokens(@tokens);
             return @tokens;
         }
-        else{
+        else {
             # Return byte stream to Worksheet::write_formula()
             return $self->parse_tokens(@tokens);
         }
     }
     else {
-        # Couldn't parse formula
-        return wantarray() ? () : undef;
+        die "Couldn't parse formula: =$formula\n";
     }
 }
 
@@ -268,6 +270,8 @@ sub parse_tokens {
         elsif ($token eq '_class') {
             $token = shift @_;
             $class = $functions{$token}[2];
+            # If $class is undef then it means that the function isn't valid.
+            die "Unknown function $token() in formula\n" unless defined $class;
             push @class, $class;
         }
         elsif ($token eq '_vol') {
@@ -499,7 +503,7 @@ sub _convert_string {
     $str =~ s/""/"/g; # Substitute Excel's escaped double quote "" for "
 
     my $length = length($str);
-    croak("String: $str greater than 255 chars") if $length > 255;
+    die "String in formula has more than 255 chars\n" if $length > 255;
 
     return pack("CC", $ptg{ptgStr}, $length) . $str;
 }
@@ -532,7 +536,7 @@ sub _convert_ref2d {
         $ptgRef = pack("C", $ptg{ptgRefA});
     }
     else{
-        croak("Unknown class");
+        die "Unknown function class in formula\n";
     }
 
     return $ptgRef . $row . $col;
@@ -573,7 +577,7 @@ sub _convert_ref3d {
         $ptgRef = pack("C", $ptg{ptgRef3dA});
     }
     else{
-        croak("Unknown class");
+        die "Unknown function class in formula\n";
     }
 
     return $ptgRef . $ext_ref. $row . $col;
@@ -615,7 +619,7 @@ sub _convert_range2d {
         $ptgArea = pack("C", $ptg{ptgAreaA});
     }
     else{
-        croak("Unknown class");
+        die "Unknown function class in formula\n";
     }
 
     return $ptgArea . $row1 . $row2 . $col1. $col2;
@@ -664,7 +668,7 @@ sub _convert_range3d {
         $ptgArea = pack("C", $ptg{ptgArea3dA});
     }
     else{
-        croak("Unknown class");
+        die "Unknown function class in formula\n";
     }
 
     return $ptgArea . $ext_ref . $row1 . $row2 . $col1. $col2;
@@ -728,7 +732,7 @@ sub _get_sheet_index {
     my $sheet_name  = shift;
 
     if (not exists $self->{_ext_sheets}->{$sheet_name}) {
-        croak("Unknown sheet name:  $sheet_name");
+        die "Unknown sheet name $sheet_name in formula\n";
     }
     else {
         return $self->{_ext_sheets}->{$sheet_name};
@@ -743,7 +747,7 @@ sub _get_sheet_index {
 # This semi-public method is used to update the hash of sheet names. It is
 # updated by the addworksheet() method of the Workbook class.
 #
-sub set_ext_sheet {
+sub set_ext_sheets {
 
     my $self  = shift;
     my $key   = shift;
@@ -766,7 +770,8 @@ sub _convert_function {
     my $token    = shift;
     my $num_args = shift;
 
-    croak "Unknown function $token()" unless defined $functions{$token}[0];
+    die "Unknown function $token() in formula\n"
+        unless defined $functions{$token}[0];
 
     my $args = $functions{$token}[1];
 
@@ -774,7 +779,7 @@ sub _convert_function {
     if ($args >= 0) {
         # Check that the number of args is valid.
         if ($args != $num_args) {
-            croak ("Incorrect number of arguments in function $token()");
+            die "Incorrect number of arguments for $token() in formula\n";
         }
         else {
             return pack("Cv", $ptg{ptgFuncV}, $functions{$token}[0]);
@@ -844,8 +849,8 @@ sub _cell_to_packed_rowcol {
 
     my ($row, $col, $row_rel, $col_rel) = $self->_cell_to_rowcol($cell);
 
-    croak("Column in: $cell greater than 255") if $col >= 256;
-    croak("Row in: $cell greater than 16384" ) if $row >= 16384;
+    die "Column $cell greater than IV in formula\n" if $col >= 256;
+    die "Row $cell greater than 16384 in formula\n" if $row >= 16384;
 
     # Set the high bits to indicate if row or col are relative.
     $row    |= $col_rel << 14;
