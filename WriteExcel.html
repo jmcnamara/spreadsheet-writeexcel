@@ -1,0 +1,391 @@
+<HTML>
+<HEAD>
+<TITLE>Spreadsheet::WriteExcel - Write text and numbers to minimal Excel binary file.</TITLE>
+<LINK REV="made" HREF="mailto:">
+</HEAD>
+
+<BODY>
+
+<!-- INDEX BEGIN -->
+
+<UL>
+
+	<LI><A HREF="#NAME">NAME</A></LI>
+	<LI><A HREF="#VERSION">VERSION</A></LI>
+	<LI><A HREF="#SYNOPSIS">SYNOPSIS</A></LI>
+	<LI><A HREF="#DESCRIPTION">DESCRIPTION</A></LI>
+	<UL>
+
+		<LI><A HREF="#Overview">Overview</A></LI>
+		<LI><A HREF="#Constructor_and_initialization">Constructor and initialization</A></LI>
+		<LI><A HREF="#Object_methods">Object methods</A></LI>
+		<LI><A HREF="#Limits">Limits</A></LI>
+		<LI><A HREF="#The_Excel_BIFF_binary_format">The Excel &quot;BIFF&quot; binary format</A></LI>
+	</UL>
+
+	<LI><A HREF="#PORTABILITY">PORTABILITY</A></LI>
+	<LI><A HREF="#DIAGNOSTICS">DIAGNOSTICS</A></LI>
+	<LI><A HREF="#ALTERNATIVES">ALTERNATIVES</A></LI>
+	<LI><A HREF="#BUGS">BUGS</A></LI>
+	<LI><A HREF="#AUTHOR">AUTHOR</A></LI>
+	<LI><A HREF="#COPYRIGHT">COPYRIGHT</A></LI>
+</UL>
+<!-- INDEX END -->
+
+<HR>
+<P>
+<H1><A NAME="NAME">NAME</A></H1>
+<P>
+Spreadsheet::WriteExcel - Write text and numbers to minimal Excel binary
+file.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="VERSION">VERSION</A></H1>
+<P>
+This document refers to version 0.08 of Spreadsheet::WriteExcel, released
+Jan 16, 2000.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="SYNOPSIS">SYNOPSIS</A></H1>
+<P>
+To write a string and a number in an Excel file called perl.xls:
+
+</P>
+<P>
+<PRE>    use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>    $row1 = $col1 = 0;
+    $row2 = 1;
+</PRE>
+</P>
+<P>
+<PRE>    $excel = Spreadsheet::WriteExcel-&gt;new(&quot;perl.xls&quot;);
+</PRE>
+</P>
+<P>
+<PRE>    $excel-&gt;xl_write($row1, $col1, &quot;Hi Excel!&quot;);
+    $excel-&gt;xl_write($row2, $col1, 1.2345);
+</PRE>
+</P>
+<P>
+Or explicitly, without the overhead of parsing:
+
+</P>
+<P>
+<PRE>    $excel-&gt;xl_write_string($row1, $col1, &quot;Hi Excel!&quot;);
+    $excel-&gt;xl_write_number($row2, $col1, 1.2345);
+</PRE>
+</P>
+<P>
+The file is closed when the program ends or when it is no longer referred
+to. Alternatively you can close it as follows:
+
+</P>
+<P>
+<PRE>    $excel-&gt;close();
+</PRE>
+</P>
+<P>
+The following example converts a tab separated file called <CODE>tab.txt</CODE> into an Excel file called <CODE>tab.xls</CODE>.
+
+</P>
+<P>
+<PRE>    #!/usr/bin/perl -w
+</PRE>
+</P>
+<P>
+<PRE>    use strict;
+    use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>    open (TABFILE, &quot;tab.txt&quot;) or die &quot;tab.txt: $!&quot;;
+</PRE>
+</P>
+<P>
+<PRE>    my $row = 0;
+    my $col;
+</PRE>
+</P>
+<P>
+<PRE>    my $excel = Spreadsheet::WriteExcel-&gt;new(&quot;tab.xls&quot;);
+</PRE>
+</P>
+<P>
+<PRE>    while (&lt;TABFILE&gt;) {
+        chomp;
+        my @Fld = split('\t', $_);
+        my $token;
+</PRE>
+</P>
+<P>
+<PRE>        $col = 0;
+        foreach $token (@Fld) {
+           $excel-&gt;xl_write($row, $col, $token);
+           $col++;
+        }
+        $row++;
+    }
+</PRE>
+</P>
+<P>
+<HR>
+<H1><A NAME="DESCRIPTION">DESCRIPTION</A></H1>
+<P>
+<HR>
+<H2><A NAME="Overview">Overview</A></H2>
+<P>
+This module can be used to write numbers and text in the native Excel
+binary file format. This is a minimal implementation of an Excel file; no
+formatting can be applied to cells and only a single worksheet can be
+written to a workbook.
+
+</P>
+<P>
+It is intended to be cross-platform, however, this is not guaranteed. See
+the section on portability below.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="Constructor_and_initialization">Constructor and initialization</A></H2>
+<P>
+A new Excel file is created as follows:
+
+</P>
+<P>
+<PRE>    Spreadsheet::WriteExcel-&gt;new(&quot;filename.xls&quot;);
+</PRE>
+</P>
+<P>
+This will create a workbook called ``filename.xls'' with a single worksheet
+called ``filename''.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="Object_methods">Object methods</A></H2>
+<P>
+The following are the methods provided by WriteExcel:
+
+</P>
+<P>
+<PRE>    xl_write(row, column, token)
+    xl_write_number(row, column, number)
+    xl_write_string(row, column, string)
+    close()
+</PRE>
+</P>
+<P>
+Row and column are zero indexed cell locations; thus, Cell A1 is (0,0) and
+Cell AD2000 is (1999,29). Cells can be written to in any order. They can
+also be overwritten.
+
+</P>
+<P>
+The method <CODE>xl_write()</CODE> calls <CODE>xl_write_number()</CODE> if
+``token'' matches the following regex:
+
+</P>
+<P>
+<PRE>    $token =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/
+</PRE>
+</P>
+<P>
+Otherwise it calls <CODE>xl_write_string().</CODE>
+
+</P>
+<P>
+The write methods return:
+
+</P>
+<P>
+<PRE>    0 for success
+   -1 for insufficient number of arguments
+   -2 for row or column out of bounds
+   -3 for string too long.
+   
+</PRE>
+</P>
+<P>
+See also the section about limits.
+
+</P>
+<P>
+The <CODE>close()</CODE> method can be called to explicitly close the Excel file. Otherwise the file
+will be closed automatically when the object reference goes out of scope or
+the program ends.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="Limits">Limits</A></H2>
+<P>
+The following limits are imposed by Excel or the version of the BIFF file
+that has been implemented:
+
+</P>
+<P>
+<PRE>    Description                          Limit   Source
+    -----------------------------------  ------  -------
+    Maximum number of chars in a string  255     Excel 5
+    Maximum number of columns            256     Excel 5, 97
+    Maximum number of rows in Excel 5    16,384  Excel 5
+    Maximum number of rows in Excel 97   65,536  Excel 97
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="The_Excel_BIFF_binary_format">The Excel &quot;BIFF&quot; binary format</A></H2>
+<P>
+The binary format of an Excel file is referred to as the Excel ``Binary
+Interchange File Format'' (BIFF) file format. For details of this file
+format refer to the ``Excel Developer's Kit'', Microsoft Press. This module
+is based on the BIFF5 specification. To facilitate portability and ease of
+implementation the Compound Document wrapper is not used. This effectively
+limits the scope of the BIFF file to the records given below.
+
+</P>
+<P>
+The following binary records are implemented:
+
+</P>
+<P>
+<PRE>    [BOF]
+    [DIMENSIONS]
+    [NUMBER]
+    [LABEL]
+    [EOF]
+</PRE>
+</P>
+<P>
+Each Excel BIFF binary record has the following format:
+
+</P>
+<P>
+<PRE>    Record name   - Identifier, 2 bytes
+    Record length - Length of the subsequent data, 2 bytes
+    Record data   - Data, variable length
+</PRE>
+</P>
+<P>
+<HR>
+<H1><A NAME="PORTABILITY">PORTABILITY</A></H1>
+<P>
+WriteExcel.pm will only work on systems where perl packs floats in 64 bit
+IEEE format. The float must also be in little-endian format but
+WriteExcel.pm will reverse it as necessary.
+
+</P>
+<P>
+Thus:
+
+</P>
+<P>
+<PRE>    print join(&quot; &quot;, map { sprintf &quot;%#02x&quot;, $_ } unpack(&quot;C*&quot;, pack &quot;d&quot;, 1.2345)), &quot;\n&quot;;
+</PRE>
+</P>
+<P>
+should give (or in reverse order):
+
+</P>
+<P>
+<PRE>    0x8d 0x97 0x6e 0x12 0x83 0xc0 0xf3 0x3f
+</PRE>
+</P>
+<P>
+If your system doesn't support this format of float then WriteExcel will
+croak with the message given in the Diagnostics section. A future version
+will correct this, if possible. In the meantime, if this doesn't work for
+your OS let me know about it.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="DIAGNOSTICS">DIAGNOSTICS</A></H1>
+<DL>
+<DT><STRONG><A NAME="item_Filename">Filename required in WriteExcel(&quot;Filename&quot;)</A></STRONG><DD>
+<P>
+A filename must be given in the constructor.
+
+</P>
+<DT><STRONG><A NAME="item_Can">Can't open filename. It may be in use by Excel.</A></STRONG><DD>
+<P>
+The file cannot be opened for writing or reading. It may be protected or
+already in use.
+
+</P>
+<DT><STRONG><A NAME="item_Required">Required floating point format not supported on this platform.</A></STRONG><DD>
+<P>
+Operating system doesn't support 64 bit IEEE float or it is byte-ordered in
+a way unknown to WriteExcel.
+
+</P>
+</DL>
+<P>
+<HR>
+<H1><A NAME="ALTERNATIVES">ALTERNATIVES</A></H1>
+<P>
+Depending on your requirements, background and general sensibilities you
+may prefer one of the following methods of getting data into Excel:
+
+</P>
+<P>
+* CSV, comma separated variables or text. If the file extension is <CODE>csv</CODE>, Excel will open and convert this format automatically.
+
+</P>
+<P>
+* HTML tables. This is an easy way of adding formatting.
+
+</P>
+<P>
+* LAOLA. This is a Perl interface to OLE file formats, see CPAN.
+
+</P>
+<P>
+* ODBC. Connect to an Excel file as a database.
+
+</P>
+<P>
+* Office automation via the Win32::OLE module. This is very flexible and
+gives you access to multiple worksheets, formatting, and Excel's built-in
+functions.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="BUGS">BUGS</A></H1>
+<P>
+The main bug is the lack of a portable way of writing a little-endian 64
+bit IEEE float. This is to-do.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="AUTHOR">AUTHOR</A></H1>
+<P>
+John McNamara (<CODE>john.exeng@abanet.it</CODE>)
+
+</P>
+<P>
+``Life, friends is boring. We must not say so.'' - John Berryman.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="COPYRIGHT">COPYRIGHT</A></H1>
+<P>
+Copyright (c) 1999-2000, John McNamara. All Rights Reserved. This module is
+free software. It may be used, redistributed and/or modified under the same
+terms as Perl itself.
+</P>
+
+</BODY>
+
+</HTML>
