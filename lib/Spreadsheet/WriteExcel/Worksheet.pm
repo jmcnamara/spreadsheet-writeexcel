@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.02';
+$VERSION = '2.04';
 
 ###############################################################################
 #
@@ -99,6 +99,12 @@ sub new {
     $self->{_print_gridlines}   = 1;
     $self->{_screen_gridlines}  = 1;
     $self->{_print_headers}     = 0;
+
+    $self->{_page_order}        = 0;
+    $self->{_black_white}       = 0;
+    $self->{_draft_quality}     = 0;
+    $self->{_print_comments}    = 0;
+    $self->{_page_start}        = 1;
 
     $self->{_fit_page}          = 0;
     $self->{_fit_width}         = 0;
@@ -1704,7 +1710,7 @@ sub repeat_formula {
     my $row         = shift;    # Zero indexed row
     my $col         = shift;    # Zero indexed column
     my $formula_ref = shift;    # Array ref with formula tokens
-    my $format       = shift;   # XF format
+    my $format      = shift;    # XF format
     my @pairs       = @_;       # Pattern/replacement pairs
 
 
@@ -2713,9 +2719,12 @@ sub _store_setup {
     my $record       = 0x00A1;                  # Record identifier
     my $length       = 0x0022;                  # Number of bytes to follow
 
+
+    # TODO some of these props don't have accessors. Add then as requested.
+
     my $iPaperSize   = $self->{_paper_size};    # Paper size
     my $iScale       = $self->{_print_scale};   # Print scaling factor
-    my $iPageStart   = 0x01;                    # Starting page number
+    my $iPageStart   = $self->{_page_start};    # Starting page number
     my $iFitWidth    = $self->{_fit_width};     # Fit to number of pages wide
     my $iFitHeight   = $self->{_fit_height};    # Fit to number of pages high
     my $grbit        = 0x00;                    # Option flags
@@ -2726,12 +2735,12 @@ sub _store_setup {
     my $iCopies      = 0x01;                    # Number of copies
 
 
-    my $fLeftToRight = 0x0;                     # Print over then down
+    my $fLeftToRight = $self->{_page_order};    # Print over then down
     my $fLandscape   = $self->{_orientation};   # Page orientation
     my $fNoPls       = 0x0;                     # Setup not read from printer
-    my $fNoColor     = 0x0;                     # Print black and white
-    my $fDraft       = 0x0;                     # Print draft quality
-    my $fNotes       = 0x0;                     # Print notes
+    my $fNoColor     = $self->{_black_white};   # Print black and white
+    my $fDraft       = $self->{_draft_quality}; # Print draft quality
+    my $fNotes       = $self->{_print_comments};# Print notes
     my $fNoOrient    = 0x0;                     # Orientation not set
     my $fUsePage     = 0x0;                     # Use custom starting page
 
@@ -3800,7 +3809,7 @@ sub write_unicode {
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
 
-    # TODO
+    # TODO This should probably be the number of chars and not bytes. check.
     if ($strlen > 32766) {
         $str       = substr($str, 0, 32766);
         $str_error = -3;
@@ -3811,15 +3820,15 @@ sub write_unicode {
     my $num_chars = int($num_bytes / 2);
 
 
-    # TODO
+    # Check for a valid 2-byte char string.
     croak "Uneven number of bytes in Unicode string" if $num_bytes % 2;
 
 
     # Change from UTF16 big-endian to little endian
-    $str = pack "n*", unpack "v*", $str;
+    $str = pack "v*", unpack "n*", $str;
 
 
-    # TODO
+    # Add the encoding and length header to the string.
     my $str_header  = pack("vC", $num_chars, $encoding);
     $str            = $str_header . $str;
 
@@ -3853,6 +3862,8 @@ sub write_unicode {
 #         -2 : row or column out of range
 #         -3 : long string truncated to 255 chars
 #
+# TODO Refactor. Too much code share with write_unicode().
+#
 sub write_unicode_le {
 
     my $self = shift;
@@ -3878,7 +3889,7 @@ sub write_unicode_le {
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
 
-    # TODO
+    # TODO This should probably be the number of chars and not bytes. check.
     if ($strlen > 32766) {
         $str       = substr($str, 0, 32766);
         $str_error = -3;
@@ -3889,12 +3900,12 @@ sub write_unicode_le {
     my $num_chars = int($num_bytes / 2);
 
 
-    # TODO
+    # Check for a valid 2-byte char string.
     croak "Uneven number of bytes in Unicode string" if $num_bytes % 2;
 
-    # TODO
+    # Add the encoding and length header to the string.
     my $str_header  = pack("vC", $num_chars, $encoding);
-    $str            = $str_header . $str;
+       $str         = $str_header . $str;
 
 
     if (not exists ${$self->{_str_table}}->{$str}) {

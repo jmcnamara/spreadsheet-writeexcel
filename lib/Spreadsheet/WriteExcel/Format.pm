@@ -24,7 +24,7 @@ use Carp; # TODO required?
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.01';
+$VERSION = '2.04';
 
 ###############################################################################
 #
@@ -52,8 +52,10 @@ sub new {
                     _font_script    => 0,
                     _font_family    => 0,
                     _font_charset   => 0,
+                    _font_encoding  => 0,
 
                     _num_format     => 0,
+                    _num_format_enc => 0,
 
                     _hidden         => 0,
                     _locked         => 1,
@@ -321,7 +323,7 @@ sub get_font {
     my $reserved;   # Reserved
     my $cch;        # Length of font name
     my $rgch;       # Font name
-    my $encoding = 0;
+    my $encoding;   # Font name character encoding
 
 
     $dyHeight   = $self->{_size} * 20;
@@ -333,9 +335,18 @@ sub get_font {
     $bCharSet   = $self->{_font_charset};
     $rgch       = $self->{_font};
 
-    $cch        = length($rgch);
+    $encoding   = $self->{_font_encoding};
+    $cch        = length $rgch;
+
+    # Handle Unicode font names.
+    if ($encoding == 1) {
+        croak "Uneven number of bytes in Unicode font name" if $cch % 2;
+        $cch  /= 2 if $self->{_font_encoding};
+        $rgch  = pack 'v*', unpack 'n*', $rgch;
+    }
+
     $record     = 0x31;
-    $length     = 0x10 + $cch;
+    $length     = 0x10 + length $rgch;
     $reserved   = 0x00;
 
     $grbit      = 0x00;
@@ -372,6 +383,7 @@ sub get_font_key {
     $key   .= "$self->{_font_strikeout}$self->{_bold}$self->{_font_outline}";
     $key   .= "$self->{_font_family}$self->{_font_charset}";
     $key   .= "$self->{_font_shadow}$self->{_color}$self->{_italic}";
+    $key   .= "$self->{_font_encoding}";
     $key    =~ s/ /_/g; # Convert the key to a single word
 
     return $key;
@@ -464,14 +476,20 @@ sub set_align {
     $self->set_text_h_align(3) if ($location eq 'right');
     $self->set_text_h_align(4) if ($location eq 'fill');
     $self->set_text_h_align(5) if ($location eq 'justify');
-    $self->set_text_h_align(6) if ($location eq 'merge');
-    $self->set_text_h_align(7) if ($location eq 'equal_space'); # For T.K.
+    $self->set_text_h_align(6) if ($location eq 'center_across');
+    $self->set_text_h_align(6) if ($location eq 'centre_across');
+    $self->set_text_h_align(6) if ($location eq 'merge');        # S:WE name
+    $self->set_text_h_align(7) if ($location eq 'distributed');
+    $self->set_text_h_align(7) if ($location eq 'equal_space');  # ParseExcel
+
+
     $self->set_text_v_align(0) if ($location eq 'top');
     $self->set_text_v_align(1) if ($location eq 'vcentre');
     $self->set_text_v_align(1) if ($location eq 'vcenter');
     $self->set_text_v_align(2) if ($location eq 'bottom');
     $self->set_text_v_align(3) if ($location eq 'vjustify');
-    $self->set_text_v_align(4) if ($location eq 'vequal_space'); # For T.K.
+    $self->set_text_v_align(4) if ($location eq 'vdistributed');
+    $self->set_text_v_align(4) if ($location eq 'vequal_space'); # ParseExcel
 }
 
 
@@ -491,9 +509,26 @@ sub set_valign {
 
 ###############################################################################
 #
+# set_center_across()
+#
+# Implements the Excel5 style "merge".
+#
+sub set_center_across {
+
+    my $self     = shift;
+
+    $self->set_text_h_align(6);
+}
+
+
+###############################################################################
+#
 # set_merge()
 #
-# This is an alias for the unintuitive set_align('merge')
+# This was the way to implement a merge in Excel5. However it should have been
+# called "center_across" and not "merge".
+# This is now deprecated. Use set_center_across() or better merge_range().
+#
 #
 sub set_merge {
 
@@ -565,7 +600,7 @@ sub set_border_color {
 #
 # set_rotation($angle)
 #
-# TODO
+# Set the rotation angle of the text. An alignment property.
 #
 sub set_rotation {
 
@@ -574,6 +609,9 @@ sub set_rotation {
 
     # Argument should be a number
     return if $rotation !~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/;
+
+    # The arg type can be a double but the Excel dialog only allows integers.
+    $rotation = int $rotation;
 
     if ($rotation == 270) {
         $rotation = 255;

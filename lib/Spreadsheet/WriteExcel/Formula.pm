@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.03';
+$VERSION = '2.04';
 
 ###############################################################################
 #
@@ -139,9 +139,9 @@ sub _init_parser {
                         | '(' expr ')'  { [$item[2], 'ptgParen'] }
 
         # Match a string.
-        # TODO: Define a regex or subrule to handle embedded quotes.
+        # Regex by merlyn. See http://www.perlmonks.org/index.pl?node_id=330280
         #
-        string:           /"[^"]*"/     #" For editors
+        string:           /"([^"]|"")*"/     #" For editors
                         { [ '_str', $item[1]] }
 
         # Match float or integer

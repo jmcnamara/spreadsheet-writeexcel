@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.03'; # So. Central Rain
+$VERSION = '2.04'; # Telephone call from Istanbul
 
 
 
@@ -62,7 +62,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.03 of Spreadsheet::WriteExcel, released July 4, 2004.
+This document refers to version 2.04 of Spreadsheet::WriteExcel, released August 18, 2004.
 
 
 
@@ -824,7 +824,6 @@ See the note about L<Cell notation>.
 
 =head2 write_row($row, $column, $array_ref, $format)
 
-
 The C<write_row()> method can be used to write a 1D or 2D array of data in one go. This is useful for converting the results of a database query into an Excel worksheet. You must pass a reference to the array of data rather than the array itself. The C<write()> method is then called for each element of the data. For example:
 
     @array      = ('awk', 'gawk', 'mawk');
@@ -1003,8 +1002,6 @@ Finally, you can avoid most of these quoting problems by using forward slashes. 
     $worksheet->write_url('A14', "external:c:/temp/foo.xls"             );
     $worksheet->write_url('A15', 'external://NETWORK/share/foo.xls'     );
 
-Note: Hyperlinks are not available in Excel 5. They will appear as a string only.
-
 See also, the note about L<Cell notation>.
 
 
@@ -1025,8 +1022,6 @@ This method is generally only required when used in conjunction with merged cell
 There is no way to force this behaviour through the C<write()> method.
 
 The parameters C<$string> and the C<$format> are optional and their position is interchangeable. However, they are applied only to the first cell in the range.
-
-Note: Hyperlinks are not available in Excel 5. They will appear as a string only.
 
 See also, the note about L<Cell notation>.
 
@@ -1113,20 +1108,56 @@ Since the C<$pattern> is interpolated each time that it is used it is worth usin
 
     $worksheet->repeat_formula('B1', $formula, $format, qr/A1/, 'A2');
 
-Care should be taken with the values that are substituted. The formula returned by C<repeat_formula()> contains several other tokens in addition to those in the formula and these might also match the  pattern that you are trying to replace. In particular you should avoid substituting a single 0, 1, 2 or 3. Either substitute an explicit token such as C<A1> or else use a number that won't give a false match. For example, say you wanted to change C<SIN(A1)> to C<SIN(A2)>:
+Care should be taken with the values that are substituted. The formula returned by C<repeat_formula()> contains several other tokens in addition to those in the formula and these might also match the  pattern that you are trying to replace. In particular you should avoid substituting a single 0, 1, 2 or 3.
 
-    my $formula = $worksheet->store_formula('=SIN(A1)');
+You should also be careful to avoid false matches. For example the following snippet is meant to change the stored formula in steps from C<=A1 + SIN(A1)> to C<=A10 + SIN(A10)>.
 
-    # 1. This is explicit
-    $worksheet->repeat_formula('B1', $formula, undef, 'A1', 'A2');
+    my $formula = $worksheet->store_formula('=A1 + SIN(A1)');
 
-    # 2. May be wrong. Avoid matching simple matches against 0, 1, 2 or 3
-    $worksheet->repeat_formula('B2', $formula, undef, 1, 2);
+    for my $row (1 .. 10) {
+        $worksheet->repeat_formula($row -1, 1, $formula, undef,
+                                    qw/A1/, 'A' . $row,   #! Bad.
+                                    qw/A1/, 'A' . $row    #! Bad.
+                                  );
+    }
 
-    # 3. Unlikely to give false match, easier to generate programmatically
-    $worksheet->repeat_formula('B3', $formula, undef, 99, 2);
+However it contains a bug. In the last iteration of the loop when C<$row> is 10 the following substitutions will occur:
 
-You don't have to be overly paranoid about this. It is just something to be aware of. You can check the tokens that you are substituting against as follows.
+    s/A1/A10/;    changes    =A1 + SIN(A1)     to    =A10 + SIN(A1)
+    s/A1/A10/;    changes    =A10 + SIN(A1)    to    =A100 + SIN(A1) # !!
+
+The solution in this case is to use a more explicit match such as C<qw/^A1$/>:
+
+        $worksheet->repeat_formula($row -1, 1, $formula, undef,
+                                    qw/^A1$/, 'A' . $row,
+                                    qw/^A1$/, 'A' . $row
+                                  );
+
+Another similar problem occurs due to the fact that substitutions are made in order. For example the following snippet is meant to change the stored formula from C<=A10 + A11>  to C<=A11 + A12>:
+
+    my $formula = $worksheet->store_formula('=A10 + A11');
+
+    $worksheet->repeat_formula('A1', $formula, undef,
+                                qw/A10/, 'A11',   #! Bad.
+                                qw/A11/, 'A12'    #! Bad.
+                              );
+
+However, the actual substitution yields C<=A12 + A11>:
+
+    s/A10/A11/;    changes    =A10 + A11    to    =A11 + A11
+    s/A11/A12/;    changes    =A11 + A11    to    =A12 + A11 # !!
+
+The solution here would be to reverse the order of the substitutions or to start with a stored formula that won't yield a false match such as C<=X10 + Y11>:
+
+    my $formula = $worksheet->store_formula('=X10 + Y11');
+
+    $worksheet->repeat_formula('A1', $formula, undef,
+                                qw/X10/, 'A11',
+                                qw/Y11/, 'A12'
+                              );
+
+
+If you think that you have a problem related to a false match you can check the tokens that you are substituting against as follows.
 
     my $formula = $worksheet->store_formula('=A1*5+4');
     print "@$formula\n";
@@ -1495,15 +1526,13 @@ The C<merge_range()> method allows you to do Excel97+ style formatting where the
 
     $worksheet->merge_range('B3:D4', 'Vertical and horizontal', $format);
 
-The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range. As such, it shouldn't be used for other formatting.
+B<WARNING>. The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range. As such, B<it should not be used for other formatting>. This will be fixed in a later version. See the L<BUGS> section.
 
 C<merge_range()> writes its $token argument using the worksheet C<write()> method. Therefore it will handle numbers, strings, formulas or urls as required.
 
 Setting the C<merge> property of the format isn't required when you are using C<merge_range()>. In fact using it will exclude the use of any other horizontal alignment option.
 
 The full possibilities of this method are shown in the C<merge3.pl>, C<merge4.pl> and C<merge5.pl> programs in the C<examples> directory of the distribution.
-
-The C<merge_range()> method doesn't work with Excel versions before Excel 97.
 
 
 
@@ -2016,7 +2045,7 @@ The following table shows the Excel format categories, the formatting properties
                Rotation          rotation        set_rotation()
                Text wrap         text_wrap       set_text_wrap()
                Justify last      text_justlast   set_text_justlast()
-               Merge             merge           set_merge()
+               Center across     center_across   set_center_across()
                Indentation       indent          set_indent()
                Shrink to fit     shrink          set_shrink()
 
@@ -2140,7 +2169,7 @@ The following Format methods are available:
     set_rotation()
     set_text_wrap()
     set_text_justlast()
-    set_merge()
+    set_center_across()
     set_indent()
     set_shrink()
     set_pattern()
@@ -2532,7 +2561,7 @@ Note: This offers weak protection even with a password, see the note in relation
                         'right'
                         'fill'
                         'justify'
-                        'merge'
+                        'center_across'
 
                         'top'               Vertical
                         'vcenter'
@@ -2547,7 +2576,7 @@ This method is used to set the horizontal and vertical text alignment within a c
     $worksheet->set_row(0, 30);
     $worksheet->write(0, 0, "X", $format);
 
-Text can be aligned across two or more adjacent cells using the C<merge> property. See also, the C<set_merge()> method below.
+Text can be aligned across two or more adjacent cells using the C<center_across> property. However, for genuine merged cells it is better to use the C<merge_range()> worksheet method.
 
 The C<vjustify> (vertical justify) option can be used to provide automatic text wrapping in a cell. The height of the cell will be adjusted to accommodate the wrapped text. To specify where the text wraps use the C<set_text_wrap()> method.
 
@@ -2557,23 +2586,23 @@ For further examples see the 'Alignment' worksheet created by formats.pl.
 
 
 
-=head2 set_merge()
+=head2 set_center_across()
 
-    Default state:      Cell merging is off
-    Default action:     Turn cell merging on
+    Default state:      Center across selection is off
+    Default action:     Turn center across on
     Valid args:         1
 
-Text can be aligned across two or more adjacent cells using the C<set_merge()> method. This is an alias for the C<set_align('merge')> method call.
+Text can be aligned across two or more adjacent cells using the C<set_center_across()> method. This is an alias for the C<set_align('center_across')> method call.
 
 Only one cell should contain the text, the other cells should be blank:
 
     my $format = $workbook->add_format();
-    $format->set_merge();
+    $format->set_center_across();
 
-    $worksheet->write(1, 1, 'Merged cells', $format);
+    $worksheet->write(1, 1, 'Center across selection', $format);
     $worksheet->write_blank(1, 2, $format);
 
-See also the C<merge1.pl>, C<merge2.pl> and C<merge3.pl> programs in the C<examples> directory and the C<merge_range()> method.
+See also the C<merge1.pl> to C<merge5.pl> programs in the C<examples> directory and the C<merge_range()> method.
 
 
 
@@ -2591,6 +2620,7 @@ Here is an example using the text wrap property, the escape character C<\n> is u
     $worksheet->write(0, 0, "It's\na bum\nwrap", $format);
 
 Excel will adjust the height of the row to accommodate the wrapped text. A similar effect can be obtained without newlines using the C<set_align('vjustify')> method. See the C<textwrap.pl> program in the C<examples> directory.
+
 
 
 
@@ -2705,8 +2735,6 @@ For further examples see the 'Patterns' worksheet created by formats.pl.
 
 
 The C<set_fg_color()> method can be used to set the foreground colour of a pattern.
-
-Note, in older versions of Spreadsheet::WriteExcel it was recommended to use C<set_fg_color()> to set the colour of a solid fill pattern. The preferred method is now to use C<set_bg_color()>, although for backward compatibility the role of C<set_fg_color()> and C<set_bg_color()> are interchangeable when using a solid fill pattern.
 
 For further examples see the 'Patterns' worksheet created by formats.pl.
 
@@ -2966,14 +2994,13 @@ Some additional outline properties can be set via the C<outline_settings()> work
 The first thing to note is that there are still some outstanding issues with the implementation of formulas and functions:
 
     1. Writing a formula is much slower than writing the equivalent string.
-    2. You cannot use embedded double quotes in strings.
-    3. You cannot use array constants, i.e. {1;2;3}, in functions.
-    4. Unary minus isn't supported.
-    5. Whitespace is not preserved around operators.
-    6. Named ranges are not supported.
-    7. Array formulas are not supported.
+    2. You cannot use array constants, i.e. {1;2;3}, in functions.
+    3. Unary minus isn't supported.
+    4. Whitespace is not preserved around operators.
+    5. Named ranges are not supported.
+    6. Array formulas are not supported.
 
-However, these constraints will be removed in future versions. They are here because of a trade-off between features and time. Also, it is possible to work around issues 1 and 2 using the C<store_formula()> and C<repeat_formula()> methods as described later in this section.
+However, these constraints will be removed in future versions. They are here because of a trade-off between features and time. Also, it is possible to work around issue 1 using the C<store_formula()> and C<repeat_formula()> methods as described later in this section.
 
 
 
@@ -3156,12 +3183,6 @@ A formula can be parsed and stored via the C<store_formula()> worksheet method. 
     }
 
 On an arbitrary test machine this method was 10 times faster than the brute force method shown above.
-
-The token substitution can also be used to work around some of the current parsing limitations. For example, the parser cannot currently handle double quotes in strings such as the string C<Hello "World"> which would be written in an Excel formula as C<="Hello ""World""">. The doubling of the double quotes here is an Excel requirement. You can use C<repeat_formula()> to work around this limitation as follows:
-
-    my $formula = $worksheet->store_formula('="Hello qqWorldqq"');
-
-    $worksheet->repeat_formula('A1', $formula, $format, ('qq', '""') x 2);
 
 For more information about how Spreadsheet::WriteExcel parses and stores formulas see the C<Spreadsheet::WriteExcel::Formula> man page.
 
@@ -3480,7 +3501,7 @@ different features and options of the module.
     unicode_japan.pl    Write Japanese Unicode strings.
     unicode_list.pl     List the chars in a Unicode font.
     win32ole.pl         A sample Win32::OLE example for comparison.
-    write_array.pl      Example of writing 1D or 2D arrays of data.
+    write_arrays.pl     Example of writing 1D or 2D arrays of data.
 
 
     Utility
@@ -3542,7 +3563,7 @@ This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.01/WriteExcel/doc/install.html
+http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.04/WriteExcel/doc/install.html
 
 
 
@@ -3664,6 +3685,10 @@ Excel files contain an internal index table that allows them to act like a datab
 
 You can also access Spreadsheet::WriteExcel using the standard DBI interface via Takanori Kawai's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
 
+=item * Spreadsheet::WriteExcelXML
+
+This module allows you to create an Excel XML file using the same interface as Spreadsheet::WriteExcel. See: http://search.cpan.org/dist/Spreadsheet-WriteExcelXML
+
 =item * Spreadsheet::WriteExcel::FromXML
 
 This module allows you to turn a simple XML file into an Excel file using Spreadsheet::WriteExcel as a backend. The format of the XML file is defined by a supplied DTD: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML
@@ -3761,9 +3786,9 @@ To avoid this problems you should convert the output data to ASCII or ISO-8859-1
     $new_str = from_utf8({-str => $utf8_str, -charset => 'ISO-8859-1'});
 
 
-If you are interested in creating an XML spreadsheet format you should be aware that Excel 2000 and later versions can read XML data directly. The Excel XML file specification is available at http://msdn.microsoft.com/library/officedev/ofxml2k/ofxml2k.htm
+If you are interested in creating an XML spreadsheet format you can use Spreadsheet::WriteExcelXML which uses the same interface as Spreadsheet::WriteExcel. See http://search.cpan.org/dist/Spreadsheet-WriteExcelXML
 
-Another approach is to use Spreadsheet::WriteExcel::FromXML. This uses a DTD to define a simple XML format that can be converted to an Excel file using Spreadsheet::WriteExcel as a backend. This is a potentially powerful approach since it effectively decouples your data from Perl, apart from a single filter program, and allows you to create Spreadsheet::WriteExcel files using your preferred XML tools. See http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML
+s
 
 
 =head1 BUGS
@@ -3774,7 +3799,7 @@ This version of the module doesn't support the write_comment() method. This will
 
 XML data can cause Excel files created by Spreadsheet::WriteExcel to become corrupt. See L<WORKING WITH XML> for further details.
 
-If you do not add a format to each cell of a C<merge_cells()> range it will cause Excel97 to crash, use the safer C<merge_range()> method instead.
+The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range.If you use this format in a non-merged cell it will cause Excel to crash. The current workaround is to use separate formats for merged and non-merged cell. This will be fixed in a future release.
 
 Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE". If you come across a formula that parses like this, let me know.
 
@@ -3783,8 +3808,6 @@ Spreadsheet::ParseExcel: All formulas created by Spreadsheet::WriteExcel are rea
 OpenOffice.org: Some formatting is not displayed correctly.
 
 Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as links.
-
-MS Access: The Excel files that are produced by this module are not compatible with MS Access. Use DBI or ODBC instead.
 
 The lack of a portable way of writing a little-endian 64 bit IEEE float. There is beta code available to fix this. Let me know if you wish to test it on your platform.
 
@@ -3857,7 +3880,7 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
 
 The following people contributed patches, examples or Excel information:
 
@@ -3883,22 +3906,22 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 John McNamara jmcnamara@cpan.org
 
 
-    Did you never call? I waited for your call
-    These rivers of suggestion are driving me away
-    The trees will bend, the cities wash away
-    The city on the river there is a girl without a dream
+    All night long on the broken glass
+    Livin in a medicine chest
+    Mediteromanian hotel back
+    sprawled across a roll top desk
+    The monkey rode the blade on an
+    overhead fan
+    They paint the donkey blue if you pay
+    I got a telephone call from Istanbul
+    My baby's coming home today
 
-    I'm sorry
+    Will you sell me one of those if I shave my head
+    Get me out of town is what fireball said
+    Never trust a man in a blue trench coat
+    Never drive a car when you're dead
 
-    Eastern to Mountain, third party call, the lines are down
-    The wise man built his words upon the rocks
-    But I'm not bound to follow suit
-    The trees will bend, the conversation's dimmed
-    Go build yourself another home, this choice isn't mine
-
-    I'm sorry
-
-        -- Michael Stipe
+        -- Tom Waits
 
 
 

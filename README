@@ -18,7 +18,6 @@ DESCRIPTION
     The module will work on the majority of Windows, UNIX and
     Macintosh platforms. Generated files are also compatible with the
     spreadsheet applications Gnumeric and OpenOffice.org.
-    The generated files are not compatible with MS Access.
 
     This module cannot be used to read an Excel file. See
     Spreadsheet::ParseExcel or look at the main documentation for some
@@ -40,12 +39,12 @@ SYNOPSIS
         $worksheet = $workbook->add_worksheet();
 
         #  Add and define a format
-        $format = $workbook->add_format();    # Add a format
+        $format = $workbook->add_format(); # Add a format
         $format->set_bold();
         $format->set_color('red');
         $format->set_align('center');
 
-        # Write a formatted and unformatted string, row and column notation.
+        # Write a formatted and unformatted string.
         $col = $row = 0;
         $worksheet->write($row, $col, "Hi Excel!", $format);
         $worksheet->write(1,    $col, "Hi Excel!");

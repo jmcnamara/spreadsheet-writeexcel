@@ -1,6 +1,23 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+2.04 August 18 2004 - Minor
+
+    ! Fixed handling of Euro symbol in num_format() strings.
+
+    ! Renamed the Excel 5 style merge() format to the more correct
+      center_across(). Updated examples accordingly.
+
+    ! Added bug warning about using merge formats outside of
+      merged ranges.
+
+    + Fixed handling of double quotes in formula strings.
+      Thanks to a tip from merlyn.
+
+    + The 2.xx versions are now compatible with MS Access. Removed
+      statements to the contrary.
+
+
 2.03 July 4 2004 - Minor
 
     ! Fixed bug that prevented column outlines from displaying.

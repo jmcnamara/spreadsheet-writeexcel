@@ -835,13 +835,15 @@ sub _store_all_num_formats {
     my %num_formats;
     my @num_formats;
     my $num_format;
-    my $index = 164;
+    my $index = 164; # User defined FORMAT records start from 0xA4
+
 
     # Iterate through the XF objects and write a FORMAT record if it isn't a
     # built-in format type and if the FORMAT string hasn't already been used.
     #
     foreach my $format (@{$self->{_formats}}) {
         my $num_format = $format->{_num_format};
+        my $encoding   = $format->{_num_format_enc};
 
         # Check if $num_format is an index to a built-in format.
         # Also check for a string of zeros, which is a valid format string
@@ -859,16 +861,9 @@ sub _store_all_num_formats {
             # Add a new FORMAT
             $num_formats{$num_format} = $index;
             $format->{_num_format}    = $index;
-            push @num_formats, $num_format;
+            $self->_store_num_format($num_format, $index, $encoding);
             $index++;
         }
-    }
-
-    # Write the new FORMAT records starting from 0xA4
-    $index = 164;
-    foreach $num_format (@num_formats) {
-        $self->_store_num_format($num_format, $index);
-        $index++;
     }
 }
 
@@ -1121,13 +1116,30 @@ sub _store_num_format {
 
     my $self      = shift;
 
-    my $record    = 0x041E;                 # Record identifier
-    my $length    = 0x05 + length($_[0]);   # Number of bytes to follow
+    my $record    = 0x041E;         # Record identifier
+    my $length;                     # Number of bytes to follow
 
-    my $format    = $_[0];                  # Custom format string
-    my $ifmt      = $_[1];                  # Format index code
-    my $cch       = length($format);        # Length of format string
-    my $encoding     = 0;
+    my $format    = $_[0];          # Custom format string
+    my $ifmt      = $_[1];          # Format index code
+    my $encoding  = $_[2];          # Char encoding for format string
+    my $cch       = length $format; # Char length of format string
+
+
+    # Handle Unicode format strings.
+    if ($encoding == 1) {
+        croak "Uneven number of bytes in Unicode font name" if $cch % 2;
+        $cch    /= 2 if $self->{_font_encoding};
+        $format  = pack 'v*', unpack 'n*', $format;
+    }
+
+    # Special case to handle Euro symbol, 0x80, in non-Unicode strings.
+    if ($encoding == 0 and $format =~ /\x80/) {
+        $format   =  pack 'v*', unpack 'C*', $format;
+        $format   =~ s/\x80\x00/\xAC\x20/g;
+        $encoding =  1;
+    }
+
+    $length       = 0x05 + length $format;
 
     my $header    = pack("vv", $record, $length);
     my $data      = pack("vvC", $ifmt, $cch, $encoding);

@@ -4,7 +4,9 @@
 #
 # Simple example of merging cells using the Spreadsheet::WriteExcel module.
 #
-# This example shows how to merge two or more cells.
+# This merges three cells using the "Centre Across Selection" alignment.
+# This was the Excel 5 method of achieving a merge. Use the merge_range()
+# worksheet method instead. See merge3.pl - merge4.pl.
 #
 # reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
 #
@@ -23,11 +25,11 @@ $worksheet->set_row(2, 30);
 
 
 # Create a merge format
-my $format = $workbook->add_format(merge => 1);
+my $format = $workbook->add_format(center_across => 1);
 
 
 # Only one cell should contain text, the others should be blank.
-$worksheet->write      (2, 1, "Merged Cells", $format);
+$worksheet->write      (2, 1, "Center across selection", $format);
 $worksheet->write_blank(2, 2,                 $format);
 $worksheet->write_blank(2, 3,                 $format);
 

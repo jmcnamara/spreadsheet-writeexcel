@@ -48,7 +48,7 @@ unicode.pl          Simple example of using Unicode strings.
 unicode_japan.pl    Write Japanese Unicode strings.
 unicode_list.pl     List the chars in a Unicode font.
 win32ole.pl         A sample Win32::OLE example for comparison.
-write_array.pl      Example of writing 1D or 2D arrays of data.
+write_arrays.pl     Example of writing 1D or 2D arrays of data.
 
 
 Utility
