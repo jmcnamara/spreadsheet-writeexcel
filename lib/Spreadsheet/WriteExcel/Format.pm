@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Format;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2004, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -181,7 +181,8 @@ sub get_xf {
     my $atr_prot    = ($self->{_hidden}         != 0  ||
                        $self->{_locked}         != 1) ? 1 : 0;
 
-    # TODO
+
+    # Set a default diagonal border style if none was specified.
     $self->{_diag_border} = 1 if !$self->{_diag_border} and $self->{_diag_type};
 
 
@@ -334,14 +335,24 @@ sub get_font {
     $bFamily    = $self->{_font_family};
     $bCharSet   = $self->{_font_charset};
     $rgch       = $self->{_font};
-
     $encoding   = $self->{_font_encoding};
-    $cch        = length $rgch;
+
+    # Handle utf8 strings in newer perls.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($rgch)) {
+            $rgch = Encode::encode("UTF-16BE", $rgch);
+            $encoding = 1;
+        }
+    }
+
+    $cch = length $rgch;
 
     # Handle Unicode font names.
     if ($encoding == 1) {
         croak "Uneven number of bytes in Unicode font name" if $cch % 2;
-        $cch  /= 2 if $self->{_font_encoding};
+        $cch  /= 2 if $encoding;
         $rgch  = pack 'v*', unpack 'n*', $rgch;
     }
 
@@ -754,6 +765,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMIV, John McNamara.
+© MM-MMV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

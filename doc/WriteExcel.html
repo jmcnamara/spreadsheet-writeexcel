@@ -69,12 +69,12 @@
 		<LI><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></LI>
 		<LI><A HREF="#write_row_row_column_array_">write_row($row, $column, $array_ref, $format)</A></LI>
 		<LI><A HREF="#write_col_row_column_array_">write_col($row, $column, $array_ref, $format)</A></LI>
+		<LI><A HREF="#write_date_time_row_col_dat">write_date_time($row, $col, $date_string, $format)</A></LI>
 		<LI><A HREF="#write_url_row_col_url_str">write_url($row, $col, $url, $string, $format)</A></LI>
 		<LI><A HREF="#write_url_range_row1_col1_r">write_url_range($row1, $col1, $row2, $col2, $url, $string, $format)</A></LI>
 		<LI><A HREF="#write_formula_row_column_fo">write_formula($row, $column, $formula, $format)</A></LI>
 		<LI><A HREF="#store_formula_formula_">store_formula($formula)</A></LI>
 		<LI><A HREF="#repeat_formula_row_col_form">repeat_formula($row, $col, $formula, $format, ($pattern =&gt; $replace, ...))</A></LI>
-		<LI><A HREF="#write_date_time_row_col_dat">write_date_time($row, $col, $date_string, $format)</A></LI>
 		<LI><A HREF="#write_comment_row_column_st">write_comment($row, $column, $string)</A></LI>
 		<LI><A HREF="#add_write_handler_re_code_ref">add_write_handler($re, $code_ref)</A></LI>
 		<LI><A HREF="#insert_bitmap_row_col_filen">insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
@@ -193,9 +193,10 @@
 	<LI><A HREF="#THE_EXCEL_BINARY_FORMAT">THE EXCEL BINARY FORMAT</A></LI>
 	<LI><A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A></LI>
 	<LI><A HREF="#READING_EXCEL_FILES">READING EXCEL FILES</A></LI>
-	<LI><A HREF="#WORKING_WITH_XML">WORKING WITH XML</A></LI>
+	<LI><A HREF="#Warning_about_XML_Parser_and_Pe">Warning about XML::Parser and Perl 5.6</A></LI>
 	<LI><A HREF="#BUGS">BUGS</A></LI>
 	<LI><A HREF="#TO_DO">TO DO</A></LI>
+	<LI><A HREF="#MAILING_LIST">MAILING LIST</A></LI>
 	<LI><A HREF="#SEE_ALSO">SEE ALSO</A></LI>
 	<LI><A HREF="#ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></LI>
 	<LI><A HREF="#AUTHOR">AUTHOR</A></LI>
@@ -214,8 +215,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.10 of Spreadsheet::WriteExcel, released
-September 23, 2004.
+This document refers to version 2.12 of Spreadsheet::WriteExcel, released
+March 22, 2005.
 
 </P>
 <P>
@@ -680,10 +681,6 @@ around this if necessary.
 
 </P>
 <P>
-The <CODE>set_tempdir()</CODE> method must be called before calling <CODE>add_worksheet()</CODE>.
-
-</P>
-<P>
 <HR>
 <H2><A NAME="add_worksheet_sheetname_">add_worksheet($sheetname)</A></H2>
 <P>
@@ -693,10 +690,10 @@ used to write data into cells:
 </P>
 <P>
 <PRE>
-    $worksheet1 = $workbook-&gt;add_worksheet();          # Sheet1
-    $worksheet2 = $workbook-&gt;add_worksheet('Foglio2'); # Foglio2
-    $worksheet3 = $workbook-&gt;add_worksheet('Data');    # Data
-    $worksheet4 = $workbook-&gt;add_worksheet();          # Sheet4
+    $worksheet1 = $workbook-&gt;add_worksheet();           # Sheet1
+    $worksheet2 = $workbook-&gt;add_worksheet('Foglio2');  # Foglio2
+    $worksheet3 = $workbook-&gt;add_worksheet('Data');     # Data
+    $worksheet4 = $workbook-&gt;add_worksheet();           # Sheet4
 </PRE>
 </P>
 <P>
@@ -706,9 +703,18 @@ Sheet1, Sheet2, etc.
 </P>
 <P>
 The worksheet name must be a valid Excel worksheet name, i.e. it cannot
-contain any of the following characters, <CODE>: * ? / \</CODE> and it must be less than 32 characters. In addition, you cannot use the
+contain any of the following characters, <CODE>[ ] : * ? / \</CODE> and it must be less than 32 characters. In addition, you cannot use the
 same, case insensitive, <CODE>$sheetname</CODE> for more than one worksheet.
 
+</P>
+<P>
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>add_worksheet()</CODE> method will also handle strings in Perl's <CODE>utf8</CODE> format.
+
+</P>
+<P>
+<PRE>
+    $worksheet5 = $workbook-&gt;add_worksheet(&quot;\x{263a}&quot;); # Smiley
+</PRE>
 </P>
 <P>
 <HR>
@@ -1187,7 +1193,7 @@ You can also add your own data handlers to the <CODE>write()</CODE> method using
 
 </P>
 <P>
-On systems with <CODE>perl 5.8</CODE> and later the <CODE>write()</CODE> method will also handle strings in Perl's <CODE>utf8</CODE> format.
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>write()</CODE> method will also handle Unicode strings in Perl's <CODE>utf8</CODE> format.
 
 </P>
 <P>
@@ -1584,11 +1590,10 @@ string or number value.
 
 </P>
 <P>
-Excel differentiates between an &quot;Empty&quot; cell and a
-&quot;Blank&quot; cell. An &quot;Empty&quot; cell is a cell which doesn't
-contain data whilst a &quot;Blank&quot; cell is a cell which doesn't
-contain data but does contain formatting. Excel stores &quot;Blank&quot;
-cells but ignores &quot;Empty&quot; cells.
+Excel differentiates between an "Empty" cell and a "Blank" cell. An "Empty"
+cell is a cell which doesn't contain data whilst a "Blank" cell is a cell
+which doesn't contain data but does contain formatting. Excel stores
+"Blank" cells but ignores "Empty" cells.
 
 </P>
 <P>
@@ -1702,8 +1707,8 @@ appropriate row or column value will still be incremented.
 
 </P>
 <P>
-To find out more about array references refer to <CODE>perlref</CODE> and <CODE>perlreftut</CODE> in the main Perl documentation. To find out more about 2D arrays or
-&quot;lists of lists&quot; refer to <CODE>perllol</CODE>.
+To find out more about array references refer to <CODE>perlref</CODE> and <CODE>perlreftut</CODE> in the main Perl documentation. To find out more about 2D arrays or "lists
+of lists" refer to <CODE>perllol</CODE>.
 
 </P>
 <P>
@@ -1840,8 +1845,8 @@ calls are equivalent although the more explicit call to <CODE>write_col()</CODE>
 </PRE>
 </P>
 <P>
-To find out more about array references refer to <CODE>perlref</CODE> and <CODE>perlreftut</CODE> in the main Perl documentation. To find out more about 2D arrays or
-&quot;lists of lists&quot; refer to <CODE>perllol</CODE>.
+To find out more about array references refer to <CODE>perlref</CODE> and <CODE>perlreftut</CODE> in the main Perl documentation. To find out more about 2D arrays or "lists
+of lists" refer to <CODE>perllol</CODE>.
 
 </P>
 <P>
@@ -1852,6 +1857,70 @@ for the <CODE>write()</CODE> method above.
 </P>
 <P>
 See also the <CODE>write_arrays.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="write_date_time_row_col_dat">write_date_time($row, $col, $date_string, $format)</A></H2>
+<P>
+The <CODE>write_date_time()</CODE> method can be used to write a date or time to the cell specified by <CODE>$row</CODE> and <CODE>$column</CODE>:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write_date_time('A1', '2004-05-13T23:20', $date_format);
+</PRE>
+</P>
+<P>
+The <CODE>$date_string</CODE> should be in the following format:
+
+</P>
+<P>
+<PRE>
+    yyyy-mm-ddThh:mm:ss.sss
+</PRE>
+</P>
+<P>
+This conforms to am ISO8601 date but it should be noted that the full range
+of ISO8601 formats are not supported.
+
+</P>
+<P>
+The following variations on the <CODE>$date_string</CODE> parameter are permitted:
+
+</P>
+<P>
+<PRE>
+    yyyy-mm-ddThh:mm:ss.sss         # Standard format
+    yyyy-mm-ddT                     # No time
+              Thh:mm:ss.sss         # No date
+    yyyy-mm-ddThh:mm:ss.sssZ        # Additional Z (but not time zones)
+    yyyy-mm-ddThh:mm:ss             # No fractional seconds
+    yyyy-mm-ddThh:mm                # No seconds
+</PRE>
+</P>
+<P>
+Note that the <CODE>T</CODE> is required in all cases.
+
+</P>
+<P>
+A date should always have a <CODE>$format</CODE>, otherwise it will appear as a number, see <A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A> and <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. Here is a typical example:
+
+</P>
+<P>
+<PRE>
+    my $date_format = $workbook-&gt;add_format(num_format =&gt; 'mm/dd/yy');
+    $worksheet-&gt;write_date_time('A1', '2004-05-13T23:20', $date_format);
+</PRE>
+</P>
+<P>
+Valid dates should be in the range 1900-01-01 to 9999-12-31, for the 1900
+epoch and 1904-01-01 to 9999-12-31, for the 1904 epoch. As with Excel,
+dates outside these ranges will be written as a string.
+
+</P>
+<P>
+See also the date_time.pl program in the <CODE>examples</CODE> directory of the distro.
 
 </P>
 <P>
@@ -2016,16 +2085,16 @@ See the note about <A HREF="#Cell_notation">Cell notation</A>. For more informat
 
 </P>
 <P>
-See also the section &quot;Improving performance when working with
-formulas&quot; and the <CODE>store_formula()</CODE> and <CODE>repeat_formula()</CODE> methods.
+See also the section "Improving performance when working with formulas" and
+the <CODE>store_formula()</CODE> and <CODE>repeat_formula()</CODE> methods.
 
 </P>
 <P>
 <HR>
 <H2><A NAME="store_formula_formula_">store_formula($formula)</A></H2>
 <P>
-The <CODE>store_formula()</CODE> method is used in conjunction with <CODE>repeat_formula()</CODE> to speed up the generation of repeated formulas. See &quot;Improving
-performance when working with formulas&quot; in <A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A>.
+The <CODE>store_formula()</CODE> method is used in conjunction with <CODE>repeat_formula()</CODE> to speed up the generation of repeated formulas. See "Improving performance
+when working with formulas" in <A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A>.
 
 </P>
 <P>
@@ -2074,8 +2143,8 @@ Although <CODE>store_formula()</CODE> is a worksheet method the return value can
 <HR>
 <H2><A NAME="repeat_formula_row_col_form">repeat_formula($row, $col, $formula, $format, ($pattern =&gt; $replace, ...))</A></H2>
 <P>
-The <CODE>repeat_formula()</CODE> method is used in conjunction with <CODE>store_formula()</CODE> to speed up the generation of repeated formulas. See &quot;Improving
-performance when working with formulas&quot; in <A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A>.
+The <CODE>repeat_formula()</CODE> method is used in conjunction with <CODE>store_formula()</CODE> to speed up the generation of repeated formulas. See "Improving performance
+when working with formulas" in <A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A>.
 
 </P>
 <P>
@@ -2252,70 +2321,6 @@ the tokens that you are substituting against as follows.
 </P>
 <P>
 See also the <CODE>repeat.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
-
-</P>
-<P>
-<HR>
-<H2><A NAME="write_date_time_row_col_dat">write_date_time($row, $col, $date_string, $format)</A></H2>
-<P>
-The <CODE>write_date_time()</CODE> method can be used to write a date or time to the cell specified by <CODE>$row</CODE> and <CODE>$column</CODE>:
-
-</P>
-<P>
-<PRE>
-    $worksheet-&gt;write_date_time('A1', '2004-05-13T23:20', $date_format);
-</PRE>
-</P>
-<P>
-The <CODE>$date_string</CODE> should be in the following format:
-
-</P>
-<P>
-<PRE>
-    yyyy-mm-ddThh:mm:ss.sss
-</PRE>
-</P>
-<P>
-This conforms to am ISO8601 date but it should be noted that the full range
-of ISO8601 formats are not supported.
-
-</P>
-<P>
-The following variations on the <CODE>$date_string</CODE> parameter are permitted:
-
-</P>
-<P>
-<PRE>
-    yyyy-mm-ddThh:mm:ss.sss         # Standard format
-    yyyy-mm-ddT                     # No time
-              Thh:mm:ss.sss         # No date
-    yyyy-mm-ddThh:mm:ss.sssZ        # Additional Z (but not time zones)
-    yyyy-mm-ddThh:mm:ss             # No fractional seconds
-    yyyy-mm-ddThh:mm                # No seconds
-</PRE>
-</P>
-<P>
-Note that the <CODE>T</CODE> is required in all cases.
-
-</P>
-<P>
-A date should always have a <CODE>$format</CODE>, otherwise it will appear as a number, see <A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A> and <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. Here is a typical example:
-
-</P>
-<P>
-<PRE>
-    my $date_format = $workbook-&gt;add_format(num_format =&gt; 'mm/dd/yy');
-    $worksheet-&gt;write_date_time('A1', '2004-05-13T23:20', $date_format);
-</PRE>
-</P>
-<P>
-Valid dates should be in the range 1900-01-01 to 9999-12-31, for the 1900
-epoch and 1904-01-01 to 9999-12-31, for the 1904 epoch. As with Excel,
-dates outside these ranges will be written as a string.
-
-</P>
-<P>
-See also the date_time.pl program in the <CODE>examples</CODE> directory of the distro.
 
 </P>
 <P>
@@ -2688,9 +2693,9 @@ It can be turned off in Excel via the <CODE>Tools-&gt;Protection-&gt;Unprotect S
 
 </P>
 <P>
-The <CODE>protect()</CODE> method also has the effect of enabling a cell's <CODE>locked</CODE> and <CODE>hidden</CODE> properties if they have been set. A &quot;locked&quot; cell cannot be
-edited. A &quot;hidden&quot; cell will display the results of a formula but
-not the formula itself. In Excel a cell's locked property is on by default.
+The <CODE>protect()</CODE> method also has the effect of enabling a cell's <CODE>locked</CODE> and <CODE>hidden</CODE> properties if they have been set. A "locked" cell cannot be edited. A
+"hidden" cell will display the results of a formula but not the formula
+itself. In Excel a cell's locked property is on by default.
 
 </P>
 <P>
@@ -2890,9 +2895,9 @@ Examples:
 <P>
 The width corresponds to the column width value that is specified in Excel.
 It is approximately equal to the length of a string in the default font of
-Arial 10. Unfortunately, there is no way to specify &quot;AutoFit&quot; for
-a column in the Excel file format. This feature is only available at
-runtime from within Excel.
+Arial 10. Unfortunately, there is no way to specify "AutoFit" for a column
+in the Excel file format. This feature is only available at runtime from
+within Excel.
 
 </P>
 <P>
@@ -2984,9 +2989,8 @@ described in <A HREF="#OUTLINES_AND_GROUPING_IN_EXCEL">OUTLINES AND GROUPING IN 
 <P>
 The <CODE>$visible</CODE> parameter is used to control whether or not outlines are visible. Setting
 this parameter to 0 will cause all outlines on the worksheet to be hidden.
-They can be unhidden in Excel by means of the &quot;Show Outline
-Symbols&quot; command button. The default setting is 1 for visible
-outlines.
+They can be unhidden in Excel by means of the "Show Outline Symbols"
+command button. The default setting is 1 for visible outlines.
 
 </P>
 <P>
@@ -3010,8 +3014,7 @@ for symbols to appear to the right of the outline level bar.
 The <CODE>$auto_style</CODE> parameter is used to control whether the automatic outline generator in
 Excel uses automatic styles when creating an outline. This has no effect on
 a file generated by <CODE>Spreadsheet::WriteExcel</CODE> but it does have an effect on how the worksheet behaves after it is
-created. The default setting is 0 for &quot;Automatic Styles&quot; to be
-turned off.
+created. The default setting is 0 for "Automatic Styles" to be turned off.
 
 </P>
 <P>
@@ -3028,8 +3031,8 @@ The worksheet parameters controlled by <CODE>outline_settings()</CODE> are rarel
 <H2><A NAME="freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col)</A></H2>
 <P>
 This method can be used to divide a worksheet into horizontal or vertical
-regions known as panes and to also &quot;freeze&quot; these panes so that
-the splitter bars are not visible. This is the same as the <CODE>Window-&gt;Freeze Panes</CODE> menu command in Excel
+regions known as panes and to also "freeze" these panes so that the
+splitter bars are not visible. This is the same as the <CODE>Window-&gt;Freeze Panes</CODE> menu command in Excel
 
 </P>
 <P>
@@ -3126,7 +3129,7 @@ See also the <CODE>freeze_panes()</CODE> method and the <CODE>panes.pl</CODE> pr
 <H2><A NAME="merge_range_first_row_first_c">merge_range($first_row, $first_col, $last_row, $last_col, $token, $format)</A></H2>
 <P>
 Merging cells is generally achieved by setting the <CODE>merge</CODE> property of a Format object, see <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. However, this only allows simple Excel5 style horizontal merging which
-Excel refers to as &quot;center across selection&quot;.
+Excel refers to as "center across selection".
 
 </P>
 <P>
@@ -3183,8 +3186,8 @@ Set the worksheet zoom factor in the range <CODE>10 &lt;= $scale &lt;= 400</CODE
 </PRE>
 </P>
 <P>
-The default zoom factor is 100. You cannot zoom to &quot;Selection&quot;
-because it is calculated by Excel at run-time.
+The default zoom factor is 100. You cannot zoom to "Selection" because it
+is calculated by Excel at run-time.
 
 </P>
 <P>
@@ -3418,6 +3421,7 @@ The available control character are:
     &amp;T                                      Time
     &amp;F                                      File name
     &amp;A                                      Worksheet name
+    &amp;Z                                      Workbook path
 </PRE>
 </P>
 <P>
@@ -3564,9 +3568,8 @@ the control character <CODE>&amp;n</CODE> where <CODE>n</CODE> is the font size:
 </P>
 <P>
 You can specify the font of a section of the text by prefixing it with the
-control sequence <CODE>&amp;&quot;font,style&quot;</CODE> where <CODE>fontname</CODE> is a font name such as &quot;Courier New&quot; or &quot;Times New
-Roman&quot; and <CODE>style</CODE> is one of the standard Windows font descriptions: &quot;Regular&quot;,
-&quot;Italic&quot;, &quot;Bold&quot; or &quot;Bold Italic&quot;:
+control sequence <CODE>&amp;&quot;font,style&quot;</CODE> where <CODE>fontname</CODE> is a font name such as "Courier New" or "Times New Roman" and <CODE>style</CODE> is one of the standard Windows font descriptions: "Regular", "Italic",
+"Bold" or "Bold Italic":
 
 </P>
 <P>
@@ -3621,6 +3624,15 @@ margins.
 Note, the header or footer string must be less than 255 characters. Strings
 longer than this will not be written and a warning will be generated.
 
+</P>
+<P>
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>set_header()</CODE> method can also handle Unicode strings in Perl's <CODE>utf8</CODE> format.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_header(&quot;&amp;C\x{263a}&quot;)
+</PRE>
 </P>
 <P>
 See, also the <CODE>headers.pl</CODE> program in the <CODE>examples</CODE> directory of the distribution.
@@ -3737,7 +3749,7 @@ to have them printed you can use the <CODE>print_row_col_headers()</CODE> method
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;print_row_col_headers()
+    $worksheet-&gt;print_row_col_headers();
 </PRE>
 </P>
 <P>
@@ -3856,7 +3868,7 @@ once:
 </PRE>
 </P>
 <P>
-Note: If you specify the &quot;fit to page&quot; option via the <CODE>fit_to_pages()</CODE> method it will override all manual page breaks.
+Note: If you specify the "fit to page" option via the <CODE>fit_to_pages()</CODE> method it will override all manual page breaks.
 
 </P>
 <P>
@@ -3893,7 +3905,7 @@ once:
 </PRE>
 </P>
 <P>
-Note: If you specify the &quot;fit to page&quot; option via the <CODE>fit_to_pages()</CODE> method it will override all manual page breaks.
+Note: If you specify the "fit to page" option via the <CODE>fit_to_pages()</CODE> method it will override all manual page breaks.
 
 </P>
 <P>
@@ -4111,8 +4123,8 @@ allows you to share formatting between workbook objects
 
 </P>
 <P>
-You can also create a format &quot;on the fly&quot; and pass it directly to
-a write method as follows:
+You can also create a format "on the fly" and pass it directly to a write
+method as follows:
 
 </P>
 <P>
@@ -4121,8 +4133,8 @@ a write method as follows:
 </PRE>
 </P>
 <P>
-This corresponds to an &quot;anonymous&quot; format in the Perl sense of
-anonymous data or subs.
+This corresponds to an "anonymous" format in the Perl sense of anonymous
+data or subs.
 
 </P>
 <P>
@@ -5291,8 +5303,8 @@ HREF="http://www.hypersolutions.org/pages/rgbhex.html">http://www.hypersolutions
 <HR>
 <H1><A NAME="DATES_IN_EXCEL">DATES IN EXCEL</A></H1>
 <P>
-Dates and times in Excel are represented by real numbers, for example
-&quot;Jan 1 2001 12:30 AM&quot; is represented by the number 36892.521.
+Dates and times in Excel are represented by real numbers, for example "Jan
+1 2001 12:30 AM&quot; is represented by the number 36892.521.
 
 </P>
 <P>
@@ -5658,8 +5670,8 @@ Spreadsheet::WriteExcel. European users of Excel take note:
 <P>
 The following table lists all of the core functions supported by Excel 5
 and Spreadsheet::WriteExcel. Any additional functions that are available
-through the &quot;Analysis ToolPak&quot; or other add-ins are not
-supported. These functions have all been tested to verify that they work.
+through the "Analysis ToolPak" or other add-ins are not supported. These
+functions have all been tested to verify that they work.
 
 </P>
 <P>
@@ -6299,6 +6311,7 @@ features and options of the module.
     =======
     unicode.pl              Simple example of using Unicode UTF16 strings.
     unicode_japan.pl        Write Japanese Unicode strings using UTF16.
+    unicode_cyrillic.pl     Write Russian cyrillic strings using UTF8.
     unicode_list.pl         List the chars in a Unicode font.
     unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
     unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.
@@ -6479,9 +6492,9 @@ a way unknown to WriteExcel.
 <DT><A NAME="item__file_xls_">'file.xls' cannot be accessed. The file may be read-only ...</A><DD>
 <P>
 You may sometimes encounter the following error when trying to open a file
-in Excel: &quot;file.xls cannot be accessed. The file may be read-only, or
-you may be trying to access a read-only location. Or, the server the
-document is stored on may not be responding.&quot;
+in Excel: "file.xls cannot be accessed. The file may be read-only, or you
+may be trying to access a read-only location. Or, the server the document
+is stored on may not be responding."
 
 </P>
 <P>
@@ -6501,19 +6514,18 @@ anyone who may be interested.
 
 </P>
 <P>
-Excel data is stored in the &quot;Binary Interchange File Format&quot;
-(BIFF) file format. Details of this format are given in the Excel SDK, the
-&quot;Excel Developer's Kit&quot; from Microsoft Press. It is also included
-in the MSDN CD library but is no longer available on the MSDN website.
-Versions of the BIFF documentation are available at www.wotsit.org, <A
+Excel data is stored in the "Binary Interchange File Format" (BIFF) file
+format. Details of this format are given in the Excel SDK, the "Excel
+Developer's Kit" from Microsoft Press. It is also included in the MSDN CD
+library but is no longer available on the MSDN website. Versions of the
+BIFF documentation are available at www.wotsit.org, <A
 HREF="http://www.wotsit.org/search.asp?page=2&s=database">http://www.wotsit.org/search.asp?page=2&s=database</A>
 
 
 </P>
 <P>
 Charles Wybble has collected together almost all of the available
-information about the Excel file format. See &quot;The Chicago
-Project&quot; at <A
+information about the Excel file format. See "The Chicago Project" at <A
 HREF="http://chicago.sourceforge.net/devel/">http://chicago.sourceforge.net/devel/</A>
 
 
@@ -6630,7 +6642,7 @@ connect to an Excel file as a database.
 <P>
 You can also access Spreadsheet::WriteExcel using the standard DBI
 interface via Takanori Kawai's DBD::Excel module <A
-HREF="http://search.cpan.org/search?dist=DBD-Excel.">http://search.cpan.org/search?dist=DBD-Excel.</A>
+HREF="http://search.cpan.org/dist/DBD-Excel">http://search.cpan.org/dist/DBD-Excel</A>
 
 
 </P>
@@ -6639,6 +6651,14 @@ HREF="http://search.cpan.org/search?dist=DBD-Excel.">http://search.cpan.org/sear
 This module allows you to create an Excel XML file using the same interface
 as Spreadsheet::WriteExcel. See: <A
 HREF="http://search.cpan.org/dist/Spreadsheet-WriteExcelXML">http://search.cpan.org/dist/Spreadsheet-WriteExcelXML</A>
+
+
+</P>
+<LI><A NAME="item_Excel">Excel::Template</A>
+<P>
+This module allows you to create an Excel file from an XML template in a
+manner similar to HTML::Template. See <A
+HREF="http://search.cpan.org/dist/Excel-Template/">http://search.cpan.org/dist/Excel-Template/</A>
 
 
 </P>
@@ -6654,7 +6674,7 @@ HREF="http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML">http://search.
 <LI><A NAME="item_Spreadsheet">Spreadsheet::WriteExcel::Simple</A>
 <P>
 This provides an easier interface to Spreadsheet::WriteExcel: <A
-HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-Simple">http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-Simple</A>
+HREF="http://search.cpan.org/dist/Spreadsheet-WriteExcel-Simple">http://search.cpan.org/dist/Spreadsheet-WriteExcel-Simple</A>
 
 
 </P>
@@ -6662,7 +6682,7 @@ HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-Simple">http://s
 <P>
 This is a useful module for creating Excel files directly from a DB table:
 <A
-HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB">http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB</A>
+HREF="http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB">http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB</A>
 
 
 </P>
@@ -6697,7 +6717,7 @@ To read data from Excel files try:
 <P>
 This uses the OLE::Storage-Lite module to extract data from an Excel file.
 <A
-HREF="http://search.cpan.org/search?dist=Spreadsheet-ParseExcel">http://search.cpan.org/search?dist=Spreadsheet-ParseExcel</A>
+HREF="http://search.cpan.org/dist/Spreadsheet-ParseExcel">http://search.cpan.org/dist/Spreadsheet-ParseExcel</A>
 
 
 </P>
@@ -6705,15 +6725,15 @@ HREF="http://search.cpan.org/search?dist=Spreadsheet-ParseExcel">http://search.c
 <P>
 This module uses Spreadsheet::ParseExcel's interface but uses xlHtml (see
 below) to do the conversion: <A
-HREF="http://search.cpan.org/search?dist=Spreadsheet-ParseExcel_XLHTML">http://search.cpan.org/search?dist=Spreadsheet-ParseExcel_XLHTML</A>
+HREF="http://search.cpan.org/dist/Spreadsheet-ParseExcel_XLHTML">http://search.cpan.org/dist/Spreadsheet-ParseExcel_XLHTML</A>
 Spreadsheet::ParseExcel_XLHTML
 
 </P>
 <LI><A NAME="item_xlHtml">xlHtml</A>
 <P>
-This is an open source &quot;Excel to HTML Converter&quot; C/C++ project at
-<A HREF="http://www.xlhtml.org/">http://www.xlhtml.org/</A> See also, the
-OLE Filters Project at <A
+This is an open source "Excel to HTML Converter" C/C++ project at <A
+HREF="http://www.xlhtml.org/">http://www.xlhtml.org/</A> See also, the OLE
+Filters Project at <A
 HREF="http://atena.com/libole2.php">http://atena.com/libole2.php</A>
 
 </P>
@@ -6721,7 +6741,7 @@ HREF="http://atena.com/libole2.php">http://atena.com/libole2.php</A>
 <P>
 You can also access Spreadsheet::ParseExcel using the standard DBI
 interface via Takanori Kawai's DBD::Excel module <A
-HREF="http://search.cpan.org/search?dist=DBD-Excel.">http://search.cpan.org/search?dist=DBD-Excel.</A>
+HREF="http://search.cpan.org/dist/DBD-Excel">http://search.cpan.org/dist/DBD-Excel</A>
 
 
 </P>
@@ -6734,7 +6754,7 @@ See, the section <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A>.
 <P>
 If the files are saved from Excel in a HTML format the data can be accessed
 using HTML::TableExtract <A
-HREF="http://search.cpan.org/search?dist=HTML-TableExtract">http://search.cpan.org/search?dist=HTML-TableExtract</A>
+HREF="http://search.cpan.org/dist/HTML-TableExtract">http://search.cpan.org/dist/HTML-TableExtract</A>
 
 
 </P>
@@ -6746,7 +6766,7 @@ See, the section <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A>.
 <LI><A NAME="item_XML">XML::Excel</A>
 <P>
 Converts Excel files to XML using Spreadsheet::ParseExcel <A
-HREF="http://search.cpan.org/search?dist=XML-Excel.">http://search.cpan.org/search?dist=XML-Excel.</A>
+HREF="http://search.cpan.org/dist/XML-Excel.">http://search.cpan.org/dist/XML-Excel.</A>
 
 
 </P>
@@ -6782,11 +6802,11 @@ HREF="http://office.microsoft.com/downloads/2000/xlviewer.aspx">http://office.mi
 </P>
 <P>
 <HR>
-<H1><A NAME="WORKING_WITH_XML">WORKING WITH XML</A></H1>
+<H1><A NAME="Warning_about_XML_Parser_and_Pe">Warning about XML::Parser and Perl 5.6</A></H1>
 <P>
-You must be careful when using XML data in conjunction with
-Spreadsheet::WriteExcel due to the fact that data returned by XML parsers
-is generally in UTF8 format.
+You must be careful when using Spreadsheet::WriteExcel in conjunction with
+Perl 5.6 and XML::Parser (and other XML parsers) due to the fact that the
+data returned by the parser is generally in UTF8 format.
 
 </P>
 <P>
@@ -6795,8 +6815,14 @@ causes the generated Excel file to become corrupt.
 
 </P>
 <P>
-To avoid this problems you should convert the output data to ASCII or
-ISO-8859-1 using one of the following methods:
+Note, this doesn't affect Perl 5.005 (which doesn't try to handle UTF8) or
+5.8 (which handles it correctly).
+
+</P>
+<P>
+To avoid this problem you should upgrade to Perl 5.8, if possible, or else
+you should convert the output data from XML::Parser to ASCII or ISO-8859-1
+using one of the following methods:
 
 </P>
 <P>
@@ -6811,14 +6837,6 @@ ISO-8859-1 using one of the following methods:
 </PRE>
 </P>
 <P>
-If you are interested in creating an XML spreadsheet format you can use
-Spreadsheet::WriteExcelXML which uses the same interface as
-Spreadsheet::WriteExcel. See <A
-HREF="http://search.cpan.org/dist/Spreadsheet-WriteExcelXML">http://search.cpan.org/dist/Spreadsheet-WriteExcelXML</A>
-
-
-</P>
-<P>
 <HR>
 <H1><A NAME="BUGS">BUGS</A></H1>
 <P>
@@ -6831,8 +6849,8 @@ method. This will be fixed soon.
 
 </P>
 <P>
-XML data can cause Excel files created by Spreadsheet::WriteExcel to become
-corrupt. See <A HREF="#WORKING_WITH_XML">WORKING WITH XML</A> for further details.
+XML and UTF8 data on Perl 5.6 can cause Excel files created by
+Spreadsheet::WriteExcel to become corrupt. See <A HREF="#Warning_about_XML_Parser_and_Pe">Warning about XML::Parser and Perl 5.6</A> for further details.
 
 </P>
 <P>
@@ -6860,7 +6878,7 @@ OpenOffice.org: Some formatting is not displayed correctly.
 </P>
 <P>
 Gnumeric: Some formatting is not displayed correctly. URLs are not
-displayed as links.
+displayed as links. Page setup can cause Gnumeric to crash.
 
 </P>
 <P>
@@ -6881,20 +6899,9 @@ The roadmap is as follows:
 
 </P>
 <UL>
-<LI><A NAME="item_Extend">Extend uft8 support to all relevant methods.</A>
 <LI><A NAME="item_Add">Add write_comment().</A>
 <LI><A NAME="item_Add">Add AutoFilters.</A>
 </UL>
-<P>
-You can keep up to date with future releases by registering as a user with
-Freshmeat <A HREF="http://freshmeat.net/">http://freshmeat.net/</A> and
-subscribing to Spreadsheet::WriteExcel at the project page <A
-HREF="http://freshmeat.net/projects/writeexcel/">http://freshmeat.net/projects/writeexcel/</A>
-You will then receive mailed updates when a new version is released.
-Alternatively you can keep an eye on <A
-HREF="news://comp.lang.perl.announce">news://comp.lang.perl.announce</A>
-
-</P>
 <P>
 Also, here are some of the most requested features that probably won't get
 added:
@@ -6917,10 +6924,59 @@ could consider connecting to a Windows server via Docserver or SOAP, see <A HREF
 </P>
 <P>
 <HR>
+<H1><A NAME="MAILING_LIST">MAILING LIST</A></H1>
+<P>
+There is a Google group for discussing and asking questions about
+Spreadsheet::WriteExcel: <A
+HREF="http://groups-beta.google.com/group/spreadsheet-writeexcel/">http://groups-beta.google.com/group/spreadsheet-writeexcel/</A>
+<p>
+<table style="border:1px solid #aa0033; font-size:small" align=center>
+  <tr> 
+    <td rowspan=3>
+     <img src="http://groups-beta.google.com/groups/img/groups_medium.gif" height=58 width=150 alt="Google Groups">
+    </td>
+    <td colspan=2 align=center><b>Subscribe to Spreadsheet::WriteExcel</b></td>
+  </tr>
+  <form action="http://groups-beta.google.com/group/spreadsheet-writeexcel/boxsubscribe">
+  <tr> 
+    <td>Email: <input type=text name=email></td>
+    <td>
+      <table 
+       style="background-color:#ffcc33;padding:2px;border:2px outset #ffcc33;">
+      <tr>
+        <td>
+         <input type=submit name="sub" value="Subscribe">
+        </td>
+      </tr>
+      </table>
+    </td>
+  </tr>
+   </form>
+  <tr><td colspan=2 align=center>
+   <a href="http://groups-beta.google.com/group/spreadsheet-writeexcel">Browse Archives</a> at 
+    <a href="http://groups-beta.google.com/">groups-beta.google.com</a>
+  </td></tr>
+</table>
+
+
+
+
+
+
+</P>
+<P>
+Alternatively you can keep up to date with future releases by subscribing
+at: <A
+HREF="http://freshmeat.net/projects/writeexcel/">http://freshmeat.net/projects/writeexcel/</A>
+
+
+</P>
+<P>
+<HR>
 <H1><A NAME="SEE_ALSO">SEE ALSO</A></H1>
 <P>
 Spreadsheet::ParseExcel: <A
-HREF="http://search.cpan.org/search?dist=Spreadsheet-ParseExcel">http://search.cpan.org/search?dist=Spreadsheet-ParseExcel</A>
+HREF="http://search.cpan.org/dist/Spreadsheet-ParseExcel">http://search.cpan.org/dist/Spreadsheet-ParseExcel</A>
 
 
 </P>
@@ -6932,32 +6988,38 @@ HREF="http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML">http://search.
 </P>
 <P>
 Spreadsheet::WriteExcel::FromDB: <A
-HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB">http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB</A>
+HREF="http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB">http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB</A>
+
+
+</P>
+<P>
+Excel::Template: <A
+HREF="http://search.cpan.org/~rkinyon/Excel-Template/">http://search.cpan.org/~rkinyon/Excel-Template/</A>
 
 
 </P>
 <P>
 DateTime::Format::Excel: <A
-HREF="http://search.cpan.org/search?dist=DateTime-Format-Excel">http://search.cpan.org/search?dist=DateTime-Format-Excel</A>
+HREF="http://search.cpan.org/dist/DateTime-Format-Excel">http://search.cpan.org/dist/DateTime-Format-Excel</A>
 
 
 </P>
 <P>
-&quot;Reading and writing Excel files with Perl&quot; by Teodor Zlatanov,
-atIBM developerWorks: <A
+"Reading and writing Excel files with Perl" by Teodor Zlatanov, atIBM
+developerWorks: <A
 HREF="http://www-106.ibm.com/developerworks/library/l-pexcel/">http://www-106.ibm.com/developerworks/library/l-pexcel/</A>
 
 
 </P>
 <P>
-&quot;Excel-Dateien mit Perl erstellen - Controller im Glück&quot; by Peter
+"Excel-Dateien mit Perl erstellen - Controller im Glück" by Peter
 Dintelmann and Christian Kirsch in the German Unix/web journal iX: <A
 HREF="http://www.heise.de/ix/artikel/2001/06/175/">http://www.heise.de/ix/artikel/2001/06/175/</A>
 
 
 </P>
 <P>
-&quot;Spreadsheet::WriteExcel&quot; in The Perl Journal: <A
+"Spreadsheet::WriteExcel" in The Perl Journal: <A
 HREF="http://www.samag.com/documents/s=1272/sam05030004/">http://www.samag.com/documents/s=1272/sam05030004/</A>
 
 
@@ -7043,26 +7105,28 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    The difference between dogs and sheds
+    Slow dulcimer, gavotte and bow, in autumn,
+    Basho and his friends go out to view the moon;
+    In summer, gasoline rainbow in the gutter,
 </PRE>
 </P>
 <P>
 <PRE>
-    It's not a very good idea to give a dog
-    a coat
-    of creosote
+    The secret courtesy that courses like ichor
+    Through the old form of the rude, full-scale joke,
+    Impossible to tell in writing.
 </PRE>
 </P>
 <P>
 <PRE>
-        -- John Hegley
+        -- Robert Pinsky
 </PRE>
 </P>
 <P>
 <HR>
 <H1><A NAME="COPYRIGHT">COPYRIGHT</A></H1>
 <P>
-© MM-MMIV, John McNamara.
+© MM-MMV, John McNamara.
 
 </P>
 <P>

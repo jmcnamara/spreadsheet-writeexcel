@@ -218,7 +218,7 @@ Version 0.01.
 
 =head1 COPYRIGHT
 
-© MMIV, John McNamara.
+© MMV, John McNamara.
 
 All Rights Reserved. This program is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

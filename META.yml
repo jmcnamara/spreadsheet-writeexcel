@@ -1,5 +1,5 @@
 name:               Spreadsheet-WriteExcel
-version:            2.11
+version:            2.12
 version_from:       lib/Spreadsheet/WriteExcel.pm
 installdirs:        site
 requires:

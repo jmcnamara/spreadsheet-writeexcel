@@ -51,10 +51,12 @@ write_handler2.pl       Example of extending the write() method. Step 2.
 write_handler3.pl       Example of extending the write() method. Step 3.
 write_handler4.pl       Example of extending the write() method. Step 4.
 
+
 Unicode
 =======
 unicode.pl              Simple example of using Unicode UTF16 strings.
 unicode_japan.pl        Write Japanese Unicode strings using UTF16.
+unicode_cyrillic.pl     Write Russian cyrillic strings using UTF8.
 unicode_list.pl         List the chars in a Unicode font.
 unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
 unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.

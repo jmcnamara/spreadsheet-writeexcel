@@ -6,7 +6,7 @@ package Spreadsheet::WriteExcel;
 #
 # Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 #
-# Copyright 2000-2004, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.11'; # Pining for the pork of the porcupine
+$VERSION = '2.12'; # Months mind
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.11 of Spreadsheet::WriteExcel, released September 30, 2004.
+This document refers to version 2.12 of Spreadsheet::WriteExcel, released March 22, 2005.
 
 
 
@@ -309,8 +309,6 @@ The directory for the temporary file must exist, C<set_tempdir()> will not creat
 
 One disadvantage of using the C<set_tempdir()> method is that on some Windows systems it will limit you to approximately 800 concurrent tempfiles. This means that a single program running on one of these systems will be limited to creating a total of 800 workbook and worksheet objects. You can run multiple, non-concurrent programs to work around this if necessary.
 
-The C<set_tempdir()> method must be called before calling C<add_worksheet()>.
-
 
 
 
@@ -319,16 +317,18 @@ The C<set_tempdir()> method must be called before calling C<add_worksheet()>.
 
 At least one worksheet should be added to a new workbook. A worksheet is used to write data into cells:
 
-    $worksheet1 = $workbook->add_worksheet();          # Sheet1
-    $worksheet2 = $workbook->add_worksheet('Foglio2'); # Foglio2
-    $worksheet3 = $workbook->add_worksheet('Data');    # Data
-    $worksheet4 = $workbook->add_worksheet();          # Sheet4
+    $worksheet1 = $workbook->add_worksheet();           # Sheet1
+    $worksheet2 = $workbook->add_worksheet('Foglio2');  # Foglio2
+    $worksheet3 = $workbook->add_worksheet('Data');     # Data
+    $worksheet4 = $workbook->add_worksheet();           # Sheet4
 
 If C<$sheetname> is not specified the default Excel convention will be followed, i.e. Sheet1, Sheet2, etc.
 
-The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<: * ? / \> and it must be less than 32 characters. In addition, you cannot use the same, case insensitive, C<$sheetname> for more than one worksheet.
+The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<[ ] : * ? / \> and it must be less than 32 characters. In addition, you cannot use the same, case insensitive, C<$sheetname> for more than one worksheet.
 
+On systems with C<perl 5.8> and later the C<add_worksheet()> method will also handle strings in Perl's C<utf8> format.
 
+    $worksheet5 = $workbook->add_worksheet("\x{263a}"); # Smiley
 
 
 =head2 add_chart_ext($chart_data, $chartname)
@@ -615,7 +615,7 @@ One problem with the C<write()> method is that occasionally data looks like a nu
 
 You can also add your own data handlers to the C<write()> method using C<add_write_handler()>.
 
-On systems with C<perl 5.8> and later the C<write()> method will also handle strings in Perl's C<utf8> format.
+On systems with C<perl 5.8> and later the C<write()> method will also handle Unicode strings in Perl's C<utf8> format.
 
 The C<write> methods return:
 
@@ -986,6 +986,41 @@ See also the C<write_arrays.pl> program in the C<examples> directory of the dist
 
 
 
+=head2 write_date_time($row, $col, $date_string, $format)
+
+The C<write_date_time()> method can be used to write a date or time to the cell specified by C<$row> and C<$column>:
+
+    $worksheet->write_date_time('A1', '2004-05-13T23:20', $date_format);
+
+The C<$date_string> should be in the following format:
+
+    yyyy-mm-ddThh:mm:ss.sss
+
+This conforms to am ISO8601 date but it should be noted that the full range of ISO8601 formats are not supported.
+
+The following variations on the C<$date_string> parameter are permitted:
+
+    yyyy-mm-ddThh:mm:ss.sss         # Standard format
+    yyyy-mm-ddT                     # No time
+              Thh:mm:ss.sss         # No date
+    yyyy-mm-ddThh:mm:ss.sssZ        # Additional Z (but not time zones)
+    yyyy-mm-ddThh:mm:ss             # No fractional seconds
+    yyyy-mm-ddThh:mm                # No seconds
+
+Note that the C<T> is required in all cases.
+
+A date should always have a C<$format>, otherwise it will appear as a number, see L<DATES IN EXCEL> and L<CELL FORMATTING>. Here is a typical example:
+
+    my $date_format = $workbook->add_format(num_format => 'mm/dd/yy');
+    $worksheet->write_date_time('A1', '2004-05-13T23:20', $date_format);
+
+Valid dates should be in the range 1900-01-01 to 9999-12-31, for the 1900 epoch and 1904-01-01 to 9999-12-31, for the 1904 epoch. As with Excel, dates outside these ranges will be written as a string.
+
+See also the date_time.pl program in the C<examples> directory of the distro.
+
+
+
+
 =head2 write_url($row, $col, $url, $string, $format)
 
 Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative string is specified. The parameters C<$string> and the C<$format> are optional and their position is interchangeable.
@@ -1196,41 +1231,6 @@ If you think that you have a problem related to a false match you can check the 
     print "@$formula\n";
 
 See also the C<repeat.pl> program in the C<examples> directory of the distro.
-
-
-
-
-=head2 write_date_time($row, $col, $date_string, $format)
-
-The C<write_date_time()> method can be used to write a date or time to the cell specified by C<$row> and C<$column>:
-
-    $worksheet->write_date_time('A1', '2004-05-13T23:20', $date_format);
-
-The C<$date_string> should be in the following format:
-
-    yyyy-mm-ddThh:mm:ss.sss
-
-This conforms to am ISO8601 date but it should be noted that the full range of ISO8601 formats are not supported.
-
-The following variations on the C<$date_string> parameter are permitted:
-
-    yyyy-mm-ddThh:mm:ss.sss         # Standard format
-    yyyy-mm-ddT                     # No time
-              Thh:mm:ss.sss         # No date
-    yyyy-mm-ddThh:mm:ss.sssZ        # Additional Z (but not time zones)
-    yyyy-mm-ddThh:mm:ss             # No fractional seconds
-    yyyy-mm-ddThh:mm                # No seconds
-
-Note that the C<T> is required in all cases.
-
-A date should always have a C<$format>, otherwise it will appear as a number, see L<DATES IN EXCEL> and L<CELL FORMATTING>. Here is a typical example:
-
-    my $date_format = $workbook->add_format(num_format => 'mm/dd/yy');
-    $worksheet->write_date_time('A1', '2004-05-13T23:20', $date_format);
-
-Valid dates should be in the range 1900-01-01 to 9999-12-31, for the 1900 epoch and 1904-01-01 to 9999-12-31, for the 1904 epoch. As with Excel, dates outside these ranges will be written as a string.
-
-See also the date_time.pl program in the C<examples> directory of the distro.
 
 
 
@@ -1859,6 +1859,7 @@ The available control character are:
     &T                                      Time
     &F                                      File name
     &A                                      Worksheet name
+    &Z                                      Workbook path
 
     &fontsize           Font                Font size
     &"font,style"                           Font name and style
@@ -1968,6 +1969,11 @@ The header and footer margins are independent of the top and bottom margins.
 
 Note, the header or footer string must be less than 255 characters. Strings longer than this will not be written and a warning will be generated.
 
+On systems with C<perl 5.8> and later the C<set_header()> method can also handle Unicode strings in Perl's C<utf8> format.
+
+    $worksheet->set_header("&C\x{263a}")
+
+
 See, also the C<headers.pl> program in the C<examples> directory of the distribution.
 
 
@@ -2040,7 +2046,7 @@ An Excel worksheet looks something like the following;
 
 The headers are the letters and numbers at the top and the left of the worksheet. Since these headers serve mainly as a indication of position on the worksheet they generally do not appear on the printed page. If you wish to have them printed you can use the C<print_row_col_headers()> method :
 
-    $worksheet->print_row_col_headers()
+    $worksheet->print_row_col_headers();
 
 Do not confuse these headers with page headers as described in the C<set_header()> section above.
 
@@ -3635,10 +3641,12 @@ different features and options of the module.
     write_handler3.pl       Example of extending the write() method. Step 3.
     write_handler4.pl       Example of extending the write() method. Step 4.
 
+
     Unicode
     =======
     unicode.pl              Simple example of using Unicode UTF16 strings.
     unicode_japan.pl        Write Japanese Unicode strings using UTF16.
+    unicode_cyrillic.pl     Write Russian cyrillic strings using UTF8.
     unicode_list.pl         List the chars in a Unicode font.
     unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
     unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.
@@ -3829,11 +3837,15 @@ Excel files contain an internal index table that allows them to act like a datab
 
 =item * DBD::Excel
 
-You can also access Spreadsheet::WriteExcel using the standard DBI interface via Takanori Kawai's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
+You can also access Spreadsheet::WriteExcel using the standard DBI interface via Takanori Kawai's DBD::Excel module http://search.cpan.org/dist/DBD-Excel
 
 =item * Spreadsheet::WriteExcelXML
 
 This module allows you to create an Excel XML file using the same interface as Spreadsheet::WriteExcel. See: http://search.cpan.org/dist/Spreadsheet-WriteExcelXML
+
+=item * Excel::Template
+
+This module allows you to create an Excel file from an XML template in a manner similar to HTML::Template. See http://search.cpan.org/dist/Excel-Template/
 
 =item * Spreadsheet::WriteExcel::FromXML
 
@@ -3841,11 +3853,11 @@ This module allows you to turn a simple XML file into an Excel file using Spread
 
 =item * Spreadsheet::WriteExcel::Simple
 
-This provides an easier interface to Spreadsheet::WriteExcel: http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-Simple
+This provides an easier interface to Spreadsheet::WriteExcel: http://search.cpan.org/dist/Spreadsheet-WriteExcel-Simple
 
 =item * Spreadsheet::WriteExcel::FromDB
 
-This is a useful module for creating Excel files directly from a DB table: http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB
+This is a useful module for creating Excel files directly from a DB table: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB
 
 =item * HTML tables
 
@@ -3870,11 +3882,11 @@ To read data from Excel files try:
 
 =item * Spreadsheet::ParseExcel
 
-This uses the OLE::Storage-Lite module to extract data from an Excel file. http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
+This uses the OLE::Storage-Lite module to extract data from an Excel file. http://search.cpan.org/dist/Spreadsheet-ParseExcel
 
 =item * Spreadsheet::ParseExcel_XLHTML
 
-This module uses Spreadsheet::ParseExcel's interface but uses xlHtml (see below) to do the conversion: http://search.cpan.org/search?dist=Spreadsheet-ParseExcel_XLHTML
+This module uses Spreadsheet::ParseExcel's interface but uses xlHtml (see below) to do the conversion: http://search.cpan.org/dist/Spreadsheet-ParseExcel_XLHTML
 Spreadsheet::ParseExcel_XLHTML
 
 =item * xlHtml
@@ -3883,7 +3895,7 @@ This is an open source "Excel to HTML Converter" C/C++ project at http://www.xlh
 
 =item * DBD::Excel (reading)
 
-You can also access Spreadsheet::ParseExcel using the standard DBI interface via  Takanori Kawai's DBD::Excel module http://search.cpan.org/search?dist=DBD-Excel.
+You can also access Spreadsheet::ParseExcel using the standard DBI interface via  Takanori Kawai's DBD::Excel module http://search.cpan.org/dist/DBD-Excel
 
 =item * Win32::OLE module and office automation (reading)
 
@@ -3891,7 +3903,7 @@ See, the section L<WRITING EXCEL FILES>.
 
 =item * HTML tables (reading)
 
-If the files are saved from Excel in a HTML format the data can be accessed using HTML::TableExtract http://search.cpan.org/search?dist=HTML-TableExtract
+If the files are saved from Excel in a HTML format the data can be accessed using HTML::TableExtract http://search.cpan.org/dist/HTML-TableExtract
 
 =item * DBI with DBD::ADO or DBD::ODBC.
 
@@ -3899,7 +3911,7 @@ See, the section L<WRITING EXCEL FILES>.
 
 =item * XML::Excel
 
-Converts Excel files to XML using Spreadsheet::ParseExcel http://search.cpan.org/search?dist=XML-Excel.
+Converts Excel files to XML using Spreadsheet::ParseExcel http://search.cpan.org/dist/XML-Excel.
 
 =item * OLE::Storage, aka LAOLA
 
@@ -3917,22 +3929,21 @@ If you wish to view Excel files on a Windows platform which doesn't have Excel i
 
 
 
-=head1 WORKING WITH XML
+=head1 Warning about XML::Parser and Perl 5.6
 
-You must be careful when using XML data in conjunction with Spreadsheet::WriteExcel due to the fact that data returned by XML parsers is generally in UTF8 format.
+You must be careful when using Spreadsheet::WriteExcel in conjunction with Perl 5.6 and XML::Parser (and other XML parsers) due to the fact that the data returned by the parser is generally in UTF8 format.
 
 When UTF8 strings are added to Spreadsheet::WriteExcel's internal data it causes the generated Excel file to become corrupt.
 
-To avoid this problems you should convert the output data to ASCII or ISO-8859-1 using one of the following methods:
+Note, this doesn't affect Perl 5.005 (which doesn't try to handle UTF8) or 5.8 (which handles it correctly).
+
+To avoid this problem you should upgrade to Perl 5.8, if possible, or else you should convert the output data from XML::Parser to ASCII or ISO-8859-1 using one of the following methods:
 
     $new_str = pack 'C*', unpack 'U*', $utf8_str;
 
 
     use Unicode::MapUTF8 'from_utf8';
     $new_str = from_utf8({-str => $utf8_str, -charset => 'ISO-8859-1'});
-
-
-If you are interested in creating an XML spreadsheet format you can use Spreadsheet::WriteExcelXML which uses the same interface as Spreadsheet::WriteExcel. See http://search.cpan.org/dist/Spreadsheet-WriteExcelXML
 
 
 
@@ -3943,7 +3954,7 @@ Formulas are formulae.
 
 This version of the module doesn't support the write_comment() method. This will be fixed soon.
 
-XML data can cause Excel files created by Spreadsheet::WriteExcel to become corrupt. See L<WORKING WITH XML> for further details.
+XML and UTF8 data on Perl 5.6 can cause Excel files created by Spreadsheet::WriteExcel to become corrupt. See L<Warning about XML::Parser and Perl 5.6> for further details.
 
 The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range.If you use this format in a non-merged cell it will cause Excel to crash. The current workaround is to use separate formats for merged and non-merged cell. This will be fixed in a future release.
 
@@ -3953,7 +3964,7 @@ Spreadsheet::ParseExcel: All formulas created by Spreadsheet::WriteExcel are rea
 
 OpenOffice.org: Some formatting is not displayed correctly.
 
-Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as links.
+Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as links. Page setup can cause Gnumeric to crash.
 
 The lack of a portable way of writing a little-endian 64 bit IEEE float. There is beta code available to fix this. Let me know if you wish to test it on your platform.
 
@@ -3968,16 +3979,12 @@ The roadmap is as follows:
 
 =over 4
 
-=item * Extend uft8 support to all relevant methods.
-
 =item * Add write_comment().
 
 =item * Add AutoFilters.
 
 
 =back
-
-You can keep up to date with future releases by registering as a user with Freshmeat http://freshmeat.net/ and subscribing to Spreadsheet::WriteExcel at the project page http://freshmeat.net/projects/writeexcel/ You will then receive mailed updates when a new version is released. Alternatively you can keep an eye on news://comp.lang.perl.announce
 
 Also, here are some of the most requested features that probably won't get added:
 
@@ -3997,15 +4004,27 @@ If there is some feature of an Excel file that you really, really need then you 
 
 
 
+=head1 MAILING LIST
+
+There is a Google group for discussing and asking questions about Spreadsheet::WriteExcel:  http://groups-beta.google.com/group/spreadsheet-writeexcel/
+
+Alternatively you can keep up to date with future releases by subscribing at:
+http://freshmeat.net/projects/writeexcel/
+
+
+
+
 =head1 SEE ALSO
 
-Spreadsheet::ParseExcel: http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
+Spreadsheet::ParseExcel: http://search.cpan.org/dist/Spreadsheet-ParseExcel
 
 Spreadsheet-WriteExcel-FromXML: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML
 
-Spreadsheet::WriteExcel::FromDB: http://search.cpan.org/search?dist=Spreadsheet-WriteExcel-FromDB
+Spreadsheet::WriteExcel::FromDB: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB
 
-DateTime::Format::Excel: http://search.cpan.org/search?dist=DateTime-Format-Excel
+Excel::Template: http://search.cpan.org/~rkinyon/Excel-Template/
+
+DateTime::Format::Excel: http://search.cpan.org/dist/DateTime-Format-Excel
 
 "Reading and writing Excel files with Perl" by Teodor Zlatanov, atIBM developerWorks: http://www-106.ibm.com/developerworks/library/l-pexcel/
 
@@ -4049,40 +4068,22 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    Under blue moon I saw you
-    So soon you'll take me
-    Up in your arms, too late to beg you
-    Or cancel it, though I know it must be
-    The killing time
-    Unwillingly mine
+    Slow dulcimer, gavotte and bow, in autumn,
+    Basho and his friends go out to view the moon;
+    In summer, gasoline rainbow in the gutter,
 
-    Fate
-    Up against your will
-    Through the thick and thin
-    He will wait until
-    You give yourself to him
+    The secret courtesy that courses like ichor
+    Through the old form of the rude, full-scale joke,
+    Impossible to tell in writing.
 
-    In starlit nights I saw you
-    So cruelly you kissed me
-    Your lips a magic world
-    Your sky all hung with jewels
-    The killing moon
-    Will come too soon
-
-    Fate
-    Up against your will
-    Through the thick and thin
-    He will wait until
-    You give yourself to him
-
-        -- Ian McCulloch
+        -- Robert Pinsky
 
 
 
 
 =head1 COPYRIGHT
 
-© MM-MMIV, John McNamara.
+© MM-MMV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

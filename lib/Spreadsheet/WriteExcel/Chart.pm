@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Chart;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2004, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -40,7 +40,7 @@ sub new {
     $self->{_filename}          = $_[0];
     $self->{_name}              = $_[1];
     $self->{_index}             = $_[2];
-    $self->{_name_encoding}     = $_[3];
+    $self->{_encoding}          = $_[3];
     $self->{_activesheet}       = $_[4];
     $self->{_firstsheet}        = $_[5];
 
@@ -263,7 +263,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMIV, John McNamara.
+© MM-MMV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

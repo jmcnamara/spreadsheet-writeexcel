@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2004, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -42,7 +42,7 @@ sub new {
 
     $self->{_name}              = $_[0];
     $self->{_index}             = $_[1];
-    $self->{_name_encoding}     = $_[2];
+    $self->{_encoding}          = $_[2];
     $self->{_activesheet}       = $_[3];
     $self->{_firstsheet}        = $_[4];
     $self->{_url_format}        = $_[5];
@@ -79,10 +79,12 @@ sub new {
     $self->{_orientation}       = 0x1;
     $self->{_header}            = '';
     $self->{_footer}            = '';
+    $self->{_header_encoding}   = 0;
+    $self->{_footer_encoding}   = 0;
     $self->{_hcenter}           = 0;
     $self->{_vcenter}           = 0;
-    $self->{_margin_head}       = 0.50;
-    $self->{_margin_foot}       = 0.50;
+    $self->{_margin_header}     = 0.50;
+    $self->{_margin_footer}     = 0.50;
     $self->{_margin_left}       = 0.75;
     $self->{_margin_right}      = 0.75;
     $self->{_margin_top}        = 1.00;
@@ -573,16 +575,31 @@ sub set_paper {
 #
 sub set_header {
 
-    my $self   = shift;
-    my $string = $_[0] || '';
+    my $self     = shift;
+    my $string   = $_[0] || '';
+    my $margin   = $_[1] || 0.50;
+    my $encoding = $_[2] || 0;
 
-    if (length $string >= 255) {
+    # Handle utf8 strings in newer perls.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($string)) {
+            $string = Encode::encode("UTF-16BE", $string);
+            $encoding = 1;
+        }
+    }
+
+    my $limit    = $encoding ? 255 *2 : 255;
+
+    if (length $string >= $limit) {
         carp 'Header string must be less than 255 characters';
         return;
     }
 
-    $self->{_header}      = $string;
-    $self->{_margin_head} = $_[1] || 0.50;
+    $self->{_header}          = $string;
+    $self->{_margin_header}   = $margin;
+    $self->{_header_encoding} = $encoding;
 }
 
 
@@ -594,17 +611,32 @@ sub set_header {
 #
 sub set_footer {
 
-    my $self   = shift;
-    my $string = $_[0] || '';
+    my $self     = shift;
+    my $string   = $_[0] || '';
+    my $margin   = $_[1] || 0.50;
+    my $encoding = $_[2] || 0;
 
-    if (length $string >= 255) {
+    # Handle utf8 strings in newer perls.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($string)) {
+            $string = Encode::encode("UTF-16BE", $string);
+            $encoding = 1;
+        }
+    }
+
+    my $limit    = $encoding ? 255 *2 : 255;
+
+
+    if (length $string >= $limit) {
         carp 'Footer string must be less than 255 characters';
         return;
     }
 
-
-    $self->{_footer}      = $string;
-    $self->{_margin_foot} = $_[1] || 0.50;
+    $self->{_footer}          = $string;
+    $self->{_margin_footer}   = $margin;
+    $self->{_footer_encoding} = $encoding;
 }
 
 
@@ -2965,8 +2997,8 @@ sub _store_setup {
     my $grbit        = 0x00;                    # Option flags
     my $iRes         = 0x0258;                  # Print resolution
     my $iVRes        = 0x0258;                  # Vertical print resolution
-    my $numHdr       = $self->{_margin_head};   # Header Margin
-    my $numFtr       = $self->{_margin_foot};   # Footer Margin
+    my $numHdr       = $self->{_margin_header}; # Header Margin
+    my $numFtr       = $self->{_margin_footer}; # Footer Margin
     my $iCopies      = 0x01;                    # Number of copies
 
 
@@ -3022,18 +3054,26 @@ sub _store_setup {
 #
 sub _store_header {
 
-    my $self    = shift;
+    my $self        = shift;
 
-    my $record  = 0x0014;               # Record identifier
-    my $length;                         # Bytes to follow
+    my $record      = 0x0014;                       # Record identifier
+    my $length;                                     # Bytes to follow
 
-    my $str     = $self->{_header};     # header string
-    my $cch     = length($str);         # Length of header string
-    my $encoding = 0x0;
-    $length     = 3 + $cch;
+    my $str         = $self->{_header};             # header string
+    my $cch         = length($str);                 # Length of header string
+    my $encoding    = $self->{_header_encoding};    # Character encoding
 
-    my $header    = pack("vv",  $record, $length);
-    my $data      = pack("vC",  $cch, $encoding);
+
+    # Character length is num of chars not num of bytes
+    $cch           /= 2 if $encoding;
+
+    # Change the UTF-16 name from BE to LE
+    $str            = pack 'n*', unpack 'v*', $str if $encoding;
+
+    $length         = 3 + length($str);
+
+    my $header      = pack("vv",  $record, $length);
+    my $data        = pack("vC",  $cch, $encoding);
 
     $self->_prepend($header, $data, $str);
 }
@@ -3047,18 +3087,26 @@ sub _store_header {
 #
 sub _store_footer {
 
-    my $self    = shift;
+    my $self        = shift;
 
-    my $record  = 0x0015;               # Record identifier
-    my $length;                         # Bytes to follow
+    my $record      = 0x0015;                       # Record identifier
+    my $length;                                     # Bytes to follow
 
-    my $str     = $self->{_footer};     # Footer string
-    my $cch     = length($str);         # Length of footer string
-    my $encoding = 0x0;
-    $length     = 3 + $cch;
+    my $str         = $self->{_footer};             # footer string
+    my $cch         = length($str);                 # Length of footer string
+    my $encoding    = $self->{_footer_encoding};    # Character encoding
 
-    my $header    = pack("vv",  $record, $length);
-    my $data      = pack("vC",  $cch, $encoding);
+
+    # Character length is num of chars not num of bytes
+    $cch           /= 2 if $encoding;
+
+    # Change the UTF-16 name from BE to LE
+    $str            = pack 'n*', unpack 'v*', $str if $encoding;
+
+    $length         = 3 + length($str);
+
+    my $header      = pack("vv",  $record, $length);
+    my $data        = pack("vC",  $cch, $encoding);
 
     $self->_prepend($header, $data, $str);
 }
@@ -4184,7 +4232,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMIV, John McNamara.
+© MM-MMV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

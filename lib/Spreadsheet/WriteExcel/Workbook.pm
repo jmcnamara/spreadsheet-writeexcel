@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Workbook;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2004, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -318,49 +318,18 @@ sub worksheets {
 
 ###############################################################################
 #
-# add_worksheet($name)
+# add_worksheet($name, $encoding)
 #
 # Add a new worksheet to the Excel workbook.
-# TODO: Add accessor for $self->{_sheetname} for international Excel versions.
 #
 # Returns: reference to a worksheet object
 #
 sub add_worksheet {
 
     my $self     = shift;
-    my $name     = $_[0] || "";
-    my $encoding = $_[1] || 0;
-    my $limit    = $encoding ? 62 : 31;
+    my $index    = @{$self->{_worksheets}};
 
-
-    # Check that sheetname is <= 31 (1 or 2 byte chars). Excel limit.
-    croak "Sheetname $name must be <= 31 chars" if length $name > $limit;
-
-    # Check that sheetname doesn't contain any invalid characters
-    croak 'Invalid Excel character [:*?/\\] in worksheet name: ' . $name
-          if $encoding == 0 and $name =~ m{[:*?/\\]};
-
-    # Check that Unicode sheetname has an even number of bytes
-    croak 'Odd number of bytes in Unicode worksheet name:' . $name
-          if $encoding == 1 and length($name) % 2;
-
-
-    my $index     = @{$self->{_worksheets}};
-    my $sheetname = $self->{_sheetname};
-
-    if ($name eq "" ) {
-        $name     = $sheetname . ($index+1);
-        $encoding = 0;
-    }
-
-    # Check that the worksheet name doesn't already exist: a fatal Excel error.
-    # The check must also exclude case insensitive matches.
-    foreach my $tmp (@{$self->{_worksheets}}) {
-        if (lc $name eq lc $tmp->get_name()) {
-            croak "Worksheet name '$name', with case ignored, " .
-                  "is already in use";
-        }
-    }
+    my ($name, $encoding) = $self->_check_sheetname($_[0], $_[1]);
 
 
     # Porters take note, the following scheme of passing references to Workbook
@@ -403,24 +372,9 @@ sub add_chart_ext {
 
     my $self     = shift;
     my $filename = $_[0];
-    my $name     = $_[1] || "";
+    my $index    = @{$self->{_worksheets}};
 
-    my $encoding = 0;
-
-    my $index     = @{$self->{_worksheets}};
-
-    if ($name eq "" ) {
-        $name     = 'Chart' . ($index+1);
-    }
-
-    # Check that the worksheet name doesn't already exist: a fatal Excel error.
-    # The check must also exclude case insensitive matches.
-    foreach my $tmp (@{$self->{_worksheets}}) {
-        if (lc $name eq lc $tmp->get_name()) {
-            croak "Worksheet name '$name', with case ignored, " .
-                  "is already in use";
-        }
-    }
+    my ($name, $encoding) = $self->_check_sheetname($_[1], $_[2]);
 
 
     my @init_data = (
@@ -439,6 +393,124 @@ sub add_chart_ext {
     return $worksheet;
 }
 
+
+###############################################################################
+#
+# _check_sheetname($name, $encoding)
+#
+# Check for valid worksheet names. We check the length, if it contains any
+# invalid characters and if the name is unique in the workbook.
+#
+sub _check_sheetname {
+
+    my $self            = shift;
+    my $name            = $_[0] || "";
+    my $encoding        = $_[1] || 0;
+    my $limit           = $encoding ? 62 : 31;
+    my $invalid_char    = qr([\[\]:*?/\\]);
+
+    # Supply default "Sheet" name if none has been defined.
+    my $index     = @{$self->{_worksheets}};
+    my $sheetname = $self->{_sheetname};
+
+    if ($name eq "" ) {
+        $name     = $sheetname . ($index+1);
+        $encoding = 0;
+    }
+
+
+    # Check that sheetname is <= 31 (1 or 2 byte chars). Excel limit.
+    croak "Sheetname $name must be <= 31 chars" if length $name > $limit;
+
+    # Check that Unicode sheetname has an even number of bytes
+    croak 'Odd number of bytes in Unicode worksheet name:' . $name
+          if $encoding == 1 and length($name) % 2;
+
+
+    # Check that sheetname doesn't contain any invalid characters
+    if ($encoding != 1 and $name =~ $invalid_char) {
+        # Check ASCII names
+        croak 'Invalid character []:*?/\\ in worksheet name: ' . $name;
+    }
+    else {
+        # Extract any 8bit clean chars from the UTF16 name and validate them.
+        for my $wchar ($name =~ /../sg) {
+            my ($hi, $lo) = unpack "aa", $wchar;
+            if ($hi eq "\0" and $lo =~ $invalid_char) {
+                croak 'Invalid character []:*?/\\ in worksheet name: ' . $name;
+            }
+        }
+    }
+
+
+    # Handle utf8 strings in newer perls.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($name)) {
+            $name = Encode::encode("UTF-16BE", $name);
+            $encoding = 1;
+        }
+    }
+
+
+    # Check that the worksheet name doesn't already exist since this is a fatal
+    # error in Excel 97. The check must also exclude case insensitive matches
+    # since the names 'Sheet1' and 'sheet1' are equivalent. The tests also have
+    # to take the encoding into account.
+    #
+    foreach my $worksheet (@{$self->{_worksheets}}) {
+        my $name_a  = $name;
+        my $encd_a  = $encoding;
+        my $name_b  = $worksheet->{_name};
+        my $encd_b  = $worksheet->{_encoding};
+        my $error   = 0;
+
+        if    ($encd_a == 0 and $encd_b == 0) {
+            $error  = 1 if lc($name_a) eq lc($name_b);
+        }
+        elsif ($encd_a == 0 and $encd_b == 1) {
+            $name_a = pack "n*", unpack "C*", $name_a;
+            $error  = 1 if lc($name_a) eq lc($name_b);
+        }
+        elsif ($encd_a == 1 and $encd_b == 0) {
+            $name_b = pack "n*", unpack "C*", $name_b;
+            $error  = 1 if lc($name_a) eq lc($name_b);
+        }
+        elsif ($encd_a == 1 and $encd_b == 1) {
+            # We can do a true case insensitive test with Perl 5.8 and utf8.
+            if ($] >= 5.008) {
+                $name_a = Encode::decode("UTF-16BE", $name_a);
+                $name_b = Encode::decode("UTF-16BE", $name_b);
+                $error  = 1 if lc($name_a) eq lc($name_b);
+            }
+            else {
+            # We can't easily do a case insensite test of the UTF16 names.
+            # As a special case we check if all of the high bytes are nulls and
+            # then do an ASCII style case insensitive test.
+
+                # Strip out the high bytes (funkily).
+                my $hi_a = grep {ord} $name_a =~ /(.)./sg;
+                my $hi_b = grep {ord} $name_b =~ /(.)./sg;
+
+                if ($hi_a or $hi_b) {
+                    $error  = 1 if    $name_a  eq    $name_b;
+                }
+                else {
+                    $error  = 1 if lc($name_a) eq lc($name_b);
+                }
+            }
+        }
+
+        # If any of the cases failed we throw the error here.
+        if ($error) {
+            croak "Worksheet name '$name', with case ignored, " .
+                  "is already in use";
+        }
+    }
+
+    return ($name,  $encoding);
+}
 
 
 ###############################################################################
@@ -725,7 +797,7 @@ sub _store_workbook {
         $self->_store_boundsheet($sheet->{_name},
                                  $sheet->{_offset},
                                  $sheet->{_type},
-                                 $sheet->{_name_encoding});
+                                 $sheet->{_encoding});
     }
 
     # NOTE: If any records are added between here and EOF the
@@ -1124,8 +1196,10 @@ sub _store_boundsheet {
     my $encoding  = $_[3];                # Sheet name encoding
     my $cch       = length($sheetname);   # Length of sheet name
 
-
+    # Character length is num of chars not num of bytes
     $cch /= 2 if $encoding;
+
+    # Change the UTF-16 name from BE to LE
     $sheetname = pack 'n*', unpack 'v*', $sheetname if $encoding;
 
     my $header    = pack("vv",   $record, $length);
@@ -1175,13 +1249,25 @@ sub _store_num_format {
     my $format    = $_[0];          # Custom format string
     my $ifmt      = $_[1];          # Format index code
     my $encoding  = $_[2];          # Char encoding for format string
-    my $cch       = length $format; # Char length of format string
 
+
+    # Handle utf8 strings in newer perls.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($format)) {
+            $format = Encode::encode("UTF-16BE", $format);
+            $encoding = 1;
+        }
+    }
+
+
+    my $cch       = length $format; # Char length of format string
 
     # Handle Unicode format strings.
     if ($encoding == 1) {
         croak "Uneven number of bytes in Unicode font name" if $cch % 2;
-        $cch    /= 2 if $self->{_font_encoding};
+        $cch    /= 2 if $encoding;
         $format  = pack 'v*', unpack 'n*', $format;
     }
 
@@ -1935,6 +2021,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMIV, John McNamara.
+© MM-MMV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -1,6 +1,6 @@
 =head1 NAME
 
-Charts and Spreadsheet::WriteExcel - A short introduction to how to include externally generated charts into a Spreadsheet::WriteExcel file.
+Charts and Spreadsheet::WriteExcel - A short introduction on how to include externally generated charts into a Spreadsheet::WriteExcel file.
 
 =head1 DESCRIPTION
 
@@ -188,7 +188,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MMIV, John McNamara.
+© MMV, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

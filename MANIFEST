@@ -1,5 +1,5 @@
 Makefile.PL
-CHANGES
+Changes
 MANIFEST
 README
 INSTALL
@@ -19,6 +19,7 @@ lib/Spreadsheet/WriteExcel/WorkbookBig.pm
 lib/Spreadsheet/WriteExcel/Worksheet.pm
 
 t/00_IEEE_double.t
+t/01_add_worksheet.t
 
 doc/index.html
 doc/WriteExcel.html
@@ -101,6 +102,7 @@ examples/unicode_cp1251.pl
 examples/unicode_cp1251.txt
 examples/unicode_cp1256.pl
 examples/unicode_cp1256.txt
+examples/unicode_cyrillic.pl
 examples/unicode_japan.pl
 examples/unicode_koi8r.pl
 examples/unicode_koi8r.txt

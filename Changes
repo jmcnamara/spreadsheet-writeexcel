@@ -1,5 +1,19 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.12 March 22 2005 - Minor
+
+    + Added further Unicode support. The following methods now
+      handle uft8 in perl 5.8:
+      add_worksheet()
+      set_header()
+      set_footer()
+      set_font()
+      set_num_format()
+
+    + Added unicode_cyrillic.pl example.
+
+    + Added 01_add_worksheet.t test.
+
 
 2.11 September 30 2004 - Minor
 
