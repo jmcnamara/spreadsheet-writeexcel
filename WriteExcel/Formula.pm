@@ -721,6 +721,7 @@ sub _convert_function {
 # Convert an Excel cell reference such as A1 or $B2 or C$3 or $D$4 to a zero
 # indexed row and column number. Also returns two boolean values to indicate
 # whether the row or column are relative references.
+# TODO use function in Utility.pm
 #
 sub _cell_to_rowcol {
 

@@ -5,6 +5,8 @@
 # Example of how to using the Date::Calc module to calculate Excel dates. 
 #
 # See also the excel_date1.pl example.
+#
+# These functions have been superceded by Spreadsheet::WriteExcel::Utility.
 # 
 # reverse('©'), June 2001, John McNamara, jmcnamara@cpan.org
 #

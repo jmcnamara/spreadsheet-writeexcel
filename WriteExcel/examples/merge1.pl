@@ -17,7 +17,7 @@ use Spreadsheet::WriteExcel;
 my $workbook  = Spreadsheet::WriteExcel->new("merge1.xls");
 my $worksheet = $workbook->addworksheet();
 
-# Set the column width for columns 2 and 3
+# Set the column width for columns B-D
 $worksheet->set_column(1, 3, 20);
 
 # Set the row height for row 2

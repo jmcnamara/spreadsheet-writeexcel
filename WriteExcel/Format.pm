@@ -55,6 +55,9 @@ sub new {
 
                     _num_format     => 0,
 
+                    _hidden         => 0,
+                    _locked         => 1,
+
                     _text_h_align   => 0,
                     _text_wrap      => 0,
                     _text_v_align   => 2,
@@ -78,10 +81,10 @@ sub new {
                  };
 
     bless  $self, $class;
-    
+
     # Set properties passed to Workbook::addformat()
     $self->set_properties(@_) if @_;
-    
+
     return $self;
 }
 
@@ -127,7 +130,18 @@ sub get_xf {
     my $border1;    # Border line style and color
     my $border2;    # Border color
 
-    # Flags to indicate if attributes have been set
+
+    # Set the type of the XF record and some of the attributes.
+    if ($_[0] eq "style") {
+        $style = 0xFFF5;
+    }
+    else {
+        $style   = $self->{_locked};
+        $style  |= $self->{_hidden} << 1;
+    }
+
+
+    # Flags to indicate if attributes have been set.
     my $atr_num     = ($self->{_num_format} != 0);
     my $atr_fnt     = ($self->{_font_index} != 0);
     my $atr_alc     =  $self->{_text_wrap};
@@ -140,7 +154,8 @@ sub get_xf {
                        $self->{_pattern});
     my $atr_prot    = 0;
 
-    # Zero the default border colour if the border has not been set
+
+    # Zero the default border colour if the border has not been set.
     $self->{_bottom_color} = 0 if $self->{_bottom} == 0;
     $self->{_top_color}    = 0 if $self->{_top}    == 0;
     $self->{_right_color}  = 0 if $self->{_right}  == 0;
@@ -151,7 +166,6 @@ sub get_xf {
 
     $ifnt           = $self->{_font_index};
     $ifmt           = $self->{_num_format};
-    $style          = $_[0];
 
 
     $align          = $self->{_text_h_align};
@@ -327,7 +341,7 @@ sub _get_color {
 
     # or an index < 8 mapped into the correct range,
     return $_[0] + 8 if $_[0] < 8;
-    
+
     # or the default color if arg is outside range,
     return 0x7FFF if $_[0] > 63;
 
@@ -455,12 +469,12 @@ sub set_properties {
 
         # Strip leading "-" from Tk style properties eg. -color => 'red'.
         $key =~ s/^-//;
-        
+
         # Make sure method names are alphanumeric characters only, in case
         # tainted data is passed to the eval().
         #
         croak "Unknown method: \$self->set_$key" if $key =~ /\W/;
-        
+
         # Evaling all $values as a strings gets around the problem of some
         # numerical format strings being evaluated as numbers, for example
         # "00000" for a zip code.
@@ -471,7 +485,7 @@ sub set_properties {
         else {
             eval "\$self->set_$key(undef)";
         }
-        
+
         die $@ if $@; # Rethrow the eval error.
     }
 }

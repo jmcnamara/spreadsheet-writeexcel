@@ -1,8 +1,10 @@
 CHANGES
 MANIFEST
 README
+INSTALL
 
 WriteExcel.pm
+WriteExcel/Utility.pm
 WriteExcel/Workbook.pm
 WriteExcel/Worksheet.pm
 WriteExcel/OLEwriter.pm
@@ -11,7 +13,6 @@ WriteExcel/Format.pm
 WriteExcel/Formula.pm
 WriteExcel/Big.pm
 WriteExcel/WorkbookBig.pm
-
 
 Makefile.PL
 test.pl
@@ -38,7 +39,6 @@ WriteExcel/doc/tpj0503-0004-05.gif
 WriteExcel/doc/win32ole.gif
 
 
-
 WriteExcel/examples/README
 WriteExcel/examples/bigfile.pl
 WriteExcel/examples/cgi.pl
@@ -49,18 +49,23 @@ WriteExcel/examples/copyformat.pl
 WriteExcel/examples/csv2xls.pl
 WriteExcel/examples/datecalc1.pl
 WriteExcel/examples/datecalc2.pl
+WriteExcel/examples/demo.pl
 WriteExcel/examples/easter_egg.pl
 WriteExcel/examples/filehandle.pl
 WriteExcel/examples/formats.pl
 WriteExcel/examples/function_locale.pl
 WriteExcel/examples/hyperlink.pl
+WriteExcel/examples/images.pl
 WriteExcel/examples/lecxe.pl
 WriteExcel/examples/merge1.pl
 WriteExcel/examples/merge2.pl
 WriteExcel/examples/merge3.pl
 WriteExcel/examples/mod_perl.pl
 WriteExcel/examples/panes.pl
+WriteExcel/examples/protection.pl
 WriteExcel/examples/regions.pl
+WriteExcel/examples/republic.bmp
+WriteExcel/examples/sales.pl
 WriteExcel/examples/simple.pl
 WriteExcel/examples/stats.pl
 WriteExcel/examples/stats_ext.pl

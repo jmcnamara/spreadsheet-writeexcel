@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.10';
+$VERSION = '0.11';
 
 ###############################################################################
 #
@@ -104,9 +104,26 @@ sub DESTROY {
 
 ###############################################################################
 #
-# worksheets()
+# sheets()
 #
 # An accessor for the _worksheets[] array
+#
+# Returns: a list of the worksheet objects in a workbook
+#
+sub sheets {
+
+    my $self = shift;
+
+    return @{$self->{_worksheets}};
+}
+
+
+###############################################################################
+#
+# worksheets()
+#
+# An accessor for the _worksheets[] array.
+# This method is now deprected. Use the sheets() method instead.
 #
 # Returns: an array reference
 #
@@ -123,9 +140,8 @@ sub worksheets {
 # addworksheet($name)
 #
 # Add a new worksheet to the Excel workbook.
-# TODO: add accessor for $self->{_sheetname} to mimic international versions of
-# Excel.
-# TODO: Limit sheet name to the Excel limit of31 chars.
+# TODO: Add accessor for $self->{_sheetname} for international Excel versions.
+# TODO: Limit sheet name to the Excel limit of 31 chars.
 #
 # Returns: reference to a worksheet object
 #
@@ -299,6 +315,7 @@ sub _store_OLE_file {
             }
         }
     }
+
     $OLE->close();
 }
 
@@ -452,17 +469,17 @@ sub _store_all_xfs {
     my $xf;
 
     for (0..14) {
-        $xf = $format->get_xf(0xFFF5); # Style XF
+        $xf = $format->get_xf('style'); # Style XF
         $self->_append($xf);
     }
 
-    $xf = $format->get_xf(0x0001);     # Cell XF
+    $xf = $format->get_xf('cell');      # Cell XF
     $self->_append($xf);
 
 
     # User defined XFs
     foreach $format (@{$self->{_formats}}) {
-        $xf = $format->get_xf(0x0001);
+        $xf = $format->get_xf('cell');
         $self->_append($xf);
     }
 }
@@ -737,7 +754,7 @@ sub _store_1904 {
 sub _store_externcount {
 
     my $self     = shift;
-    
+
     my $record   = 0x0016;          # Record identifier
     my $length   = 0x0002;          # Number of bytes to follow
 

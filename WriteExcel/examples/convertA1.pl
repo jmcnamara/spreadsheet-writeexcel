@@ -5,8 +5,7 @@
 # This program contains helper functions to deal with the Excel A1 cell
 # reference  notation.
 #
-# TODO: These functions and some others will be moved to a utility module in a
-# later version.
+# These functions have been superceded by Spreadsheet::WriteExcel::Utility.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

@@ -1,5 +1,14 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.34 October 23 2001
+    Major
+    Added Spreadsheet::WriteExcel::Utility module with helper
+    functions for row/col and dates.
+    Added write_row and write_col methods after many requests.
+    Added ability to insert bitmap images.
+    Added cell protection and formula hiding.
+    Added more examples.
+
 0.33 July 30 2001
     Minor
     Added (hopefully) easier mechanism to add format properties.

@@ -11,12 +11,15 @@ simple.pl           An example of some of the basic features.
 regions.pl          Demonstrates multiple worksheets.
 stats.pl            Basic formulas and functions.
 formats.pl          Creates a demo of the available formatting.
+demo.pl             Creates a demo of some of the features.
 
 
 Advanced
 ========
+sales.pl            An example of a simple sales spreadsheet.
 stocks.pl           Demonstrates conditional formatting.
 chess.pl            An example of formatting using properties.
+images.pl           Adding bitmap images to worksheets.
 stats_ext.pl        Same as stats.pl with external references.
 cgi.pl              A simple CGI program.
 mod_perl.pl         A simple mod_perl program.
@@ -26,6 +29,7 @@ merge2.pl           A more advanced example of cell merging.
 merge3.pl           Merge hyperlinks and merge vertically.
 textwrap.pl         Demonstrates text wrapping options.
 panes.pl            An examples of how to create panes.
+protection.pl       Example of cell locking and formula hiding.
 copyformat.pl       Example of copying a cell format.
 win32ole.pl         A sample Win32::OLE example for comparison.
 easter_egg.pl       Expose the Excel97 flight simulator. A must see.

@@ -10,10 +10,10 @@ DESCRIPTION
     The Spreadsheet::WriteExcel module can be used to create a cross-
     platform Excel binary file. Multiple worksheets can be added to a
     workbook and formatting can be applied to cells. Text, numbers,
-    formulas and hyperlinks can be written to the cells.
+    formulas, hyperlinks and images can be written to the cells.
 
     The Excel file produced by this module is compatible with Excel 5,
-    95, 97 and 2000.
+    95, 97, 2000 and 2002.
 
     The module will work on the majority of Windows, UNIX and
     Macintosh platforms. Generated files are also compatible with the
@@ -64,48 +64,7 @@ REQUIREMENTS
 ======================================================================
 INSTALLATION
 
-    Method 1
-    Download the zipped tar file from one of the following:
-        http://search.cpan.org/search?dist=Spreadsheet-WriteExcel
-        http://theoryx5.uwinnipeg.ca/mod_perl/cpan-search?idinfo=154
-        ftp://ftp.funet.fi/pub/languages/perl/CPAN/authors/id/J/JM/JMCNAMARA/
-        
-    Unzip the module as follows or use winzip:
-           tar -zxvf Spreadsheet-WriteExcel-0.xx.tar.gz
-
-    The module can be installed using the standard Perl procedure:
-
-        perl Makefile.PL
-        make
-        make test
-        make install    # You may need to be root
-        make clean      # or make realclean
-
-    Windows users without a working "make" can get nmake from:
-        ftp://ftp.microsoft.com/Softlib/MSLFILES/nmake15.exe
-
-    Method 2
-    If you have CPAN.pm configured you can install the module as
-    follows:
-        perl -MCPAN -e "install 'Spreadsheet::WriteExcel'"
-
-    Method 3
-    ActivePerl users can use PPM as follows:
-
-        C:\> ppm
-        PPM> set repository tmp http://homepage.eircom.net/~jmcnamara/perl
-        PPM> install Spreadsheet-WriteExcel
-        PPM> quit
-        C:\>
-
-        If this fails try the following:
-
-        PPM>install http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
-
-    If you wish to perform a local PPM install you can get the files
-    from (xx is the version number):
-        http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
-        http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel-0.xx-PPM.tar.gz
+    See the INSTALL file for details.
 
 
 ======================================================================

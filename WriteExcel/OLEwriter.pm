@@ -116,8 +116,11 @@ sub set_size {
 
     if ($_[0] > $maxsize) {
         # croak() won't work here if close() called via DESTROY
-        carp "Maximum file size, $maxsize, exceeded.";
-        return $self->{_size_allowed} = 0;
+        print STDERR "Maximum file size, $maxsize, exceeded. To create files ".
+                     "bigger than this limit please refer to the "            .
+                     "Spreadsheet::WriteExcel::Big documentation.\n";
+
+        return $self->{_size_allowed} = 0; # TODO Fix this for DESTROY
     }
 
     $self->{_biffsize} = $_[0];

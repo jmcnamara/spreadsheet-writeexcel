@@ -24,7 +24,7 @@ use strict;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 ###############################################################################
 #
@@ -48,6 +48,7 @@ sub new {
                     _byte_order    => '',
                     _data          => '',
                     _datasize      => 0,
+                    _limit         => 2080,
                  };
 
     bless $self, $class;
@@ -102,6 +103,8 @@ sub _prepend {
     my $self    = shift;
     my $data    = join('', @_);
 
+    $data = $self->_add_continue($data) if length($data) > $self->{_limit};
+
     $self->{_data}      = $data . $self->{_data};
     $self->{_datasize} += length($data);
 }
@@ -118,6 +121,8 @@ sub _append {
     my $self    = shift;
     my $data    = join('', @_);
 
+    $data = $self->_add_continue($data) if length($data) > $self->{_limit};
+
     $self->{_data}      = $self->{_data} . $data;
     $self->{_datasize} += length($data);
 }
@@ -131,7 +136,7 @@ sub _append {
 # $type = 0x0010, Worksheet
 #
 # Writes Excel BOF record to indicate the beginning of a stream or
-# substream in the BIFF file.
+# sub-stream in the BIFF file.
 #
 sub _store_bof {
 
@@ -171,6 +176,53 @@ sub _store_eof {
 
     $self->_append($header);
 }
+
+
+###############################################################################
+#
+# _add_continue()
+#
+# Excel limits the size of BIFF records. In Excel 5 the limit is 2084 bytes. In
+# Excel 97 the limit is 8228 bytes. Records that are longer than these limits
+# must be split up into CONTINUE blocks.
+#
+# This function take a long BIFF record and inserts CONTINUE records as
+# necessary.
+#
+sub _add_continue {
+
+    # TODO remove the hard wired constants
+
+    my $self        = shift;
+    my $data        = $_[0];
+    my $limit       = $self->{_limit};
+    my $record      = 0x003C; # Record identifier
+    my $length;               # Number of bytes to follow
+    my $header;
+    my $tmp;
+
+    # The first 2080/8224 bytes remain intact. However, we have to change
+    # the length field of the record.
+    #
+    $tmp = substr($data, 0, $limit, "");
+    substr($tmp, 2, 2, pack "v", $limit-4);
+
+    # Strip out chunks of 2080/8224 bytes +4 for the header.
+    while (length($data) > $limit) {
+        $header  = pack("vv", $record, $limit);
+        $tmp    .= $header;
+        $tmp    .= substr($data, 0, $limit, "");
+    }
+
+    # Mop up the last of the data
+    $header  = pack("vv", $record, length($data));
+    $tmp    .= $header;
+    $tmp    .= $data;
+
+    return $tmp ;
+}
+
+
 
 
 1;

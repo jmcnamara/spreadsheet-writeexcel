@@ -2,7 +2,6 @@
 
 ########################################################################
 #
-# 
 # Example of formatting using the Spreadsheet::WriteExcel module via
 # property hashes.
 #

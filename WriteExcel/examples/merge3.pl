@@ -19,7 +19,7 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 # Create a new workbook called simple.xls and add a worksheet
-my $workbook  = Spreadsheet::WriteExcel->new("merge_cells.xls");
+my $workbook  = Spreadsheet::WriteExcel->new("merge3.xls");
 my $worksheet = $workbook->addworksheet();
 
 
@@ -41,7 +41,7 @@ $worksheet->merge_cells("B4:D4");
 
 
 # Write the cells to be merged
-$worksheet->write("B4", "http://www.perl.com", undef, $format);
+$worksheet->write("B4", "http://www.perl.com", $format);
 $worksheet->write("C4", "", $format);
 $worksheet->write("D4", "", $format);
 
@@ -50,10 +50,10 @@ $worksheet->write("D4", "", $format);
 
 $worksheet->merge_cells("B7:D8");
 
-$worksheet->write("B7", "http://www.perl.com", undef, $format);
+$worksheet->write("B7", "http://www.perl.com", $format);
 $worksheet->write("C7", "", $format);
 $worksheet->write("D7", "", $format);
-$worksheet->write("D8", "", $format);
-$worksheet->write("D8", "", $format);
+$worksheet->write("B8", "", $format);
+$worksheet->write("C8", "", $format);
 $worksheet->write("D8", "", $format);
 

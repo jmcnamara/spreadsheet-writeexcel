@@ -26,7 +26,7 @@ $format->set_bold();
 $format->set_color('blue');
 
 # Add a caption to each worksheet
-foreach my $worksheet (@{$workbook->worksheets()}) {
+foreach my $worksheet ($workbook->sheets()) {
     $worksheet->write(0, 0, "Sales", $format);
 }
 
