@@ -59,16 +59,32 @@
         <LI><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></LI>
         <LI><A HREF="#write_url_row_col_url_str">write_url($row, $col, $url, $string, $format)</A></LI>
         <LI><A HREF="#activate_">activate()</A></LI>
+        <LI><A HREF="#select_">select()</A></LI>
         <LI><A HREF="#set_first_sheet_">set_first_sheet()</A></LI>
         <LI><A HREF="#set_selection_first_row_first">set_selection($first_row, $first_col, $last_row, $last_col);</A></LI>
         <LI><A HREF="#set_row_row_height_format_">set_row($row, $height, $format);</A></LI>
-        <LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format);</A></LI></code>
+        <LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format);</A></LI>
+        <LI><A HREF="#freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col);</A></LI>
+        <LI><A HREF="#thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col);</A></LI></code>
+	</UL>
+
+	<LI><A HREF="#PAGE_SETUP_METHODS">PAGE SETUP METHODS</A></LI>
+	<UL>
+
+        <code><LI><A HREF="#set_landscape_">set_landscape()</A></LI>
+        <LI><A HREF="#set_portrait_">set_portrait()</A></LI>
+        <LI><A HREF="#set_paper_index_">set_paper($index)</A></LI>
+        <LI><A HREF="#center_horizontally_">center_horizontally()</A></LI>
+        <LI><A HREF="#center_vertically_">center_vertically()</A></LI>
+        <LI><A HREF="#set_margins_inches_">set_margins($inches)</A></LI>
+        <LI><A HREF="#set_header_string_margin_">set_header($string, $margin)</A></LI>
+        <LI><A HREF="#set_footer_">set_footer()</A></LI></code>
 	</UL>
 
 	<LI><A HREF="#FORMAT_METHODS">FORMAT METHODS</A></LI>
 	<UL>
 
-        <code><LI><A HREF="#copy_format_">copy($format)</A></LI>
+        <<code>LI><A HREF="#copy_format_">copy($format)</A></LI>
         <LI><A HREF="#set_font_fontname_">set_font($fontname)</A></LI>
         <LI><A HREF="#set_size_">set_size()</A></LI>
         <LI><A HREF="#set_color_">set_color()</A></LI>
@@ -128,8 +144,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 0.31 of Spreadsheet::WriteExcel, released
-April 12, 2001.
+This document refers to version 0.32 of Spreadsheet::WriteExcel, released
+May 17, 2001.
 
 </P>
 <P>
@@ -160,7 +176,7 @@ worksheet in an Excel workbook called perl.xls:
 <P>
 <PRE>
     #  Add and define a format
-    $format = $workbook-&gt;addformat();    # Add a format
+    $format = $workbook-&gt;addformat(); # Add a format
     $format-&gt;set_bold();
     $format-&gt;set_color('red');
     $format-&gt;set_align('center');
@@ -272,7 +288,7 @@ The requirement for <CODE>binmode()</CODE> is explained below.
 
 </P>
 <P>
-For CGI programs you can also use the special Perl filename <CODE>'-'</CODE> which will redirect the output to STDOUT,:
+For CGI programs you can also use the special Perl filename <CODE>'-'</CODE> which will redirect the output to STDOUT:
 
 </P>
 <P>
@@ -298,9 +314,10 @@ examples of using filehandles with Spreadsheet::WriteExcel see the <CODE>filehan
 
 </P>
 <P>
-Note: an Excel file is comprised of binary data. Therefore, if you are
-using a filehandle you should ensure that you <CODE>binmode()</CODE> it prior to passing it to <CODE>new()</CODE>.You should do this regardless of whether your platform requires it or not.
-For more information about <CODE>binmode()</CODE> see <CODE>perlfunc</CODE> and <CODE>perlopentut</CODE> in the main Perl documentation. You do not need to <CODE>binmode()</CODE> a filename. In fact it would cause an error. Spreadsheet::WriteExcel
+Note about the requirement for <CODE>binmode()</CODE>: An Excel file is comprised of binary data. Therefore, if you are using a
+filehandle you should ensure that you <CODE>binmode()</CODE> it prior to passing it to <CODE>new()</CODE>.You should do this regardless of whether your platform requires it or not.
+For more information about <CODE>binmode()</CODE> see <CODE>perlfunc</CODE> and <CODE>perlopentut</CODE> in the main Perl documentation. It is equally important to note that you do
+not need to <CODE>binmode()</CODE> a filename. In fact it would cause an error. Spreadsheet::WriteExcel
 performs the <CODE>binmode()</CODE> internally when it converts the filename to a filehandle.
 
 </P>
@@ -343,7 +360,8 @@ In general, if you create a file with a size of 0 bytes you need to call <CODE>c
 <HR>
 <H2><A NAME="addworksheet_sheetname_">addworksheet($sheetname)</A></H2>
 <P>
-At least one worksheet should be added to a new workbook:
+At least one worksheet should be added to a new workbook. A worksheet is
+used to write data into cells:
 
 </P>
 <P>
@@ -541,8 +559,8 @@ Here are some examples in both row-column and A1 notation:
     $worksheet-&gt;write('A4',  3.00001                );  # write_number()
     $worksheet-&gt;write(4, 0,  &quot;&quot;                     );  # write_blank()
     $worksheet-&gt;write('A6',  ''                     );  # write_blank()
-    $worksheet-&gt;write(6, 0,  '<A HREF="http://www.perl.com/">http://www.perl.com/</A>' );  # write_url()
-    $worksheet-&gt;write('A8',  '<A HREF="ftp://ftp.cpan.org/">ftp://ftp.cpan.org/</A>'  );  # write_url()
+    $worksheet-&gt;write(6, 0,  'http://www.perl.com/' );  # write_url()
+    $worksheet-&gt;write('A8',  'ftp://ftp.cpan.org/'  );  # write_url()
     $worksheet-&gt;write(8, 0,  '=A3 + 3*A4'           );  # write_formula()
     $worksheet-&gt;write('A10', '=SIN(PI()/4)'         );  # write_formula()
 </PRE>
@@ -621,9 +639,9 @@ Write a formula or function to the cell specified by <CODE>$row</CODE> and <CODE
 <PRE>
     $worksheet-&gt;write_formula(0, 0, '=$B$3 + B4'  );
     $worksheet-&gt;write_formula(1, 0, '=SIN(PI()/4)');
-    $worksheet-&gt;write_formula(2, 0, '=SUM(B1:B5)');
-    $worksheet-&gt;write_formula('A4', '=IF(A3&gt;1,&quot;Yes&quot;, &quot;No&quot;)');
-    $worksheet-&gt;write_formula('A5', '=AVERAGE(1, 2, 3, 4)');
+    $worksheet-&gt;write_formula(2, 0, '=SUM(B1:B5)' );
+    $worksheet-&gt;write_formula('A4', '=IF(A3&gt;1,&quot;Yes&quot;, &quot;No&quot;)'   );
+    $worksheet-&gt;write_formula('A5', '=AVERAGE(1, 2, 3, 4)'    );
     $worksheet-&gt;write_formula('A6', '=DATEVALUE(&quot;1-Jan-2001&quot;)');
 </PRE>
 </P>
@@ -682,7 +700,7 @@ only.
 <HR>
 <H2><A NAME="activate_">activate()</A></H2>
 <P>
-The <CODE>activate()</CODE> method is used to specify which worksheet is initially selected in a
+The <CODE>activate()</CODE> method is used to specify which worksheet is initially visible in a
 multi-sheet workbook:
 
 </P>
@@ -699,8 +717,30 @@ multi-sheet workbook:
 </PRE>
 </P>
 <P>
-This is similar to the Excel VBA activate method. The default value is the
+This is similar to the Excel VBA activate method. More than one worksheet
+can be selected via the <CODE>select()</CODE> method, however only one worksheet can be active. The default value is the
 first worksheet.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="select_">select()</A></H2>
+<P>
+The <CODE>select()</CODE> method is used to indicate that a worksheet is selected in a multi-sheet
+workbook:
+
+</P>
+<P>
+<PRE>
+    $worksheet1-&gt;activate();
+    $worksheet2-&gt;select();
+    $worksheet3-&gt;select();
+</PRE>
+</P>
+<P>
+A selected worksheet has its tab highlighted. Selecting worksheets is a way
+of grouping them together so that, for example, several worksheets could be
+printed in one go.. A worksheet that has been activated via the <CODE>activate()</CODE> method will also appear as a selected. You probably won't need to use the <CODE>select()</CODE> method very often.
 
 </P>
 <P>
@@ -822,6 +862,482 @@ If you wish to set the format without changing the width you can pass <CODE>unde
 <PRE>
     $worksheet-&gt;set_column(0, 0, undef, $format);
 </PRE>
+</P>
+<P>
+Unfortunately, there is no way to specify &quot;AutoFit&quot; for a column
+in the Excel file format. This feature is only available at runtime from
+within Excel.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col);</A></H2>
+<P>
+This method can be used to divide a worksheet into horizontal or vertical
+regions known as panes and to also &quot;freeze&quot; these panes so that
+the splitter bars are not visible. This is the the same as the
+&quot;Window-&gt;Freeze Panes&quot; menu command in Excel
+
+</P>
+<P>
+The parameters <CODE>$row</CODE> and <CODE>$col</CODE> are used to specify the location of the split. It should be noted that the
+split is specified at the top or left of a cell and that the method uses
+zero based indexing. Therefore to freeze the first row of a worksheet it is
+necessary to specify the split at row 2 (which is 1 as the zero-based
+index). This might lead you to think that you are using a 1 based index but
+this is not the case.
+
+</P>
+<P>
+You can set one of the <CODE>$row</CODE> and <CODE>$col</CODE> parameters as zero if you do not want either a vertical or horizontal
+split. 
+
+</P>
+<P>
+Examples:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;freeze_panes(1, 0); # Freeze the first row
+    $worksheet-&gt;freeze_panes('A2'); # Same using A1 notation
+    $worksheet-&gt;freeze_panes(0, 1); # Freeze the first column
+    $worksheet-&gt;freeze_panes('B1'); # Same using A1 notation
+    $worksheet-&gt;freeze_panes(1, 2); # Freeze the first row and first 2 columns
+    $worksheet-&gt;freeze_panes('C2'); # Same using A1 notation
+</PRE>
+</P>
+<P>
+The parameters <CODE>$top_row</CODE> and <CODE>$left_col</CODE> are optional. They are used to specify the top-most or left-most visible
+row or column in the scrolling region of the panes. For example to freeze
+the first row and to have the scrolling region begin at row twenty:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;freeze_panes(1, 0, 20, 0);
+</PRE>
+</P>
+<P>
+You cannot use A1 notation for the <CODE>$top_row</CODE> and <CODE>$left_col</CODE> parameters.
+    
+
+</P>
+<P>
+See also the <CODE>panes.pl</CODE> program in the examples directory of the distribution.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col);</A></H2>
+<P>
+This method can be used to divide a worksheet into horizontal or vertical
+regions known as panes. This method is different from the <CODE>freeze_panes()</CODE> method in that the splits between the panes will be visible to the user and
+each pane will have its own scroll bars.
+
+</P>
+<P>
+The parameters <CODE>$y</CODE> and <CODE>$x</CODE> are used to specify the vertical and horizontal position of the split. The
+units for <CODE>$y</CODE> and <CODE>$x</CODE> are the same as those used by Excel to specify row height and column width.
+However, the vertical and horizontal units are different from each other.
+Therefore you must specify the <CODE>$y</CODE> and <CODE>$x</CODE> parameters in terms of the row heights and column widths that you have set
+or the default values which are <CODE>12.75</CODE> for a row and  <CODE>8.43</CODE> for a column.
+
+</P>
+<P>
+You can set one of the <CODE>$y</CODE> and <CODE>$x</CODE> parameters as zero if you do not want either a vertical or horizontal
+split. The parameters <CODE>$top_row</CODE> and <CODE>$left_col</CODE> are optional. They are used to specify the top-most or left-most visible
+row or column in the bottom-right pane.
+
+</P>
+<P>
+Example:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;thaw_panes(12.75, 0,    1, 0); # First row
+    $worksheet-&gt;thaw_panes(0,     8.43, 0, 1); # First column
+    $worksheet-&gt;thaw_panes(12.75, 8.43, 1, 1); # First row and column
+</PRE>
+</P>
+<P>
+You cannot use A1 notation with this method.
+
+</P>
+<P>
+See also the <CODE>freeze_panes()</CODE> method and the <CODE>panes.pl</CODE> program in the examples directory of the distribution.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="PAGE_SETUP_METHODS">PAGE SETUP METHODS</A></H1>
+<P>
+Page setup methods affect the way that a worksheet will look when it is
+printed. They control features such as page headers and footers and
+margins. These methods are really just standard worksheet methods. They are
+documented here in a separate section for the sake of clarity.
+
+</P>
+<P>
+Not all of Excel's page setup options are available in this release but
+they will be added in subsequent releases.
+
+</P>
+<P>
+A common requirement when working with Spreadsheet::WriteExcel is to apply
+the same page setup features to all of the worksheets in a workbook. To do
+this you can use the the <CODE>worksheets()</CODE> method of the <CODE>workbook</CODE> class to access the array of worksheets in a workbook:
+
+</P>
+<P>
+<PRE>
+    foreach $worksheet (@{$workbook-&gt;worksheets()}) {
+       $worksheet-&gt;$worksheet-&gt;set_orientation(0);
+    }
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_landscape_">set_landscape()</A></H2>
+<P>
+This method is used to set the orientation of a worksheet's printed page to
+landscape:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_orientation(); # Landscape mode
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_portrait_">set_portrait()</A></H2>
+<P>
+This method is used to set the orientation of a worksheet's printed page to
+portrait. The default worksheet orientation is portrait, so you generally
+won't need to call this method.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_portrait(); # Portrait mode
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_paper_index_">set_paper($index)</A></H2>
+<P>
+This method is used to set the paper format for the printed output of a
+worksheet. The following paper styles are available:
+
+</P>
+<P>
+<PRE>
+    Index   Paper format            Paper size
+    =====   ============            ==========
+      0     Printer default         -
+      1     Letter                  8 1/2 x 11 in
+      2     Letter Small            8 1/2 x 11 in
+      3     Tabloid                 11 x 17 in
+      4     Ledger                  17 x 11 in
+      5     Legal                   8 1/2 x 14 in
+      6     Statement               5 1/2 x 8 1/2 in
+      7     Executive               7 1/4 x 10 1/2 in
+      8     A3                      297 x 420 mm
+      9     A4                      210 x 297 mm
+     10     A4 Small                210 x 297 mm
+     11     A5                      148 x 210 mm
+     12     B4                      250 x 354 mm
+     13     B5                      182 x 257 mm
+     14     Folio                   8 1/2 x 13 in
+     15     Quarto                  215 x 275 mm
+     16     -                       10x14 in
+     17     -                       11x17 in
+     18     Note                    8 1/2 x 11 in
+     19     Envelope  9             3 7/8 x 8 7/8
+     20     Envelope 10             4 1/8 x 9 1/2
+     21     Envelope 11             4 1/2 x 10 3/8
+     22     Envelope 12             4 3/4 x 11
+     23     Envelope 14             5 x 11 1/2
+     24     C size sheet            -
+     25     D size sheet            -
+     26     E size sheet            -
+     27     Envelope DL             110 x 220 mm
+     28     Envelope C3             324 x 458 mm
+     29     Envelope C4             229 x 324 mm
+     30     Envelope C5             162 x 229 mm
+     31     Envelope C6             114 x 162 mm
+     32     Envelope C65            114 x 229 mm
+     33     Envelope B4             250 x 353 mm
+     34     Envelope B5             176 x 250 mm
+     35     Envelope B6             176 x 125 mm
+     36     Envelope                110 x 230 mm
+     37     Monarch                 3.875 x 7.5 in
+     38     Envelope                3 5/8 x 6 1/2 in
+     39     Fanfold                 14 7/8 x 11 in
+     40     German Std Fanfold      8 1/2 x 12 in
+     41     German Legal Fanfold    8 1/2 x 13 in
+</PRE>
+</P>
+<P>
+Note, it is likely that not all of these paper types will be available to
+the end user since it will depend on the paper formats that the user's
+printer supports. Therefore, it is best to stick to standard paper types.
+
+</P>
+<P>
+If you do not specify a paper type the worksheet will print using the
+printer's default paper. 
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_paper(1); # US Letter
+    $worksheet-&gt;set_paper(9); # A4
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="center_horizontally_">center_horizontally()</A></H2>
+<P>
+Center the worksheet data horizontally between the margins on the printed
+page:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;center_horizontally();
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="center_vertically_">center_vertically()</A></H2>
+<P>
+Center the worksheet data vertically between the margins on the printed
+page:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;center_vertically();
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_margins_inches_">set_margins($inches)</A></H2>
+<P>
+There are several methods available for setting the worksheet margins on
+the printed page:
+
+</P>
+<P>
+<PRE>
+    set_margins()        # Set all margins to the same value
+    set_margins_LR()     # Set left and right margins to the same value
+    set_margins_TB()     # Set top and bottom margins to the same value
+    set_margin_left();   # Set left margin
+    set_margin_right();  # Set right margin
+    set_margin_top();    # Set top margin
+    set_margin_bottom(); # Set bottom margin
+</PRE>
+</P>
+<P>
+All of these methods take a distance in inches as a parameter. Note: 1 inch
+= 25.4mm. ;-) The default left and right margin is 0.75 inch. The default
+top and bottom margin is 1.00 inch. 
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_header_string_margin_">set_header($string, $margin)</A></H2>
+<P>
+Headers and footers are generated using a <CODE>$string</CODE> which is a combination of plain text and control characters. The <CODE>$margin</CODE> parameter is optional.
+
+</P>
+<P>
+The available control character are:
+
+</P>
+<P>
+<PRE>
+    Control              Type             Description
+    =======              ====             ===========
+    &amp;L                   Justification    Left
+    &amp;C                                    Center
+    &amp;R                                    Right
+    
+    &amp;P                   Information      Page number
+    &amp;N                                    Total number of pages
+    &amp;D                                    Date
+    &amp;T                                    Time
+    &amp;F                                    File name
+    &amp;A                                    Worksheet name
+    
+    &amp;fontsize            Font             Font size
+    &amp;&quot;fontname,style&quot;                     Font name and style
+    
+    
+</PRE>
+</P>
+<P>
+Text in headers and footers can be justified (aligned) to the left, center
+and right by prefixing the text with the control characters <CODE>&amp;L</CODE>, <CODE>&amp;C</CODE> and <CODE>&amp;R</CODE>.
+
+</P>
+<P>
+For example (with ASCII art representation of the results):
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_header('&amp;LHello');
+    
+     ---------------------------------------------------------------
+    |                                                               |
+    | Hello                                                         |
+    |                                                               |
+    
+    
+    $worksheet-&gt;set_header('&amp;CHello');
+    
+     ---------------------------------------------------------------
+    |                                                               |
+    |                          Hello                                |
+    |                                                               |
+    
+    
+    $worksheet-&gt;set_header('&amp;RHello');
+    
+     ---------------------------------------------------------------
+    |                                                               |
+    |                                                         Hello |
+    |                                                               |
+    
+</PRE>
+</P>
+<P>
+If you do not specify any justification the text will be centered:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_header('Hello');
+    
+     ---------------------------------------------------------------
+    |                                                               |
+    |                          Hello                                |
+    |                                                               |
+    
+</PRE>
+</P>
+<P>
+You can also have text in each of the justification regions:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_header('&amp;LCiao&amp;CBello&amp;RCielo');
+    
+     ---------------------------------------------------------------
+    |                                                               |
+    | Ciao                     Bello                          Cielo |
+    |                                                               |
+    
+</PRE>
+</P>
+<P>
+The information control characters act as variables that Excel will update
+as the workbook or worksheet changes. Times and dates are in the users
+default format:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_header('Page &amp;P of &amp;N');
+    
+     ---------------------------------------------------------------
+    |                                                               |
+    |                        Page 1 of 6                            |
+    |                                                               |
+    
+    
+    $worksheet-&gt;set_header('Updated at &amp;T');
+    
+     ---------------------------------------------------------------
+    |                                                               |
+    |                    Updated at 12:30 PM                        |
+    |                                                               |
+    
+</PRE>
+</P>
+<P>
+You can specify the font size of a section of the text by prefixing it with
+the control character <CODE>&amp;n</CODE> where <CODE>n</CODE> is the font size:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_header('&amp;20Big Hello');
+    $worksheet-&gt;set_header('&amp;6Small Hello');
+</PRE>
+</P>
+<P>
+You can specify the font of a section of the text by prefixing it with the
+control sequence <CODE>&amp;&quot;fontname,style&quot;</CODE> where <CODE>fontname</CODE> is a font name such as &quot;Courier New&quot; or &quot;Times New
+Roman&quot; and <CODE>style</CODE> is one of the standard Windows font descriptions: &quot;Regular&quot;,
+&quot;Italic&quot;, &quot;Bold&quot; or &quot;Bold Italic&quot;:
+
+</P>
+<P>
+<PRE>
+    $worksheet1-&gt;set_header('&amp;&quot;Courier New,Italic&quot;Hello');
+    $worksheet2-&gt;set_header('&amp;&quot;Courier New,Bold Italic&quot;Hello');
+    $worksheet3-&gt;set_header('&amp;&quot;Times New Roman,Regular&quot;Hello');
+</PRE>
+</P>
+<P>
+It is possible to combine all of these features together to create
+sophisticated headers and footers. As an aid to setting up complicated
+headers and footers you can record a page setup as a macro in Excel and
+look at the format strings that VBA produces. Remember however that VBA
+uses a double double quote <CODE>&quot;&quot;</CODE> to indicate a single double quote. For the last example above the
+equivalent VBA code looks like this:
+
+</P>
+<P>
+<PRE>
+    .LeftHeader   = &quot;&quot;
+    .CenterHeader = &quot;&amp;&quot;&quot;Times New Roman,Regular&quot;&quot;Hello&quot;
+    .RightHeader  = &quot;&quot;
+</PRE>
+</P>
+<P>
+The header or footer string must be less than 255 characters.
+
+</P>
+<P>
+As stated above the margin parameter is optional. As with the other margins
+the value should be in inches. The default header and footer margin is 0.50
+inch. The header and footer margin size can be set as follows:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_header('&amp;CHello', 0.75);
+</PRE>
+</P>
+<P>
+Note, the header and footer margins are independent of the top and bottom
+margins.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="set_footer_">set_footer()</A></H2>
+<P>
+See the <CODE>set_header()</CODE> section above.
+
 </P>
 <P>
 <HR>
@@ -1925,7 +2441,8 @@ Swedish. See the <CODE>function_locale.pl</CODE> program in the <CODE>examples</
 </P>
 <P>
 For a general introduction to Excel's formulas and an explanation of the
-functions have a look at the Excel help files or the following links: <A
+syntax of the function refer to the Excel help files or the following
+links: <A
 HREF="http://msdn.microsoft.com/library/default.asp?URL=/library/officedev/office97/s88f2.htm">http://msdn.microsoft.com/library/default.asp?URL=/library/officedev/office97/s88f2.htm</A>
 and <A
 HREF="http://msdn.microsoft.com/library/default.asp?URL=/library/officedev/office97/s992f.htm">http://msdn.microsoft.com/library/default.asp?URL=/library/officedev/office97/s992f.htm</A>
@@ -1940,7 +2457,7 @@ If your formula doesn't work in Spreadsheet::WriteExcel try the following:
 <PRE>
     1. Verify that the formula works in Excel (or Gnumeric or OpenOffice).
     2. Ensure that it isn't on the TODO list at the start of this section.
-    3. Ensure that cell references and cell names are in uppercase.
+    3. Ensure that cell references and formula names are in uppercase.
     4. Ensure that you are using the U.S. style range and union operators.
     5. Ensure the function is in the above table.
 </PRE>
@@ -2010,15 +2527,15 @@ Spreadsheet::WriteExcel.
     $worksheet-&gt;write(8, 0,  '=IF(A5&gt;3,&quot;Yes&quot;, &quot;No&quot;)');
 </PRE>
 </P>
-
-<br><center><img SRC="simple.gif" ALT="The output from simple.pl"></center>
-
 <P>
 <PRE>
     # Write a hyperlink
-    $worksheet-&gt;write(10, 0, '<A HREF="http://www.perl.com/">http://www.perl.com/</A>');
+    $worksheet-&gt;write(10, 0, 'http://www.perl.com/');
 </PRE>
 </P>
+
+<br><center><img SRC="simple.gif" ALT="The output from simple.pl"></center>
+
 <P>
 <HR>
 <H2><A NAME="Example_2">Example 2</A></H2>
@@ -2095,10 +2612,10 @@ working with multiple worksheets.
     # Set the active cell
     $south-&gt;set_selection(0, 1);
 </PRE>
+</P>
 
 <br><center><img SRC="regions.gif" ALT="The output from regions.pl"></center>
 
-</P>
 <P>
 <HR>
 <H2><A NAME="Example_3">Example 3</A></H2>
@@ -2536,9 +3053,7 @@ public domain.
 </P>
 <P>
 For a open source implementation of the OLE library see the 'cole' library
-at <A
-HREF="http://arturo.directmail.org/filtersweb/">http://arturo.directmail.org/filtersweb/</A>
-
+at <A HREF="http://atena.com/libole2.php">http://atena.com/libole2.php</A>
 
 </P>
 <P>
@@ -2557,8 +3072,8 @@ HREF="http://www.openoffice.org/">http://www.openoffice.org/</A>
 <P>
 An article describing Spreadsheet::WriteExcel and how it works appears in
 Issue #19 of The Perl Journal, <A
-HREF="http://www.itknowledge.com/tpj/">http://www.itknowledge.com/tpj/</A>
-It is reproduced, by kind permission, in the <CODE>doc</CODE> directory of the distro.
+HREF="http://www.tpj.com/">http://www.tpj.com/</A> It is reproduced, by
+kind permission, in the <CODE>doc</CODE> directory of the distro.
 
 </P>
 <P>
@@ -2589,12 +3104,19 @@ database.
 
 </P>
 <P>
+* DBI::Excel, you can also access Spreadsheet::WriteExcel using the
+standard DBI interface via Kawai Takanori's DBI::Excel module <A
+HREF="http://search.cpan.org/search?dist=DBI-Excel.">http://search.cpan.org/search?dist=DBI-Excel.</A>
+
+
+</P>
+<P>
 * Win32::OLE module and office automation. This requires a Windows platform
 and an installed copy of Excel. This is the most powerful and complete
 method for interfacing with Excel. See <A
-HREF="http://velocity.activestate.com/docs/ActivePerl/faq/Windows/ActivePerl-Winfaq12.html">http://velocity.activestate.com/docs/ActivePerl/faq/Windows/ActivePerl-Winfaq12.html</A>
+HREF="http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/faq/Windows/ActivePerl-Winfaq12.html">http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/faq/Windows/ActivePerl-Winfaq12.html</A>
 and <A
-HREF="http://velocity.activestate.com/docs/ActivePerl/site/lib/Win32/OLE.html">http://velocity.activestate.com/docs/ActivePerl/site/lib/Win32/OLE.html</A>
+HREF="http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/site/lib/Win32/OLE.html">http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/site/lib/Win32/OLE.html</A>
 If your main platform is UNIX but you have the resources to set up a
 separate Win32/MSOffice server, you can convert office documents to text,
 postscript or PDF using Win32::OLE. For a demonstration of how to do this
@@ -2635,8 +3157,8 @@ HREF="http://user.cs.tu-berlin.de/~schwartz/pmh/">http://user.cs.tu-berlin.de/~s
 This has been superseded by the Spreadsheet::ParseExcel module. There is
 also an open source C/C++ project based on the LAOLA work. Try the Filters
 Project <A
-HREF="http://arturo.directmail.org/filtersweb/">http://arturo.directmail.org/filtersweb/</A>
-and the Excel to HTML converter at the xlHtml Project <A
+HREF="http://atena.com/libole2.php">http://atena.com/libole2.php</A> and
+the Excel to HTML converter at the xlHtml Project <A
 HREF="http://www.xlhtml.org/">http://www.xlhtml.org/</A>
 
 </P>
@@ -2652,13 +3174,26 @@ HREF="http://search.cpan.org/search?dist=HTML-TableExtract">http://search.cpan.o
 
 </P>
 <P>
+* DBI::Excel, you can also access Spreadsheet::ParseExcel using the
+standard DBI interface via Kawai Takanori's DBI::Excel module <A
+HREF="http://search.cpan.org/search?dist=DBI-Excel.">http://search.cpan.org/search?dist=DBI-Excel.</A>
+
+
+</P>
+<P>
+* XML::Excel converts Excel files to XML using Spreadsheet::ParseExcel <A
+HREF="http://search.cpan.org/search?dist=XML-Excel.">http://search.cpan.org/search?dist=XML-Excel.</A>
+ 
+
+</P>
+<P>
 * Win32::OLE module and office automation. See, the section <A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A>.
 
 </P>
 <P>
 If you wish to view Excel files on a UNIX/Linux platform check out the
 excellent Gnumeric spreadsheet application at <A
-HREF="http://www.gnumeric.org/gnumeric">http://www.gnumeric.org/gnumeric</A>
+HREF="http://www.gnome.org/projects/gnumeric/">http://www.gnome.org/projects/gnumeric/</A>
 or OpenOffice at <A
 HREF="http://www.openoffice.org/">http://www.openoffice.org/</A>
 
@@ -2721,29 +3256,27 @@ The lack of a portable way of writing a little-endian 64 bit IEEE float.
 The roadmap is as follows:
 
 </P>
+<UL>
+<LI><A NAME="item_More">More page set-up features. The aim is to support all the page setup features that are available through Excel's page setup dialog. Also vertical and horizontal page breaks will be added.</A>
+<LI><A NAME="item_Add">Add cell protection and formula hiding.</A>
+<LI><A NAME="item_Add">Add handling for non-English formula syntax and numbers in different locales.</A>
+<LI><A NAME="item_Move">Move to Excel97/2000 format as standard. This will allow strings greater than 255 characters (who thought up that limit) and hopefully Unicode. The Excel 5 format will be optional.</A>
+</UL>
 <P>
-<PRE>
-    * Add page set-up features. [1]
-    * Move to Excel97/2000 format as standard. [2]
-    * Exeunt. [3]
-</PRE>
-</P>
-<P>
-Note 1. Margins, orientation, sheet size, headers, footers, panes and
-anything else that looks viable.
+Also, here are some of the most requested features that probably won't get
+added:
 
 </P>
+<UL>
+<LI><A NAME="item_Graphs">Graphs. The format is documented but it would require too much work to implement. It would also require too much work to design a useable interface to the hundreds of features in an Excel graph. So that's two too much works.</A>
+<LI><A NAME="item_Macros">Macros. This would solve the previous problem neatly. However, the format of Excel macros isn't documented.</A>
+<LI><A NAME="item_Some">Some feature that you really need. ;-)</A>
+</UL>
 <P>
-Note 2. This will allow strings greater than 255 characters (who thought up
-that limit) and hopefully Unicode. The Excel 5 format will be optional.
-
-</P>
-<P>
-Note 3. The module will eventually move to a maintenance only state. As
-such items 1 and 2 are the last major elements in the closed set of
-features. Each new feature requires coding (the easy part), testing and
-documentation and in turn adds to the complexity of the interface. Also,
-programming in Perl should not require this much use of a hex editor. :-)
+If there is some feature of an Excel file that you really, really need then
+you should use Win32::OLE with Excel on Windows. If you are on Unix, then
+set up a Windows server and use SOAP or CORBA or get your clients to use
+Gnumeric, it's better than Excel anyway.
 
 </P>
 <P>
@@ -2756,10 +3289,10 @@ Spreadsheet::WriteExcel:
 </P>
 <P>
 Alexander Farber, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Cedric
-Bouvier, CPAN testers, Daniel Gardner, Harold Bamford, James Holmes, Johan
-Ekenberg, J.C. Wren, Kenneth Stacey, Michael Buschauer, Mike Blazer, Paul
-J. Falbe, Paul Medynski, Peter Dintelmann, Rich Sorden, Shane Ashby, Shenyu
-Zheng.
+Bouvier, CPAN testers, Daniel Berger, Daniel Gardner, Harold Bamford, James
+Holmes, Johan Ekenberg, J.C. Wren, Kenneth Stacey, Michael Buschauer, Mike
+Blazer, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Rich Sorden, Shane
+Ashby, Shenyu Zheng.
 
 </P>
 <P>
@@ -2767,7 +3300,8 @@ The following people contributed code or examples:
 
 </P>
 <P>
-Andrew Benham, Marco Geri, Sam Kington, Takanori Kawai, Tom O'Sullivan.
+Andrew Benham, Bill Young, Marco Geri, Sam Kington, Takanori Kawai, Tom
+O'Sullivan.
 
 </P>
 <P>
@@ -2791,13 +3325,21 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Caught between the twisted stars
-    The plotted lines the faulty map
-    That brought Columbus to New York.
-    Betwixt between the East and West
-    He calls on her wearing a leather vest
-    The earth squeals and shudders to a halt.
-        --Lou Reed
+    Waking up from bad dreams and smoking cigarettes
+    Cuddling a warm girl and smelling stale perfume
+    A hot summer's day, and sticky black tarmac
+    Feeding ducks in the park, and wishing you were far away
+    
+    That's entertainment
+    
+    Two lovers kissing amongst the scream of midnight
+    Two lovers missing the tranquility of solitude
+    Getting a cab and travelling on buses
+    Reading the graffiti about slash-seat affairs
+    
+    That's entertainment.
+    
+        --Paul Weller
 </PRE>
 </P>
 <P>

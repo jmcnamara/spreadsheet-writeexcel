@@ -2,9 +2,8 @@
 
 ###############################################################################
 #
-# Example of formatting using the Spreadsheet::WriteExcel module
-#
-# This is a simple example of how to use functions.
+# This is a simple example of how to use functions with the  
+# Spreadsheet::WriteExcel module.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

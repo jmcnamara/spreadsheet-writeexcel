@@ -12,11 +12,11 @@ package Spreadsheet::WriteExcel::OLEwriter;
 # Documentation after __END__
 #
 
-require Exporter;
-
+use Exporter;
 use strict;
 use Carp;
 use FileHandle;
+
 
 
 

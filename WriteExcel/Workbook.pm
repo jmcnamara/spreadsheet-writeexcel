@@ -12,19 +12,19 @@ package Spreadsheet::WriteExcel::Workbook;
 # Documentation after __END__
 #
 
-require Exporter;
-
+use Exporter;
 use strict;
 use Carp;
 use Spreadsheet::WriteExcel::BIFFwriter;
-use Spreadsheet::WriteExcel::Worksheet;
 use Spreadsheet::WriteExcel::OLEwriter;
+use Spreadsheet::WriteExcel::Worksheet;
 use Spreadsheet::WriteExcel::Format;
+
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '0.08';
+$VERSION = '0.09';
 
 ###############################################################################
 #
@@ -35,19 +35,17 @@ $VERSION = '0.08';
 sub new {
 
     my $class       = shift;
-    my $filename    = $_[0] || '';
     my $self        = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $ole_writer  = Spreadsheet::WriteExcel::OLEwriter->new($filename);
     my $tmp_format  = Spreadsheet::WriteExcel::Format->new();
-
     my $byte_order  = $self->{_byte_order};
     my $parser      = Spreadsheet::WriteExcel::Formula->new($byte_order);
 
-    $self->{_OLEwriter}         = $ole_writer;
+    $self->{_filename}          = $_[0] || '';
     $self->{_parser}            = $parser;
     $self->{_1904}              = 0;
     $self->{_activesheet}       = 0;
     $self->{_firstsheet}        = 0;
+    $self->{_selected}          = 0;
     $self->{_xf_index}          = 16; # 15 style XF's and 1 cell XF.
     $self->{_fileclosed}        = 0;
     $self->{_biffsize}          = 0;
@@ -83,10 +81,9 @@ sub close {
 
     my $self = shift;
 
-    return if $self->{_fileclosed}; # Prevent calling close() twice
+    return if $self->{_fileclosed}; # Prevent close() from being called twice.
 
     $self->_store_workbook();
-    $self->{_OLEwriter}->close();
     $self->{_fileclosed} = 1;
 }
 
@@ -302,10 +299,16 @@ sub _tmpfile_warning{
 sub _store_workbook {
 
     my $self = shift;
-    my $OLE  = $self->{_OLEwriter};
 
-    # Call the finalization methods for each worksheet
+    # Ensure that at least one worksheet has been selected.
+    if ($self->{_activesheet} == 0) {
+        @{$self->{_worksheets}}[0]->{_selected} = 1;
+    }
+
+    # Calculate the number of selected worksheet tabs and call the finalization
+    # methods for each worksheet
     foreach my $sheet (@{$self->{_worksheets}}) {
+        $self->{_selected}++ if $sheet->{_selected};
         $sheet->_close($self->{_sheetnames});
     }
 
@@ -327,6 +330,24 @@ sub _store_workbook {
     # End Workbook globals
     $self->_store_eof();
 
+    # Store the workbook in an OLE container
+    $self->_store_OLE_file
+}
+
+
+###############################################################################
+#
+# _store_OLE_file()
+#
+# Store the workbook in an OLE container if the total size of the worbook data
+# is less than ~ 7MB.
+#
+sub _store_OLE_file {
+
+    my $self = shift;
+
+    my $OLE  = Spreadsheet::WriteExcel::OLEwriter->new($self->{_filename});
+
     # Write Worksheet data if data <~ 7MB
     if ($OLE->set_size($self->{_biffsize})) {
         $OLE->write_header();
@@ -338,6 +359,7 @@ sub _store_workbook {
             }
         }
     }
+    $OLE->close();
 }
 
 
@@ -535,20 +557,20 @@ sub _store_all_styles {
 sub _store_window1 {
 
     my $self      = shift;
-    my $record    = 0x003D;  # Record identifier
-    my $length    = 0x0012;  # Number of bytes to follow
+    my $record    = 0x003D;                 # Record identifier
+    my $length    = 0x0012;                 # Number of bytes to follow
 
-    my $xWn       = 0x0000;  # Horizontal position of window
-    my $yWn       = 0x0000;  # Vertical position of window
-    my $dxWn      = 0x25BC;  # Width of window
-    my $dyWn      = 0x1572;  # Height of window
+    my $xWn       = 0x0000;                 # Horizontal position of window
+    my $yWn       = 0x0000;                 # Vertical position of window
+    my $dxWn      = 0x25BC;                 # Width of window
+    my $dyWn      = 0x1572;                 # Height of window
 
-    my $grbit     = 0x0038;  # Option flags
-    my $ctabsel   = 0x0001;  # Number of workbook tabs selected
-    my $wTabRatio = 0x0258;  # Tab to scrollbar ratio
+    my $grbit     = 0x0038;                 # Option flags
+    my $ctabsel   = $self->{_selected};     # Number of workbook tabs selected
+    my $wTabRatio = 0x0258;                 # Tab to scrollbar ratio
 
-    my $itabFirst = $self->{_firstsheet};  # 1st displayed worksheet
-    my $itabCur   = $self->{_activesheet}; # Selected worksheet
+    my $itabFirst = $self->{_firstsheet};   # 1st displayed worksheet
+    my $itabCur   = $self->{_activesheet};  # Active worksheet
 
     my $header    = pack("vv",        $record, $length);
     my $data      = pack("vvvvvvvvv", $xWn, $yWn, $dxWn, $dyWn,

@@ -12,8 +12,7 @@ package Spreadsheet::WriteExcel::Formula;
 # Documentation after __END__
 #
 
-require Exporter;
-
+use Exporter;
 use strict;
 use Parse::RecDescent;
 use Data::Dumper;
@@ -21,10 +20,11 @@ use Carp;
 
 
 
+
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 ###############################################################################
 #
@@ -79,23 +79,23 @@ sub _init_parser {
     $self->_initialize_hashes();
 
     # The parsing grammar.
-    # TODO:
-    #       Add support for international versions of Excel
+    #
+    # TODO: Add support for international versions of Excel
     #
     $parser = Parse::RecDescent->new(<<'EndGrammar');
 
-        expr:           list 
+        expr:           list
 
         # Match arg lists such as SUM(1,2, 3)
         list:           <leftop: addition ',' addition>
                         { [ $item[1], '_arg', scalar @{$item[1]} ] }
 
-        addition:       <leftop: multiplication add_op multiplication> 
+        addition:       <leftop: multiplication add_op multiplication>
 
         # TODO: The add_op operators don't have equal precedence.
-        add_op:         add |  sub | concat 
+        add_op:         add |  sub | concat
                         | eq | ne | le | ge | lt | gt   # Order is important
-                        
+
         add:            '+'  { 'ptgAdd'    }
         sub:            '-'  { 'ptgSub'    }
         concat:         '&'  { 'ptgConcat' }
@@ -109,7 +109,7 @@ sub _init_parser {
 
         multiplication: <leftop: exponention mult_op exponention>
 
-        mult_op:        mult  | div 
+        mult_op:        mult  | div
         mult:           '*' { 'ptgMul' }
         div:            '/' { 'ptgDiv' }
 
@@ -136,39 +136,39 @@ sub _init_parser {
                         { [ '_str', $item[1]] }
 
         # Match float or integer
-        number:          /([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?/ 
+        number:          /([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?/
                         { ['_num', $item[1]] }
 
-        # 
+        #
         # The highest column values is IV. The following regexes match to IZ.
         # Out of range values are caught in the code.
         #
-        
+
         # Match A1, $A1, A$1 or $A$1.
-        ref2d:           /\$?[A-I]?[A-Z]\$?\d+/ 
+        ref2d:           /\$?[A-I]?[A-Z]\$?\d+/
                         { ['_ref2d', $item[1]] }
 
         # Match an external sheet reference.
-        ref3d:          /[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+/ 
+        ref3d:          /[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+/
                         { ['_ref3d', $item[1]] }
-                        
+
         # Match A1:C5 etc.
         range2d:          /\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
                         { ['_range2d', $item[1]] }
 
         # Match an external sheet range.
-        range3d:        /[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/ 
+        range3d:        /[']?([^':!(]+:)?[^':!(]+[']?[!]\$?[A-I]?[A-Z]\$?\d+:\$?[A-I]?[A-Z]\$?\d+/
                         { ['_range3d', $item[1]] }
-                        
+
         # Match a function name.
         function:       /[A-Z0-9À-Ü_.]+/ '()'
                         { ['_func', $item[1]] }
-                        | /[A-Z0-9À-Ü_.]+/ '(' expr ')' 
+                        | /[A-Z0-9À-Ü_.]+/ '(' expr ')'
                         { ['_class', $item[1], $item[3], '_func', $item[1]] }
-                        | /[A-Z0-9À-Ü_.]+/ '(' list ')' 
+                        | /[A-Z0-9À-Ü_.]+/ '(' list ')'
                         { ['_class', $item[1], $item[3], '_func', $item[1]] }
-                        
-        # Budweiser.
+
+        # Boolean values.
         true:           'TRUE'  { [ 'ptgBool', 1 ] }
 
         false:          'FALSE' { [ 'ptgBool', 0 ] }
@@ -304,7 +304,7 @@ sub _parse_tokens {
     my $class       = 0;
     my @class       = 1;
 
-    
+
     while (@_) {
         my $token = shift @_;
 
@@ -693,7 +693,7 @@ sub _convert_function {
 
     my $args     = $functions{$token}[1];
     my $volatile = $functions{$token}[3];
-    
+
     $self->{_volatile} = 1 if $volatile;
 
     # Fixed number of args eg. TIME($i,$j,$k).
@@ -1169,7 +1169,7 @@ This string is comprised of operators and operands arranged in a reverse-Polish 
 
 The tokens and token names are defined in the "Excel Developer's Kit" from Microsoft Press. C<ptg> stands for Parse ThinG (as in "That lexer can't grok it, it's a parse thang.")
 
-In general the tokens fall into two categories: operators such as C<ptgMul> and operands such as C<ptgInt>. When the formula is evaluated by Excel the operand tokens push values onto a stack. The operator tokens then pop the required number of operands from the stack, perform an operation and push the resulting value back onto the stack. This methodology is similar to the basic operation of a reverse-Polish (RPN) calculator.
+In general the tokens fall into two categories: operators such as C<ptgMul> and operands such as C<ptgInt>. When the formula is evaluated by Excel the operand tokens push values onto a stack. The operator tokens then pop the required number of operands off of the stack, perform an operation and push the resulting value back onto the stack. This methodology is similar to the basic operation of a reverse-Polish (RPN) calculator.
 
 Spreadsheet::WriteExcel::Formula parses a formula using a C<Parse::RecDescent> parser (at a later stage it may use a C<Parse::Yapp> parser or C<Parse::FastDescent>).
 
@@ -1216,7 +1216,7 @@ The C<_arg> token is generated for all lists but is only used for functions that
 
 The C<_class> token indicates the start of the arguments to a function. This allows the post-processor to decide the "class" of the ref and range arguments that the function takes. The class can be reference, value or array. Since function calls can be nested, the class variable is stored on a stack in the C<@class> array. The class of the ref or range is then read as the top element of the stack C<$class[-1]>. When a C<_func> is read it pops the class value.
 
-Certain Excel functions such as RAND() and NOW() are designated as volatile and must be recalculated by Excel every time that a is updated. Any formulas that contain one of these functions has a specially formatted C<ptgAttr> tag prepended to it to indicate that it is volatile.
+Certain Excel functions such as RAND() and NOW() are designated as volatile and must be recalculated by Excel every time that a cell is updated. Any formulas that contain one of these functions has a specially formatted C<ptgAttr> tag prepended to it to indicate that it is volatile.
 
 A secondary parsing stage is carried out by C<_parse_tokens()> which converts these tokens into a binary string. For the C<1+2*3> example this would give:
 
@@ -1226,7 +1226,7 @@ This two-pass method could probably have been reduced to a single pass through t
 
 The token values and formula values are stored in the C<%ptg> and C<%functions> hashes. These hashes and the parser object C<$parser> are exposed as global data. This breaks the OO encapsulation, but means that they can be shared by several instances of Spreadsheet::WriteExcel called from the same program.
 
-Non-English function names can be added to the C<%functions> hash using the C<function_locale.pl> program in the C<examples> directory of the distro. The supported languages are: German, French, Spanish, Portuguese, Dutch, Finnish, Italian and Swedish.
+Non-English function names can be added to the C<%functions> hash using the C<function_locale.pl> program in the C<examples> directory of the distro. The supported languages are: German, French, Spanish, Portuguese, Dutch, Finnish, Italian and Swedish. These languages are not added by default because there are conflicts between functions names in different languages.
 
 The parser is initialised by C<_init_parser()>. The initialisation is delayed until the first formula is parsed. This eliminates the overhead of generating the parser in programs that are not processing formulas. (The parser should really be pre-compiled, this is to-do when the grammar stabilises).
 

@@ -1,5 +1,6 @@
 
-######################### We start with some black magic to print on failure.
+#####################################################
+# We start with some black magic to print on failure.
 
 BEGIN { $| = 1; print "1..2\n"; }
 END {print "not ok 1\n" unless $loaded;}
@@ -7,7 +8,8 @@ use WriteExcel;
 $loaded = 1;
 print "ok 1\n";
 
-######################### End of black magic.
+#####################################################
+# End of black magic.
 
 
 

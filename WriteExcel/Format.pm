@@ -12,10 +12,10 @@ package Spreadsheet::WriteExcel::Format;
 # Documentation after __END__
 #
 
-require Exporter;
-
+use Exporter;
 use strict;
 use Carp;
+
 
 
 

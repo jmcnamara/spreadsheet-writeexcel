@@ -7,7 +7,7 @@ NAME
 ======================================================================
 DESCRIPTION
 
-    The Spreadsheet::WriteExcel module can be used create a cross-
+    The Spreadsheet::WriteExcel module can be used to create a cross-
     platform Excel binary file. Multiple worksheets can be added to a
     workbook and formatting can be applied to cells. Text, numbers,
     formulas and hyperlinks can be written to the cells.
@@ -35,22 +35,31 @@ SYNOPSIS
 
         # Create a new Excel workbook
         my $workbook = Spreadsheet::WriteExcel->new("perl.xls");
-        $worksheet   = $workbook->addworksheet(); # Add a worksheet
-        $format      = $workbook->addformat();    # Add a format
 
-        # Define the format
+        # Add a worksheet
+        $worksheet = $workbook->addworksheet();
+
+        #  Add and define a format
+        $format = $workbook->addformat();    # Add a format
         $format->set_bold();
         $format->set_color('red');
         $format->set_align('center');
 
-        # Row and column are zero indexed
-        $col = 0;
-        $row = 0;
+        # Write a formatted and unformatted string, row and column notation.
+        $col = $row = 0;
+        $worksheet->write($row, $col, "Hi Excel!", $format);
+        $worksheet->write(1,    $col, "Hi Excel!");
 
-        $worksheet->write($row,  $col, "Hi Excel!");
-        $worksheet->write(1,     $col, "Hi Excel!", $format);
-        $worksheet->write(2,     $col, 1.2345);
-        $worksheet->write(3,     $col, '=SIN(PI()/4)');
+        # Write a number and a formula using A1 notation
+        $worksheet->write('A3', 1.2345);
+        $worksheet->write('A4', '=SIN(PI()/4)');
+
+======================================================================
+REQUIREMENTS
+
+    This module requires Perl 5.005 (or later) and Parse::RecDescent:
+    http://search.cpan.org/search?dist=Parse-RecDescent
+
 
 ======================================================================
 INSTALLATION
@@ -93,17 +102,11 @@ INSTALLATION
 
         PPM>install http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
 
+    If you wish to perform a local PPM install you can get the files
+    from:
+        http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel.ppd
+        http://homepage.eircom.net/~jmcnamara/perl/Spreadsheet-WriteExcel-0.xx-PPM.tar.gz
 
-    NOTE: Version 0.23 changed the WriteExcel namespace. To tidy up 
-    stray files it would be best to uninstall any version older than
-    this prior to installation. 
-
-
-======================================================================
-REQUIREMENTS
-
-    This module requires Perl 5.005 (or later) and Parse::RecDescent:
-    http://search.cpan.org/search?dist=Parse-RecDescent
 
 
 ======================================================================

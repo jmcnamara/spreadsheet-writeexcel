@@ -1,17 +1,5 @@
 package Spreadsheet::WriteExcel::Big;
 
-###############################################################################
-#
-# Used in conjunction with the big.pl program.
-#
-#
-# Example of how to use extend the  Spreadsheet::WriteExcel 7MB limit with
-# OLE::Storage_Lite http://search.cpan.org/search?dist=OLE-Storage_Lite
-#
-# Nov 2000, Kawai, Takanori (Hippo2000)
-#   Mail: GCD00051@nifty.ne.jp
-#   http://member.nifty.ne.jp/hippo2000
-
 
 ###############################################################################
 #
@@ -20,7 +8,7 @@ package Spreadsheet::WriteExcel::Big;
 # Spreadsheet::WriteExcel - Write formatted text and numbers to a
 # cross-platform Excel binary file.
 #
-# Copyright 2000, John McNamara, jmcnamara@cpan.org
+# © MM-MMI, John McNamara.
 #
 #
 
@@ -35,7 +23,7 @@ use Spreadsheet::WriteExcel::WorkbookBig;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::WorkbookBig Exporter);
 
-$VERSION = '0.23'; # 10 December 2000
+$VERSION = '0.32'; # May 2000
 
 ###############################################################################
 #
@@ -81,6 +69,20 @@ See the documentation for Spreadsheet::WriteExcel.
 
 
 This module is used in conjunction with Spreadsheet::WriteExcel.
+
+    use Spreadsheet::WriteExcel::Big;
+
+    my $workbook  = Spreadsheet::WriteExcel::Big->new("file.xls");
+    my $worksheet = $workbook->addworksheet();
+
+    # Same as Spreadsheet::WriteExcel
+    ...
+    ...
+
+
+=head1 REQUIREMENTS
+
+IO::Stringy and OLE::Storage_lite
 
 
 =head1 AUTHOR

@@ -6,6 +6,6 @@ WriteMakefile(
     'NAME'          => 'Spreadsheet::WriteExcel',
     'VERSION_FROM'  => 'WriteExcel.pm',
     'NEEDS_LINKING' => 0,
-    'PREREQ_PM'     => { Parse::RecDescent => 0},
+    'PREREQ_PM'     => {Parse::RecDescent => 0},
     'dist'          => {COMPRESS => 'gzip -best', SUFFIX => 'gz'},
 );

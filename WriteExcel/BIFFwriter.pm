@@ -12,9 +12,9 @@ package Spreadsheet::WriteExcel::BIFFwriter;
 # Documentation after __END__
 #
 
-require Exporter;
-
+use Exporter;
 use strict;
+
 
 
 

@@ -1,5 +1,22 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+0.32 May 17 2001
+    Minor
+    Added panes option.
+    Added page setup options: paper type, orientation, headers
+    footers, centering.
+    Added panes example.
+
+0.31 April 12 2001
+    Major
+    Fixed several minor and major bugs in Formula.pm. Thanks Shane
+    Ashby and Borgar Olsen and Christian Kirsch.
+    Added external worksheet references to formulas.
+    Added A1 notation.
+    Added facility to new() to accept valid filehandles. Thanks Peter Dintelmann.
+    Added more examples. Thanks Tom O'Sullivan.
+    Updated bigfile.pl example. Thanks to Takanori Kawai.
+    
 0.30 Feb 26 2001
     Major
     Added formulas.

@@ -120,7 +120,7 @@ sub cell_to_rowcol {
     my $row     = $4;
 
     # Convert base26 column string to number
-    # All your Bases are belong to us.
+    # All your Base are belong to us.
     my @chars  = split //, $col;
     my $expn   = 0;
     $col       = 0;

@@ -1,3 +1,5 @@
+
+
 The following is a description of the example files that are provided
 with Spreadsheet::WriteExcel. They are intended to demonstrate the
 different features and options of the module.
@@ -21,6 +23,7 @@ hyperlink.pl        Shows how to create hyperlinks.
 merge1.pl           A simple example of cell merging.
 merge2.pl           A more advanced example of cell merging.
 textwrap.pl         Demonstrates text wrapping options.
+panes.pl            An examples of how to create panes.
 copyformat.pl       Example of copying a cell format.
 win32ole.pl         A sample Win32::OLE example for comparison.
 easter_egg.pl       Expose the Excel97 flight simulator. A must see.
@@ -44,3 +47,5 @@ comments.pl         Add cell comments to Excel 5 worksheets.
 bigfile.pl          Write past the 7MB limit with OLE::Storage_Lite.
 Big.pm              Module used with bigfile.pl.
 WorkbookBig.pm      Module used with bigfile.pl.
+
+

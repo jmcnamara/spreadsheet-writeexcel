@@ -22,18 +22,20 @@ my $bold=$workbook->addformat;
 $bold->set_bold(1);
 $bold->set_color("red");
 $bold->set_font("Arial");
-$bold->set_border(5);
+$bold->set_border(6);
+
+$worksheet->set_column('A:P', 15);
+
 foreach my $row (0..5) {
     foreach my $col (0..5) {
-	$contents[$row][$col]="Row ".($row+1).", Col ".("A".."Z")[$col];
-	$worksheet->write($row, $col, $contents[$row][$col], $bold);
+        $contents[$row][$col]="Row ".($row+1)." : Col ".("A".."Z")[$col];
+        $worksheet->write($row, $col, $contents[$row][$col], $bold);
     }
 }
-$worksheet->writemany(7,0, \@contents, {direction=>"col"});
-$worksheet->writemany(14,0, \@contents, {direction=>"row",
-					 format => $bold});
-$worksheet->writemany(21,2, [5..20], {direction => "col",
-				      format => $bold});
+$worksheet->writemany(7, 0, \@contents, {direction => "col"});
+$worksheet->writemany(14,0, \@contents, {direction => "row", format => $bold});
+$worksheet->writemany(21,0, [5..20],    {direction => "col", format => $bold});
+
 $workbook->close;
 
 
@@ -66,22 +68,22 @@ sub writemany {
     my ($self, $row, $col, $ref, $options)=@_;
     # If this is an arrayref, go through it
     if (ref($ref) eq "ARRAY") {
-	# Work out the direction we're going
-	my $direction=$options->{direction} || "row";
-	# Work out the converse direction
-	my $otherdirection={row=>"col",
-			    col=>"row"}->{$direction};
-	# Cycle through
-	for (@$ref) {
-	    $self->writemany($row, $col, $_,
-			     {direction => $otherdirection,
-			      format => $options->{format} || undef});
-	    $direction eq "row" ? $row++ : $col++;
-	}
+    # Work out the direction we're going
+    my $direction=$options->{direction} || "row";
+    # Work out the converse direction
+    my $otherdirection={row=>"col",
+                col=>"row"}->{$direction};
+    # Cycle through
+    for (@$ref) {
+        $self->writemany($row, $col, $_,
+                 {direction => $otherdirection,
+                  format => $options->{format} || undef});
+        $direction eq "row" ? $row++ : $col++;
+    }
     } else {
-	# It's a simple scalar value (or something that we don't
-	# handle), so pass it through to write
-	$self->write($row, $col, $ref, $options->{format});
+    # It's a simple scalar value (or something that we don't
+    # handle), so pass it through to write
+    $self->write($row, $col, $ref, $options->{format});
     }
 }
 
