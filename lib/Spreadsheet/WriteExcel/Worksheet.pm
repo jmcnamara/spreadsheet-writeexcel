@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.11';
+$VERSION = '2.13';
 
 ###############################################################################
 #
@@ -74,6 +74,7 @@ sub new {
     $self->{_active_pane}       = 3;
     $self->{_frozen}            = 0;
     $self->{_selected}          = 0;
+    $self->{_hidden}            = 0;
 
     $self->{_paper_size}        = 0x0;
     $self->{_orientation}       = 0x1;
@@ -376,7 +377,8 @@ sub select {
 
     my $self = shift;
 
-    $self->{_selected} = 1;
+    $self->{_hidden}         = 0; # Selected worksheet can't be hidden.
+    $self->{_selected}       = 1;
 }
 
 
@@ -391,8 +393,28 @@ sub activate {
 
     my $self = shift;
 
-    $self->{_selected} = 1;
+    $self->{_hidden}         = 0; # Active worksheet can't be hidden.
+    $self->{_selected}       = 1;
     ${$self->{_activesheet}} = $self->{_index};
+}
+
+
+###############################################################################
+#
+# hide()
+#
+# Hide this worksheet.
+#
+sub hide {
+
+    my $self = shift;
+
+    $self->{_hidden}         = 1;
+
+    # A hidden worksheet shouldn't be active or selected.
+    $self->{_selected}       = 0;
+    ${$self->{_activesheet}} = 0;
+    ${$self->{_firstsheet}}  = 0;
 }
 
 
@@ -408,7 +430,8 @@ sub set_first_sheet {
 
     my $self = shift;
 
-    ${$self->{_firstsheet}} = $self->{_index};
+    $self->{_hidden}         = 0; # Active worksheet can't be hidden.
+    ${$self->{_firstsheet}}  = $self->{_index};
 }
 
 
@@ -1238,13 +1261,28 @@ sub _XF {
     my $col    = $_[2];
     my $format = $_[3];
 
+    my $error = "Error: refer to merge_range() in the documentation. " .
+                 "Can't use previously merged format in non-merged cell";
+
     if (ref($format)) {
+        # Temp code to prevent merged formats in non-merged cells.
+        croak $error if $format->{_used_merge} == 1;
+        $format->{_used_merge} = -1;
+
         return $format->get_xf_index();
     }
     elsif (exists $self->{_row_formats}->{$row}) {
+        # Temp code to prevent merged formats in non-merged cells.
+        croak $error if $self->{_row_formats}->{$row}->{_used_merge} == 1;
+        $self->{_row_formats}->{$row}->{_used_merge} = -1;
+
         return $self->{_row_formats}->{$row}->get_xf_index();
     }
     elsif (exists $self->{_col_formats}->{$col}) {
+        # Temp code to prevent merged formats in non-merged cells.
+        croak $error if $self->{_col_formats}->{$col}->{_used_merge} == 1;
+        $self->{_col_formats}->{$col}->{_used_merge} = -1;
+
         return $self->{_col_formats}->{$col}->get_xf_index();
     }
     else {
@@ -3322,6 +3360,14 @@ sub merge_range {
     my $format   = $_[5];
 
 
+    # Temp code to prevent merged formats in non-merged cells.
+    my $error = "Error: refer to merge_range() in the documentation. " .
+                "Can't use previously non-merged format in merged cells";
+
+    croak $error if $format->{_used_merge} == -1;
+    $format->{_used_merge} = 0; # Until the end of this function.
+
+
     # Set the merge_range property of the format object. For BIFF8+.
     $format->set_merge_range();
 
@@ -3345,6 +3391,10 @@ sub merge_range {
     }
 
     $self->merge_cells($rwFirst, $colFirst, $rwLast, $colLast);
+
+    # Temp code to prevent merged formats in non-merged cells.
+    $format->{_used_merge} = 1;
+
 }
 
 

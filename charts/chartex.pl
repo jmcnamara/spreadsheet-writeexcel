@@ -148,7 +148,7 @@ for my $aref (@exrefs) {
 
     $range = "'$range'" if $range =~ /[^\w:]/;
 
-    print "    \$worksheet->store_formula(\"=$range!A1\");\n";
+    print "    \$worksheet->store_formula('=$range!A1');\n";
 }
 
 

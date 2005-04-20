@@ -20,6 +20,10 @@ lib/Spreadsheet/WriteExcel/Worksheet.pm
 
 t/00_IEEE_double.t
 t/01_add_worksheet.t
+t/01_merge_formats.t
+t/11_date_time.t
+t/12_date_only.t
+t/13_date_seconds.t
 
 doc/index.html
 doc/WriteExcel.html
@@ -63,6 +67,7 @@ examples/filehandle.pl
 examples/formats.pl
 examples/function_locale.pl
 examples/headers.pl
+examples/hide_sheet.pl
 examples/hyperlink1.pl
 examples/hyperlink2.pl
 examples/images.pl
@@ -131,4 +136,4 @@ charts/Chart1.xls
 charts/Chart2.xls
 charts/Chart3.xls
 
-exe/chartex
+bin/chartex

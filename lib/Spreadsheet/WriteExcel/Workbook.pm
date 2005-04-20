@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Chart;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.10';
+$VERSION = '2.13';
 
 ###############################################################################
 #
@@ -769,6 +769,7 @@ sub _store_workbook {
     # Ensure that at least one worksheet has been selected.
     if ($self->{_activesheet} == 0) {
         @{$self->{_worksheets}}[0]->{_selected} = 1;
+        @{$self->{_worksheets}}[0]->{_hidden}   = 0;
     }
 
     # Calculate the number of selected worksheet tabs and call the finalization
@@ -797,6 +798,7 @@ sub _store_workbook {
         $self->_store_boundsheet($sheet->{_name},
                                  $sheet->{_offset},
                                  $sheet->{_type},
+                                 $sheet->{_hidden},
                                  $sheet->{_encoding});
     }
 
@@ -1192,9 +1194,12 @@ sub _store_boundsheet {
 
     my $sheetname = $_[0];                # Worksheet name
     my $offset    = $_[1];                # Location of worksheet BOF
-    my $grbit     = $_[2];                # Sheet identifier
-    my $encoding  = $_[3];                # Sheet name encoding
+    my $type      = $_[2];                # Worksheet type
+    my $hidden    = $_[3];                # Worksheet hidden flag
+    my $encoding  = $_[4];                # Sheet name encoding
     my $cch       = length($sheetname);   # Length of sheet name
+
+    my $grbit     = $type | $hidden;
 
     # Character length is num of chars not num of bytes
     $cch /= 2 if $encoding;

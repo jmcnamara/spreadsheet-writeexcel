@@ -215,8 +215,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.12 of Spreadsheet::WriteExcel, released
-March 22, 2005.
+This document refers to version 2.13 of Spreadsheet::WriteExcel, released
+April 20, 2005.
 
 </P>
 <P>
@@ -1118,7 +1118,7 @@ The general rule is that if the data looks like a <EM>something</EM> then a <EM>
 </PRE>
 </P>
 <P>
-The &quot;looks like&quot; rule is defined by regular expressions:
+The "looks like" rule is defined by regular expressions:
 
 </P>
 <P>
@@ -3153,7 +3153,9 @@ contain other types of alignment in addition to the merging:
 </P>
 <P>
 <STRONG>WARNING</STRONG>. The format object that is used with a <CODE>merge_range()</CODE> method call is marked internally as being associated with a merged range.
-As such, <STRONG>it should not be used for other formatting</STRONG>. This will be fixed in a later version. See the <A HREF="#BUGS">BUGS</A> section.
+It is a fatal error to use a merged format in a non-merged cell. Instead
+you should use separate formats for merged and non-merged cells. This
+restriction will be removed in a future release.
 
 </P>
 <P>
@@ -6290,6 +6292,7 @@ features and options of the module.
     outline.pl              An example of outlines and grouping.
     panes.pl                An examples of how to create panes.
     protection.pl           Example of cell locking and formula hiding.
+    hide_sheet.pl           Simple example of hiding a worksheet.
     repeat.pl               Example of writing repeated formulas.
     sales.pl                An example of a simple sales spreadsheet.
     sendmail.pl             Send an Excel email attachment using Mail::Sender.
@@ -6854,10 +6857,10 @@ Spreadsheet::WriteExcel to become corrupt. See <A HREF="#Warning_about_XML_Parse
 
 </P>
 <P>
-The format object that is used with a <CODE>merge_range()</CODE> method call is marked internally as being associated with a merged range.If
-you use this format in a non-merged cell it will cause Excel to crash. The
-current workaround is to use separate formats for merged and non-merged
-cell. This will be fixed in a future release.
+The format object that is used with a <CODE>merge_range()</CODE> method call is marked internally as being associated with a merged range.It
+is a fatal error to use a merged format in a non-merged cell. The current
+workaround is to use separate formats for merged and non-merged cell. This
+restriction will be removed in a future release.
 
 </P>
 <P>
@@ -6910,7 +6913,7 @@ added:
 <UL>
 <LI><A NAME="item_Macros">Macros.</A>
 <P>
-This would solve the previous problem neatly. However, the format of Excel
+This would solve some other problems neatly. However, the format of Excel
 macros isn't documented.
 
 </P>
@@ -6958,12 +6961,6 @@ HREF="http://groups-beta.google.com/group/spreadsheet-writeexcel/">http://groups
   </td></tr>
 </table>
 
-
-
-
-
-
-</P>
 <P>
 Alternatively you can keep up to date with future releases by subscribing
 at: <A
@@ -7047,14 +7044,14 @@ Spreadsheet::WriteExcel:
 <P>
 Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha,
 Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN
-testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier,
-Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc Pavel, Harold
-Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne,
-Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom,
-Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike
-Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul
-Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto
-Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher,
+testers, Damyan Ivanov, Daniel Berger, Daniel Gardner, Dmitry Kochurov,
+Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc
+Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg,
+Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller,
+Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael
+Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul
+J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha,
+Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher,
 Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy
 Daniels, Vahe Sarkissian.
 
@@ -7081,7 +7078,7 @@ Japanese.
 
 </P>
 <P>
-Dirk Eddelbuettel maintains the Debian distro.
+Gunnar Wolf maintains the Debian distro.
 
 </P>
 <P>
@@ -7105,16 +7102,30 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Slow dulcimer, gavotte and bow, in autumn,
-    Basho and his friends go out to view the moon;
-    In summer, gasoline rainbow in the gutter,
+    Imagine a court of one: the queen a young mother,
+    Unhappy, alone all day with her firstborn child
+    And her new baby in a squalid apartment
 </PRE>
 </P>
 <P>
 <PRE>
-    The secret courtesy that courses like ichor
-    Through the old form of the rude, full-scale joke,
-    Impossible to tell in writing.
+    Of too few rooms, a different race from her neighbors.
+    She tells the child she's going to kill herself.
+    She broods, she rages. Hoping to distract her,
+</PRE>
+</P>
+<P>
+<PRE>
+    The child cuts capers, he sings, he does imitations
+    Of different people in the building, he jokes,
+    He feels if he keeps her alive until the father
+</PRE>
+</P>
+<P>
+<PRE>
+    Gets home from work, they'll be okay till morning.
+    It's laughter versus the bedroom and the pills.
+    What is he in his efforts but a courtier?
 </PRE>
 </P>
 <P>

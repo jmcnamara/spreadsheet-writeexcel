@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.12'; # Months mind
+$VERSION = '2.13'; # Impossible to Tell
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.12 of Spreadsheet::WriteExcel, released March 22, 2005.
+This document refers to version 2.13 of Spreadsheet::WriteExcel, released April 20, 2005.
 
 
 
@@ -1669,7 +1669,7 @@ The C<merge_range()> method allows you to do Excel97+ style formatting where the
 
     $worksheet->merge_range('B3:D4', 'Vertical and horizontal', $format);
 
-B<WARNING>. The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range. As such, B<it should not be used for other formatting>. This will be fixed in a later version. See the L<BUGS> section.
+B<WARNING>. The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range. It is a fatal error to use a merged format in a non-merged cell. Instead you should use separate formats for merged and non-merged cells. This restriction will be removed in a future release.
 
 C<merge_range()> writes its $token argument using the worksheet C<write()> method. Therefore it will handle numbers, strings, formulas or urls as required.
 
@@ -3627,6 +3627,7 @@ different features and options of the module.
     outline.pl              An example of outlines and grouping.
     panes.pl                An examples of how to create panes.
     protection.pl           Example of cell locking and formula hiding.
+    hide_sheet.pl           Simple example of hiding a worksheet.
     repeat.pl               Example of writing repeated formulas.
     sales.pl                An example of a simple sales spreadsheet.
     sendmail.pl             Send an Excel email attachment using Mail::Sender.
@@ -3956,7 +3957,7 @@ This version of the module doesn't support the write_comment() method. This will
 
 XML and UTF8 data on Perl 5.6 can cause Excel files created by Spreadsheet::WriteExcel to become corrupt. See L<Warning about XML::Parser and Perl 5.6> for further details.
 
-The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range.If you use this format in a non-merged cell it will cause Excel to crash. The current workaround is to use separate formats for merged and non-merged cell. This will be fixed in a future release.
+The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range.It is a fatal error to use a merged format in a non-merged cell. The current workaround is to use separate formats for merged and non-merged cell. This restriction will be removed in a future release.
 
 Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE". If you come across a formula that parses like this, let me know.
 
@@ -3992,7 +3993,7 @@ Also, here are some of the most requested features that probably won't get added
 
 =item * Macros.
 
-This would solve the previous problem neatly. However, the format of Excel macros isn't documented.
+This would solve some other problems neatly. However, the format of Excel macros isn't documented.
 
 =item * Some feature that you really need. ;-)
 
@@ -4008,10 +4009,39 @@ If there is some feature of an Excel file that you really, really need then you 
 
 There is a Google group for discussing and asking questions about Spreadsheet::WriteExcel:  http://groups-beta.google.com/group/spreadsheet-writeexcel/
 
+=begin html
+
+<table style="border:1px solid #aa0033; font-size:small" align=center>
+  <tr>
+    <td rowspan=3>
+     <img src="http://groups-beta.google.com/groups/img/groups_medium.gif" height=58 width=150 alt="Google Groups">
+    </td>
+    <td colspan=2 align=center><b>Subscribe to Spreadsheet::WriteExcel</b></td>
+  </tr>
+  <form action="http://groups-beta.google.com/group/spreadsheet-writeexcel/boxsubscribe">
+  <tr>
+    <td>Email: <input type=text name=email></td>
+    <td>
+      <table
+       style="background-color:#ffcc33;padding:2px;border:2px outset #ffcc33;">
+      <tr>
+        <td>
+         <input type=submit name="sub" value="Subscribe">
+        </td>
+      </tr>
+      </table>
+    </td>
+  </tr>
+   </form>
+  <tr><td colspan=2 align=center>
+   <a href="http://groups-beta.google.com/group/spreadsheet-writeexcel">Browse Archives</a> at <a href="http://groups-beta.google.com/">groups-beta.google.com</a>
+  </td></tr>
+</table>
+
+=end html
+
 Alternatively you can keep up to date with future releases by subscribing at:
 http://freshmeat.net/projects/writeexcel/
-
-
 
 
 =head1 SEE ALSO
@@ -4043,7 +4073,7 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Damyan Ivanov, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
 
 The following people contributed patches, examples or Excel information:
 
@@ -4053,7 +4083,7 @@ Many thanks to Ron McKelvey, Ronzo Consulting for Siemens, who sponsored the dev
 
 Additional thanks to Takanori Kawai for translating the documentation into Japanese.
 
-Dirk Eddelbuettel maintains the Debian distro.
+Gunnar Wolf maintains the Debian distro.
 
 Thanks to Damian Conway for the excellent Parse::RecDescent.
 
@@ -4068,13 +4098,21 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    Slow dulcimer, gavotte and bow, in autumn,
-    Basho and his friends go out to view the moon;
-    In summer, gasoline rainbow in the gutter,
+    Imagine a court of one: the queen a young mother,
+    Unhappy, alone all day with her firstborn child
+    And her new baby in a squalid apartment
 
-    The secret courtesy that courses like ichor
-    Through the old form of the rude, full-scale joke,
-    Impossible to tell in writing.
+    Of too few rooms, a different race from her neighbors.
+    She tells the child she's going to kill herself.
+    She broods, she rages. Hoping to distract her,
+
+    The child cuts capers, he sings, he does imitations
+    Of different people in the building, he jokes,
+    He feels if he keeps her alive until the father
+
+    Gets home from work, they'll be okay till morning.
+    It's laughter versus the bedroom and the pills.
+    What is he in his efforts but a courtier?
 
         -- Robert Pinsky
 

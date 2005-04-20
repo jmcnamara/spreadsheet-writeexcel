@@ -2,7 +2,7 @@ package Spreadsheet::WriteExcel::Chart;
 
 ###############################################################################
 #
-# Worksheet - A writer class for Excel Charts.
+# Chart - A writer class for Excel Charts.
 #
 #
 # Used in conjunction with Spreadsheet::WriteExcel
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::BIFFwriter;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.10';
+$VERSION = '2.13';
 
 ###############################################################################
 #
@@ -64,6 +64,7 @@ sub new {
     $self->{_active_pane}       = 3;
     $self->{_frozen}            = 0;
     $self->{_selected}          = 0;
+    $self->{_hidden}            = 0;
 
     $self->{_paper_size}        = 0x0;
     $self->{_orientation}       = 0x1;
@@ -201,7 +202,8 @@ sub select {
 
     my $self = shift;
 
-    $self->{_selected} = 1;
+    $self->{_hidden}         = 0; # Selected worksheet can't be hidden.
+    $self->{_selected}       = 1;
 }
 
 
@@ -216,8 +218,28 @@ sub activate {
 
     my $self = shift;
 
-    $self->{_selected} = 1;
+    $self->{_hidden}         = 0; # Active worksheet can't be hidden.
+    $self->{_selected}       = 1;
     ${$self->{_activesheet}} = $self->{_index};
+}
+
+
+###############################################################################
+#
+# hide()
+#
+# Hide this worksheet.
+#
+sub hide {
+
+    my $self = shift;
+
+    $self->{_hidden}         = 1;
+
+    # A hidden worksheet shouldn't be active or selected.
+    $self->{_selected}       = 0;
+    ${$self->{_activesheet}} = 0;
+    ${$self->{_firstsheet}}  = 0;
 }
 
 
@@ -233,7 +255,8 @@ sub set_first_sheet {
 
     my $self = shift;
 
-    ${$self->{_firstsheet}} = $self->{_index};
+    $self->{_hidden}         = 0; # Active worksheet can't be hidden.
+    ${$self->{_firstsheet}}  = $self->{_index};
 }
 
 
@@ -247,7 +270,7 @@ __END__
 
 =head1 NAME
 
-Worksheet - A writer class for Excel Charts.
+Chart - A writer class for Excel Charts.
 
 =head1 SYNOPSIS
 

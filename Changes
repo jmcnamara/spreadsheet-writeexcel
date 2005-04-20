@@ -1,5 +1,17 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.13 April 20 2005 - Minor
+
+    ! Made it a fatal error to use a merged format in a non-
+      merged cell (and vice-versa). This is a temporary measure
+      to prevent people from shooting themselves in the foot
+      until the Format.pm code can be refactored.
+
+    + Add 01_merge_formats.t test for above.
+
+    + Added date_time tests.
+
+
 2.12 March 22 2005 - Minor
 
     + Added further Unicode support. The following methods now

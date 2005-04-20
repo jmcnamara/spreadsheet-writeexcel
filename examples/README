@@ -37,6 +37,7 @@ mod_perl2.pl            A simple mod_perl 2 program.
 outline.pl              An example of outlines and grouping.
 panes.pl                An examples of how to create panes.
 protection.pl           Example of cell locking and formula hiding.
+hide_sheet.pl           Simple example of hiding a worksheet.
 repeat.pl               Example of writing repeated formulas.
 sales.pl                An example of a simple sales spreadsheet.
 sendmail.pl             Send an Excel email attachment using Mail::Sender.

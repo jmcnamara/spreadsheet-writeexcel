@@ -18,8 +18,8 @@ The files are as follows:
     Chart3.xls      A template for use with demo3.pl.
 
     * If you performed a normal installation then the chartex utility
-      should be installed to your C<perl/bin> directory and should be
-      available from the command line.
+      should be installed to your 'somepath/perl/bin' directory and
+      should be available from the command line.
 
 
 You can run the examples as follows:

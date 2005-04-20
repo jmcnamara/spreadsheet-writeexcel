@@ -90,6 +90,9 @@ sub new {
                     _diag_color     => 0x40,
                     _diag_border    => 0,
 
+                    # Temp code to prevent merged formats in non-merged cells.
+                    _used_merge     => 0,
+
                  };
 
     bless  $self, $class;
