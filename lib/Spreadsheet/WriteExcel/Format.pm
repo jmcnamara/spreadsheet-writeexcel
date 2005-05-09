@@ -24,7 +24,7 @@ use Carp; # TODO required?
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.04';
+$VERSION = '2.14';
 
 ###############################################################################
 #
@@ -375,7 +375,7 @@ sub get_font {
                                       $sss, $uls, $bFamily,
                                       $bCharSet, $reserved, $cch, $encoding);
 
-    return($header . $data. $self->{_font});
+    return($header . $data . $rgch);
 }
 
 ###############################################################################

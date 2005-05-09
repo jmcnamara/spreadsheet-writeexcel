@@ -1,5 +1,10 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.14 May 9 2005 - Minor
+
+    ! Fixed handling of Unicode font names.
+
+
 2.13 April 20 2005 - Minor
 
     ! Made it a fatal error to use a merged format in a non-

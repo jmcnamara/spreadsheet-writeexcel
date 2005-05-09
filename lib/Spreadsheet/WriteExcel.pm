@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.13'; # Impossible to Tell
+$VERSION = '2.14'; # Bingo 21
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.13 of Spreadsheet::WriteExcel, released April 20, 2005.
+This document refers to version 2.14 of Spreadsheet::WriteExcel, released May 9, 2005.
 
 
 
@@ -4008,37 +4008,6 @@ If there is some feature of an Excel file that you really, really need then you 
 =head1 MAILING LIST
 
 There is a Google group for discussing and asking questions about Spreadsheet::WriteExcel:  http://groups-beta.google.com/group/spreadsheet-writeexcel/
-
-=begin html
-
-<table style="border:1px solid #aa0033; font-size:small" align=center>
-  <tr>
-    <td rowspan=3>
-     <img src="http://groups-beta.google.com/groups/img/groups_medium.gif" height=58 width=150 alt="Google Groups">
-    </td>
-    <td colspan=2 align=center><b>Subscribe to Spreadsheet::WriteExcel</b></td>
-  </tr>
-  <form action="http://groups-beta.google.com/group/spreadsheet-writeexcel/boxsubscribe">
-  <tr>
-    <td>Email: <input type=text name=email></td>
-    <td>
-      <table
-       style="background-color:#ffcc33;padding:2px;border:2px outset #ffcc33;">
-      <tr>
-        <td>
-         <input type=submit name="sub" value="Subscribe">
-        </td>
-      </tr>
-      </table>
-    </td>
-  </tr>
-   </form>
-  <tr><td colspan=2 align=center>
-   <a href="http://groups-beta.google.com/group/spreadsheet-writeexcel">Browse Archives</a> at <a href="http://groups-beta.google.com/">groups-beta.google.com</a>
-  </td></tr>
-</table>
-
-=end html
 
 Alternatively you can keep up to date with future releases by subscribing at:
 http://freshmeat.net/projects/writeexcel/
