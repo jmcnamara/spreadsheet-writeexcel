@@ -1,5 +1,27 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.15 September 18 2005 - Minor
+
+	! Changed OLE container stream name from "Book" to "Workbook"
+	  for compatibility with some third party apps.
+      Thanks Wieland Pusch and Kevin McMahon.
+
+	! Fixed bug that caused all worksheets to be selected in
+	  OpenOfficeOrg causing strange linking of data between
+	  Worksheets. Thanks  M. Brodbelt. See
+	  http://rt.cpan.org/NoAuth/Bug.html?id=14094
+	  http://www.openoffice.org/issues/show_bug.cgi?id=52955
+
+	! Changed file creation from end of program to the start of
+	  program in order to avoid race conditions and extra file
+	  creation on VMS.
+
+    + Added optional user supplied results for formulas as a
+      workaround for uncalcuated values in some non-Excel apps.
+      Added formula_result.pl example of above.
+
+
+
 2.14 May 9 2005 - Minor
 
     ! Fixed handling of Unicode font names.

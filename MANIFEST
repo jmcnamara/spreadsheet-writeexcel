@@ -65,6 +65,7 @@ examples/diag_border.pl
 examples/easter_egg.pl
 examples/filehandle.pl
 examples/formats.pl
+examples/formula_result.pl
 examples/function_locale.pl
 examples/headers.pl
 examples/hide_sheet.pl

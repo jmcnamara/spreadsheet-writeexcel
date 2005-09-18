@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.14'; # Bingo 21
+$VERSION = '2.15'; # Heloísa Pinheiro
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.14 of Spreadsheet::WriteExcel, released May 9, 2005.
+This document refers to version 2.15 of Spreadsheet::WriteExcel, released September 18, 2005.
 
 
 
@@ -1096,7 +1096,7 @@ See also, the note about L<Cell notation>.
 
 
 
-=head2 write_formula($row, $column, $formula, $format)
+=head2 write_formula($row, $column, $formula, $format, $value)
 
 Write a formula or function to the cell specified by C<$row> and C<$column>:
 
@@ -1110,6 +1110,12 @@ Write a formula or function to the cell specified by C<$row> and C<$column>:
 See the note about L<Cell notation>. For more information about writing Excel formulas see L<FORMULAS AND FUNCTIONS IN EXCEL>
 
 See also the section "Improving performance when working with formulas" and the C<store_formula()> and C<repeat_formula()> methods.
+
+If required, it is also possible to specify the calculated value of the formula. This is occasionally necessary when working with non-Excel applications that don't calculated the value of the formula. The calculated C<$value> is added at the end of the argument list:
+
+    $worksheet->write('A1', '=2+2', $format, 4);
+
+However, this probably isn't something that will ever need to do. If you do use this feature then do so with care.
 
 
 
@@ -2593,7 +2599,7 @@ The colour format should have one of the following values:
 
 Alternatively you can specify the colour based on a colour index as follows: C<[Color n]>, where n is a standard Excel colour index - 7. See the 'Standard colors' worksheet created by formats.pl.
 
-For more information refer to the documentation on formatting in the C<doc> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or to the tutorial at: http://support.microsoft.com/support/Excel/Content/Formats/default.asp and http://support.microsoft.com/support/Excel/Content/Formats/codes.asp
+For more information refer to the documentation on formatting in the C<doc> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx
 
 You should ensure that the format string is valid in Excel prior to using it in WriteExcel.
 
@@ -3612,6 +3618,7 @@ different features and options of the module.
     diag_border.pl          A simple example of diagonal cell borders.
     easter_egg.pl           Expose the Excel97 flight simulator. A must see.
     filehandle.pl           Examples of working with filehandles.
+    formula_result.pl       Formulas with user specified results.
     headers.pl              Examples of worksheet headers and footers.
     hyperlink1.pl           Shows how to create web hyperlinks.
     hyperlink2.pl           Examples of internal and external hyperlinks.
@@ -4013,6 +4020,15 @@ Alternatively you can keep up to date with future releases by subscribing at:
 http://freshmeat.net/projects/writeexcel/
 
 
+
+
+=head1 DONATATIONS
+
+If you'd care to donate to the Spreadsheet::WriteExcel project, you can do so via PayPal: http://tinyurl.com/7ayes
+
+
+
+
 =head1 SEE ALSO
 
 Spreadsheet::ParseExcel: http://search.cpan.org/dist/Spreadsheet-ParseExcel
@@ -4046,7 +4062,7 @@ Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Ol
 
 The following people contributed patches, examples or Excel information:
 
-Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Mark Fowler, Matisse Enzer, Sam Kington, Takanori Kawai, Tom O'Sullivan.
+Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz, David Robins, Franco Venturi, Guy Albertelli, Ian Penman, John Heitmann, Jon Guy, Kyle R. Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Mark Fowler, Matisse Enzer, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 
 Many thanks to Ron McKelvey, Ronzo Consulting for Siemens, who sponsored the development of the formula caching routines.
 
@@ -4067,25 +4083,12 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    Imagine a court of one: the queen a young mother,
-    Unhappy, alone all day with her firstborn child
-    And her new baby in a squalid apartment
+    Olha que coisa mais linda
+    Mais cheia de graça. É ela menina
+    Que vem e que passa
+    Num doce balanço a caminho do mar
 
-    Of too few rooms, a different race from her neighbors.
-    She tells the child she's going to kill herself.
-    She broods, she rages. Hoping to distract her,
-
-    The child cuts capers, he sings, he does imitations
-    Of different people in the building, he jokes,
-    He feels if he keeps her alive until the father
-
-    Gets home from work, they'll be okay till morning.
-    It's laughter versus the bedroom and the pills.
-    What is he in his efforts but a courtier?
-
-        -- Robert Pinsky
-
-
+        -- Vinicius de Moraes
 
 
 =head1 COPYRIGHT

@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.01';
+$VERSION = '2.15';
 
 ###############################################################################
 #
@@ -52,11 +52,11 @@ sub _store_OLE_file {
 
     my $self = shift;
 
+    my $stream  = pack 'v*', unpack 'C*', 'Workbook';
+    my $OLE     = OLE::Storage_Lite::PPS::File->newFile($stream);
+
+
     my $tmp;
-    my $OLE = OLE::Storage_Lite::PPS::File->newFile(
-                                           OLE::Storage_Lite::Asc2Ucs('Book'));
-
-
     $OLE->append($tmp) while $tmp = $self->get_data();
 
     foreach my $worksheet (@{$self->{_worksheets}}) {
@@ -65,8 +65,13 @@ sub _store_OLE_file {
 
     my @ltime = localtime();
     splice(@ltime, 6);
-    my $date = OLE::Storage_Lite::PPS::Root->new(\@ltime, \@ltime,[$OLE,]);
+    my $date = OLE::Storage_Lite::PPS::Root->new(\@ltime, \@ltime,[$OLE]);
     $date->save($self->{_filename});
+
+    # Close the filehandle if it was created internally.
+    return CORE::close($self->{_fh_out}) if $self->{_internal_fh};
+
+
 }
 
 

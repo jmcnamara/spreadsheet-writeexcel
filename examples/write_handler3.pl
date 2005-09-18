@@ -46,6 +46,8 @@ sub write_my_date {
     # Change to the date format required by write_date_time().
     my $date = sprintf "%4d-%02d-%02dT", $3, $2, $1;
 
+    $args[2] = $date;
+
     return $worksheet->write_date_time(@args);
 }
 

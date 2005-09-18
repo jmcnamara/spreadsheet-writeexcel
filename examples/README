@@ -22,6 +22,7 @@ copyformat.pl           Example of copying a cell format.
 diag_border.pl          A simple example of diagonal cell borders.
 easter_egg.pl           Expose the Excel97 flight simulator. A must see.
 filehandle.pl           Examples of working with filehandles.
+formula_result.pl       Formulas with user specified results.
 headers.pl              Examples of worksheet headers and footers.
 hyperlink1.pl           Shows how to create web hyperlinks.
 hyperlink2.pl           Examples of internal and external hyperlinks.

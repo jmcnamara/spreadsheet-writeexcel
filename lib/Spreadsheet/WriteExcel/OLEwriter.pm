@@ -24,7 +24,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.01';
+$VERSION = '2.15';
 
 ###############################################################################
 #
@@ -322,7 +322,7 @@ sub _write_property_storage {
 
     #################  name         type   dir start size
     $self->_write_pps('Root Entry', 0x05,   1,   -2, 0x00);
-    $self->_write_pps('Book',       0x02,  -1, 0x00, $booksize);
+    $self->_write_pps('Workbook',   0x02,  -1, 0x00, $booksize);
     $self->_write_pps('',           0x00,  -1, 0x00, 0x0000);
     $self->_write_pps('',           0x00,  -1, 0x00, 0x0000);
 }

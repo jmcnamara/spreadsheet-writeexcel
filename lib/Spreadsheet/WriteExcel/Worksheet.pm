@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.13';
+$VERSION = '2.15';
 
 ###############################################################################
 #
@@ -75,6 +75,7 @@ sub new {
     $self->{_frozen}            = 0;
     $self->{_selected}          = 0;
     $self->{_hidden}            = 0;
+    $self->{_active}            = 0;
 
     $self->{_paper_size}        = 0x0;
     $self->{_orientation}       = 0x1;
@@ -1376,8 +1377,6 @@ sub _substitute_cellref {
 #
 # Returns: row, column
 #
-# TODO use functions in Utility.pm
-#
 sub _cell_to_rowcol {
 
     my $self = shift;
@@ -1602,14 +1601,14 @@ sub write_string {
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
 
-    # TODO
+    # TODO Should be 32k chars not bytes. Check.
     if ($strlen > 32767) {
         $str       = substr($str, 0, 32767);
         $str_error = -3;
     }
 
 
-    # TODO
+    # Preprend the string with the type.
     my $str_header  = pack("vC", length($str), $encoding);
     $str            = $str_header . $str;
 
@@ -1684,13 +1683,15 @@ sub write_blank {
 
 ###############################################################################
 #
-# write_formula($row, $col, $formula, $format)
+# write_formula($row, $col, $formula, $format, $value)
 #
 # Write a formula to the specified row and column (zero indexed).
 # The textual representation of the formula is passed to the parser in
 # Formula.pm which returns a packed binary string.
 #
 # $format is optional.
+#
+# $value is an optional result of the formula that can be supplied by the user.
 #
 # Returns  0 : normal termination
 #         -1 : insufficient number of arguments
@@ -1713,17 +1714,24 @@ sub write_formula{
     my $row       = $_[0];      # Zero indexed row
     my $col       = $_[1];      # Zero indexed column
     my $formula   = $_[2];      # The formula text string
+    my $value     = $_[4];      # The formula text string
 
 
     # Excel normally stores the last calculated value of the formula in $num.
     # Clearly we are not in a position to calculate this a priori. Instead
     # we set $num to zero and set the option flags in $grbit to ensure
     # automatic calculation of the formula when the file is opened.
+
+    # As a workaround for some non-Excel apps we also allow the user to
+    # specify the result of the formula.
     #
-    my $xf        = _XF($self, $row, $col, $_[3]); # The cell format
-    my $num       = 0x00;                          # Current value of formula
-    my $grbit     = 0x03;                          # Option flags
-    my $chn       = 0x0000;                        # Must be zero
+    my $xf        = _XF($self, $row, $col, $_[3]);  # The cell format
+    my $chn       = 0x0000;                         # Must be zero
+    my $is_string = 0;                              # Formula evaluates to str
+    my $num;                                        # Current value of formula
+    my $grbit;                                      # Option flags
+
+    ($num, $grbit, $is_string) = $self->_encode_formula_result($value);
 
 
     # Check that row and col are valid and store max and min values
@@ -1749,13 +1757,118 @@ sub write_formula{
 
 
     my $formlen = length($formula); # Length of the binary string
-    $length     = 0x16 + $formlen;  # Length of the record data
+       $length  = 0x16 + $formlen;  # Length of the record data
 
-    my $header    = pack("vv",      $record, $length);
-    my $data      = pack("vvvdvVv", $row, $col, $xf, $num,
-                                    $grbit, $chn, $formlen);
+    my $header  = pack("vv",    $record, $length);
+    my $data    = pack("vvv",   $row, $col, $xf);
+       $data   .= $num;
+       $data   .= pack("vVv",   $grbit, $chn, $formlen);
 
     $self->_append($header, $data, $formula);
+
+    $self->_write_formula_string($value) if $is_string;
+
+    return 0;
+}
+###############################################################################
+#
+# _encode_formula_result()
+#
+# Encode the user supplied result for a formula.
+#
+sub _encode_formula_result{
+
+    my $self = shift;
+
+    my $value     = $_[0];      # Result to be encoded.
+    my $is_string = 0;          # Formula evaluates to str.
+    my $num;                    # Current value of formula.
+    my $grbit;                  # Option flags.
+
+    if (not defined $value) {
+        $grbit  = 0x03;
+        $num    = pack "d", 0;
+    }
+    else {
+        # The user specified the result of the formula. We turn off the recalc
+        # flag and check the result type.
+        $grbit  = 0x00;
+
+        if ($value =~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/) {
+            # Value is a number.
+            $num = pack "d", $value;
+        }
+        else {
+
+            my %bools = (
+                            'TRUE'    => [1,  1],
+                            'FALSE'   => [1,  0],
+                            '#NULL!'  => [2,  0],
+                            '#DIV/0!' => [2,  7],
+                            '#VALUE!' => [2, 15],
+                            '#REF!'   => [2, 23],
+                            '#NAME?'  => [2, 29],
+                            '#NUM!'   => [2, 36],
+                            '#N/A'    => [2, 42],
+                        );
+
+            if (exists $bools{$value}) {
+                # Value is a boolean.
+                $num = pack "vvvv", $bools{$value}->[0],
+                                    $bools{$value}->[1],
+                                    0,
+                                    0xFFFF;
+            }
+            else {
+                # Value is a string.
+                $num = pack "vvvv", 0,
+                                    0,
+                                    0,
+                                    0xFFFF;
+                $is_string = 1;
+            }
+        }
+    }
+
+    return ($num, $grbit, $is_string);
+}
+
+
+###############################################################################
+#
+# _write_formula_string()
+#
+# Write the string value when a formula evaluates to a string. The value cannot
+# be calculated by the module and thus must be supplied by the user.
+#
+sub _write_formula_string {
+
+    my $self = shift;
+
+    my $record    = 0x0207;         # Record identifier
+    my $length    = 0x00;           # Bytes to follow
+    my $string    = $_[0];          # Formula string.
+    my $strlen    = length $_[0];   # Length of the formula string (chars).
+    my $encoding  = 0;              # String encoding.
+
+
+    # Handle utf8 strings in newer perls.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($string)) {
+            $string = Encode::encode("UTF-16BE", $string);
+            $encoding = 1;
+        }
+    }
+
+
+    $length       = 0x03 + length $string;  # Length of the record data
+
+    my $header    = pack("vv", $record, $length);
+    my $data      = pack("vC", $strlen, $encoding);
+
+    $self->_append($header, $data, $string);
 
     return 0;
 }
@@ -1841,6 +1954,17 @@ sub repeat_formula {
     # Ensure that there are tokens to substitute
     croak "No tokens in formula" unless @tokens;
 
+
+    # As a temporary and undocumented measure we allow the user to specify the
+    # result of the formula by appending a result => $value pair to the end
+    # of the arguments.
+    my $value = undef;
+    if ($pairs[-2] eq 'result') {
+        $value = pop @pairs;
+                 pop @pairs;
+    }
+
+
     while (@pairs) {
         my $pattern = shift @pairs;
         my $replace = shift @pairs;
@@ -1862,11 +1986,17 @@ sub repeat_formula {
     # Clearly we are not in a position to calculate this a priori. Instead
     # we set $num to zero and set the option flags in $grbit to ensure
     # automatic calculation of the formula when the file is opened.
+
+    # As a workaround for some non-Excel apps we also allow the user to
+    # specify the result of the formula.
     #
     my $xf        = _XF($self, $row, $col, $format); # The cell format
-    my $num       = 0x00;                            # Current value of formula
-    my $grbit     = 0x03;                            # Option flags
     my $chn       = 0x0000;                          # Must be zero
+    my $is_string = 0;                               # Formula evaluates to str
+    my $num;                                         # Current value of formula
+    my $grbit;                                       # Option flags
+
+    ($num, $grbit, $is_string) = $self->_encode_formula_result($value);
 
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
@@ -1875,12 +2005,15 @@ sub repeat_formula {
     my $formlen   = length($formula); # Length of the binary string
     $length       = 0x16 + $formlen;  # Length of the record data
 
+    my $header    = pack("vv",    $record, $length);
+    my $data      = pack("vvv",   $row, $col, $xf);
+       $data     .= $num;
+       $data     .= pack("vVv",   $grbit, $chn, $formlen);
 
-    my $header    = pack("vv",      $record, $length);
-    my $data      = pack("vvvdvVv", $row, $col, $xf, $num,
-                                    $grbit, $chn, $formlen);
 
     $self->_append($header, $data, $formula);
+
+    $self->_write_formula_string($value) if $is_string;
 
     return 0;
 }
@@ -2701,7 +2834,7 @@ sub _store_window2 {
     my $rgbHdr         = 0x00000040; # Row/column heading and gridline color
 
     my $wScaleSLV      = 0x0000;     #
-    my $wSclaeNormal   = 0x0000;     #
+    my $wScaleNormal   = 0x0000;     #
     my $reserved       = 0x00000000; #
 
 
@@ -2716,7 +2849,8 @@ sub _store_window2 {
     my $fDspGuts       = $self->{_outline_on};       # 7
     my $fFrozenNoSplit = 0;                          # 0 - bit
     my $fSelected      = $self->{_selected};         # 1
-    my $fPaged         = 1;                          # 2
+    my $fPaged         = $self->{_active};           # 2
+    my $fBreakPreview  = 0;                          # 3
 
     $grbit             = $fDspFmla;
     $grbit            |= $fDspGrid       << 1;
@@ -2729,10 +2863,11 @@ sub _store_window2 {
     $grbit            |= $fFrozenNoSplit << 8;
     $grbit            |= $fSelected      << 9;
     $grbit            |= $fPaged         << 10;
+    $grbit            |= $fBreakPreview  << 11;
 
     my $header  = pack("vv",      $record, $length);
     my $data    = pack("vvvVvvV", $grbit, $rwTop, $colLeft, $rgbHdr,
-                                  $wScaleSLV, $wSclaeNormal, $reserved );
+                                  $wScaleSLV, $wScaleNormal, $reserved );
 
     $self->_append($header, $data);
 }

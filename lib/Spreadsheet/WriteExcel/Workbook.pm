@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Chart;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.13';
+$VERSION = '2.15';
 
 ###############################################################################
 #
@@ -62,6 +62,8 @@ sub new {
     $self->{_using_tmpfile}     = 1;
     $self->{_filehandle}        = "";
     $self->{_temp_file}         = "";
+    $self->{_internal_fh}       = 0;
+    $self->{_fh_out}            = "";
 
     $self->{_str_total}         = 0;
     $self->{_str_unique}        = 0;
@@ -85,9 +87,9 @@ sub new {
     }
 
 
-    # Try to open the named file and see if it throws any errors.
-    # If the filename is a reference it is assumed that it is a valid
-    # filehandle and ignored
+    # Convert the filename to a filehandle to pass to the OLE writer when the
+    # file is closed. If the filename is a reference it is assumed that it is
+    # a valid filehandle.
     #
     if (not ref $self->{_filename}) {
         my $fh = FileHandle->new('>'. $self->{_filename});
@@ -97,7 +99,16 @@ sub new {
                   ". It may be in use or protected";
             return undef;
     }
-        $fh->close;
+
+        # binmode file whether platform requires it or not
+        binmode($fh);
+        $self->{_internal_fh} = 1;
+        $self->{_fh_out}      = $fh;
+    }
+    else {
+        $self->{_internal_fh} = 0;
+        $self->{_fh_out}      = $self->{_filename};
+
     }
 
 
@@ -766,6 +777,10 @@ sub _store_workbook {
 
     my $self = shift;
 
+    # Add a default worksheet if non have been added. 
+    $self->add_worksheet() if not @{$self->{_worksheets}};
+
+
     # Ensure that at least one worksheet has been selected.
     if ($self->{_activesheet} == 0) {
         @{$self->{_worksheets}}[0]->{_selected} = 1;
@@ -776,6 +791,7 @@ sub _store_workbook {
     # methods for each worksheet
     foreach my $sheet (@{$self->{_worksheets}}) {
         $self->{_selected}++ if $sheet->{_selected};
+        $sheet->{_active} = 1 if $sheet->{_index} == $self->{_activesheet};
         $sheet->_close($self->{_sheetnames});
     }
 
@@ -830,7 +846,10 @@ sub _store_OLE_file {
 
     my $self = shift;
 
-    my $OLE  = Spreadsheet::WriteExcel::OLEwriter->new($self->{_filename});
+    my $OLE  = Spreadsheet::WriteExcel::OLEwriter->new($self->{_fh_out});
+
+    # Indicate that we created the filehandle and want to close it.
+    $OLE->{_internal_fh} = $self->{_internal_fh};
 
     # Write Worksheet data if data <~ 7MB
     if ($OLE->set_size($self->{_biffsize})) {
@@ -1267,7 +1286,9 @@ sub _store_num_format {
     }
 
 
-    my $cch       = length $format; # Char length of format string
+    # Char length of format string
+    my $cch = length $format;
+
 
     # Handle Unicode format strings.
     if ($encoding == 1) {
@@ -1275,6 +1296,7 @@ sub _store_num_format {
         $cch    /= 2 if $encoding;
         $format  = pack 'v*', unpack 'n*', $format;
     }
+
 
     # Special case to handle Euro symbol, 0x80, in non-Unicode strings.
     if ($encoding == 0 and $format =~ /\x80/) {

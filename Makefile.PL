@@ -12,6 +12,6 @@ WriteMakefile(
     'VERSION_FROM'  => 'lib/Spreadsheet/WriteExcel.pm',
     'NEEDS_LINKING' => 0,
     'PREREQ_PM'     => {Parse::RecDescent => 0, File::Temp => 0},
-    'dist'          => {COMPRESS => 'gzip -best', SUFFIX => 'gz'},
+    'dist'          => {COMPRESS => 'gzip --best', SUFFIX => 'gz'},
     'EXE_FILES'     => ['bin/chartex'],
 );

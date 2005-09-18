@@ -72,7 +72,7 @@
 		<LI><A HREF="#write_date_time_row_col_dat">write_date_time($row, $col, $date_string, $format)</A></LI>
 		<LI><A HREF="#write_url_row_col_url_str">write_url($row, $col, $url, $string, $format)</A></LI>
 		<LI><A HREF="#write_url_range_row1_col1_r">write_url_range($row1, $col1, $row2, $col2, $url, $string, $format)</A></LI>
-		<LI><A HREF="#write_formula_row_column_fo">write_formula($row, $column, $formula, $format)</A></LI>
+		<LI><A HREF="#write_formula_row_column_fo">write_formula($row, $column, $formula, $format, $value)</A></LI>
 		<LI><A HREF="#store_formula_formula_">store_formula($formula)</A></LI>
 		<LI><A HREF="#repeat_formula_row_col_form">repeat_formula($row, $col, $formula, $format, ($pattern =&gt; $replace, ...))</A></LI>
 		<LI><A HREF="#write_comment_row_column_st">write_comment($row, $column, $string)</A></LI>
@@ -197,7 +197,7 @@
 	<LI><A HREF="#BUGS">BUGS</A></LI>
 	<LI><A HREF="#TO_DO">TO DO</A></LI>
 	<LI><A HREF="#MAILING_LIST">MAILING LIST</A></LI>
-	<LI><A HREF="#SEE_ALSO">SEE ALSO</A></LI>
+	<LI><A HREF="#DONATATIONS">DONATATIONS</A></LI>
 	<LI><A HREF="#ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></LI>
 	<LI><A HREF="#AUTHOR">AUTHOR</A></LI>
 	<LI><A HREF="#COPYRIGHT">COPYRIGHT</A></LI>
@@ -215,8 +215,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.13 of Spreadsheet::WriteExcel, released
-April 20, 2005.
+This document refers to version 2.15 of Spreadsheet::WriteExcel, released
+September 18, 2005.
 
 </P>
 <P>
@@ -2063,7 +2063,7 @@ See also, the note about <A HREF="#Cell_notation">Cell notation</A>.
 </P>
 <P>
 <HR>
-<H2><A NAME="write_formula_row_column_fo">write_formula($row, $column, $formula, $format)</A></H2>
+<H2><A NAME="write_formula_row_column_fo">write_formula($row, $column, $formula, $format, $value)</A></H2>
 <P>
 Write a formula or function to the cell specified by <CODE>$row</CODE> and <CODE>$column</CODE>:
 
@@ -2087,6 +2087,22 @@ See the note about <A HREF="#Cell_notation">Cell notation</A>. For more informat
 <P>
 See also the section "Improving performance when working with formulas" and
 the <CODE>store_formula()</CODE> and <CODE>repeat_formula()</CODE> methods.
+
+</P>
+<P>
+If required, it is also possible to specify the calculated value of the
+formula. This is occasionally necessary when working with non-Excel
+applications that don't calculated the value of the formula. The calculated <CODE>$value</CODE> is added at the end of the argument list:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write('A1', '=2+2', $format, 4);
+</PRE>
+</P>
+<P>
+However, this probably isn't something that will ever need to do. If you do
+use this feature then do so with care.
 
 </P>
 <P>
@@ -4642,10 +4658,8 @@ worksheet created by formats.pl.
 </P>
 <P>
 For more information refer to the documentation on formatting in the <CODE>doc</CODE> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or
-to the tutorial at: <A
-HREF="http://support.microsoft.com/support/Excel/Content/Formats/default.asp">http://support.microsoft.com/support/Excel/Content/Formats/default.asp</A>
-and <A
-HREF="http://support.microsoft.com/support/Excel/Content/Formats/codes.asp">http://support.microsoft.com/support/Excel/Content/Formats/codes.asp</A>
+<A
+HREF="http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx">http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx</A>
 
 
 </P>
@@ -6277,6 +6291,7 @@ features and options of the module.
     diag_border.pl          A simple example of diagonal cell borders.
     easter_egg.pl           Expose the Excel97 flight simulator. A must see.
     filehandle.pl           Examples of working with filehandles.
+    formula_result.pl       Formulas with user specified results.
     headers.pl              Examples of worksheet headers and footers.
     hyperlink1.pl           Shows how to create web hyperlinks.
     hyperlink2.pl           Examples of internal and external hyperlinks.
@@ -6934,17 +6949,17 @@ Spreadsheet::WriteExcel: <A
 HREF="http://groups-beta.google.com/group/spreadsheet-writeexcel/">http://groups-beta.google.com/group/spreadsheet-writeexcel/</A>
 <p>
 <table style="border:1px solid #aa0033; font-size:small" align=center>
-  <tr> 
+  <tr>
     <td rowspan=3>
      <img src="http://groups-beta.google.com/groups/img/groups_medium.gif" height=58 width=150 alt="Google Groups">
     </td>
     <td colspan=2 align=center><b>Subscribe to Spreadsheet::WriteExcel</b></td>
   </tr>
   <form action="http://groups-beta.google.com/group/spreadsheet-writeexcel/boxsubscribe">
-  <tr> 
+  <tr>
     <td>Email: <input type=text name=email></td>
     <td>
-      <table 
+      <table
        style="background-color:#ffcc33;padding:2px;border:2px outset #ffcc33;">
       <tr>
         <td>
@@ -6956,7 +6971,7 @@ HREF="http://groups-beta.google.com/group/spreadsheet-writeexcel/">http://groups
   </tr>
    </form>
   <tr><td colspan=2 align=center>
-   <a href="http://groups-beta.google.com/group/spreadsheet-writeexcel">Browse Archives</a> at 
+   <a href="http://groups-beta.google.com/group/spreadsheet-writeexcel">Browse Archives</a> at
     <a href="http://groups-beta.google.com/">groups-beta.google.com</a>
   </td></tr>
 </table>
@@ -6966,6 +6981,27 @@ Alternatively you can keep up to date with future releases by subscribing
 at: <A
 HREF="http://freshmeat.net/projects/writeexcel/">http://freshmeat.net/projects/writeexcel/</A>
 
+
+</P>
+<P>
+<HR>
+<H1><A NAME="DONATATIONS">DONATATIONS</A></H1>
+<P>
+If you'd care to donate to the Spreadsheet::WriteExcel project, you can do
+so via PayPal:
+
+<center>
+<form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_xclick">
+<input type="hidden" name="business" value="jmcnamara@cpan.org">
+<input type="hidden" name="item_name" value="Spreadsheet::WriteExcel">
+<input type="hidden" name="no_shipping" value="1">
+<input type="hidden" name="cn" value="Optional note with donation">
+<input type="hidden" name="currency_code" value="USD">
+<input type="hidden" name="tax" value="0">
+<input type="image" src="https://www.paypal.com/en_US/i/btn/x-click-but04.gif" border="0" name="submit" alt="Make payments with PayPal - it's fast, free and secure!">
+</form>
+</center>
 
 </P>
 <P>
@@ -7062,9 +7098,9 @@ The following people contributed patches, examples or Excel information:
 </P>
 <P>
 Andrew Benham, Bill Young, Cedric Bouvier, Charles Wybble, Daniel Rentz,
-David Robins, Franco Venturi, Ian Penman, John Heitmann, Jon Guy, Kyle R.
-Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Mark Fowler, Matisse Enzer,
-Sam Kington, Takanori Kawai, Tom O'Sullivan.
+David Robins, Franco Venturi, Guy Albertelli, Ian Penman, John Heitmann,
+Jon Guy, Kyle R. Burton, Pierre-Jean Vouette, Rubio, Marco Geri, Mark
+Fowler, Matisse Enzer, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 
 </P>
 <P>
@@ -7102,35 +7138,15 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Imagine a court of one: the queen a young mother,
-    Unhappy, alone all day with her firstborn child
-    And her new baby in a squalid apartment
+    Olha que coisa mais linda
+    Mais cheia de graça. É ela menina
+    Que vem e que passa
+    Num doce balanço a caminho do mar
 </PRE>
 </P>
 <P>
 <PRE>
-    Of too few rooms, a different race from her neighbors.
-    She tells the child she's going to kill herself.
-    She broods, she rages. Hoping to distract her,
-</PRE>
-</P>
-<P>
-<PRE>
-    The child cuts capers, he sings, he does imitations
-    Of different people in the building, he jokes,
-    He feels if he keeps her alive until the father
-</PRE>
-</P>
-<P>
-<PRE>
-    Gets home from work, they'll be okay till morning.
-    It's laughter versus the bedroom and the pills.
-    What is he in his efforts but a courtier?
-</PRE>
-</P>
-<P>
-<PRE>
-        -- Robert Pinsky
+        -- Vinicius de Moraes
 </PRE>
 </P>
 <P>
