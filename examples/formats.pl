@@ -28,6 +28,7 @@ my %colors = (
                 0x0E, 'magenta',
                 0x12, 'navy',
                 0x35, 'orange',
+                0x21, 'pink',
                 0x14, 'purple',
                 0x0A, 'red',
                 0x16, 'silver',
@@ -211,22 +212,22 @@ sub numeric_formats {
     push @formats, [ 0x30, 1234.567,   0,         '##0.0E+0' ];
     push @formats, [ 0x31, 1234.567,   0,         '@' ];
 
-    my $i; # RFC 120
+    my $i;
     foreach my $format (@formats){
         my $style = $workbook->add_format();
-        $style->set_num_format($$format[0]);
+        $style->set_num_format($format->[0]);
 
         $i++;
-        $worksheet->write($i, 0, $$format[0],                    $center);
-        $worksheet->write($i, 1, sprintf("0x%02X", $$format[0]), $center);
-        $worksheet->write($i, 2, $$format[1],                    $center);
-        $worksheet->write($i, 3, $$format[1],                    $style);
+        $worksheet->write($i, 0, $format->[0],                    $center);
+        $worksheet->write($i, 1, sprintf("0x%02X", $format->[0]), $center);
+        $worksheet->write($i, 2, $format->[1],                    $center);
+        $worksheet->write($i, 3, $format->[1],                    $style);
 
-        if ($$format[2]) {
-            $worksheet->write($i, 4, $$format[2], $style);
+        if ($format->[2]) {
+            $worksheet->write($i, 4, $format->[2], $style);
         }
 
-        $worksheet->write_string($i, 5, $$format[3]);
+        $worksheet->write_string($i, 5, $format->[3]);
     }
 }
 
@@ -266,12 +267,12 @@ sub fonts {
     foreach my $font (@fonts){
         my $format = $workbook->add_format();
 
-        $format->set_size($$font[0]);
-        $format->set_font($$font[1]);
+        $format->set_size($font->[0]);
+        $format->set_font($font->[1]);
 
         $i++;
-        $worksheet->write($i, 0, $$font[1], $format);
-        $worksheet->write($i, 1, $$font[0], $format);
+        $worksheet->write($i, 0, $font->[1], $format);
+        $worksheet->write($i, 1, $font->[0], $format);
     }
 
 }

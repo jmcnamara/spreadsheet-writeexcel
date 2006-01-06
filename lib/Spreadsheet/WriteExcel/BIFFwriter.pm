@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::BIFFwriter;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -107,6 +107,8 @@ sub _prepend {
 
     $self->{_data}      = $data . $self->{_data};
     $self->{_datasize} += length($data);
+
+    return $data;
 }
 
 
@@ -125,6 +127,8 @@ sub _append {
 
     $self->{_data}      = $self->{_data} . $data;
     $self->{_datasize} += length($data);
+
+    return $data;
 }
 
 
@@ -223,6 +227,36 @@ sub _add_continue {
     return $tmp ;
 }
 
+
+###############################################################################
+#
+# _add_mso_generic()
+#
+# Create a mso structure that is part of an Escher drawing object. These are
+# are used for images, comments and filters. This generic method is used by
+# other methods to create specific mso records.
+#
+# Returns the packed record.
+#
+sub _add_mso_generic {
+
+    my $self        = shift;
+    my $type        = $_[0];
+    my $version     = $_[1];
+    my $instance    = $_[2];
+    my $data        = $_[3];
+    my $length      = defined $_[4] ? $_[4] : length($data);
+
+    # The header contains version and instance info packed into 2 bytes.
+    my $header      = $version | ($instance << 4);
+
+    my $record      = pack "vvV", $header, $type, $length;
+       $record     .= $data;
+
+    return $record;
+}
+
+
 ###############################################################################
 #
 # For debugging
@@ -270,6 +304,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMV, John McNamara.
+© MM-MMVI, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

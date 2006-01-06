@@ -20,10 +20,14 @@ lib/Spreadsheet/WriteExcel/Worksheet.pm
 
 t/00_IEEE_double.t
 t/01_add_worksheet.t
-t/01_merge_formats.t
+t/02_merge_formats.t
 t/11_date_time.t
 t/12_date_only.t
 t/13_date_seconds.t
+t/21_escher.t
+t/22_mso_drawing_group.t
+t/23_note.t
+t/24_txo.t
 
 doc/index.html
 doc/WriteExcel.html
@@ -54,6 +58,8 @@ examples/bug_report.pl
 examples/cgi.pl
 examples/chess.pl
 examples/colors.pl
+examples/comments1.pl
+examples/comments2.pl
 examples/convertA1.pl
 examples/copyformat.pl
 examples/csv2xls.pl
@@ -79,6 +85,7 @@ examples/merge2.pl
 examples/merge3.pl
 examples/merge4.pl
 examples/merge5.pl
+examples/merge6.pl
 examples/mod_perl1.pl
 examples/mod_perl2.pl
 examples/outline.pl
@@ -87,6 +94,7 @@ examples/protection.pl
 examples/regions.pl
 examples/repeat.pl
 examples/republic.bmp
+examples/right_to_left.pl
 examples/sales.pl
 examples/sendmail.pl
 examples/simple.pl

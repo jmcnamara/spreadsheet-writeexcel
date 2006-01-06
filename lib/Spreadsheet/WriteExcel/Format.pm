@@ -7,14 +7,14 @@ package Spreadsheet::WriteExcel::Format;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
 
 use Exporter;
 use strict;
-use Carp; # TODO required?
+use Carp;
 
 
 
@@ -24,7 +24,7 @@ use Carp; # TODO required?
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.14';
+$VERSION = '2.16';
 
 ###############################################################################
 #
@@ -39,6 +39,7 @@ sub new {
     my $self   = {
                     _xf_index       => shift || 0,
 
+                    _type           => 0,
                     _font_index     => 0,
                     _font           => 'Arial',
                     _size           => 10,
@@ -144,13 +145,13 @@ sub get_xf {
     my $align;      # Alignment
     my $indent;     #
     my $icv;        # fg and bg pattern colors
-    my $border1;    # Border line style and color
-    my $border2;    # Border TODO
-    my $border3;    # Border TODO
+    my $border1;    # Border line options
+    my $border2;    # Border line options
+    my $border3;    # Border line options
 
 
     # Set the type of the XF record and some of the attributes.
-    if ($_[0] eq "style") {
+    if ($self->{_type} == 0xFFF5) {
         $style = 0xFFF5;
     }
     else {
@@ -183,6 +184,25 @@ sub get_xf {
 
     my $atr_prot    = ($self->{_hidden}         != 0  ||
                        $self->{_locked}         != 1) ? 1 : 0;
+
+
+    # Set attribute changed flags for the style formats.
+    if ($self->{_xf_index} != 0 and $self->{_type} == 0xFFF5) {
+
+        if ($self->{_xf_index} >= 16) {
+            $atr_num    = 0;
+            $atr_fnt    = 1;
+        }
+        else {
+            $atr_num    = 1;
+            $atr_fnt    = 0;
+        }
+
+        $atr_alc    = 1;
+        $atr_bdr    = 1;
+        $atr_pat    = 1;
+        $atr_prot   = 1;
+    }
 
 
     # Set a default diagonal border style if none was specified.
@@ -340,7 +360,7 @@ sub get_font {
     $rgch       = $self->{_font};
     $encoding   = $self->{_font_encoding};
 
-    # Handle utf8 strings in newer perls.
+    # Handle utf8 strings in perl 5.8.
     if ($] >= 5.008) {
         require Encode;
 
@@ -441,6 +461,7 @@ sub _get_color {
                     lime    => 0x0B,
                     navy    => 0x12,
                     orange  => 0x35,
+                    pink    => 0x21,
                     purple  => 0x14,
                     red     => 0x0A,
                     silver  => 0x16,
@@ -465,6 +486,26 @@ sub _get_color {
 
     # or an integer in the valid range
     return $_[0];
+}
+
+
+###############################################################################
+#
+# set_type()
+#
+# Set the XF object type as 0 = cell XF or 0xFFF5 = style XF.
+#
+sub set_type {
+
+    my $self = shift;
+    my $type = $_[0];
+
+    if (defined $_[0] and $_[0] eq 0) {
+        $self->{_type} = 0x0000;
+    }
+    else {
+        $self->{_type} = 0xFFF5;
+    }
 }
 
 
@@ -720,9 +761,9 @@ sub AUTOLOAD {
         $value =  _get_color($_[0]);
 
         *{$AUTOLOAD} = sub {
-                             my $self  = shift;
+                                my $self  = shift;
 
-                             $self->{$attribute} = _get_color($_[0]);
+                                $self->{$attribute} = _get_color($_[0]);
                            };
     }
     else {
@@ -731,13 +772,13 @@ sub AUTOLOAD {
         $value = 1 if not defined $value; # The default value is always 1
 
         *{$AUTOLOAD} = sub {
-                             my $self  = shift;
-                             my $value = shift;
+                                my $self  = shift;
+                                my $value = shift;
 
-                             $value = 1 if not defined $value;
-    $self->{$attribute} = $value;
-                           };
-}
+                                $value = 1 if not defined $value;
+                                $self->{$attribute} = $value;
+                            };
+    }
 
 
     $self->{$attribute} = $value;
@@ -768,6 +809,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMV, John McNamara.
+© MM-MMVI, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

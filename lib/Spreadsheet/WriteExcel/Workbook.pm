@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Workbook;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Chart;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.15';
+$VERSION = '2.16';
 
 ###############################################################################
 #
@@ -36,7 +36,6 @@ sub new {
 
     my $class       = shift;
     my $self        = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $tmp_format  = Spreadsheet::WriteExcel::Format->new();
     my $byte_order  = $self->{_byte_order};
     my $parser      = Spreadsheet::WriteExcel::Formula->new($byte_order);
 
@@ -47,11 +46,10 @@ sub new {
     $self->{_activesheet}       = 0;
     $self->{_firstsheet}        = 0;
     $self->{_selected}          = 0;
-    $self->{_xf_index}          = 16; # 15 style XF's and 1 cell XF.
+    $self->{_xf_index}          = 0;
     $self->{_fileclosed}        = 0;
     $self->{_biffsize}          = 0;
     $self->{_sheetname}         = "Sheet";
-    $self->{_tmp_format}        = $tmp_format;
     $self->{_url_format}        = '';
     $self->{_codepage}          = 0x04E4;
     $self->{_worksheets}        = [];
@@ -74,7 +72,38 @@ sub new {
     $self->{_ext_ref_count}     = 0;
     $self->{_ext_refs}          = {};
 
+    $self->{_mso_clusters}      = [];
+    $self->{_mso_size}          = 0;
+
+    $self->{_hideobj}           = 0;
+
+
     bless $self, $class;
+
+
+    # Add the in-built style formats and the default cell format.
+    $self->add_format(type => 1);                       #  0 Normal
+    $self->add_format(type => 1);                       #  1 RowLevel 1
+    $self->add_format(type => 1);                       #  2 RowLevel 2
+    $self->add_format(type => 1);                       #  3 RowLevel 3
+    $self->add_format(type => 1);                       #  4 RowLevel 4
+    $self->add_format(type => 1);                       #  5 RowLevel 5
+    $self->add_format(type => 1);                       #  6 RowLevel 6
+    $self->add_format(type => 1);                       #  7 RowLevel 7
+    $self->add_format(type => 1);                       #  8 ColLevel 1
+    $self->add_format(type => 1);                       #  9 ColLevel 2
+    $self->add_format(type => 1);                       # 10 ColLevel 3
+    $self->add_format(type => 1);                       # 11 ColLevel 4
+    $self->add_format(type => 1);                       # 12 ColLevel 5
+    $self->add_format(type => 1);                       # 13 ColLevel 6
+    $self->add_format(type => 1);                       # 14 ColLevel 7
+    $self->add_format();                                # 15 Cell XF
+    $self->add_format(type => 1, num_format => 0x2B);   # 16 Comma
+    $self->add_format(type => 1, num_format => 0x29);   # 17 Comma[0]
+    $self->add_format(type => 1, num_format => 0x2C);   # 18 Currency
+    $self->add_format(type => 1, num_format => 0x2A);   # 19 Currency[0]
+    $self->add_format(type => 1, num_format => 0x09);   # 20 Percent
+
 
     # Add the default format for hyperlinks
     $self->{_url_format} = $self->add_format(color => 'blue', underline => 1);
@@ -92,13 +121,15 @@ sub new {
     # a valid filehandle.
     #
     if (not ref $self->{_filename}) {
+
         my $fh = FileHandle->new('>'. $self->{_filename});
+
         if (not defined $fh) {
             carp "Can't open " .
                   $self->{_filename} .
                   ". It may be in use or protected";
             return undef;
-    }
+        }
 
         # binmode file whether platform requires it or not
         binmode($fh);
@@ -203,9 +234,10 @@ sub _initialize {
 sub _append {
 
     my $self = shift;
+    my $data = '';
 
     if ($self->{_using_tmpfile}) {
-        my $data = join('', @_);
+        $data = join('', @_);
 
         # Add CONTINUE records if necessary
         $data = $self->_add_continue($data) if length($data) > $self->{_limit};
@@ -217,8 +249,10 @@ sub _append {
         $self->{_datasize} += length($data);
     }
     else {
-        $self->SUPER::_append(@_);
+        $data = $self->SUPER::_append(@_);
     }
+
+    return $data;
 }
 
 
@@ -454,7 +488,7 @@ sub _check_sheetname {
     }
 
 
-    # Handle utf8 strings in newer perls.
+    # Handle utf8 strings in perl 5.8.
     if ($] >= 5.008) {
         require Encode;
 
@@ -777,9 +811,11 @@ sub _store_workbook {
 
     my $self = shift;
 
-    # Add a default worksheet if non have been added. 
+    # Add a default worksheet if non have been added.
     $self->add_worksheet() if not @{$self->{_worksheets}};
 
+    # Calculate size required for MSO records and update worksheets.
+    $self->_calc_mso_sizes();
 
     # Ensure that at least one worksheet has been selected.
     if ($self->{_activesheet} == 0) {
@@ -798,6 +834,7 @@ sub _store_workbook {
     # Add Workbook globals
     $self->_store_bof(0x0005);
     $self->_store_codepage();
+    $self->_store_hideobj();
     $self->_store_window1();
     $self->_store_1904();
     $self->_store_all_fonts();
@@ -825,6 +862,7 @@ sub _store_workbook {
         $self->_store_externsheet();
         $self->_store_names();
     }
+    $self->_add_mso_drawing_group();
     $self->_store_shared_strings();
 
     # End Workbook globals
@@ -900,6 +938,10 @@ sub _calc_sheet_offsets {
     # Add the length of the SUPBOOK, EXTERNSHEET and NAME records
     $offset += $self->_calculate_extern_sizes();
 
+    # Add the length of the MSODRAWINGGROUP records
+    $offset += $self->{_mso_size};
+
+
     foreach my $sheet (@{$self->{_worksheets}}) {
         $offset += $BOF + length($sheet->{_name});
     }
@@ -917,17 +959,92 @@ sub _calc_sheet_offsets {
 
 ###############################################################################
 #
+# _calc_mso_sizes()
+#
+# Calculate the MSODRAWINGGROUP sizes and the indexes of the Worksheet
+# MSODRAWING records.
+#
+# In the following SPID is shape id, according to Escher nonemclature.
+#
+sub _calc_mso_sizes {
+
+    my $self            = shift;
+
+    my $num_shapes      = 0;
+    my $mso_size        = 0;    # Size of the MSODRAWINGGROUP record
+    my $start_spid      = 1024; # Initial spid for each sheet
+    my $max_spid        = 1024; # spidMax
+    my $num_clusters    = 1;    # cidcl
+    my $shapes_saved    = 0;    # cspSaved
+    my $drawings_saved  = 0;    # cdgSaved
+    my @clusters        = ();
+
+
+    # Iterate through the worksheets, calculate the MSODRAWINGGROUP parameters
+    # and space required to store the record and the MSODRAWING parameters
+    # required by each worksheet.
+    #
+    foreach my $sheet (@{$self->{_worksheets}}) {
+        next unless $num_shapes = $sheet->_prepare_comments();
+
+        # Include 1 parent MSODRAWING shape, per sheet, in the shape count.
+        $num_shapes   += 1;
+        $shapes_saved += $num_shapes;
+
+
+        # Add a drawing object for each sheet with comments.
+        $drawings_saved++;
+
+
+        # For each sheet start the spids at the next 1024 interval.
+        $max_spid   = 1024 * (1 + int(($max_spid -1)/1024));
+        $start_spid = $max_spid;
+
+
+        # Max spid for each sheet and eventually for the workbook.
+        $max_spid  += $num_shapes;
+
+
+        # Store the cluster ids
+        for (my $i = $num_shapes; $i > 0; $i -= 1024) {
+            $num_clusters  += 1;
+            $mso_size      += 8;
+            my $size        = $i > 1024 ? 1024 : $i;
+
+            push @clusters, [$drawings_saved, $size];
+        }
+
+
+        # Pass calculate values back to the worksheet
+        $sheet->{_comments_ids} = [$start_spid, $drawings_saved,
+                                  $num_shapes, $max_spid -1];
+    }
+
+
+    # Calculate the MSODRAWINGGROUP size if we have stored some shapes.
+    $mso_size              += 86 if $mso_size; # Smallest size is 86+8=94
+
+
+    $self->{_mso_size}      = $mso_size;
+    $self->{_mso_clusters}  = [
+                                $max_spid, $num_clusters, $shapes_saved,
+                                $drawings_saved, [@clusters]
+                              ];
+}
+
+
+###############################################################################
+#
 # _store_all_fonts()
 #
 # Store the Excel FONT records.
 #
 sub _store_all_fonts {
 
-    my $self = shift;
+    my $self    = shift;
 
-    # _tmp_format is added by new(). We use this to write the default XF's
-    my $format = $self->{_tmp_format};
-    my $font   = $format->get_font();
+    my $format  = $self->{_formats}->[15]; # The default cell format.
+    my $font    = $format->get_font();
 
     # Note: Fonts are 0-indexed. According to the SDK there is no index 4,
     # so the following fonts are 0, 1, 2, 3, 5
@@ -944,7 +1061,7 @@ sub _store_all_fonts {
     my $key;
     my $index = 6;                  # The first user defined FONT
 
-    $key = $format->get_font_key(); # The default font from _tmp_format
+    $key = $format->get_font_key(); # The default font for cell formats.
     $fonts{$key} = 0;               # Index of the default font
 
 
@@ -977,7 +1094,6 @@ sub _store_all_num_formats {
 
     my $self = shift;
 
-    # Leaning num_format syndrome
     my %num_formats;
     my @num_formats;
     my $num_format;
@@ -1024,24 +1140,8 @@ sub _store_all_xfs {
 
     my $self = shift;
 
-    # _tmp_format is added by new(). We use this to write the default XF's
-    # The default font index is 0
-    #
-    my $format = $self->{_tmp_format};
-    my $xf;
-
-    for (0..14) {
-        $xf = $format->get_xf('style'); # Style XF
-        $self->_append($xf);
-    }
-
-    $xf = $format->get_xf('cell');      # Cell XF
-    $self->_append($xf);
-
-
-    # User defined XFs
-    foreach $format (@{$self->{_formats}}) {
-        $xf = $format->get_xf('cell');
+    foreach my $format (@{$self->{_formats}}) {
+        my $xf = $format->get_xf();
         $self->_append($xf);
     }
 }
@@ -1057,7 +1157,28 @@ sub _store_all_styles {
 
     my $self = shift;
 
-    $self->_store_style();
+    # Excel adds the built-in styles in alphabetical order.
+    my @built_ins = (
+        [0x03, 16], # Comma
+        [0x06, 17], # Comma[0]
+        [0x04, 18], # Currency
+        [0x07, 19], # Currency[0]
+        [0x00,  0], # Normal
+        [0x05, 20], # Percent
+
+        # We don't deal with these styles yet.
+        #[0x08, 21], # Hyperlink
+        #[0x02,  8], # ColLevel_n
+        #[0x01,  1], # RowLevel_n
+    );
+
+
+    for my $aref (@built_ins) {
+        my $type     = $aref->[0];
+        my $xf_index = $aref->[1];
+
+        $self->_store_style($type, $xf_index);
+    }
 }
 
 
@@ -1246,12 +1367,15 @@ sub _store_style {
     my $record    = 0x0293; # Record identifier
     my $length    = 0x0004; # Bytes to follow
 
-    my $ixfe      = 0x8000; # Index to style XF
-    my $BuiltIn   = 0x00;   # Built-in style
-    my $iLevel    = 0xff;   # Outline style level
+    my $type      = $_[0];  # Built-in style
+    my $xf_index  = $_[1];  # Index to style XF
+    my $level     = 0xff;   # Outline style level
+
+    $xf_index    |= 0x8000; # Add flag to indicate built-in style.
+
 
     my $header    = pack("vv",  $record, $length);
-    my $data      = pack("vCC", $ixfe, $BuiltIn, $iLevel);
+    my $data      = pack("vCC", $xf_index, $type, $level);
 
     $self->_append($header, $data);
 }
@@ -1275,7 +1399,7 @@ sub _store_num_format {
     my $encoding  = $_[2];          # Char encoding for format string
 
 
-    # Handle utf8 strings in newer perls.
+    # Handle utf8 strings in perl 5.8.
     if ($] >= 5.008) {
         require Encode;
 
@@ -1591,6 +1715,27 @@ sub _store_codepage {
 
     my $header          = pack("vv", $record, $length);
     my $data            = pack("v",  $cv);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_hideobj()
+#
+# Stores the HIDEOBJ biff record.
+#
+sub _store_hideobj {
+
+    my $self            = shift;
+
+    my $record          = 0x008D;               # Record identifier
+    my $length          = 0x0002;               # Number of bytes to follow
+    my $hide            = $self->{_hideobj};    # Option to hide objects
+
+    my $header          = pack("vv", $record, $length);
+    my $data            = pack("v",  $hide);
 
     $self->_append($header, $data);
 }
@@ -2023,6 +2168,146 @@ sub _store_shared_strings {
     }
 }
 
+#
+# Methods related to comments and MSO objects.
+#
+
+###############################################################################
+#
+# _add_mso_drawing_group()
+#
+# Write the MSODRAWINGGROUP record that keeps track of the Escher drawing
+# objects in the file such as images, comments and filters.
+#
+sub _add_mso_drawing_group {
+
+    my $self    = shift;
+
+    return unless $self->{_mso_size};
+
+    my $record  = 0x00EB;               # Record identifier
+    my $length  = 0x0000;               # Number of bytes to follow
+
+    my $data    = $self->_store_mso_dgg_container();
+       $data   .= $self->_store_mso_dgg(@{$self->{_mso_clusters}});
+       $data   .= $self->_store_mso_opt();
+       $data   .= $self->_store_mso_split_menu_colors();
+
+       $length  = length $data;
+    my $header  = pack("vv", $record, $length);
+
+    $self->_append($header, $data);
+
+
+    return $header . $data;
+
+}
+
+
+###############################################################################
+#
+# _store_mso_dgg_container()
+#
+# Write the Escher DggContainer record that is part of MSODRAWINGGROUP.
+#
+sub _store_mso_dgg_container {
+
+    my $self        = shift;
+
+    my $type        = 0xF000;
+    my $version     = 15;
+    my $instance    = 0;
+    my $data        = '';
+    my $length      = $self->{_mso_size} -12; # -4 (biff header) -8 (for this).
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_dgg()
+#
+# Write the Escher Dgg record that is part of MSODRAWINGGROUP.
+#
+sub _store_mso_dgg {
+
+    my $self        = shift;
+
+    my $type            = 0xF006;
+    my $version         = 0;
+    my $instance        = 0;
+    my $data            = '';
+    my $length          = undef; # Calculate automatically.
+
+    my $max_spid        = $_[0];
+    my $num_clusters    = $_[1];
+    my $shapes_saved    = $_[2];
+    my $drawings_saved  = $_[3];
+    my $clusters        = $_[4];
+
+    $data               = pack "VVVV",  $max_spid,     $num_clusters,
+                                        $shapes_saved, $drawings_saved;
+
+    for my $aref (@$clusters) {
+        my $drawing_id      = $aref->[0];
+        my $shape_ids_used  = $aref->[1];
+
+        $data              .= pack "VV",  $drawing_id, $shape_ids_used;
+    }
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_opt()
+#
+# Write the Escher Opt record that is part of MSODRAWINGGROUP.
+#
+sub _store_mso_opt {
+
+    my $self        = shift;
+
+    my $type        = 0xF00B;
+    my $version     = 3;
+    my $instance    = 3;
+    my $data        = '';
+    my $length      = 18;
+
+    $data           = pack "H*", 'BF0008000800810109000008C0014000' .
+                                 '0008';
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_split_menu_colors()
+#
+# Write the Escher SplitMenuColors record that is part of MSODRAWINGGROUP.
+#
+sub _store_mso_split_menu_colors {
+
+    my $self        = shift;
+
+    my $type        = 0xF11E;
+    my $version     = 0;
+    my $instance    = 4;
+    my $data        = '';
+    my $length      = 16;
+
+    $data           = pack "H*", '0D0000080C00000817000008F7000010';
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
 
 1;
 
@@ -2048,6 +2333,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMV, John McNamara.
+© MM-MMVI, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

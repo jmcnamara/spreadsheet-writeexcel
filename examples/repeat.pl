@@ -28,7 +28,8 @@ my $formula = $worksheet->store_formula('=A1*5+4');
 
 # Write a column of formulas based on the stored formula
 for my $row (0..$limit) {
-    $worksheet->repeat_formula($row, 1, $formula, undef, 'A1', 'A'.($row+1));
+    $worksheet->repeat_formula($row, 1, $formula, undef,
+                                        qr/^A1$/, 'A'.($row+1));
 }
 
 

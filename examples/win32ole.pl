@@ -38,7 +38,7 @@ $worksheet->Hyperlinks->Add({ Anchor => $range, Address => "http://www.perl.com/
 my $dir = cwd();
 
 $workbook->SaveAs({
-                    FileName   => $dir . '/win32ole.xls', 
+                    FileName   => $dir . '/win32ole.xls',
                     FileFormat => xlNormal,
                   });
 $workbook->Close;

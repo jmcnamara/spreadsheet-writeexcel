@@ -17,9 +17,6 @@ my $workbook = Spreadsheet::WriteExcel->new("colors.xls");
 my $center  = $workbook->add_format(align => 'center');
 my $heading = $workbook->add_format(align => 'center', bold => 1);
 
-# Try this to see the default Excel 5 palette
-# $workbook->set_palette_xl5();
-
 
 ######################################################################
 #
@@ -37,6 +34,7 @@ my %colors = (
                 0x0E, 'magenta',
                 0x12, 'navy',
                 0x35, 'orange',
+                0x21, 'pink',
                 0x14, 'purple',
                 0x0A, 'red',
                 0x16, 'silver',

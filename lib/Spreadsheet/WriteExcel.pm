@@ -6,7 +6,7 @@ package Spreadsheet::WriteExcel;
 #
 # Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 #
-# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.15'; # Heloísa Pinheiro
+$VERSION = '2.16'; # Howl at 50
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.15 of Spreadsheet::WriteExcel, released September 18, 2005.
+This document refers to version 2.16 of Spreadsheet::WriteExcel, released January 6, 2006.
 
 
 
@@ -129,7 +129,7 @@ Like this:
     $worksheet   = $workbook->add_worksheet();               # Step 2
     $worksheet->write('A1', "Hi Excel!");                    # Step 3
 
-This will create an Excel file called C<perl.xls> with a single worksheet and the text C<"Hi Excel!"> in the relevant cell. And that's it. Okay, so there is actually a zeroth step as well, but C<use module> goes without saying. There are also more than 40 examples that come with the distribution and which you can use to get you started. See L<EXAMPLES>.
+This will create an Excel file called C<perl.xls> with a single worksheet and the text C<"Hi Excel!"> in the relevant cell. And that's it. Okay, so there is actually a zeroth step as well, but C<use module> goes without saying. There are also more than 60 examples that come with the distribution and which you can use to get you started. See L<EXAMPLES>.
 
 Those of you who read the instructions first and assemble the furniture afterwards will know how to proceed. ;-)
 
@@ -144,6 +144,7 @@ The Spreadsheet::WriteExcel module provides an object oriented interface to a ne
     close()
     set_tempdir()
     add_worksheet()
+    add_chart_ext()
     add_format()
     set_custom_color()
     sheets()
@@ -312,8 +313,7 @@ One disadvantage of using the C<set_tempdir()> method is that on some Windows sy
 
 
 
-
-=head2 add_worksheet($sheetname)
+=head2 add_worksheet($sheetname, $encoding)
 
 At least one worksheet should be added to a new workbook. A worksheet is used to write data into cells:
 
@@ -322,13 +322,20 @@ At least one worksheet should be added to a new workbook. A worksheet is used to
     $worksheet3 = $workbook->add_worksheet('Data');     # Data
     $worksheet4 = $workbook->add_worksheet();           # Sheet4
 
-If C<$sheetname> is not specified the default Excel convention will be followed, i.e. Sheet1, Sheet2, etc.
+If C<$sheetname> is not specified the default Excel convention will be followed, i.e. Sheet1, Sheet2, etc. The C<$encoding> parameter is optional, see below.
 
 The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<[ ] : * ? / \> and it must be less than 32 characters. In addition, you cannot use the same, case insensitive, C<$sheetname> for more than one worksheet.
 
 On systems with C<perl 5.8> and later the C<add_worksheet()> method will also handle strings in Perl's C<utf8> format.
 
-    $worksheet5 = $workbook->add_worksheet("\x{263a}"); # Smiley
+    $worksheet = $workbook->add_worksheet("\x{263a}"); # Smiley
+
+On earlier Perl systems your can specify UTF-16BE worksheet names using an additional encoding parameter:
+
+    my $name = pack "n", 0x263a;
+    $worksheet = $workbook->add_worksheet($name, 1);   # Smiley
+
+
 
 
 =head2 add_chart_ext($chart_data, $chartname)
@@ -375,6 +382,7 @@ The default named colours use the following indices:
     20   =>   purple
     22   =>   silver
     23   =>   gray
+    33   =>   pink
     53   =>   orange
 
 A new colour is set using its RGB (red green blue) components. The C<$red>, C<$green> and C<$blue> values must be in the range 0..255. You can determine the required values in Excel using the C<Tools-E<gt>Options-E<gt>Colors-E<gt>Modify> dialog.
@@ -479,16 +487,20 @@ The following methods are available through a new worksheet:
     write_blank()
     write_row()
     write_col()
+    write_date_time()
     write_url()
     write_url_range()
     write_formula()
     store_formula()
     repeat_formula()
+    write_comment()
+    show_comments()
     add_write_handler()
     insert_bitmap()
     get_name()
     activate()
     select()
+    hide()
     set_first_sheet()
     protect()
     set_selection()
@@ -499,6 +511,8 @@ The following methods are available through a new worksheet:
     thaw_panes()
     merge_range()
     set_zoom()
+    right_to_left()
+    hide_zero()
 
 
 =head2 Cell notation
@@ -759,7 +773,7 @@ The following is an example of creating an Excel file with some Japanese text. Y
     $worksheet->write('B3', 'Hiragana');
 
 
-Note: You can convert ascii encodings to the required UTF-16BE format using one of the many Unicode modules on CPAN. For example C<Unicode::Map> and C<Unicode::String>: http://search.cpan.org/author/MSCHWARTZ/Unicode-Map-0.112/Map.pm and http://search.cpan.org/author/GAAS/Unicode-String-2.06/String.pm
+Note: You can convert ascii encodings to the required UTF-16BE format using one of the many Unicode modules on CPAN. For example C<Unicode::Map> and C<Unicode::String>: http://search.cpan.org/author/MSCHWARTZ/Unicode-Map/Map.pm and http://search.cpan.org/author/GAAS/Unicode-String/String.pm
 
 For a full list of the Perl Unicode modules see: http://search.cpan.org/search?query=unicode&mode=all
 
@@ -1021,11 +1035,11 @@ See also the date_time.pl program in the C<examples> directory of the distro.
 
 
 
-=head2 write_url($row, $col, $url, $string, $format)
+=head2 write_url($row, $col, $url, $label, $format)
 
-Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative string is specified. The parameters C<$string> and the C<$format> are optional and their position is interchangeable.
+Write a hyperlink to a URL in the cell specified by C<$row> and C<$column>. The hyperlink is comprised of two elements: the visible label and the invisible link. The visible label is the same as the link unless an alternative label is specified. The parameters C<$label> and the C<$format> are optional and their position is interchangeable.
 
-The label is written using the C<write_string()> method. Therefore the 255 characters string limit applies to the label: the URL can be any length.
+The label is written using the C<write()> method. Therefore it is possible to write strings, numbers or formulas as labels.
 
 There are four web style URI's supported: C<http://>, C<https://>, C<ftp://> and  C<mailto:>:
 
@@ -1241,20 +1255,176 @@ See also the C<repeat.pl> program in the C<examples> directory of the distro.
 
 
 
-=head2 write_comment($row, $column, $string)
+=head2 write_comment($row, $column, $string, ...)
 
-B<NOTE: this method is not available in this release. Use the 1.xx versions of this module if you need this feature>.
+B<NOTE:> This method is currently incompatible with C<insert_bitmap()>. You can use either method but not both in the same workbook. This will be fixed soon.
 
-
-The C<write_comment()> method is used to add a comment to a cell. A cell comment is indicated in Excel by a small red triangle in the upper right-hand corner of the cell. Moving the cursor over the red triangle will cause the comment to appear.
+The C<write_comment()> method is used to add a comment to a cell. A cell comment is indicated in Excel by a small red triangle in the upper right-hand corner of the cell. Moving the cursor over the red triangle will reveal the comment.
 
 The following example shows how to add a comment to a cell:
 
-    $worksheet->write("C3", "Hello");
-    $worksheet->write_comment("C3", "This is a comment.");
+    $worksheet->write        (2, 2, 'Hello');
+    $worksheet->write_comment(2, 2, 'This is a comment.');
+
+As usual you can replace the C<$row> and C<$column> parameters with an C<A1> cell reference. See the note about L<Cell notation>.
+
+    $worksheet->write        ('C3', 'Hello');
+    $worksheet->write_comment('C3', 'This is a comment.');
+
+On systems with C<perl 5.8> and later the C<write_comment()> method will also handle strings in Perl's C<utf8> format.
+
+    $worksheet->write_comment('C3', "\x{263a}");       # Smiley
+    $worksheet->write_comment('C4', 'Comment ça va?');
+
+In addition to the basic 3 argument form of C<write_comment()> you can pass in several optional key/value pairs to control the format of the comment. For example:
+
+    $worksheet->write_comment('C3', 'Hello', visible => 1, author => 'Perl');
+
+Most of these options are quite specific and in general the default comment behaviour will be all that you need. However, should you need greater control over the format of the cell comment the following options are available:
+
+    encoding
+    author
+    author_encoding
+    visible
+    x_scale
+    width
+    y_scale
+    height
+    color
+    start_cell
+    start_row
+    start_col
+    x_offset
+    y_offset
 
 
-The cell comment can be up to 30,000 characters in length.
+=over 4
+
+=item Option: encoding
+
+This option is used to indicate that the comment string is encoded as UTF-16BE.
+
+    my $comment = pack "n", 0x263a; # UTF-16BE Smiley symbol
+
+    $worksheet->write_comment('C3', $comment, encoding => 1);
+
+If you wish to use Unicode characters in the comment string then the preferred method is to use perl 5.8 and UTF-8 strings.
+
+
+=item Option: author
+
+This option is used to indicate who the author of the comment is. Excel displays the author of the comment in the status bar at the bottom of the worksheet. This is usually of interest in corporate environments where several people might review and provide comments to a workbook.
+
+    $worksheet->write_comment('C3', 'Atonement', author => 'Ian McEwan');
+
+
+=item Option: author_encoding
+
+This option is used to indicate that the author string is encoded as UTF-16BE.
+
+
+=item Option: visible
+
+This option is used to make a cell comment visible when the worksheet is opened. The default behaviour in Excel is that comments are initially hidden. However, it is also possible in Excel to make individual or all comments visible. In Spreadsheet::WriteExcel individual comments can be made visible as follows:
+
+    $worksheet->write_comment('C3', 'Hello', visible => 1);
+
+It is possible to make all comments in a worksheet visible using the C<show_comments()> worksheet method (see below). Alternatively, if all of the cell comments have been made visible you can hide individual comments:
+
+    $worksheet->write_comment('C3', 'Hello', visible => 0);
+
+
+=item Option: x_scale
+
+This option is used to set the width of the cell comment box as a factor of the default width.
+
+    $worksheet->write_comment('C3', 'Hello', x_scale => 2);
+    $worksheet->write_comment('C4', 'Hello', x_scale => 4.2);
+
+
+=item Option: width
+
+This option is used to set the width of the cell comment box explicitly in pixels.
+
+    $worksheet->write_comment('C3', 'Hello', width => 200);
+
+
+=item Option: y_scale
+
+This option is used to set the height of the cell comment box as a factor of the default height.
+
+    $worksheet->write_comment('C3', 'Hello', y_scale => 2);
+    $worksheet->write_comment('C4', 'Hello', y_scale => 4.2);
+
+
+=item Option: height
+
+This option is used to set the height of the cell comment box explicitly in pixels.
+
+    $worksheet->write_comment('C3', 'Hello', height => 200);
+
+
+=item Option: color
+
+This option is used to set the background colour of cell comment box. You can use one of the named colours recognised by Spreadsheet::WriteExcel or a colour index. See L<COLOURS IN EXCEL>.
+
+    $worksheet->write_comment('C3', 'Hello', color => 'green');
+    $worksheet->write_comment('C4', 'Hello', color => 0x35);    # Orange
+
+
+=item Option: start_cell
+
+This option is used to set the cell in which the comment will appear. By default Excel displays comments one cell to the right and one cell above the cell to which the comment relates. However, you can change this behaviour if you wish. In the following example the comment which would appear by default in cell C<D2> is moved to C<E2>.
+
+    $worksheet->write_comment('C3', 'Hello', start_cell => 'E2');
+
+
+=item Option: start_row
+
+This option is used to set the row in which the comment will appear. See the C<start_cell> option above. The row is zero indexed.
+
+    $worksheet->write_comment('C3', 'Hello', start_row => 0);
+
+
+=item Option: start_col
+
+This option is used to set the column in which the comment will appear. See the C<start_cell> option above. The column is zero indexed.
+
+    $worksheet->write_comment('C3', 'Hello', start_col => 4);
+
+
+=item Option: x_offset
+
+This option is used to change the x offset, in pixels, of a comment within a cell:
+
+    $worksheet->write_comment('C3', $comment, x_offset => 30);
+
+
+=item Option: y_offset
+
+This option is used to change the y offset, in pixels, of a comment within a cell:
+
+    $worksheet->write_comment('C3', $comment, x_offset => 30);
+
+
+=back
+
+You can apply as many of these options as you require.
+
+B<Note about row height and comments>. If you specify the height of a row that contains a comment then Spreadsheet::WriteExcel will adjust the height of the comment to maintain the default or user specified dimensions. However, the height of a row can also be adjusted automatically by Excel if the text wrap property is set or large fonts are used in the cell. This means that the height of the row is unknown to WriteExcel at run time and thus the comment box is stretched with the row. Use the C<set_row()> method to specify the row height explicitly and avoid this problem.
+
+
+=head2 show_comments()
+
+This method is used to make all cell comments visible when a worksheet is opened.
+
+Individual comments can be made visible using the C<visible> parameter of the C<write_comment> method (see above):
+
+    $worksheet->write_comment('C3', 'Hello', visible => 1);
+
+If all of the cell comments have been made visible you can hide individual comments as follows:
+
+    $worksheet->write_comment('C3', 'Hello', visible => 0);
 
 
 
@@ -1297,7 +1467,7 @@ The callback function will receive a reference to the calling worksheet and all 
     $_[2]   Zero based column number.
     $_[3]   A number or string or token.
     $_[4]   A format ref if any.
-    $_[5]   Any other argruments.
+    $_[5]   Any other arguments.
     ...
 
     *  It is good style to shift this off the list so the @_ is the same
@@ -1337,6 +1507,11 @@ See the C<write_handler 1-4> programs in the C<examples> directory for further e
 
 
 =head2 insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)
+
+B<NOTE:> This method is currently incompatible with C<write_comment()>. You can use either method but not both in the same workbook. This will be fixed soon.
+
+B<NOTE:> The images inserted using this method do not display in OpenOffice.org or Gnumeric. This is related to the previous note and will also be fixed soon.
+
 
 This method can be used to insert a bitmap into a worksheet. The bitmap must be a 24 bit, true colour, bitmap. No other format is supported. The C<$x>, C<$y>, C<$scale_x> and C<$scale_y> parameters are optional.
 
@@ -1415,6 +1590,19 @@ The C<select()> method is used to indicate that a worksheet is selected in a mul
     $worksheet3->select();
 
 A selected worksheet has its tab highlighted. Selecting worksheets is a way of grouping them together so that, for example, several worksheets could be printed in one go. A worksheet that has been activated via the C<activate()> method will also appear as selected. You probably won't need to use the C<select()> method very often.
+
+
+
+
+=head2 hide()
+
+The C<hide()> method is used to hide a worksheet:
+
+    $worksheet->hide();
+
+You may wish to hide a worksheet in order to avoid confusing a user with intermediate data or calculations.
+
+A hidden worksheet can not be activated or selected so this method is mutually exclusive with the C<activate()> and C<select()> methods.
 
 
 
@@ -1661,9 +1849,9 @@ See also the C<freeze_panes()> method and the C<panes.pl> program in the C<examp
 
 
 
-=head2 merge_range($first_row, $first_col, $last_row, $last_col, $token, $format)
+=head2 merge_range($first_row, $first_col, $last_row, $last_col, $token, $format, $encoding)
 
-Merging cells is generally achieved by setting the C<merge> property of a Format object, see L<CELL FORMATTING>. However, this only allows simple Excel5 style horizontal merging which Excel refers to as "center across selection".
+Merging cells can be achieved by setting the C<merge> property of a Format object, see L<CELL FORMATTING>. However, this only allows simple Excel5 style horizontal merging which Excel refers to as "center across selection".
 
 The C<merge_range()> method allows you to do Excel97+ style formatting where the cells can contain other types of alignment in addition to the merging:
 
@@ -1677,11 +1865,22 @@ The C<merge_range()> method allows you to do Excel97+ style formatting where the
 
 B<WARNING>. The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range. It is a fatal error to use a merged format in a non-merged cell. Instead you should use separate formats for merged and non-merged cells. This restriction will be removed in a future release.
 
-C<merge_range()> writes its $token argument using the worksheet C<write()> method. Therefore it will handle numbers, strings, formulas or urls as required.
+The C<$encoding> parameter is optional, see below.
+
+C<merge_range()> writes its C<$token> argument using the worksheet C<write()> method. Therefore it will handle numbers, strings, formulas or urls as required.
 
 Setting the C<merge> property of the format isn't required when you are using C<merge_range()>. In fact using it will exclude the use of any other horizontal alignment option.
 
-The full possibilities of this method are shown in the C<merge3.pl>, C<merge4.pl> and C<merge5.pl> programs in the C<examples> directory of the distribution.
+On systems with C<perl 5.8> and later the C<merge_range()> method will also handle strings in Perl's C<utf8> format.
+
+    $worksheet->merge_range('B3:D4', "\x{263a}", $format); # Smiley
+
+On earlier Perl systems your can specify UTF-16BE worksheet names using an additional encoding parameter:
+
+    my $str = pack "n", 0x263a;
+    $worksheet->merge_range('B3:D4', $str, $format, 1); # Smiley
+
+The full possibilities of this method are shown in the C<merge3.pl> to C<merge6.pl> programs in the C<examples> directory of the distribution.
 
 
 
@@ -1698,6 +1897,28 @@ Set the worksheet zoom factor in the range C<10 E<lt>= $scale E<lt>= 400>:
 The default zoom factor is 100. You cannot zoom to "Selection" because it is calculated by Excel at run-time.
 
 Note, C<set_zoom()> does not affect the scale of the printed page. For that you should use C<set_print_scale()>.
+
+
+
+
+=head2 right_to_left()
+
+The C<right_to_left()> method is used to change the default direction of the worksheet from left-to-right, with the A1 cell in the top left, to right-to-left, with the he A1 cell in the top right.
+
+    $worksheet->right_to_left();
+
+This is useful when creating Arabic, Hebrew or other near or far eastern worksheets that use right-to-left as the default direction.
+
+
+
+
+=head2 hide_zero()
+
+The C<hide_zero()> method is used to hide any zero values that appear in cells.
+
+    $worksheet->right_to_left();
+
+In Excel this option is found under Tools->Options->View.
 
 
 
@@ -1721,6 +1942,7 @@ The following methods are available for page set-up:
     hide_gridlines()
     print_row_col_headers()
     print_area()
+    print_across()
     fit_to_pages()
     set_print_scale()
     set_h_pagebreaks()
@@ -2070,6 +2292,26 @@ This method is used to specify the area of the worksheet that will be printed. A
 
 
 
+
+=head2 print_across()
+
+The C<print_across> method is used to change the default print direction. This is referred to by Excel as the sheet "page order".
+
+    $worksheet->print_across();
+
+The default page order is shown below for a worksheet that extends over 4 pages. The order is called "down then across":
+
+    [1] [3]
+    [2] [4]
+
+However, by using the C<print_across> method the print order will be changed to "across then down":
+
+    [1] [2]
+    [3] [4]
+
+
+
+
 =head2 fit_to_pages($width, $height)
 
 The C<fit_to_pages()> method is used to fit the printed area to a specific number of pages both vertically and horizontally. If the printed area exceeds the specified number of pages it will be scaled down to fit. This guarantees that the printed area will always appear on the specified number of pages even if the page size or margins change.
@@ -2414,6 +2656,7 @@ Set the font size. Excel adjusts the height of a row to accommodate the largest 
                         'magenta'
                         'navy'
                         'orange'
+                        'pink'
                         'purple'
                         'red'
                         'silver'
@@ -2757,7 +3000,7 @@ Only one cell should contain the text, the other cells should be blank:
     $worksheet->write(1, 1, 'Center across selection', $format);
     $worksheet->write_blank(1, 2, $format);
 
-See also the C<merge1.pl> to C<merge5.pl> programs in the C<examples> directory and the C<merge_range()> method.
+See also the C<merge1.pl> to C<merge6.pl> programs in the C<examples> directory and the C<merge_range()> method.
 
 
 
@@ -2983,6 +3226,7 @@ The most commonly used colours can also be accessed by name. The name acts as a 
     magenta   =>   14
     navy      =>   18
     orange    =>   53
+    pink      =>   33
     purple    =>   20
     red       =>   10
     silver    =>   22
@@ -3014,7 +3258,7 @@ A comparison of the colour components in the Excel 5 and Excel 97+ colour palett
 
 You may also find the following links helpful:
 
-A detailed look at Excel's colour palette: http://www.geocities.com/davemcritchie/excel/colors.htm
+A detailed look at Excel's colour palette: http://www.mvps.org/dmcritchie/excel/colors.htm
 
 A decimal RGB chart: http://www.hypersolutions.org/pages/rgbdec.html
 
@@ -3036,7 +3280,7 @@ The epoch can be either 1900 or 1904. Excel for Windows uses 1900 and Excel for 
 
 By default Spreadsheet::WriteExcel uses the Windows/1900 format although it generally isn't an issue since Excel on Windows and the Macintosh will convert automatically between one system and the other. To use the 1904 epoch you must use the C<set_1904()> workbook method.
 
-There are two things to note about the 1900 date format. The first is that the epoch starts on 0 January 1900. The second is that the year 1900 is erroneously but deliberately treated as a leap year. Therefore you must add an extra day to dates after 28 February 1900. The reason for this anomaly is explained at http://support.microsoft.com/support/kb/articles/Q181/3/70.asp
+There are two things to note about the 1900 date format. The first is that the epoch starts on 0 January 1900. The second is that the year 1900 is erroneously but deliberately treated as a leap year. Therefore you must add an extra day to dates after 28 February 1900. The reason for this anomaly is explained in Microsoft Knowledge Base article Q181370.
 
 A date or time in Excel is like any other number. To display the number as a date you must apply a number format to it. Refer to the C<set_num_format()> method above:
 
@@ -3281,8 +3525,7 @@ The following table lists all of the core functions supported by Excel 5 and Spr
 
 You can also modify the module to support function names in the following languages: German, French, Spanish, Portuguese, Dutch, Finnish, Italian and Swedish. See the C<function_locale.pl> program in the C<examples> directory of the distro.
 
-For a general introduction to Excel's formulas and an explanation of the syntax of the function refer to the Excel help files or the following links: http://msdn.microsoft.com/library/default.asp?URL=/library/officedev/office97/s88f2.htm and http://msdn.microsoft.com/library/default.asp?URL=/library/en-us/office97/s992f.htm
-
+For a general introduction to Excel's formulas and an explanation of the syntax of the function refer to the Excel help files or the following: http://office.microsoft.com/en-us/assistance/CH062528031033.aspx
 
 If your formula doesn't work in Spreadsheet::WriteExcel try the following:
 
@@ -3614,6 +3857,8 @@ different features and options of the module.
     cgi.pl                  A simple CGI program.
     chess.pl                An example of formatting using properties.
     colors.pl               Demo of the colour palette and named colours.
+    comments1.pl            Add comments to worksheet cells.
+    comments2.pl            Add comments with advanced options.
     copyformat.pl           Example of copying a cell format.
     diag_border.pl          A simple example of diagonal cell borders.
     easter_egg.pl           Expose the Excel97 flight simulator. A must see.
@@ -3629,6 +3874,7 @@ different features and options of the module.
     merge3.pl               Add hyperlinks to merged cells.
     merge4.pl               An advanced example of merging with formatting.
     merge5.pl               An advanced example of merging with formatting.
+    merge6.pl               An example of merging with Unicode strings.
     mod_perl1.pl            A simple mod_perl 1 program.
     mod_perl2.pl            A simple mod_perl 2 program.
     outline.pl              An example of outlines and grouping.
@@ -3636,6 +3882,7 @@ different features and options of the module.
     protection.pl           Example of cell locking and formula hiding.
     hide_sheet.pl           Simple example of hiding a worksheet.
     repeat.pl               Example of writing repeated formulas.
+    right_to_left.pl        Change default sheet direction to right to left.
     sales.pl                An example of a simple sales spreadsheet.
     sendmail.pl             Send an Excel email attachment using Mail::Sender.
     stats_ext.pl            Same as stats.pl with external references.
@@ -3725,7 +3972,7 @@ This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/doc/JMCNAMARA/Spreadsheet-WriteExcel-2.11/WriteExcel/doc/install.html
+http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.16/INSTALL
 
 
 
@@ -3811,13 +4058,11 @@ The BIFF data is stored along with other data in an OLE Compound File. This is a
 
 The documentation for the OLE::Storage module, http://user.cs.tu-berlin.de/~schwartz/pmh/guide.html , contains one of the few descriptions of the OLE Compound File in the public domain. The Digital Imaging Group have also detailed the OLE format in the JPEG2000 specification: see Appendix A of http://www.i3a.org/pdf/wg1n1017.pdf
 
-For a open source implementation of the OLE library see the 'cole' library at http://atena.com/libole2.php
-
-The source code for the Excel plugin of the Gnumeric spreadsheet also contains information relevant to the Excel BIFF format and the OLE container, http://www.gnome.org/projects/gnumeric/ and ftp://ftp.ximian.com/pub/ximian-source/
+The source code for the Excel plugin of the Gnumeric spreadsheet also contains information relevant to the Excel BIFF format and the OLE container, http://www.gnome.org/projects/gnumeric/
 
 In addition the source code for OpenOffice.org is available at http://www.openoffice.org/
 
-An article describing Spreadsheet::WriteExcel and how it works appears in Issue #19 of The Perl Journal, http://www.samag.com/documents/s=1272/sam05030004/ It is reproduced, by kind permission, in the C<doc> directory of the distro.
+An article describing Spreadsheet::WriteExcel and how it works appeared in Issue 19 of The Perl Journal. It is reproduced, by kind permission, in the C<doc> directory of the distro.
 
 
 Please note that the provision of this information does not constitute an invitation to start hacking at the BIFF or OLE file formats. There are more interesting ways to waste your time. ;-)
@@ -3899,7 +4144,7 @@ Spreadsheet::ParseExcel_XLHTML
 
 =item * xlHtml
 
-This is an open source "Excel to HTML Converter" C/C++ project at http://www.xlhtml.org/ See also, the OLE Filters Project at http://atena.com/libole2.php
+This is an open source "Excel to HTML Converter" C/C++ project at http://chicago.sourceforge.net/xlhtml/
 
 =item * DBD::Excel (reading)
 
@@ -3960,8 +4205,6 @@ To avoid this problem you should upgrade to Perl 5.8, if possible, or else you s
 
 Formulas are formulae.
 
-This version of the module doesn't support the write_comment() method. This will be fixed soon.
-
 XML and UTF8 data on Perl 5.6 can cause Excel files created by Spreadsheet::WriteExcel to become corrupt. See L<Warning about XML::Parser and Perl 5.6> for further details.
 
 The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range.It is a fatal error to use a merged format in a non-merged cell. The current workaround is to use separate formats for merged and non-merged cell. This restriction will be removed in a future release.
@@ -3970,9 +4213,9 @@ Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE".
 
 Spreadsheet::ParseExcel: All formulas created by Spreadsheet::WriteExcel are read as having a value of zero. This is because Spreadsheet::WriteExcel only stores the formula and not the calculated result.
 
-OpenOffice.org: Some formatting is not displayed correctly.
+OpenOffice.org: Images are not displayed. Some formatting is not displayed correctly.
 
-Gnumeric: Some formatting is not displayed correctly. URLs are not displayed as links. Page setup can cause Gnumeric to crash.
+Gnumeric: Images are not displayed. Some formatting is not displayed correctly. URLs are not displayed as links. Page setup may cause Gnumeric to crash.
 
 The lack of a portable way of writing a little-endian 64 bit IEEE float. There is beta code available to fix this. Let me know if you wish to test it on your platform.
 
@@ -3987,9 +4230,11 @@ The roadmap is as follows:
 
 =over 4
 
-=item * Add write_comment().
+=item * Fix insert_bitmap to work with write_comment(), OpenOffice.org and Gnumeric.
 
 =item * Add AutoFilters.
+
+=item * Add better defaults for Excel on the Mac.
 
 
 =back
@@ -4045,8 +4290,6 @@ DateTime::Format::Excel: http://search.cpan.org/dist/DateTime-Format-Excel
 
 "Excel-Dateien mit Perl erstellen - Controller im Glück" by Peter Dintelmann and Christian Kirsch in the German Unix/web journal iX: http://www.heise.de/ix/artikel/2001/06/175/
 
-"Spreadsheet::WriteExcel" in The Perl Journal: http://www.samag.com/documents/s=1272/sam05030004/
-
 Spreadsheet::WriteExcel documentation in Japanese by Takanori Kawai. http://member.nifty.ne.jp/hippo2000/perltips/Spreadsheet/WriteExcel.htm
 
 Oesterly user brushes with fame:
@@ -4083,17 +4326,24 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    Olha que coisa mais linda
-    Mais cheia de graça. É ela menina
-    Que vem e que passa
-    Num doce balanço a caminho do mar
+    I saw the best minds of my generation destroyed by
+          madness, starving hysterical naked,
+    dragging themselves through the negro streets at dawn
+          looking for an angry fix,
+    angelheaded hipsters burning for the ancient heavenly
+          connection to the starry dynamo in the machin-
+          ery of night,
+    who poverty and tatters and hollow-eyed and high sat
+          up smoking in the supernatural darkness of
+          cold-water flats floating across the tops of cities
+          contemplating jazz,
 
-        -- Vinicius de Moraes
+        -- Allen Ginsberg
 
 
 =head1 COPYRIGHT
 
-© MM-MMV, John McNamara.
+© MM-MMVI, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

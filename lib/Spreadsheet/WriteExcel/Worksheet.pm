@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2005, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.15';
+$VERSION = '2.16';
 
 ###############################################################################
 #
@@ -34,111 +34,125 @@ $VERSION = '2.15';
 #
 sub new {
 
-    my $class                   = shift;
-    my $self                    = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $rowmax                  = 65536;
-    my $colmax                  = 256;
-    my $strmax                  = 0;
+    my $class                       = shift;
+    my $self                        = Spreadsheet::WriteExcel::BIFFwriter->new();
+    my $rowmax                      = 65536;
+    my $colmax                      = 256;
+    my $strmax                      = 0;
 
-    $self->{_name}              = $_[0];
-    $self->{_index}             = $_[1];
-    $self->{_encoding}          = $_[2];
-    $self->{_activesheet}       = $_[3];
-    $self->{_firstsheet}        = $_[4];
-    $self->{_url_format}        = $_[5];
-    $self->{_parser}            = $_[6];
-    $self->{_tempdir}           = $_[7];
+    $self->{_name}                  = $_[0];
+    $self->{_index}                 = $_[1];
+    $self->{_encoding}              = $_[2];
+    $self->{_activesheet}           = $_[3];
+    $self->{_firstsheet}            = $_[4];
+    $self->{_url_format}            = $_[5];
+    $self->{_parser}                = $_[6];
+    $self->{_tempdir}               = $_[7];
 
-    $self->{_str_total}         = $_[8];
-    $self->{_str_unique}        = $_[9];
-    $self->{_str_table}         = $_[10];
-    $self->{_1904}              = $_[11];
+    $self->{_str_total}             = $_[8];
+    $self->{_str_unique}            = $_[9];
+    $self->{_str_table}             = $_[10];
+    $self->{_1904}                  = $_[11];
 
-    $self->{_type}              = 0x0000;
-    $self->{_ext_sheets}        = [];
-    $self->{_using_tmpfile}     = 1;
-    $self->{_filehandle}        = "";
-    $self->{_fileclosed}        = 0;
-    $self->{_offset}            = 0;
-    $self->{_xls_rowmax}        = $rowmax;
-    $self->{_xls_colmax}        = $colmax;
-    $self->{_xls_strmax}        = $strmax;
-    $self->{_dim_rowmin}        = $rowmax +1;
-    $self->{_dim_rowmax}        = 0;
-    $self->{_dim_colmin}        = $colmax +1;
-    $self->{_dim_colmax}        = 0;
-    $self->{_dim_changed}       = 0;
-    $self->{_colinfo}           = [];
-    $self->{_selection}         = [0, 0];
-    $self->{_panes}             = [];
-    $self->{_active_pane}       = 3;
-    $self->{_frozen}            = 0;
-    $self->{_selected}          = 0;
-    $self->{_hidden}            = 0;
-    $self->{_active}            = 0;
+    $self->{_type}                  = 0x0000;
+    $self->{_ext_sheets}            = [];
+    $self->{_using_tmpfile}         = 1;
+    $self->{_filehandle}            = "";
+    $self->{_fileclosed}            = 0;
+    $self->{_offset}                = 0;
+    $self->{_xls_rowmax}            = $rowmax;
+    $self->{_xls_colmax}            = $colmax;
+    $self->{_xls_strmax}            = $strmax;
+    $self->{_dim_rowmin}            = $rowmax +1;
+    $self->{_dim_rowmax}            = 0;
+    $self->{_dim_colmin}            = $colmax +1;
+    $self->{_dim_colmax}            = 0;
+    $self->{_dim_changed}           = 0;
+    $self->{_colinfo}               = [];
+    $self->{_selection}             = [0, 0];
+    $self->{_panes}                 = [];
+    $self->{_active_pane}           = 3;
+    $self->{_frozen}                = 0;
+    $self->{_selected}              = 0;
+    $self->{_hidden}                = 0;
+    $self->{_active}                = 0;
 
-    $self->{_paper_size}        = 0x0;
-    $self->{_orientation}       = 0x1;
-    $self->{_header}            = '';
-    $self->{_footer}            = '';
-    $self->{_header_encoding}   = 0;
-    $self->{_footer_encoding}   = 0;
-    $self->{_hcenter}           = 0;
-    $self->{_vcenter}           = 0;
-    $self->{_margin_header}     = 0.50;
-    $self->{_margin_footer}     = 0.50;
-    $self->{_margin_left}       = 0.75;
-    $self->{_margin_right}      = 0.75;
-    $self->{_margin_top}        = 1.00;
-    $self->{_margin_bottom}     = 1.00;
+    $self->{_first_row}             = 0;
+    $self->{_first_col}             = 0;
+    $self->{_display_formulas}      = 0;
+    $self->{_display_headers}       = 1;
+    $self->{_display_zeros}         = 1;
+    $self->{_display_arabic}        = 0;
 
-    $self->{_title_rowmin}      = undef;
-    $self->{_title_rowmax}      = undef;
-    $self->{_title_colmin}      = undef;
-    $self->{_title_colmax}      = undef;
-    $self->{_print_rowmin}      = undef;
-    $self->{_print_rowmax}      = undef;
-    $self->{_print_colmin}      = undef;
-    $self->{_print_colmax}      = undef;
+    $self->{_paper_size}            = 0x0;
+    $self->{_orientation}           = 0x1;
+    $self->{_header}                = '';
+    $self->{_footer}                = '';
+    $self->{_header_encoding}       = 0;
+    $self->{_footer_encoding}       = 0;
+    $self->{_hcenter}               = 0;
+    $self->{_vcenter}               = 0;
+    $self->{_margin_header}         = 0.50;
+    $self->{_margin_footer}         = 0.50;
+    $self->{_margin_left}           = 0.75;
+    $self->{_margin_right}          = 0.75;
+    $self->{_margin_top}            = 1.00;
+    $self->{_margin_bottom}         = 1.00;
 
-    $self->{_print_gridlines}   = 1;
-    $self->{_screen_gridlines}  = 1;
-    $self->{_print_headers}     = 0;
+    $self->{_title_rowmin}          = undef;
+    $self->{_title_rowmax}          = undef;
+    $self->{_title_colmin}          = undef;
+    $self->{_title_colmax}          = undef;
+    $self->{_print_rowmin}          = undef;
+    $self->{_print_rowmax}          = undef;
+    $self->{_print_colmin}          = undef;
+    $self->{_print_colmax}          = undef;
 
-    $self->{_page_order}        = 0;
-    $self->{_black_white}       = 0;
-    $self->{_draft_quality}     = 0;
-    $self->{_print_comments}    = 0;
-    $self->{_page_start}        = 1;
+    $self->{_print_gridlines}       = 1;
+    $self->{_screen_gridlines}      = 1;
+    $self->{_print_headers}         = 0;
 
-    $self->{_fit_page}          = 0;
-    $self->{_fit_width}         = 0;
-    $self->{_fit_height}        = 0;
+    $self->{_page_order}            = 0;
+    $self->{_black_white}           = 0;
+    $self->{_draft_quality}         = 0;
+    $self->{_print_comments}        = 0;
+    $self->{_page_start}            = 1;
 
-    $self->{_hbreaks}           = [];
-    $self->{_vbreaks}           = [];
+    $self->{_fit_page}              = 0;
+    $self->{_fit_width}             = 0;
+    $self->{_fit_height}            = 0;
 
-    $self->{_protect}           = 0;
-    $self->{_password}          = undef;
+    $self->{_hbreaks}               = [];
+    $self->{_vbreaks}               = [];
 
-    $self->{_col_sizes}         = {};
-    $self->{_row_sizes}         = {};
+    $self->{_protect}               = 0;
+    $self->{_password}              = undef;
 
-    $self->{_col_formats}       = {};
-    $self->{_row_formats}       = {};
+    $self->{_col_sizes}             = {};
+    $self->{_row_sizes}             = {};
 
-    $self->{_zoom}              = 100;
-    $self->{_print_scale}       = 100;
+    $self->{_col_formats}           = {};
+    $self->{_row_formats}           = {};
 
-    $self->{_leading_zeros}     = 0;
+    $self->{_zoom}                  = 100;
+    $self->{_print_scale}           = 100;
 
-    $self->{_outline_row_level} = 0;
-    $self->{_outline_style}     = 0;
-    $self->{_outline_below}     = 1;
-    $self->{_outline_right}     = 1;
-    $self->{_outline_on}        = 1;
+    $self->{_leading_zeros}         = 0;
 
-    $self->{_write_match}       = [];
+    $self->{_outline_row_level}     = 0;
+    $self->{_outline_style}         = 0;
+    $self->{_outline_below}         = 1;
+    $self->{_outline_right}         = 1;
+    $self->{_outline_on}            = 1;
+
+    $self->{_write_match}           = [];
+    $self->{_comments}              = {};
+    $self->{_comments_ids}          = [];
+    $self->{_comments_author}       = '';
+    $self->{_comments_author_enc}   = 0;
+    $self->{_comments_visible}      = 0;
+
+    $self->{_writing_url}           = 0;
 
 
     bless $self, $class;
@@ -255,6 +269,7 @@ sub _close {
 
     # Prepend the sheet protection
     $self->_store_protect();
+    $self->_store_obj_protect();
 
     # Prepend the page setup
     $self->_store_setup();
@@ -312,7 +327,7 @@ sub _close {
     ################################################
 
     # Append
-    #$self->_dev_note(); # TODO
+    $self->_store_comments();
     $self->_store_window2();
     $self->_store_zoom();
     $self->_store_panes(@{$self->{_panes}}) if @{$self->{_panes}};
@@ -604,7 +619,7 @@ sub set_header {
     my $margin   = $_[1] || 0.50;
     my $encoding = $_[2] || 0;
 
-    # Handle utf8 strings in newer perls.
+    # Handle utf8 strings in perl 5.8.
     if ($] >= 5.008) {
         require Encode;
 
@@ -640,7 +655,7 @@ sub set_footer {
     my $margin   = $_[1] || 0.50;
     my $encoding = $_[2] || 0;
 
-    # Handle utf8 strings in newer perls.
+    # Handle utf8 strings in perl 5.8.
     if ($] >= 5.008) {
         require Encode;
 
@@ -1037,6 +1052,99 @@ sub keep_leading_zeros {
 
 ###############################################################################
 #
+# show_comments()
+#
+# Make any comments in the worksheet visible.
+#
+sub show_comments {
+
+    my $self = shift;
+
+    $self->{_comments_visible} = defined $_[0] ? $_[0] : 1;
+}
+
+
+###############################################################################
+#
+# set_comments_author()
+#
+# Set the default author of the cell comments.
+#
+sub set_comments_author {
+
+    my $self = shift;
+
+    $self->{_comments_author}     = defined $_[0] ? $_[0] : '';
+    $self->{_comments_author_enc} =         $_[1] ? 1     : 0;
+}
+
+
+###############################################################################
+#
+# right_to_left()
+#
+# Display the worksheet right to left for some eastern versions of Excel.
+#
+sub right_to_left {
+
+    my $self = shift;
+
+    $self->{_display_arabic} = defined $_[0] ? $_[0] : 1;
+}
+
+
+###############################################################################
+#
+# hide_zero()
+#
+# Hide cell zero values.
+#
+sub hide_zero {
+
+    my $self = shift;
+
+    $self->{_display_zeros} = defined $_[0] ? not $_[0] : 0;
+}
+
+
+###############################################################################
+#
+# print_across()
+#
+# Set the order in which pages are printed.
+#
+sub print_across {
+
+    my $self = shift;
+
+    $self->{_page_order} = defined $_[0] ? $_[0] : 1;
+}
+
+
+###############################################################################
+#
+# set_first_row_column()
+#
+# Set the topmost and leftmost visible row and column.
+# TODO: Document this when tested fully for interaction with panes.
+#
+sub set_first_row_column {
+
+    my $self = shift;
+
+    my $row  = $_[0] || 0;
+    my $col  = $_[1] || 0;
+
+    $row = 65535 if $row > 65535;
+    $col = 255   if $col > 255;
+
+    $self->{_first_row} = $row;
+    $self->{_first_col} = $col;
+}
+
+
+###############################################################################
+#
 # add_write_handler($re, $code_ref)
 #
 # Allow the user to add their own matches and handlers to the write() method.
@@ -1059,6 +1167,9 @@ sub add_write_handler {
 #
 # Parse $token and call appropriate write method. $row and $column are zero
 # indexed. $format is optional.
+#
+# The write_url() methods have a flag to prevent recursion when writing a
+# string that looks like a url.
 #
 # Returns: return value of called subroutine
 #
@@ -1102,15 +1213,15 @@ sub write {
         return $self->write_number(@_);
     }
     # Match http, https or ftp URL
-    elsif ($token =~ m|^[fh]tt?ps?://|) {
+    elsif ($token =~ m|^[fh]tt?ps?://|    and not $self->{_writing_url}) {
         return $self->write_url(@_);
     }
     # Match mailto:
-    elsif ($token =~ m/^mailto:/) {
+    elsif ($token =~ m/^mailto:/          and not $self->{_writing_url}) {
         return $self->write_url(@_);
     }
     # Match internal or external sheet link
-    elsif ($token =~ m[^(?:in|ex)ternal:]) {
+    elsif ($token =~ m[^(?:in|ex)ternal:] and not $self->{_writing_url}) {
         return $self->write_url(@_);
     }
     # Match formula
@@ -1228,21 +1339,38 @@ sub write_col {
 #
 # write_comment($row, $col, $comment)
 #
-# Write a comment to the specified row and column (zero indexed). The maximum
-# comment size is 30831 chars. Excel5 probably accepts 32k-1 chars. However, it
-# can only display 30831 chars. Excel 7 and 2000 will crash above 32k-1.
-#
-# In Excel 5 a comment is referred to as a NOTE.
+# Write a comment to the specified row and column (zero indexed).
 #
 # Returns  0 : normal termination
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
-#         -3 : long comment truncated to 30831 chars
 #
 sub write_comment {
 
-    # Not available in this release
-    return -4;
+    my $self = shift;
+
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    if (@_ < 3) { return -1 } # Check the number of args
+
+
+    my $row = $_[0];
+    my $col = $_[1];
+
+    # Check for pairs of optional arguments, i.e. an odd number of args.
+    croak "Uneven number of additional arguments" unless @_ % 2;
+
+
+    # Check that row and col are valid and store max and min values
+    return -2 if $self->_check_dimensions($row, $col);
+
+
+    # We have to avoid duplicate comments in cells or else Excel will complain.
+    $self->{_comments}->{$row}->{$col} = [ $self->_comment_params(@_) ];
 
 }
 
@@ -1309,9 +1437,10 @@ sub _XF {
 sub _append {
 
     my $self = shift;
+    my $data = '';
 
     if ($self->{_using_tmpfile}) {
-        my $data = join('', @_);
+        $data = join('', @_);
 
         # Add CONTINUE records if necessary
         $data = $self->_add_continue($data) if length($data) > $self->{_limit};
@@ -1323,8 +1452,10 @@ sub _append {
         $self->{_datasize} += length($data);
     }
     else {
-        $self->SUPER::_append(@_);
+        $data = $self->SUPER::_append(@_);
     }
+
+    return $data;
 }
 
 
@@ -1587,7 +1718,7 @@ sub write_string {
     my $str_error   = 0;
 
 
-    # Handle utf8 strings in newer perls.
+    # Handle utf8 strings in perl 5.8.
     if ($] >= 5.008) {
         require Encode;
 
@@ -1601,7 +1732,7 @@ sub write_string {
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
 
-    # TODO Should be 32k chars not bytes. Check.
+    # Limit the string to the max number of chars.
     if ($strlen > 32767) {
         $str       = substr($str, 0, 32767);
         $str_error = -3;
@@ -1852,7 +1983,7 @@ sub _write_formula_string {
     my $encoding  = 0;              # String encoding.
 
 
-    # Handle utf8 strings in newer perls.
+    # Handle utf8 strings in perl 5.8.
     if ($] >= 5.008) {
         require Encode;
 
@@ -2025,9 +2156,10 @@ sub repeat_formula {
 #
 # Write a hyperlink. This is comprised of two elements: the visible label and
 # the invisible link. The visible label is the same as the link unless an
-# alternative string is specified. The label is written using the
-# write_string() method. Therefore the 255 characters string limit applies.
-# $string and $format are optional and their order is interchangeable.
+# alternative string is specified.
+#
+# The parameters $string and $format are optional and their order is
+# interchangeable for backward compatibity reasons.
 #
 # The hyperlink can be to a http, ftp, mail, internal sheet, or external
 # directory url.
@@ -2122,10 +2254,12 @@ sub _write_url_web {
     my $xf          = $_[6] || $self->{_url_format};# The cell format
 
 
-    # Write the visible label using the write_string() method.
-    $str            = $url unless defined $str;
-    my $str_error   = $self->write_string($row1, $col1, $str, $xf);
-    return $str_error if $str_error == -2;
+    # Write the visible label but protect against url recursion in write().
+    $str                  = $url unless defined $str;
+    $self->{_writing_url} = 1;
+    my $error             = $self->write($row1, $col1, $str, $xf);
+    $self->{_writing_url} = 0;
+    return $error         if $error == -2;
 
 
     # Pack the undocumented parts of the hyperlink stream
@@ -2163,7 +2297,7 @@ sub _write_url_web {
                     $url_len,
                     $url);
 
-    return $str_error;
+    return $error;
 }
 
 
@@ -2194,10 +2328,12 @@ sub _write_url_internal {
     $url            =~ s[^internal:][];
 
 
-    # Write the visible label
-    $str            = $url unless defined $str;
-    my $str_error   = $self->write_string($row1, $col1, $str, $xf);
-    return $str_error if $str_error == -2;
+    # Write the visible label but protect against url recursion in write().
+    $str                  = $url unless defined $str;
+    $self->{_writing_url} = 1;
+    my $error             = $self->write($row1, $col1, $str, $xf);
+    $self->{_writing_url} = 0;
+    return $error         if $error == -2;
 
 
     # Pack the undocumented parts of the hyperlink stream
@@ -2208,9 +2344,30 @@ sub _write_url_internal {
     my $options     = pack("V", 0x08);
 
 
-    # Convert the URL type and to a null terminated wchar string
-    $url            = join("\0", split('', $url));
-    $url            = $url . "\0\0\0";
+    # URL encoding.
+    my $encoding    = 0;
+
+
+    # Convert an Utf8 URL type and to a null terminated wchar string.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($url)) {
+            # Quote sheet name if not already, i.e., Sheet!A1 to 'Sheet!A1'.
+            $url      =~ s/^(.+)!/'$1'!/ if not $url =~ /^'/;
+
+            $url      = Encode::encode("UTF-16LE", $url);
+            $url     .= "\0\0"; # URL is null terminated.
+            $encoding = 1;
+        }
+    }
+
+
+    # Convert an Ascii URL type and to a null terminated wchar string.
+    if ($encoding == 0) {
+        $url       .= "\0";
+        $url        = pack 'v*', unpack 'c*', $url;
+    }
 
 
     # Pack the length of the URL as chars (not wchars)
@@ -2234,7 +2391,7 @@ sub _write_url_internal {
                     $url_len,
                     $url);
 
-    return $str_error;
+    return $error;
 }
 
 
@@ -2277,10 +2434,12 @@ sub _write_url_external {
     $url            =~ s[/][\\]g;
 
 
-    # Write the visible label
-    ($str = $url)   =~ s[\#][ - ] unless defined $str;
-    my $str_error   = $self->write_string($row1, $col1, $str, $xf);
-    return $str_error if $str_error == -2;
+    # Write the visible label but protect against url recursion in write().
+    ($str = $url)         =~ s[\#][ - ] unless defined $str;
+    $self->{_writing_url} = 1;
+    my $error             = $self->write($row1, $col1, $str, $xf);
+    $self->{_writing_url} = 0;
+    return $error         if $error == -2;
 
 
     # Determine if the link is relative or absolute:
@@ -2368,7 +2527,7 @@ sub _write_url_external {
     # Write the packed data
     $self->_append( $header, $data);
 
-    return $str_error;
+    return $error;
 }
 
 
@@ -2405,10 +2564,12 @@ sub _write_url_external_net {
     $url            =~ s[/][\\]g;
 
 
-    # Write the visible label
-    ($str = $url)   =~ s[\#][ - ] unless defined $str;
-    my $str_error   = $self->write_string($row1, $col1, $str, $xf);
-    return $str_error if $str_error == -2;
+    # Write the visible label but protect against url recursion in write().
+    ($str = $url)         =~ s[\#][ - ] unless defined $str;
+    $self->{_writing_url} = 1;
+    my $error             = $self->write($row1, $col1, $str, $xf);
+    $self->{_writing_url} = 0;
+    return $error         if $error == -2;
 
 
     # Determine if the link contains a sheet reference and change some of the
@@ -2469,7 +2630,7 @@ sub _write_url_external_net {
     # Write the packed data
     $self->_append( $header, $data);
 
-    return $str_error;
+    return $error;
 }
 
 
@@ -2829,23 +2990,23 @@ sub _store_window2 {
     my $length         = 0x0012;     # Number of bytes to follow
 
     my $grbit          = 0x00B6;     # Option flags
-    my $rwTop          = 0x0000;     # Top row visible in window
-    my $colLeft        = 0x0000;     # Leftmost column visible in window
-    my $rgbHdr         = 0x00000040; # Row/column heading and gridline color
+    my $rwTop          = $self->{_first_row};   # Top visible row
+    my $colLeft        = $self->{_first_col};   # Leftmost visible column
+    my $rgbHdr         = 0x00000040;            # Row/col heading, grid color
 
-    my $wScaleSLV      = 0x0000;     #
-    my $wScaleNormal   = 0x0000;     #
-    my $reserved       = 0x00000000; #
+    my $wScaleSLV      = 0x0000;                # Zoom in page break preview
+    my $wScaleNormal   = 0x0000;                # Zoom in normal view
+    my $reserved       = 0x00000000;
 
 
     # The options flags that comprise $grbit
-    my $fDspFmla       = 0;                          # 0 - bit
+    my $fDspFmla       = $self->{_display_formulas}; # 0 - bit
     my $fDspGrid       = $self->{_screen_gridlines}; # 1
-    my $fDspRwCol      = 1;                          # 2
+    my $fDspRwCol      = $self->{_display_headers};  # 2
     my $fFrozen        = $self->{_frozen};           # 3
-    my $fDspZeros      = 1;                          # 4
+    my $fDspZeros      = $self->{_display_zeros};    # 4
     my $fDefaultHdr    = 1;                          # 5
-    my $fArabic        = 0;                          # 6
+    my $fArabic        = $self->{_display_arabic};   # 6
     my $fDspGuts       = $self->{_outline_on};       # 7
     my $fFrozenNoSplit = 0;                          # 0 - bit
     my $fSelected      = $self->{_selected};         # 1
@@ -3183,6 +3344,7 @@ sub _store_setup {
     my $fNotes       = $self->{_print_comments};# Print notes
     my $fNoOrient    = 0x0;                     # Orientation not set
     my $fUsePage     = 0x0;                     # Use custom starting page
+       $fUsePage     = 0x1 if $self->{_page_start} > 1;
 
 
     $grbit           = $fLeftToRight;
@@ -3469,7 +3631,7 @@ sub merge_cells {
 
 ###############################################################################
 #
-# merge_range($first_row, $first_col, $last_row, $last_col, $string, $format)
+# merge_range($row1, $col1, $row2, $col2, $string, $format, $encoding)
 #
 # This is a wrapper to ensure correct use of the merge_cells method, i.e., write
 # the first cell of the range, write the formatted blank cells in the range and
@@ -3484,8 +3646,8 @@ sub merge_range {
     if ($_[0] =~ /^\D/) {
         @_ = $self->_substitute_cellref(@_);
     }
-    croak "Incorrect number of arguments" if @_ != 6;
-    croak "Final argument must be a format object" unless ref $_[5];
+    croak "Incorrect number of arguments" if @_ != 6 and @_ != 7;
+    croak "Format argument is not a format object" unless ref $_[5];
 
     my $rwFirst  = $_[0];
     my $colFirst = $_[1];
@@ -3493,6 +3655,7 @@ sub merge_range {
     my $colLast  = $_[3];
     my $string   = $_[4];
     my $format   = $_[5];
+    my $encoding = $_[6] ? 1 : 0;
 
 
     # Temp code to prevent merged formats in non-merged cells.
@@ -3515,7 +3678,12 @@ sub merge_range {
     ($colFirst, $colLast) = ($colLast, $colFirst) if $colFirst > $colLast;
 
     # Write the first cell
-    $self->write($rwFirst, $colFirst, $string, $format);
+    if ($encoding) {
+        $self->write_unicode($rwFirst, $colFirst, $string, $format);
+    }
+    else {
+        $self->write        ($rwFirst, $colFirst, $string, $format);
+    }
 
     # Pad out the rest of the area with formatted blank cells.
     for my $row ($rwFirst .. $rwLast) {
@@ -3778,6 +3946,31 @@ sub _store_protect {
 
 ###############################################################################
 #
+# _store_obj_protect()
+#
+# Set the Biff OBJPROTECT record to indicate that objects are protected.
+#
+sub _store_obj_protect {
+
+    my $self        = shift;
+
+    # Exit unless sheet protection has been specified
+    return unless $self->{_protect};
+
+    my $record      = 0x0063;               # Record identifier
+    my $length      = 0x0002;               # Bytes to follow
+
+    my $fLock       = $self->{_protect};    # Worksheet is protected
+
+    my $header      = pack("vv", $record, $length);
+    my $data        = pack("v",  $fLock);
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
 # _store_password()
 #
 # Write the worksheet PASSWORD record.
@@ -3825,15 +4018,15 @@ sub insert_bitmap {
     my $scale_x     = $_[5] || 1;
     my $scale_y     = $_[6] || 1;
 
-    my ($width, $height, $size, $data) = $self-> _process_bitmap($bitmap);
+    my ($width, $height, $size, $data) = $self->_process_bitmap($bitmap);
 
     # Scale the frame of the image.
     $width  *= $scale_x;
     $height *= $scale_y;
 
     # Calculate the vertices of the image and write the OBJ record
-    $self->_position_image($col, $row, $x, $y, $width, $height);
-
+    my @vertices = $self->_position_object($col, $row, $x, $y, $width, $height);
+    $self->_store_obj_picture(@vertices );
 
     # Write the IMDATA record to store the bitmap data
     my $record      = 0x007f;
@@ -3850,10 +4043,10 @@ sub insert_bitmap {
 
 ###############################################################################
 #
-#  _position_image()
+#  _position_object()
 #
-# Calculate the vertices that define the position of the image as required by
-# the OBJ record.
+# Calculate the vertices that define the position of a graphical object within
+# the worksheet.
 #
 #         +------------+------------+
 #         |     A      |      B     |
@@ -3895,7 +4088,7 @@ sub insert_bitmap {
 # Note: the SDK incorrectly states that the height should be expressed as a
 # percentage of 1024.
 #
-sub _position_image {
+sub _position_object {
 
     my $self = shift;
 
@@ -3964,11 +4157,17 @@ sub _position_image {
     $x2 = $width  / $self->_size_col($col_end)     * 1024;
     $y2 = $height / $self->_size_row($row_end)     *  256;
 
-    $self->_store_obj_picture(  $col_start, $x1,
-                                $row_start, $y1,
-                                $col_end, $x2,
-                                $row_end, $y2
-                             );
+    # Simulate ceil() without calling POSIX::ceil().
+    $x1 = int($x1 +0.5);
+    $y1 = int($y1 +0.5);
+    $x2 = int($x2 +0.5);
+    $y2 = int($y2 +0.5);
+
+    return( $col_start, $x1,
+            $row_start, $y1,
+            $col_end,   $x2,
+            $row_end,   $y2
+          );
 }
 
 
@@ -4277,9 +4476,9 @@ sub write_unicode {
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
 
-    # TODO This should probably be the number of chars and not bytes. check.
-    if ($strlen > 32766) {
-        $str       = substr($str, 0, 32766);
+    # Limit the utf16 string to the max number of chars (not bytes).
+    if ($strlen > 32767* 2) {
+        $str       = substr($str, 0, 32767*2);
         $str_error = -3;
     }
 
@@ -4357,9 +4556,9 @@ sub write_unicode_le {
     # Check that row and col are valid and store max and min values
     return -2 if $self->_check_dimensions($row, $col);
 
-    # TODO This should probably be the number of chars and not bytes. check.
-    if ($strlen > 32766) {
-        $str       = substr($str, 0, 32766);
+    # Limit the utf16 string to the max number of chars (not bytes).
+    if ($strlen > 32767* 2) {
+        $str       = substr($str, 0, 32767*2);
         $str_error = -3;
     }
 
@@ -4393,6 +4592,803 @@ sub write_unicode_le {
 }
 
 
+
+#
+# Methods related to comments and MSO objects.
+#
+
+###############################################################################
+#
+# _prepare_comments()
+#
+# Turn the HoH that stores the comments into an array for easier handling.
+#
+sub _prepare_comments {
+
+    my $self    = shift;
+
+    my $count   = 0;
+    my @comments;
+
+
+    # We sort the comments by row and column but that isn't strictly required.
+    #
+    my @rows = sort {$a <=> $b} keys %{$self->{_comments}};
+
+    for my $row (@rows) {
+        my @cols = sort {$a <=> $b} keys %{$self->{_comments}->{$row}};
+
+        for my $col (@cols) {
+            push @comments, $self->{_comments}->{$row}->{$col};
+            $count++;
+        }
+    }
+
+    $self->{_comments}       = {};
+    $self->{_comments_array} = [@comments];
+
+    return $count;
+}
+
+
+###############################################################################
+#
+# _store_comments()
+#
+# Store the collections of records that make up cell comments.
+#
+sub _store_comments {
+
+    my $self            = shift;
+
+    my $record          = 0x00EC;           # Record identifier
+    my $length          = 0x0000;           # Bytes to follow
+
+    my @ids             = @{$self->{_comments_ids}};
+    my @comments        = @{$self->{_comments_array}};
+    my $num_comments    = scalar @comments;
+    my $spid            = shift @ids;
+
+    return unless $num_comments;
+
+
+    for my $i (0 .. $num_comments-1) {
+
+        my $row         =   $comments[$i]->[0];
+        my $col         =   $comments[$i]->[1];
+        my $str         =   $comments[$i]->[2];
+        my $encoding    =   $comments[$i]->[3];
+        my $visible     =   $comments[$i]->[6];
+        my $color       =   $comments[$i]->[7];
+        my @vertices    = @{$comments[$i]->[8]};
+        my @anchor_data = ($row, $col, @vertices);
+        my $str_len     = length $str;
+           $str_len    /= 2 if $encoding; # Num of chars not bytes.
+        my $formats     = [[0, 0], [$str_len, 0]];
+
+
+        if ($i == 0) {
+            # Write the parent MSODRAWIING record.
+            my $dg_length   = 200 + 128*($num_comments -1);
+            my $spgr_length = 176 + 128*($num_comments -1);
+
+            my $data        = $self->_store_mso_dg_container($dg_length);
+               $data       .= $self->_store_mso_dg(@ids);
+               $data       .= $self->_store_mso_spgr_container($spgr_length);
+               $data       .= $self->_store_mso_sp_container(40);
+               $data       .= $self->_store_mso_spgr();
+               $data       .= $self->_store_mso_sp(0x0, $spid++, 0x0005);
+               $data       .= $self->_store_mso_sp_container(120);
+               $data       .= $self->_store_mso_sp(202, $spid++, 0x0A00);
+               $data       .= $self->_store_mso_opt(0x80, $visible, $color);
+               $data       .= $self->_store_mso_client_anchor(@anchor_data);
+               $data       .= $self->_store_mso_client_data();
+
+            $length         = length $data;
+            my $header      = pack("vv", $record, $length);
+            $self->_append($header, $data);
+
+        }
+        else {
+            # Write the child MSODRAWIING record.
+            my $data        = $self->_store_mso_sp_container(120);
+               $data       .= $self->_store_mso_sp(202, $spid++, 0x0A00);
+               $data       .= $self->_store_mso_opt(0x80, $visible,$color);
+               $data       .= $self->_store_mso_client_anchor(@anchor_data);
+               $data       .= $self->_store_mso_client_data();
+
+            $length         = length $data;
+            my $header      = pack("vv", $record, $length);
+            $self->_append($header, $data);
+
+
+        }
+
+        $self->_store_obj_comment($i+1);
+        $self->_store_mso_drawing_text_box();
+        $self->_store_txo($str_len);
+        $self->_store_txo_continue_1($str, $encoding);
+        $self->_store_txo_continue_2($formats);
+    }
+
+
+    # Write the NOTE records after MSODRAWIING records.
+    for my $i (0 .. $num_comments-1) {
+
+        my $row         = $comments[$i]->[0];
+        my $col         = $comments[$i]->[1];
+        my $author      = $comments[$i]->[4];
+        my $author_enc  = $comments[$i]->[5];
+        my $visible     = $comments[$i]->[6];
+
+        $self->_store_note($row, $col, $i+1, $author, $author_enc, $visible);
+    }
+}
+
+
+###############################################################################
+#
+# _store_mso_dg_container()
+#
+# Write the Escher DgContainer record that is part of MSODRAWING.
+#
+sub _store_mso_dg_container {
+
+    my $self        = shift;
+
+    my $type        = 0xF002;
+    my $version     = 15;
+    my $instance    = 0;
+    my $data        = '';
+    my $length      = $_[0];
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_dg()
+#
+# Write the Escher Dg record that is part of MSODRAWING.
+#
+sub _store_mso_dg {
+
+    my $self        = shift;
+
+    my $type        = 0xF008;
+    my $version     = 0;
+    my $instance    = $_[0];
+    my $data        = '';
+    my $length      = 8;
+
+    my $num_shapes  = $_[1];
+    my $max_spid    = $_[2];
+
+    $data           = pack "VV", $num_shapes, $max_spid;
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_spgr_container()
+#
+# Write the Escher SpgrContainer record that is part of MSODRAWING.
+#
+sub _store_mso_spgr_container {
+
+    my $self        = shift;
+
+    my $type        = 0xF003;
+    my $version     = 15;
+    my $instance    = 0;
+    my $data        = '';
+    my $length      = $_[0];
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_sp_container()
+#
+# Write the Escher SpContainer record that is part of MSODRAWING.
+#
+sub _store_mso_sp_container {
+
+    my $self        = shift;
+
+    my $type        = 0xF004;
+    my $version     = 15;
+    my $instance    = 0;
+    my $data        = '';
+    my $length      = $_[0];
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_spgr()
+#
+# Write the Escher Spgr record that is part of MSODRAWING.
+#
+sub _store_mso_spgr {
+
+    my $self        = shift;
+
+    my $type        = 0xF009;
+    my $version     = 1;
+    my $instance    = 0;
+    my $data        = pack "VVVV", 0, 0, 0, 0;
+    my $length      = 16;
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_sp()
+#
+# Write the Escher Sp record that is part of MSODRAWING.
+#
+sub _store_mso_sp {
+
+    my $self        = shift;
+
+    my $type        = 0xF00A;
+    my $version     = 2;
+    my $instance    = $_[0];
+    my $data        = '';
+    my $length      = 8;
+
+    my $spid        = $_[1];
+    my $options     = $_[2];
+
+    $data           = pack "VV", $spid, $options;
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_opt()
+#
+# Write the Escher Opt record that is part of MSODRAWING.
+#
+sub _store_mso_opt {
+
+    my $self        = shift;
+
+    my $type        = 0xF00B;
+    my $version     = 3;
+    my $instance    = 9;
+    my $data        = '';
+    my $length      = 54;
+
+    my $spid        = $_[0];
+    my $visible     = $_[1];
+    my $colour      = $_[2] || 0x50;
+
+
+    # Use the visible flag if set by the user or else use the worksheet value.
+    # Note that the value used is the opposite of _store_note().
+    #
+    if (defined $visible) {
+        $visible = $visible                   ? 0x0000 : 0x0002;
+    }
+    else {
+        $visible = $self->{_comments_visible} ? 0x0000 : 0x0002;
+    }
+
+
+    $data    = pack "V",  $spid;
+    $data   .= pack "H*", '0000BF00080008005801000000008101' ;
+    $data   .= pack "C",  $colour;
+    $data   .= pack "H*", '000008830150000008BF011000110001' .
+                          '02000000003F0203000300BF03';
+    $data   .= pack "v",  $visible;
+    $data   .= pack "H*", '0A00';
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_client_anchor()
+#
+# Write the Escher ClientAnchor record that is part of MSODRAWING.
+#
+sub _store_mso_client_anchor {
+
+    my $self        = shift;
+
+    my $type        = 0xF010;
+    my $version     = 0;
+    my $instance    = 0;
+    my $data        = '';
+    my $length      = 18;
+
+    my $flag        = 3;
+    my $row         = $_[0];
+    my $col         = $_[1];
+
+
+    my $col_start   = $_[2];    # Col containing upper left corner of object
+    my $x1          = $_[3];    # Distance to left side of object
+
+    my $row_start   = $_[4];    # Row containing top left corner of object
+    my $y1          = $_[5];    # Distance to top of object
+
+    my $col_end     = $_[6];    # Col containing lower right corner of object
+    my $x2          = $_[7];    # Distance to right side of object
+
+    my $row_end     = $_[8];    # Row containing bottom right corner of object
+    my $y2          = $_[9];    # Distance to bottom of object
+
+    my $width       = $_[10];   # Width of image frame
+    my $height      = $_[11];   # Height of image frame
+
+
+    $data   = pack "v9",    $flag,
+                            $col_start, $x1,
+                            $row_start, $y1,
+                            $col_end,   $x2,
+                            $row_end,   $y2;
+
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_client_data()
+#
+# Write the Escher ClientData record that is part of MSODRAWING.
+#
+sub _store_mso_client_data {
+
+    my $self        = shift;
+
+    my $type        = 0xF011;
+    my $version     = 0;
+    my $instance    = 0;
+    my $data        = '';
+    my $length      = 0;
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_obj_comment()
+#
+# Write the OBJ record that is part of cell comments.
+#
+sub _store_obj_comment {
+
+    my $self        = shift;
+
+    my $record      = 0x005D;   # Record identifier
+    my $length      = 0x0034;   # Bytes to follow
+
+    my $obj_id      = $_[0];    # Object ID number.
+    my $obj_type    = 0x0019;   # Object type (comment).
+    my $data        = '';       # Record data.
+
+    my $sub_record  = 0x0000;   # Sub-record identifier.
+    my $sub_length  = 0x0000;   # Length of sub-record.
+    my $sub_data    = '';       # Data of sub-record.
+    my $options     = 0x4011;
+    my $reserved    = 0x0000;
+
+    # Add ftCmo (common object data) subobject
+    $sub_record     = 0x0015;   # ftCmo
+    $sub_length     = 0x0012;
+    $sub_data       = pack "vvvVVV", $obj_type, $obj_id,   $options,
+                                     $reserved, $reserved, $reserved;
+    $data           = pack("vv",     $sub_record, $sub_length);
+    $data          .= $sub_data;
+
+
+    # Add ftNts (note structure) subobject
+    $sub_record     = 0x000D;   # ftNts
+    $sub_length     = 0x0016;
+    $sub_data       = pack "VVVVVv", ($reserved) x 5;
+    $data          .= pack("vv",     $sub_record, $sub_length);
+    $data          .= $sub_data;
+
+
+    # Add ftEnd (end of object) subobject
+    $sub_record     = 0x0000;   # ftNts
+    $sub_length     = 0x0000;
+    $data          .= pack("vv",     $sub_record, $sub_length);
+
+
+    # Pack the record.
+    my $header  = pack("vv",        $record, $length);
+
+    $self->_append($header, $data);
+
+}
+
+
+###############################################################################
+#
+# _store_mso_drawing_text_box()
+#
+# Write the MSODRAWING ClientTextbox record that is part of comments.
+#
+sub _store_mso_drawing_text_box {
+
+    my $self        = shift;
+
+    my $record      = 0x00EC;           # Record identifier
+    my $length      = 0x0008;           # Bytes to follow
+
+
+    my $data        = $self->_store_mso_client_text_box();
+    my $header      = pack("vv", $record, $length);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_mso_client_text_box()
+#
+# Write the Escher ClientTextbox record that is part of MSODRAWING.
+#
+sub _store_mso_client_text_box {
+
+    my $self        = shift;
+
+    my $type        = 0xF00D;
+    my $version     = 0;
+    my $instance    = 0;
+    my $data        = '';
+    my $length      = 0;
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_txo()
+#
+# Write the worksheet TXO record that is part of cell comments.
+#
+sub _store_txo {
+
+    my $self        = shift;
+
+    my $record      = 0x01B6;               # Record identifier
+    my $length      = 0x0012;               # Bytes to follow
+
+    my $string_len  = $_[0];                # Length of the note text.
+    my $format_len  = $_[1] || 16;          # Length of the format runs.
+    my $rotation    = $_[2] || 0;           # Options
+    my $grbit       = 0x0212;               # Options
+    my $reserved    = 0x0000;               # Options
+
+    # Pack the record.
+    my $header  = pack("vv",        $record, $length);
+    my $data    = pack("vvVvvvV",   $grbit, $rotation, $reserved, $reserved,
+                                    $string_len, $format_len, $reserved);
+
+    $self->_append($header, $data);
+
+}
+
+
+###############################################################################
+#
+# _store_txo_continue_1()
+#
+# Write the first CONTINUE record to follow the TXO record. It contains the
+# text data.
+#
+sub _store_txo_continue_1 {
+
+    my $self        = shift;
+
+    my $record      = 0x003C;               # Record identifier
+    my $length      = 0x0000;               # Bytes to follow
+
+    my $string      = $_[0];                # Comment string.
+    my $encoding    = $_[1] || 0;           # Encoding of the string.
+
+    # Pack the record.
+    my $data    = pack("C", $encoding) . $string;
+       $length  = length $data;
+    my $header  = pack("vv", $record, $length);
+
+    $self->_append($header, $data);
+
+}
+
+
+###############################################################################
+#
+# _store_txo_continue_2()
+#
+# Write the second CONTINUE record to follow the TXO record. It contains the
+# formatting information for the string.
+#
+sub _store_txo_continue_2 {
+
+    my $self        = shift;
+
+    my $record      = 0x003C;               # Record identifier
+    my $length      = 0x0000;               # Bytes to follow
+    my $formats     = $_[0];                # Formatting information
+
+
+    # Pack the record.
+    my $data = '';
+
+    for my $a_ref (@$formats) {
+        $data .= pack "vvV", $a_ref->[0], $a_ref->[1], 0x0;
+    }
+
+    $length     = length $data;
+    my $header  = pack("vv", $record, $length);
+
+
+    $self->_append($header, $data);
+
+}
+
+
+###############################################################################
+#
+# _store_note()
+#
+# Write the worksheet NOTE record that is part of cell comments.
+#
+sub _store_note {
+
+    my $self        = shift;
+
+    my $record      = 0x001C;               # Record identifier
+    my $length      = 0x000C;               # Bytes to follow
+
+    my $row         = $_[0];
+    my $col         = $_[1];
+    my $obj_id      = $_[2];
+    my $author      = $_[3] || $self->{_comments_author};
+    my $author_enc  = $_[4] || $self->{_comments_author_enc};
+    my $visible     = $_[5];
+
+
+    # Use the visible flag if set by the user or else use the worksheet value.
+    # The flag is also set in _store_mso_opt() but with the opposite value.
+    #
+    if (defined $visible) {
+        $visible = $visible                   ? 0x0002 : 0x0000;
+    }
+    else {
+        $visible = $self->{_comments_visible} ? 0x0002 : 0x0000;
+    }
+
+
+    # Get the number of chars in the author string (not bytes).
+    my $num_chars  = length $author;
+       $num_chars /= 2 if $author_enc;
+
+
+    # Null terminate the author string.
+    $author .= "\0";
+
+
+    # Pack the record.
+    my $data    = pack("vvvvvC", $row, $col, $visible, $obj_id,
+                                 $num_chars, $author_enc);
+
+    $length     = length($data) + length($author);
+    my $header  = pack("vv", $record, $length);
+
+    $self->_append($header, $data, $author);
+}
+
+
+###############################################################################
+#
+# _comment_params()
+#
+# This method handles the additional optional parameters to write_comment() as
+# well as calculating the comment object position and vertices.
+#
+sub _comment_params {
+
+    my $self    = shift;
+
+    my $row     = shift;
+    my $col     = shift;
+    my $string  = shift;
+
+    my %params  = (
+                    author          => '',
+                    author_encoding => 0,
+                    encoding        => 0,
+                    color           => undef,
+                    start_cell      => undef,
+                    start_col       => undef,
+                    start_row       => undef,
+                    visible         => undef,
+                    width           => 129,
+                    height          => 75,
+                    x_offset        => undef,
+                    x_scale         => 1,
+                    y_offset        => undef,
+                    y_scale         => 1,
+                  );
+
+
+    # Overwrite the defaults with any user supplied values. Incorrect or
+    # misspelled parameters are silently ignored.
+    %params     = (%params, @_);
+
+
+    # Ensure that a width and height have been set.
+    $params{width}  = 129 if not $params{width};
+    $params{height} = 75  if not $params{height};
+
+
+    # Check that utf16 strings have an even number of bytes.
+    if ($params{encoding}) {
+        croak "Uneven number of bytes in comment string"
+               if length($string) % 2;
+
+        # Change from UTF-16BE to UTF-16LE
+        $string = pack 'v*', unpack 'n*', $string;
+    }
+
+    if ($params{author_encoding}) {
+        croak "Uneven number of bytes in author string"
+                if length($params{author}) % 2;
+
+        # Change from UTF-16BE to UTF-16LE
+        $params{author} = pack 'v*', unpack 'n*', $params{author};
+    }
+
+
+    # Handle utf8 strings in perl 5.8.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($string)) {
+            $string = Encode::encode("UTF-16LE", $string);
+            $params{encoding} = 1;
+        }
+
+        if (Encode::is_utf8($params{author})) {
+            $params{author} = Encode::encode("UTF-16LE", $params{author});
+            $params{author_encoding} = 1;
+        }
+    }
+
+
+    # Limit the string to the max number of chars (not bytes).
+    my $max_len  = 32767;
+       $max_len *= 2 if $params{encoding};
+
+    if (length($string) > $max_len) {
+        $string       = substr($string, 0, $max_len);
+    }
+
+
+    # Set the comment background colour.
+    my $color       = $params{color};
+       $color       = &Spreadsheet::WriteExcel::Format::_get_color($color);
+       $color       = 0x50 if $color == 0x7FFF; # Default color.
+    $params{color}  = $color;
+
+
+    # Convert a cell reference to a row and column.
+    if (defined $params{start_cell}) {
+        my ($row, $col)    = $self->_substitute_cellref($params{start_cell});
+        $params{start_row} = $row;
+        $params{start_col} = $col;
+    }
+
+
+    # Set the default start cell and offsets for the comment. These are
+    # generally fixed in relation to the parent cell. However there are
+    # some edge cases for cells at the, er, edges.
+    #
+    if (not defined $params{start_row}) {
+
+        if    ($row == 0    ) {$params{start_row} = 0      }
+        elsif ($row == 65533) {$params{start_row} = 65529  }
+        elsif ($row == 65534) {$params{start_row} = 65530  }
+        elsif ($row == 65535) {$params{start_row} = 65531  }
+        else                  {$params{start_row} = $row -1}
+    }
+
+    if (not defined $params{y_offset}) {
+
+        if    ($row == 0    ) {$params{y_offset}  = 2      }
+        elsif ($row == 65533) {$params{y_offset}  = 4      }
+        elsif ($row == 65534) {$params{y_offset}  = 4      }
+        elsif ($row == 65535) {$params{y_offset}  = 2      }
+        else                  {$params{y_offset}  = 7      }
+    }
+
+    if (not defined $params{start_col}) {
+
+        if    ($col == 253  ) {$params{start_col} = 250    }
+        elsif ($col == 254  ) {$params{start_col} = 251    }
+        elsif ($col == 255  ) {$params{start_col} = 252    }
+        else                  {$params{start_col} = $col +1}
+    }
+
+    if (not defined $params{x_offset}) {
+
+        if    ($col == 253  ) {$params{x_offset}  = 49     }
+        elsif ($col == 254  ) {$params{x_offset}  = 49     }
+        elsif ($col == 255  ) {$params{x_offset}  = 49     }
+        else                  {$params{x_offset}  = 15     }
+    }
+
+
+    # Scale the size of the comment box if required. We scale the width and
+    # height using the relationship d2 =(d1 -1)*s +1, where d is dimension
+    # and s is scale. This gives values that match Excel's behaviour.
+    #
+    if ($params{x_scale}) {
+        $params{width}  = (($params{width}  -1) * $params{x_scale}) +1;
+    }
+
+    if ($params{y_scale}) {
+        $params{height} = (($params{height} -1) * $params{y_scale}) +1;
+    }
+
+
+    # Calculate the positions of comment object.
+    my @vertices = $self->_position_object( $params{start_col},
+                                            $params{start_row},
+                                            $params{x_offset},
+                                            $params{y_offset},
+                                            $params{width},
+                                            $params{height}
+                                          );
+
+    return(
+           $row,
+           $col,
+           $string,
+           $params{encoding},
+           $params{author},
+           $params{author_encoding},
+           $params{visible},
+           $params{color},
+           [@vertices]
+          );
+}
+
+
+
+
 1;
 
 
@@ -4417,7 +5413,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMV, John McNamara.
+© MM-MMVI, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

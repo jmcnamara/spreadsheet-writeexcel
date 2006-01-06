@@ -18,6 +18,8 @@ bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
 cgi.pl                  A simple CGI program.
 chess.pl                An example of formatting using properties.
 colors.pl               Demo of the colour palette and named colours.
+comments1.pl            Add comments to worksheet cells.
+comments2.pl            Add comments with advanced options.
 copyformat.pl           Example of copying a cell format.
 diag_border.pl          A simple example of diagonal cell borders.
 easter_egg.pl           Expose the Excel97 flight simulator. A must see.
@@ -33,6 +35,7 @@ merge2.pl               A simple example of cell merging with formatting.
 merge3.pl               Add hyperlinks to merged cells.
 merge4.pl               An advanced example of merging with formatting.
 merge5.pl               An advanced example of merging with formatting.
+merge6.pl               An example of merging with Unicode strings.
 mod_perl1.pl            A simple mod_perl 1 program.
 mod_perl2.pl            A simple mod_perl 2 program.
 outline.pl              An example of outlines and grouping.
@@ -40,6 +43,7 @@ panes.pl                An examples of how to create panes.
 protection.pl           Example of cell locking and formula hiding.
 hide_sheet.pl           Simple example of hiding a worksheet.
 repeat.pl               Example of writing repeated formulas.
+right_to_left.pl        Change default sheet direction to right to left.
 sales.pl                An example of a simple sales spreadsheet.
 sendmail.pl             Send an Excel email attachment using Mail::Sender.
 stats_ext.pl            Same as stats.pl with external references.

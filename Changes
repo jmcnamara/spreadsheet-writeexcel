@@ -1,25 +1,60 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.16 January 6 2005 - Major
+
+    + Rewrote and reinstated the write_comment() method to take
+      account of the changes in the Excel 97+ comment format.
+      Currently conflicts with insert_bitmap(), see docs.
+
+    + Added standard styles such as comma, percent and currency.
+
+    ! Changed write_url() methods to allow numbers or formulas
+      as well as strings as the optional text.
+      Requested by many.
+
+    + Documented use of encoding flag in add_worksheet() to allow
+      handling of UTF-16 sheet names.
+
+    + Added encoding flag to merge_range() method to allow
+      handling of UTF-16 strings. Requested by many.
+      Added merge6.pl example program.
+
+    + Added hide_zero() worksheet method to allow hiding of zero
+      values in cells.
+
+    + Added print_across() worksheet method to allow changing of
+      the default print direction.
+
+    + Added right_to_left() worksheet method to allow changing of
+      the default worksheet direction in eastern versions of Excel.
+
+    + Documented the Worksheet hide() method.
+
+    + Added comments1.pl and comments2.pl example programs.
+
+    + Added tests for the internal methods used by write_comment().
+
+
+
 2.15 September 18 2005 - Minor
 
-	! Changed OLE container stream name from "Book" to "Workbook"
-	  for compatibility with some third party apps.
+    ! Changed OLE container stream name from "Book" to "Workbook"
+      for compatibility with some third party apps.
       Thanks Wieland Pusch and Kevin McMahon.
 
-	! Fixed bug that caused all worksheets to be selected in
-	  OpenOfficeOrg causing strange linking of data between
-	  Worksheets. Thanks  M. Brodbelt. See
-	  http://rt.cpan.org/NoAuth/Bug.html?id=14094
-	  http://www.openoffice.org/issues/show_bug.cgi?id=52955
+    ! Fixed bug that caused all worksheets to be selected in
+      OpenOfficeOrg causing strange linking of data between
+      Worksheets. Thanks  M. Brodbelt. See
+      http://rt.cpan.org/NoAuth/Bug.html?id=14094
+      http://www.openoffice.org/issues/show_bug.cgi?id=52955
 
-	! Changed file creation from end of program to the start of
-	  program in order to avoid race conditions and extra file
-	  creation on VMS.
+    ! Changed file creation from end of program to the start of
+      program in order to avoid race conditions and extra file
+      creation on VMS.
 
     + Added optional user supplied results for formulas as a
       workaround for uncalcuated values in some non-Excel apps.
       Added formula_result.pl example of above.
-
 
 
 2.14 May 9 2005 - Minor
