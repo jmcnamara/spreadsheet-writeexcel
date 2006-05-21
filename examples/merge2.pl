@@ -6,7 +6,7 @@
 #
 # This merges two formatted cells using the "Centre Across Selection" alignment.
 # This was the Excel 5 method of achieving a merge. Use the merge_range()
-# worksheet method instead. See merge3.pl - merge4.pl.
+# worksheet method instead. See merge3.pl - merge6.pl.
 ##
 # reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
 #
@@ -26,15 +26,15 @@ $worksheet->set_row(2, 40);
 
 # Create a merged format
 my $format = $workbook->add_format(
-                                        merge        => 1,
-                                        bold         => 1,
-                                        size         => 15,
-                                        pattern      => 1,
-                                        border       => 6,
-                                        color        => 'white',
-                                        fg_color     => 'green',
-                                        border_color => 'yellow',
-                                        align        => 'vcenter',
+                                        center_across   => 1,
+                                        bold            => 1,
+                                        size            => 15,
+                                        pattern         => 1,
+                                        border          => 6,
+                                        color           => 'white',
+                                        fg_color        => 'green',
+                                        border_color    => 'yellow',
+                                        align           => 'vcenter',
                                   );
 
 

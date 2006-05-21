@@ -1,6 +1,26 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-2.16 January 6 2005 - Major
+2.17 May 21 2006 - Minor
+
+    + Added set_tab_color() method and example (tab_colors.pl).
+
+    + Add set_page_view() method for Mac Excel view style
+      and better default worksheet dimensions.
+
+    + Added simulated row_wrap.pl example.
+
+    + Added simulated Autofit example (autofit.pl).
+
+    ! Fixed RT #17801, incorrect close value with filehandles.
+      Thanks to Josie.
+
+    ! Changed comment font to Excel's default of Tahoma 8.
+      Reported by Stefano Maurri.
+
+    ! Fixed bug that stopped Charts working in 2.16.
+
+
+2.16 January 6 2006 - Major
 
     + Rewrote and reinstated the write_comment() method to take
       account of the changes in the Excel 97+ comment format.

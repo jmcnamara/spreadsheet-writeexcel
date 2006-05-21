@@ -6,7 +6,7 @@
 #
 # This merges three cells using the "Centre Across Selection" alignment.
 # This was the Excel 5 method of achieving a merge. Use the merge_range()
-# worksheet method instead. See merge3.pl - merge4.pl.
+# worksheet method instead. See merge3.pl - merge6.pl.
 #
 # reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
 #

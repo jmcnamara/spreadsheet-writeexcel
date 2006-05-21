@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.16'; # Howl at 50
+$VERSION = '2.17'; # Rip Grant McLennan, 6th May 2006.
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.16 of Spreadsheet::WriteExcel, released January 6, 2006.
+This document refers to version 2.17 of Spreadsheet::WriteExcel, released May 21, 2006.
 
 
 
@@ -129,7 +129,7 @@ Like this:
     $worksheet   = $workbook->add_worksheet();               # Step 2
     $worksheet->write('A1', "Hi Excel!");                    # Step 3
 
-This will create an Excel file called C<perl.xls> with a single worksheet and the text C<"Hi Excel!"> in the relevant cell. And that's it. Okay, so there is actually a zeroth step as well, but C<use module> goes without saying. There are also more than 60 examples that come with the distribution and which you can use to get you started. See L<EXAMPLES>.
+This will create an Excel file called C<perl.xls> with a single worksheet and the text C<"Hi Excel!"> in the relevant cell. And that's it. Okay, so there is actually a zeroth step as well, but C<use module> goes without saying. There are also more than 70 examples that come with the distribution and which you can use to get you started. See L<EXAMPLES>.
 
 Those of you who read the instructions first and assemble the furniture afterwards will know how to proceed. ;-)
 
@@ -247,7 +247,7 @@ You don't have to worry about C<binmode()> if you are using filenames instead of
 
 =head2 close()
 
-The C<close()> method can be used to explicitly close an Excel file.
+In general your Excel file will be closed automatically when your program ends or when the Workbook object goes out of scope, however the C<close()> method can be used to explicitly close an Excel file.
 
     $workbook->close();
 
@@ -513,6 +513,9 @@ The following methods are available through a new worksheet:
     set_zoom()
     right_to_left()
     hide_zero()
+    set_tab_color()
+
+
 
 
 =head2 Cell notation
@@ -1923,6 +1926,16 @@ In Excel this option is found under Tools->Options->View.
 
 
 
+=head2 set_tab_color()
+
+The C<set_tab_color()> method is used to change the colour of the worksheet tab. This feature is only available in Excel 2002 and later. You can use one of the standard colour names provided by the Format object or a colour index. See L<COLOURS IN EXCEL> and the C<set_custom_color()> method.
+
+    $worksheet1->set_tab_color('red');
+    $worksheet2->set_tab_color(0x0C);
+
+See the C<tab_colors.pl> program in the examples directory of the distro.
+
+
 =head1 PAGE SET-UP METHODS
 
 Page set-up methods affect the way that a worksheet looks when it is printed. They control features such as page headers and footers and margins. These methods are really just standard worksheet methods. They are documented here in a separate section for the sake of clarity.
@@ -1931,6 +1944,7 @@ The following methods are available for page set-up:
 
     set_landscape()
     set_portrait()
+    set_page_view()
     set_paper()
     center_horizontally()
     center_vertically()
@@ -1972,6 +1986,14 @@ This method is used to set the orientation of a worksheet's printed page to land
 This method is used to set the orientation of a worksheet's printed page to portrait. The default worksheet orientation is portrait, so you won't generally need to call this method.
 
     $worksheet->set_portrait(); # Portrait mode
+
+
+
+=head2 set_page_view()
+
+This method is used to display the worksheet in "Page View" mode. This is currently only supported by Mac Excel, where it is the default.
+
+    $worksheet->set_page_view();
 
 
 
@@ -3853,6 +3875,7 @@ different features and options of the module.
 
     Advanced
     ========
+    autofit.pl              Simuluate Excel's autofit for colums widths.
     bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
     cgi.pl                  A simple CGI program.
     chess.pl                An example of formatting using properties.
@@ -3865,6 +3888,7 @@ different features and options of the module.
     filehandle.pl           Examples of working with filehandles.
     formula_result.pl       Formulas with user specified results.
     headers.pl              Examples of worksheet headers and footers.
+    hide_sheet.pl           Simple example of hiding a worksheet.
     hyperlink1.pl           Shows how to create web hyperlinks.
     hyperlink2.pl           Examples of internal and external hyperlinks.
     images.pl               Adding bitmap images to worksheets.
@@ -3880,21 +3904,22 @@ different features and options of the module.
     outline.pl              An example of outlines and grouping.
     panes.pl                An examples of how to create panes.
     protection.pl           Example of cell locking and formula hiding.
-    hide_sheet.pl           Simple example of hiding a worksheet.
     repeat.pl               Example of writing repeated formulas.
     right_to_left.pl        Change default sheet direction to right to left.
+    row_wrap.pl             How to wrap data from one worksheet onto another.
     sales.pl                An example of a simple sales spreadsheet.
     sendmail.pl             Send an Excel email attachment using Mail::Sender.
     stats_ext.pl            Same as stats.pl with external references.
     stocks.pl               Demonstrates conditional formatting.
+    tab_colors.pl           Example of how to set worksheet tab colours.
     textwrap.pl             Demonstrates text wrapping options.
     win32ole.pl             A sample Win32::OLE example for comparison.
     write_arrays.pl         Example of writing 1D or 2D arrays of data.
-    write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
     write_handler1.pl       Example of extending the write() method. Step 1.
     write_handler2.pl       Example of extending the write() method. Step 2.
     write_handler3.pl       Example of extending the write() method. Step 3.
     write_handler4.pl       Example of extending the write() method. Step 4.
+    write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
 
 
     Unicode
@@ -3928,7 +3953,6 @@ different features and options of the module.
     convertA1.pl            Helper functions for dealing with A1 notation.
     function_locale.pl      Add non-English function names to Formula.pm.
     writeA1.pl              Example of how to extend the module.
-
 
 
 
@@ -4234,9 +4258,6 @@ The roadmap is as follows:
 
 =item * Add AutoFilters.
 
-=item * Add better defaults for Excel on the Mac.
-
-
 =back
 
 Also, here are some of the most requested features that probably won't get added:
@@ -4326,19 +4347,36 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 John McNamara jmcnamara@cpan.org
 
-    I saw the best minds of my generation destroyed by
-          madness, starving hysterical naked,
-    dragging themselves through the negro streets at dawn
-          looking for an angry fix,
-    angelheaded hipsters burning for the ancient heavenly
-          connection to the starry dynamo in the machin-
-          ery of night,
-    who poverty and tatters and hollow-eyed and high sat
-          up smoking in the supernatural darkness of
-          cold-water flats floating across the tops of cities
-          contemplating jazz,
+    Cattle and Cane
 
-        -- Allen Ginsberg
+    I recall a schoolboy coming home
+    Through fields of cane
+    To a house of tin and timber
+    And in the sky a rain of falling cinders.
+    From time to time
+    The waste memory-wastes
+
+    I recall a boy in bigger pants
+    Like everyone
+    Just waiting for a chance
+    His father's watch
+    He left it in the shower
+    From time to time
+    The waste memory-wastes
+
+    I recall a bigger brighter world
+    A world of books
+    And silent times in thought
+    And then the railroad
+    The railroad takes him home
+    Through fields of cattle
+    Through fields of cane
+    From time to time
+    The waste memory-wastes
+    The waste memory-wastes
+    Further, longer, higher, older.
+
+        -- Grant McLennan
 
 
 =head1 COPYRIGHT

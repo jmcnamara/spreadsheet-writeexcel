@@ -53,6 +53,7 @@ doc/tpj0503-0004-05.gif
 doc/win32ole.gif
 
 examples/README
+examples/autofit.pl
 examples/bigfile.pl
 examples/bug_report.pl
 examples/cgi.pl
@@ -95,6 +96,7 @@ examples/regions.pl
 examples/repeat.pl
 examples/republic.bmp
 examples/right_to_left.pl
+examples/row_wrap.pl
 examples/sales.pl
 examples/sendmail.pl
 examples/simple.pl
@@ -102,6 +104,7 @@ examples/stats.pl
 examples/stats_ext.pl
 examples/stocks.pl
 examples/tab2xls.pl
+examples/tab_colors.pl
 examples/textwrap.pl
 examples/unicode.pl
 examples/unicode_2022_jp.pl

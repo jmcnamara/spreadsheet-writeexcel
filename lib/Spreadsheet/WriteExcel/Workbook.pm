@@ -793,6 +793,7 @@ sub set_tempdir {
 sub set_codepage {
 
     my $self        = shift;
+
     my $codepage    = $_[0] || 1;
     $codepage   = 0x04E4 if $codepage == 1;
     $codepage   = 0x8000 if $codepage == 2;
@@ -985,6 +986,7 @@ sub _calc_mso_sizes {
     # required by each worksheet.
     #
     foreach my $sheet (@{$self->{_worksheets}}) {
+        next if ref $sheet eq "Spreadsheet::WriteExcel::Chart";
         next unless $num_shapes = $sheet->_prepare_comments();
 
         # Include 1 parent MSODRAWING shape, per sheet, in the shape count.
@@ -1046,12 +1048,18 @@ sub _store_all_fonts {
     my $format  = $self->{_formats}->[15]; # The default cell format.
     my $font    = $format->get_font();
 
-    # Note: Fonts are 0-indexed. According to the SDK there is no index 4,
-    # so the following fonts are 0, 1, 2, 3, 5
-    #
-    for (1..5){
+    # Fonts are 0-indexed. According to the SDK there is no index 4,
+    for (0..3){
         $self->_append($font);
     }
+
+
+    # Add the font for comments. This is connected to any XF format.
+    my $tmp    = Spreadsheet::WriteExcel::Format->new(undef,
+                                                      font => 'Tahoma',
+                                                      size => 8);
+    $font      = $tmp->get_font();
+    $self->_append($font);
 
 
     # Iterate through the XF objects and write a FONT record if it isn't the
@@ -1299,8 +1307,8 @@ sub _store_window1 {
 
     my $xWn       = 0x0000;                 # Horizontal position of window
     my $yWn       = 0x0000;                 # Vertical position of window
-    my $dxWn      = 0x25BC;                 # Width of window
-    my $dyWn      = 0x1572;                 # Height of window
+    my $dxWn      = 0x355C;                 # Width of window
+    my $dyWn      = 0x30ED;                 # Height of window
 
     my $grbit     = 0x0038;                 # Option flags
     my $ctabsel   = $self->{_selected};     # Number of workbook tabs selected

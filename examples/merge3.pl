@@ -28,10 +28,10 @@ $worksheet->set_column('B:D', 20);
 # and the standard Excel 5+ merge property.
 #
 my $format1 = $workbook->add_format(
-                                    merge       => 1,
-                                    border      => 1,
-                                    underline   => 1,
-                                    color       => 'blue',
+                                    center_across   => 1,
+                                    border          => 1,
+                                    underline       => 1,
+                                    color           => 'blue',
                                  );
 
 # Write the cells to be merged

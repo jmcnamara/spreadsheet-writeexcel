@@ -100,7 +100,7 @@ It is a sub-class of the Spreadsheet::WriteExcel::Workbook module.
 
 =head1 REQUIREMENTS
 
-IO::Stringy and OLE::Storage_Lite
+OLE::Storage_Lite
 
 
 =head1 AUTHORS

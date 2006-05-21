@@ -52,7 +52,6 @@
 		<LI><A HREF="#sheets_0_1_">sheets(0, 1, ...)</A></LI>
 		<LI><A HREF="#set_1904_">set_1904()</A></LI>
 		<LI><A HREF="#set_codepage_codepage_">set_codepage($codepage)</A></LI>
-        </code>
 	</UL>
 
 	<LI><A HREF="#WORKSHEET_METHODS">WORKSHEET METHODS</A></LI>
@@ -102,6 +101,7 @@
         <code>
 		<LI><A HREF="#set_landscape_">set_landscape()</A></LI>
 		<LI><A HREF="#set_portrait_">set_portrait()</A></LI>
+		<LI><A HREF="#set_page_view_">set_page_view()</A></LI>
 		<LI><A HREF="#set_paper_index_">set_paper($index)</A></LI>
 		<LI><A HREF="#center_horizontally_">center_horizontally()</A></LI>
 		<LI><A HREF="#center_vertically_">center_vertically()</A></LI>
@@ -219,8 +219,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.16 of Spreadsheet::WriteExcel, released
-January 6, 2006.
+This document refers to version 2.17 of Spreadsheet::WriteExcel, released
+May 21, 2006.
 
 </P>
 <P>
@@ -339,7 +339,7 @@ Like this:
 </P>
 <P>
 This will create an Excel file called <CODE>perl.xls</CODE> with a single worksheet and the text <CODE>&quot;Hi Excel!&quot;</CODE> in the relevant cell. And that's it. Okay, so there is actually a zeroth
-step as well, but <CODE>use module</CODE> goes without saying. There are also more than 60 examples that come with
+step as well, but <CODE>use module</CODE> goes without saying. There are also more than 70 examples that come with
 the distribution and which you can use to get you started. See <A HREF="#EXAMPLES">EXAMPLES</A>.
 
 </P>
@@ -555,7 +555,8 @@ information about <CODE>binmode()</CODE> see <CODE>perlfunc</CODE> and <CODE>per
 <HR>
 <H2><A NAME="close_">close()</A></H2>
 <P>
-The <CODE>close()</CODE> method can be used to explicitly close an Excel file.
+In general your Excel file will be closed automatically when your program
+ends or when the Workbook object goes out of scope, however the <CODE>close()</CODE> method can be used to explicitly close an Excel file.
 
 </P>
 <P>
@@ -1000,6 +1001,7 @@ The following methods are available through a new worksheet:
     set_zoom()
     right_to_left()
     hide_zero()
+    set_tab_color()
 </PRE>
 </P>
 <P>
@@ -3604,6 +3606,25 @@ In Excel this option is found under Tools->Options->View.
 </P>
 <P>
 <HR>
+<H2><A NAME="set_tab_color_">set_tab_color()</A></H2>
+<P>
+The <CODE>set_tab_color()</CODE> method is used to change the colour of the worksheet tab. This feature is
+only available in Excel 2002 and later. You can use one of the standard
+colour names provided by the Format object or a colour index. See <A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A> and the <CODE>set_custom_color()</CODE> method.
+
+</P>
+<P>
+<PRE>
+    $worksheet1-&gt;set_tab_color('red');
+    $worksheet2-&gt;set_tab_color(0x0C);
+</PRE>
+</P>
+<P>
+See the <CODE>tab_colors.pl</CODE> program in the examples directory of the distro.
+
+</P>
+<P>
+<HR>
 <H1><A NAME="PAGE_SET_UP_METHODS">PAGE SET-UP METHODS</A></H1>
 <P>
 Page set-up methods affect the way that a worksheet looks when it is
@@ -3620,6 +3641,7 @@ The following methods are available for page set-up:
 <PRE>
     set_landscape()
     set_portrait()
+    set_page_view()
     set_paper()
     center_horizontally()
     center_vertically()
@@ -3676,6 +3698,19 @@ generally need to call this method.
 <P>
 <PRE>
     $worksheet-&gt;set_portrait(); # Portrait mode
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="set_page_view_">set_page_view()</A></H2>
+<P>
+This method is used to display the worksheet in "Page View" mode. This is
+currently only supported by Mac Excel, where it is the default.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;set_page_view();
 </PRE>
 </P>
 <P>
@@ -6705,6 +6740,7 @@ features and options of the module.
 <PRE>
     Advanced
     ========
+    autofit.pl              Simuluate Excel's autofit for colums widths.
     bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
     cgi.pl                  A simple CGI program.
     chess.pl                An example of formatting using properties.
@@ -6717,6 +6753,7 @@ features and options of the module.
     filehandle.pl           Examples of working with filehandles.
     formula_result.pl       Formulas with user specified results.
     headers.pl              Examples of worksheet headers and footers.
+    hide_sheet.pl           Simple example of hiding a worksheet.
     hyperlink1.pl           Shows how to create web hyperlinks.
     hyperlink2.pl           Examples of internal and external hyperlinks.
     images.pl               Adding bitmap images to worksheets.
@@ -6732,21 +6769,22 @@ features and options of the module.
     outline.pl              An example of outlines and grouping.
     panes.pl                An examples of how to create panes.
     protection.pl           Example of cell locking and formula hiding.
-    hide_sheet.pl           Simple example of hiding a worksheet.
     repeat.pl               Example of writing repeated formulas.
     right_to_left.pl        Change default sheet direction to right to left.
+    row_wrap.pl             How to wrap data from one worksheet onto another.
     sales.pl                An example of a simple sales spreadsheet.
     sendmail.pl             Send an Excel email attachment using Mail::Sender.
     stats_ext.pl            Same as stats.pl with external references.
     stocks.pl               Demonstrates conditional formatting.
+    tab_colors.pl           Example of how to set worksheet tab colours.
     textwrap.pl             Demonstrates text wrapping options.
     win32ole.pl             A sample Win32::OLE example for comparison.
     write_arrays.pl         Example of writing 1D or 2D arrays of data.
-    write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
     write_handler1.pl       Example of extending the write() method. Step 1.
     write_handler2.pl       Example of extending the write() method. Step 2.
     write_handler3.pl       Example of extending the write() method. Step 3.
     write_handler4.pl       Example of extending the write() method. Step 4.
+    write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
 </PRE>
 </P>
 <P>
@@ -7332,7 +7370,6 @@ The roadmap is as follows:
 <UL>
 <LI><A NAME="item_Fix">Fix insert_bitmap to work with write_comment(), OpenOffice.org and Gnumeric.</A>
 <LI><A NAME="item_Add">Add AutoFilters.</A>
-<LI><A NAME="item_Add">Add better defaults for Excel on the Mac.</A>
 </UL>
 <P>
 Also, here are some of the most requested features that probably won't get
@@ -7548,22 +7585,48 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    I saw the best minds of my generation destroyed by
-          madness, starving hysterical naked,
-    dragging themselves through the negro streets at dawn
-          looking for an angry fix,
-    angelheaded hipsters burning for the ancient heavenly
-          connection to the starry dynamo in the machin-
-          ery of night,
-    who poverty and tatters and hollow-eyed and high sat
-          up smoking in the supernatural darkness of
-          cold-water flats floating across the tops of cities
-          contemplating jazz,
+    Cattle and Cane
 </PRE>
 </P>
 <P>
 <PRE>
-        -- Allen Ginsberg
+    I recall a schoolboy coming home
+    Through fields of cane
+    To a house of tin and timber
+    And in the sky a rain of falling cinders.
+    From time to time
+    The waste memory-wastes
+</PRE>
+</P>
+<P>
+<PRE>
+    I recall a boy in bigger pants
+    Like everyone
+    Just waiting for a chance
+    His father's watch
+    He left it in the shower
+    From time to time
+    The waste memory-wastes
+</PRE>
+</P>
+<P>
+<PRE>
+    I recall a bigger brighter world
+    A world of books
+    And silent times in thought
+    And then the railroad
+    The railroad takes him home
+    Through fields of cattle
+    Through fields of cane
+    From time to time
+    The waste memory-wastes
+    The waste memory-wastes
+    Further, longer, higher, older.
+</PRE>
+</P>
+<P>
+<PRE>
+        -- Grant McLennan
 </PRE>
 </P>
 <P>

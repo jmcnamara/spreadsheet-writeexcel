@@ -172,7 +172,7 @@ sub close {
     $self->_write_property_storage() if not $self->{_biff_only};
     $self->_write_big_block_depot()  if not $self->{_biff_only};
 
-    my $close;
+    my $close = 1; # Default to no error for external filehandles.
 
     # Close the filehandle if it was created internally.
     $close = CORE::close($self->{_filehandle}) if $self->{_internal_fh};

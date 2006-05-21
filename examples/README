@@ -14,6 +14,7 @@ stats.pl                Basic formulas and functions.
 
 Advanced
 ========
+autofit.pl              Simuluate Excel's autofit for colums widths.
 bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
 cgi.pl                  A simple CGI program.
 chess.pl                An example of formatting using properties.
@@ -26,6 +27,7 @@ easter_egg.pl           Expose the Excel97 flight simulator. A must see.
 filehandle.pl           Examples of working with filehandles.
 formula_result.pl       Formulas with user specified results.
 headers.pl              Examples of worksheet headers and footers.
+hide_sheet.pl           Simple example of hiding a worksheet.
 hyperlink1.pl           Shows how to create web hyperlinks.
 hyperlink2.pl           Examples of internal and external hyperlinks.
 images.pl               Adding bitmap images to worksheets.
@@ -41,21 +43,22 @@ mod_perl2.pl            A simple mod_perl 2 program.
 outline.pl              An example of outlines and grouping.
 panes.pl                An examples of how to create panes.
 protection.pl           Example of cell locking and formula hiding.
-hide_sheet.pl           Simple example of hiding a worksheet.
 repeat.pl               Example of writing repeated formulas.
 right_to_left.pl        Change default sheet direction to right to left.
+row_wrap.pl             How to wrap data from one worksheet onto another.
 sales.pl                An example of a simple sales spreadsheet.
 sendmail.pl             Send an Excel email attachment using Mail::Sender.
 stats_ext.pl            Same as stats.pl with external references.
 stocks.pl               Demonstrates conditional formatting.
+tab_colors.pl           Example of how to set worksheet tab colours.
 textwrap.pl             Demonstrates text wrapping options.
 win32ole.pl             A sample Win32::OLE example for comparison.
 write_arrays.pl         Example of writing 1D or 2D arrays of data.
-write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
 write_handler1.pl       Example of extending the write() method. Step 1.
 write_handler2.pl       Example of extending the write() method. Step 2.
 write_handler3.pl       Example of extending the write() method. Step 3.
 write_handler4.pl       Example of extending the write() method. Step 4.
+write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
 
 
 Unicode

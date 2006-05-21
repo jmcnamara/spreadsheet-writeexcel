@@ -76,6 +76,7 @@ sub new {
     $self->{_selected}              = 0;
     $self->{_hidden}                = 0;
     $self->{_active}                = 0;
+    $self->{_tab_color}             = 0;
 
     $self->{_first_row}             = 0;
     $self->{_first_col}             = 0;
@@ -136,6 +137,7 @@ sub new {
 
     $self->{_zoom}                  = 100;
     $self->{_print_scale}           = 100;
+    $self->{_page_view}             = 0;
 
     $self->{_leading_zeros}         = 0;
 
@@ -259,10 +261,10 @@ sub _close {
             my $arrayref = pop @colinfo;
             $self->_store_colinfo(@$arrayref);
         }
-
-        # Add the DEFCOLWIDTH record
-        $self->_store_defcol();
     }
+
+    # Add the DEFCOLWIDTH record
+    $self->_store_defcol();
 
     # Prepend the sheet password
     $self->_store_password();
@@ -307,6 +309,9 @@ sub _close {
     # Prepend WSBOOL
     $self->_store_wsbool();
 
+    # Prepend the default row height.
+    $self->_store_defrow();
+
     # Prepend GUTS
     $self->_store_guts();
 
@@ -329,9 +334,11 @@ sub _close {
     # Append
     $self->_store_comments();
     $self->_store_window2();
+    $self->_store_page_view();
     $self->_store_zoom();
     $self->_store_panes(@{$self->{_panes}}) if @{$self->{_panes}};
     $self->_store_selection(@{$self->{_selection}});
+    $self->_store_tab_color();
     $self->_store_eof();
 }
 
@@ -489,15 +496,18 @@ sub set_column {
         splice @_, 1, 1; # $row2
     }
 
+    return if @_ < 3; # Ensure at least $firstcol, $lastcol and $width
+    return if not defined $_[0]; # Columns must be defined.
+    return if not defined $_[1];
+
     push @{$self->{_colinfo}}, [ @_ ];
 
 
     # Store the col sizes for use when calculating image vertices taking
     # hidden columns into account. Also store the column formats.
     #
-    return if @_ < 3; # Ensure at least $firstcol, $lastcol and $width
-
     my $width  = $_[4] ? 0 : $_[2]; # Set width to zero if column is hidden
+       $width  ||= 0;                 # Ensure width isn't undef.
     my $format = $_[3];
 
     my ($firstcol, $lastcol) = @_;
@@ -589,6 +599,37 @@ sub set_landscape {
     my $self = shift;
 
     $self->{_orientation} = 0;
+}
+
+
+###############################################################################
+#
+# set_page_view()
+#
+# Set the page view mode for Mac Excel.
+#
+sub set_page_view {
+
+    my $self = shift;
+
+    $self->{_page_view} = defined $_[0] ? $_[0] : 1;
+}
+
+
+###############################################################################
+#
+# set_tab_color()
+#
+# Set the colour of the worksheet colour.
+#
+sub set_tab_color {
+
+    my $self  = shift;
+
+    my $color = &Spreadsheet::WriteExcel::Format::_get_color($_[0]);
+       $color = 0 if $color == 0x7FFF; # Default color.
+
+    $self->{_tab_color} = $color;
 }
 
 
@@ -2850,6 +2891,9 @@ sub set_row {
     my $level       = $_[4] || 0;           # Outline level
 
 
+    return unless defined $rw;  # Ensure at least $row is specified.
+
+
     # Check for a format object
     if (ref $format) {
         $ixfe = $format->get_xf_index();
@@ -2867,6 +2911,7 @@ sub set_row {
     }
     else {
         $miyRw = 0xff; # The default row height
+        $height = 0;
     }
 
 
@@ -2898,9 +2943,6 @@ sub set_row {
 
     # Store the row sizes for use when calculating image vertices.
     # Also store the column formats.
-    #
-    return if @_ < 2;# Ensure at least $row and $height
-
     $self->{_row_sizes}->{$_[0]}   = $height;
     $self->{_row_formats}->{$_[0]} = $format if defined $format;
 }
@@ -3036,9 +3078,76 @@ sub _store_window2 {
 
 ###############################################################################
 #
+# _store_page_view()
+#
+# Set page view mode. Only applicable to Mac Excel.
+#
+sub _store_page_view {
+
+    my $self    = shift;
+
+    return unless $self->{_page_view};
+
+    my $data    = pack "H*", 'C8081100C808000000000040000000000900000000';
+
+    $self->_append($data);
+}
+
+
+###############################################################################
+#
+# _store_tab_color()
+#
+# Write the Tab Color BIFF record.
+#
+sub _store_tab_color {
+
+    my $self    = shift;
+    my $color   = $self->{_tab_color};
+
+    return unless $color;
+
+    my $record  = 0x0862;      # Record identifier
+    my $length  = 0x0014;      # Number of bytes to follow
+
+    my $zero    = 0x0000;
+    my $unknown = 0x0014;
+
+    my $header  = pack("vv", $record, $length);
+    my $data    = pack("vvvvvvvvvv", $record, $zero, $zero, $zero, $zero,
+                                     $zero, $unknown, $zero, $color, $zero);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_defrow()
+#
+# Write BIFF record DEFROWHEIGHT.
+#
+sub _store_defrow {
+
+    my $self     = shift;
+    my $record   = 0x0225;      # Record identifier
+    my $length   = 0x0004;      # Number of bytes to follow
+
+    my $grbit    = 0x0000;      # Options.
+    my $height   = 0x00FF;      # Default row height
+
+    my $header   = pack("vv", $record, $length);
+    my $data     = pack("vv", $grbit,  $height);
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
 # _store_defcol()
 #
-# Write BIFF record DEFCOLWIDTH if COLINFO records are in use.
+# Write BIFF record DEFCOLWIDTH.
 #
 sub _store_defcol {
 
@@ -4664,7 +4773,7 @@ sub _store_comments {
         my @anchor_data = ($row, $col, @vertices);
         my $str_len     = length $str;
            $str_len    /= 2 if $encoding; # Num of chars not bytes.
-        my $formats     = [[0, 0], [$str_len, 0]];
+        my $formats     = [[0, 5], [$str_len, 0]];
 
 
         if ($i == 0) {

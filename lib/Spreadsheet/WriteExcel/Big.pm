@@ -81,7 +81,7 @@ This module is used in conjunction with Spreadsheet::WriteExcel.
 
 =head1 REQUIREMENTS
 
-IO::Stringy and OLE::Storage_Lite
+OLE::Storage_Lite
 
 
 =head1 AUTHOR
