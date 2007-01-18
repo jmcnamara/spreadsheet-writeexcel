@@ -754,6 +754,16 @@ sub _get_sheet_index {
     my $self        = shift;
     my $sheet_name  = shift;
 
+    # Handle utf8 sheetnames in perl 5.8.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($sheet_name)) {
+            $sheet_name = Encode::encode("UTF-16BE", $sheet_name);
+        }
+    }
+
+
     if (not exists $self->{_ext_sheets}->{$sheet_name}) {
         die "Unknown sheet name $sheet_name in formula\n";
     }
@@ -1405,6 +1415,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVI, John McNamara.
+© MM-MMVII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

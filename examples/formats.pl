@@ -432,8 +432,8 @@ sub alignment {
     $worksheet->write(3, 1, 'merge',        $format12);
     $worksheet->write(3, 2, '',             $format12);
 
-    $worksheet->write(2, 3, 'Shrink ' x 3,  $format16);
-    $worksheet->write(2, 4, 'Indent',       $format17);
+    $worksheet->write(3, 3, 'Shrink ' x 3,  $format16);
+    $worksheet->write(3, 4, 'Indent',       $format17);
 
 
     $worksheet->write(5, 0, 'Rotation',     $heading);

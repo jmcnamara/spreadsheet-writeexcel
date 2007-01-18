@@ -21,6 +21,7 @@ lib/Spreadsheet/WriteExcel/Worksheet.pm
 t/00_IEEE_double.t
 t/01_add_worksheet.t
 t/02_merge_formats.t
+t/03_cleanup.t
 t/11_date_time.t
 t/12_date_only.t
 t/13_date_seconds.t

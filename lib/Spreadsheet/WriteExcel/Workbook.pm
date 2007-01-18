@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Chart;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.16';
+$VERSION = '2.18';
 
 ###############################################################################
 #
@@ -145,6 +145,9 @@ sub new {
 
     # Set colour palette.
     $self->set_palette_xl97();
+
+    # Load Encode if we can.
+    require Encode if $] >= 5.008;
 
     $self->_initialize();
     return $self;
@@ -408,7 +411,7 @@ sub add_worksheet {
 
 ###############################################################################
 #
-# add_chart_ext($name, $filename)
+# add_chart_ext($filename, $name)
 #
 # Add an externally created chart.
 #
@@ -878,28 +881,30 @@ sub _store_workbook {
 #
 # _store_OLE_file()
 #
-# Store the workbook in an OLE container if the total size of the workbook data
-# is less than ~ 7MB.
+# Store the workbook in an OLE container using the default handler or using
+# OLE::Storage_Lite if the workbook data is > ~ 7MB.
 #
 sub _store_OLE_file {
 
-    my $self = shift;
+    my $self    = shift;
+    my $maxsize = 7_087_104;
 
-    my $OLE  = Spreadsheet::WriteExcel::OLEwriter->new($self->{_fh_out});
+    if ($self->{_biffsize} <= $maxsize) {
+        # Write the OLE file using OLEwriter if data <= 7MB
+        my $OLE  = Spreadsheet::WriteExcel::OLEwriter->new($self->{_fh_out});
 
-    # Indicate that we created the filehandle and want to close it.
-    $OLE->{_internal_fh} = $self->{_internal_fh};
+        # Indicate that we created the filehandle and want to close it.
+        $OLE->{_internal_fh} = $self->{_internal_fh};
 
-    # Write Worksheet data if data <~ 7MB
-    if ($OLE->set_size($self->{_biffsize})) {
+        $OLE->set_size($self->{_biffsize});
         $OLE->write_header();
 
         while (my $tmp = $self->get_data()) {
             $OLE->write($tmp);
         }
 
-        foreach my $sheet (@{$self->{_worksheets}}) {
-            while (my $tmp = $sheet->get_data()) {
+        foreach my $worksheet (@{$self->{_worksheets}}) {
+            while (my $tmp = $worksheet->get_data()) {
                 $OLE->write($tmp);
             }
         }
@@ -907,15 +912,43 @@ sub _store_OLE_file {
         return $OLE->close();
     }
     else {
-        # File in greater than limit, set $! to "File too large"
-        $! = 27; # Perl error code "File too large"
-        my $maxsize = 7_087_104;
+        # Write the OLE file using OLE::Storage_Lite if data > 7MB
+        eval { require OLE::Storage_Lite };
 
-        croak "Maximum Spreadsheet::WriteExcel filesize, $maxsize bytes, "    .
-              "exceeded. To create files bigger than this limit please refer ".
-              "to the \"Spreadsheet::WriteExcel::Big\" documentation.\n"      ;
+        if (not $@) {
+            my $stream  = pack 'v*', unpack 'C*', 'Workbook';
+            my $OLE     = OLE::Storage_Lite::PPS::File->newFile($stream);
 
-        # return 0;
+            while (my $tmp = $self->get_data()) {
+                $OLE->append($tmp);
+            }
+
+            foreach my $worksheet (@{$self->{_worksheets}}) {
+                while (my $tmp = $worksheet->get_data()) {
+                    $OLE->append($tmp);
+                }
+            }
+
+            my @ltime = localtime();
+            splice(@ltime, 6);
+            my $date = OLE::Storage_Lite::PPS::Root->new(\@ltime,
+                                                         \@ltime,
+                                                         [$OLE]);
+            $date->save($self->{_filename});
+
+            # Close the filehandle if it was created internally.
+            return CORE::close($self->{_fh_out}) if $self->{_internal_fh};
+        }
+        else {
+            # File in greater than limit, set $! to "File too large"
+            $! = 27; # Perl error code "File too large"
+
+            croak "Maximum Spreadsheet::WriteExcel filesize, $maxsize bytes, ".
+                  "exceeded. To create files bigger than this limit please "  .
+                  "install OLE::Storage_Lite\n";
+
+            # return 0;
+        }
     }
 }
 
@@ -2341,6 +2374,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVI, John McNamara.
+© MM-MMVII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

@@ -52,6 +52,7 @@
 		<LI><A HREF="#sheets_0_1_">sheets(0, 1, ...)</A></LI>
 		<LI><A HREF="#set_1904_">set_1904()</A></LI>
 		<LI><A HREF="#set_codepage_codepage_">set_codepage($codepage)</A></LI>
+        </code>
 	</UL>
 
 	<LI><A HREF="#WORKSHEET_METHODS">WORKSHEET METHODS</A></LI>
@@ -92,6 +93,9 @@
 		<LI><A HREF="#thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col)</A></LI>
 		<LI><A HREF="#merge_range_first_row_first_c">merge_range($first_row, $first_col, $last_row, $last_col, $token, $format, $encoding)</A></LI>
 		<LI><A HREF="#set_zoom_scale_">set_zoom($scale)</A></LI>
+		<LI><A HREF="#right_to_left_">right_to_left()</A></LI>
+		<LI><A HREF="#hide_zero_">hide_zero()</A></LI>
+		<LI><A HREF="#set_tab_color_">set_tab_color()</A></LI>
         </code>
 	</UL>
 
@@ -203,6 +207,7 @@
 	<LI><A HREF="#DONATATIONS">DONATATIONS</A></LI>
 	<LI><A HREF="#SEE_ALSO">SEE ALSO</A></LI>
 	<LI><A HREF="#ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></LI>
+	<LI><A HREF="#DISCLAIMER_OF_WARRANTY">DISCLAIMER OF WARRANTY</A></LI>
 	<LI><A HREF="#AUTHOR">AUTHOR</A></LI>
 	<LI><A HREF="#COPYRIGHT">COPYRIGHT</A></LI>
 </UL>
@@ -219,8 +224,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.17 of Spreadsheet::WriteExcel, released
-May 21, 2006.
+This document refers to version 2.18 of Spreadsheet::WriteExcel, released
+January 18, 2007.
 
 </P>
 <P>
@@ -2405,7 +2410,7 @@ On systems with <CODE>perl 5.8</CODE> and later the <CODE>write_comment()</CODE>
 <P>
 <PRE>
     $worksheet-&gt;write_comment('C3', &quot;\x{263a}&quot;);       # Smiley
-    $worksheet-&gt;write_comment('C4', 'Comment ça va?');
+    $worksheet-&gt;write_comment('C4', 'Comment ca va?');
 </PRE>
 </P>
 <P>
@@ -3225,8 +3230,12 @@ or a range of columns. All parameters apart from <CODE>$first_col</CODE> and <CO
 
 </P>
 <P>
-If <CODE>set_column()</CODE> is applied to a single column the value of <CODE>$first_col</CODE> and <CODE>$last_col</CODE> should be the same. It is also possible to specify a column range using the
-form of A1 notation used for columns. See the note about <A HREF="#Cell_notation">Cell notation</A>.
+If <CODE>set_column()</CODE> is applied to a single column the value of <CODE>$first_col</CODE> and <CODE>$last_col</CODE> should be the same. In the case where <CODE>$last_col</CODE> is zero it is set to the same value as <CODE>$first_col</CODE>.
+
+</P>
+<P>
+It is also possible, and generally clearer, to specify a column range using
+the form of A1 notation used for columns. See the note about <A HREF="#Cell_notation">Cell notation</A>.
 
 </P>
 <P>
@@ -3597,7 +3606,7 @@ The <CODE>hide_zero()</CODE> method is used to hide any zero values that appear 
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;right_to_left();
+    $worksheet-&gt;hide_zero();
 </PRE>
 </P>
 <P>
@@ -5042,14 +5051,8 @@ numbers.
 </P>
 <P>
 <PRE>
-    $format05-&gt;set_num_format('£0.00');
-    $worksheet-&gt;write(4,  0, 49.99,     $format05);    # £49.99
-</PRE>
-</P>
-<P>
-<PRE>
-    $format06-&gt;set_num_format('¥0.00');
-    $worksheet-&gt;write(5,  0, 49.99,     $format06);    # ¥49.99
+    # Note you can use other currency symbols such as the pound or yen as well.
+    # Other currencies may require the use of Unicode.
 </PRE>
 </P>
 <P>
@@ -6847,7 +6850,7 @@ The following limits are imposed by Excel:
 <P>
 The minimum file size is 6K due to the OLE overhead. The maximum file size
 is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by
-using Takanori Kawai's OLE::Storage_Lite module <A
+installing Takanori Kawai's OLE::Storage_Lite module <A
 HREF="http://search.cpan.org/search?dist=OLE-Storage_Lite">http://search.cpan.org/search?dist=OLE-Storage_Lite</A>
 see the <CODE>bigfile.pl</CODE> example in the <CODE>examples</CODE> directory of the distro.
 
@@ -6865,15 +6868,24 @@ HREF="http://search.cpan.org/search?dist=Spreadsheet-WriteExcel/">http://search.
 <HR>
 <H1><A NAME="REQUIREMENTS">REQUIREMENTS</A></H1>
 <P>
-This module requires Perl 5.005 (or later), Parse::RecDescent and
-File::Temp:
+This module requires Perl >= 5.005, Parse::RecDescent, File::Temp and
+OLE::Storage_Lite:
 
 </P>
 <P>
 <PRE>
-    <A HREF="http://search.cpan.org/search?dist=Parse-RecDescent/">http://search.cpan.org/search?dist=Parse-RecDescent/</A>
-    <A HREF="http://search.cpan.org/search?dist=File-Temp/">http://search.cpan.org/search?dist=File-Temp/</A>
+    <A HREF="http://search.cpan.org/search?dist=Parse-RecDescent/">http://search.cpan.org/search?dist=Parse-RecDescent/</A> # For formulas.
+    <A HREF="http://search.cpan.org/search?dist=File-Temp/">http://search.cpan.org/search?dist=File-Temp/</A>        # For set_tempdir().
+    <A HREF="http://search.cpan.org/search?dist=OLE-Storage_Lite/">http://search.cpan.org/search?dist=OLE-Storage_Lite/</A> # For files &gt; 7MB.
 </PRE>
+</P>
+<P>
+Note, these aren't strict requirements. Spreadsheet::WriteExcel will work
+without these modules if you don't use <CODE>write_formula(),</CODE>
+<CODE>set_tempdir()</CODE> or create files greater than 7MB. However, it is
+best to install them if possible and they will be installed automatically
+if you use a tool such as CPAN.pm or ppm.
+
 </P>
 <P>
 <HR>
@@ -6884,7 +6896,7 @@ See the INSTALL or install.html docs that come with the distribution or:
 </P>
 <P>
 <A
-HREF="http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.16/INSTALL">http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.16/INSTALL</A>
+HREF="http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.17/INSTALL">http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.17/INSTALL</A>
 
 
 </P>
@@ -6983,7 +6995,7 @@ is stored on may not be responding."
 This error generally means that the Excel file has been corrupted. There
 are two likely causes of this: the file was FTPed in ASCII mode instead of
 binary mode or else the file was created with UTF8 data returned by an XML
-parser. See <A HREF="#WORKING_WITH_XML">WORKING WITH XML</A> for further details.
+parser. See <A HREF="#Warning_about_XML_Parser_and_Pe">Warning about XML::Parser and Perl 5.6</A> for further details.
 
 </P>
 </DL>
@@ -7498,7 +7510,7 @@ HREF="http://www-106.ibm.com/developerworks/library/l-pexcel/">http://www-106.ib
 
 </P>
 <P>
-"Excel-Dateien mit Perl erstellen - Controller im Glück" by Peter
+"Excel-Dateien mit Perl erstellen - Controller im Gluck" by Peter
 Dintelmann and Christian Kirsch in the German Unix/web journal iX: <A
 HREF="http://www.heise.de/ix/artikel/2001/06/175/">http://www.heise.de/ix/artikel/2001/06/175/</A>
 
@@ -7526,17 +7538,17 @@ Spreadsheet::WriteExcel:
 </P>
 <P>
 Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha,
-Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN
-testers, Damyan Ivanov, Daniel Berger, Daniel Gardner, Dmitry Kochurov,
-Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc
-Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg,
-Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller,
-Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael
-Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul
-J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha,
-Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher,
-Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy
-Daniels, Vahe Sarkissian.
+Borgar Olsen, Brian Foley, Brian White, Bob Mackay, Cedric Bouvier, Chad
+Johnson, CPAN testers, Damyan Ivanov, Daniel Berger, Daniel Gardner, Dmitry
+Kochurov, Eric Frazier, Ernesto Baschny, Felipe Perez Galiana, Gordon
+Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan
+Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey,
+Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig,
+Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning
+Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante,
+Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Sharron
+McKenzie, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig,
+Svetoslav Marinov, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
 
 </P>
 <P>
@@ -7578,6 +7590,33 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 </P>
 <P>
 <HR>
+<H1><A NAME="DISCLAIMER_OF_WARRANTY">DISCLAIMER OF WARRANTY</A></H1>
+<P>
+Because this software is licensed free of charge, there is no warranty for
+the software, to the extent permitted by applicable law. Except when
+otherwise stated in writing the copyright holders and/or other parties
+provide the software "as is" without warranty of any kind, either expressed
+or implied, including, but not limited to, the implied warranties of
+merchantability and fitness for a particular purpose. The entire risk as to
+the quality and performance of the software is with you. Should the
+software prove defective, you assume the cost of all necessary servicing,
+repair, or correction.
+
+</P>
+<P>
+In no event unless required by applicable law or agreed to in writing will
+any copyright holder, or any other party who may modify and/or redistribute
+the software as permitted by the above licence, be liable to you for
+damages, including any general, special, incidental, or consequential
+damages arising out of the use or inability to use the software (including
+but not limited to loss of data or data being rendered inaccurate or losses
+sustained by you or third parties or a failure of the software to operate
+with any other software), even if such holder or other party has been
+advised of the possibility of such damages.
+
+</P>
+<P>
+<HR>
 <H1><A NAME="AUTHOR">AUTHOR</A></H1>
 <P>
 John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
@@ -7585,55 +7624,31 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Cattle and Cane
+    I was nineteen when I came to town, they called it the Summer of Love
+    They were burning babies, burning flags. The hawks against the doves
+    I took a job in the steamie down on Cauldrum Street
+    And I fell in love with a laundry girl who was working next to me
 </PRE>
 </P>
 <P>
 <PRE>
-    I recall a schoolboy coming home
-    Through fields of cane
-    To a house of tin and timber
-    And in the sky a rain of falling cinders.
-    From time to time
-    The waste memory-wastes
+    Oh she was a rare thing, fine as a bee's wing
+    So fine a breath of wind might blow her away
+    She was a lost child, oh she was running wild
+    She said &quot;As long as there's no price on love, I'll stay.
+    And you wouldn't want me any other way&quot;
 </PRE>
 </P>
 <P>
 <PRE>
-    I recall a boy in bigger pants
-    Like everyone
-    Just waiting for a chance
-    His father's watch
-    He left it in the shower
-    From time to time
-    The waste memory-wastes
-</PRE>
-</P>
-<P>
-<PRE>
-    I recall a bigger brighter world
-    A world of books
-    And silent times in thought
-    And then the railroad
-    The railroad takes him home
-    Through fields of cattle
-    Through fields of cane
-    From time to time
-    The waste memory-wastes
-    The waste memory-wastes
-    Further, longer, higher, older.
-</PRE>
-</P>
-<P>
-<PRE>
-        -- Grant McLennan
+        -- Richard Thompson
 </PRE>
 </P>
 <P>
 <HR>
 <H1><A NAME="COPYRIGHT">COPYRIGHT</A></H1>
 <P>
-© MM-MMVI, John McNamara.
+Copyright MM-MMVII, John McNamara.
 
 </P>
 <P>

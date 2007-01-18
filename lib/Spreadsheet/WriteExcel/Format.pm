@@ -24,7 +24,7 @@ use Carp;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.16';
+$VERSION = '2.18';
 
 ###############################################################################
 #
@@ -118,9 +118,17 @@ sub copy {
     return unless defined $other;
     return unless (ref($self) eq ref($other));
 
-    my $xf = $self->{_xf_index};    # Store XF index assigned by Workbook.pm
-    %$self = %$other;               # Copy properties
-    $self->{_xf_index} = $xf;       # Restore XF index
+    # Store the properties that we don't want overwritten.
+    my $xf                  = $self->{_xf_index};
+    my $merge_range         = $self->{_merge_range};
+    my $used_merge          = $self->{_used_merge};
+
+    %$self                  = %$other; # Copy properties
+
+    # Restore saved properties.
+    $self->{_xf_index}      = $xf;
+    $self->{_merge_range}   = $merge_range;
+    $self->{_used_merge}    = $used_merge;
 }
 
 
@@ -711,6 +719,7 @@ sub set_properties {
         # numerical format strings being evaluated as numbers, for example
         # "00000" for a zip code.
         #
+        local $@;
         if (defined $value) {
             eval "\$self->set_$key('$value')";
         }
@@ -809,6 +818,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVI, John McNamara.
+© MM-MMVII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

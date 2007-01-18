@@ -2,20 +2,20 @@
 
 ###############################################################################
 #
-# Example of how to extend the Spreadsheet::WriteExcel 7MB limit with
-# OLE::Storage_Lite: http://search.cpan.org/search?dist=OLE-Storage_Lite
+# Example of creating a Spreadsheet::WriteExcel that is larger than the
+# default 7MB limit.
 #
-# Nov 2000, Kawai, Takanori (Hippo2000)
-#   Mail: GCD00051@nifty.ne.jp
-#   http://member.nifty.ne.jp/hippo2000
+# It is exactly that same as any other Spreadsheet::WriteExcel program except
+# that is requires that the OLE::Storage module is installed.
 #
+# reverse('©'), Jan 2007, John McNamara, jmcnamara@cpan.org
 
 
 use strict;
-use Spreadsheet::WriteExcel::Big; # Note the name
+use Spreadsheet::WriteExcel;
 
 
-my $workbook  = Spreadsheet::WriteExcel::Big->new("big.xls");
+my $workbook  = Spreadsheet::WriteExcel->new('bigfile.xls');
 my $worksheet = $workbook->add_worksheet();
 
 $worksheet->set_column(0, 50, 18);
@@ -26,4 +26,3 @@ for my $col (0 .. 50) {
     }
 }
 
-$workbook->close();

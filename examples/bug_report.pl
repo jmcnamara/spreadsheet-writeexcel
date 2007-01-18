@@ -31,7 +31,7 @@ REPORTING A BUG OR ASKING A QUESTION
 
     Look at the example programs:
 
-        There are over 40 example programs shipped with the standard
+        There are over 70 example programs shipped with the standard
         Spreadsheet::WriteExcel distribution. Many of these were created in
         response to user questions. Try to identify an example program that
         corresponds to your query and adapt it to your needs.

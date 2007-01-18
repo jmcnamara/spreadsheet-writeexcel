@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.16';
+$VERSION = '2.18';
 
 ###############################################################################
 #
@@ -485,32 +485,43 @@ sub protect {
 sub set_column {
 
     my $self = shift;
-    my $cell = $_[0];
+    my @data = @_;
+    my $cell = $data[0];
 
     # Check for a cell reference in A1 notation and substitute row and column
     if ($cell =~ /^\D/) {
-        @_ = $self->_substitute_cellref(@_);
+        @data = $self->_substitute_cellref(@_);
 
         # Returned values $row1 and $row2 aren't required here. Remove them.
-        shift  @_;       # $row1
-        splice @_, 1, 1; # $row2
+        shift  @data;       # $row1
+        splice @data, 1, 1; # $row2
     }
 
-    return if @_ < 3; # Ensure at least $firstcol, $lastcol and $width
-    return if not defined $_[0]; # Columns must be defined.
-    return if not defined $_[1];
+    return if @data < 3; # Ensure at least $firstcol, $lastcol and $width
+    return if not defined $data[0]; # Columns must be defined.
+    return if not defined $data[1];
 
-    push @{$self->{_colinfo}}, [ @_ ];
+    # Assume second column is the same as first if 0. Avoids KB918419 bug.
+    $data[1] = $data[0] if $data[1] == 0;
+
+    # Ensure 2nd col is larger than first. Also for KB918419 bug.
+    ($data[0], $data[1]) = ($data[1], $data[0]) if $data[0] > $data[1];
+
+    # Limit columns to Excel max of 255.
+    $data[0] = 255 if $data[0] > 255;
+    $data[1] = 255 if $data[1] > 255;
+
+    push @{$self->{_colinfo}}, [ @data ];
 
 
     # Store the col sizes for use when calculating image vertices taking
     # hidden columns into account. Also store the column formats.
     #
-    my $width  = $_[4] ? 0 : $_[2]; # Set width to zero if column is hidden
+    my $width  = $data[4] ? 0 : $data[2]; # Set width to zero if column is hidden
        $width  ||= 0;                 # Ensure width isn't undef.
-    my $format = $_[3];
+    my $format = $data[3];
 
-    my ($firstcol, $lastcol) = @_;
+    my ($firstcol, $lastcol) = @data;
 
     foreach my $col ($firstcol .. $lastcol) {
         $self->{_col_sizes}->{$col}   = $width;
@@ -5221,14 +5232,31 @@ sub _store_txo_continue_1 {
     my $self        = shift;
 
     my $record      = 0x003C;               # Record identifier
-    my $length      = 0x0000;               # Bytes to follow
-
     my $string      = $_[0];                # Comment string.
     my $encoding    = $_[1] || 0;           # Encoding of the string.
 
+
+    # Split long comment strings into smaller continue blocks if necessary.
+    # We can't let BIFFwriter::_add_continue() handled this since an extra
+    # encoding byte has to be added similar to the SST block.
+    #
+    # We make the limit size smaller than the _add_continue() size and even
+    # so that UTF16 chars occur in the same block.
+    #
+    my $limit = 8218;
+    while (length($string) > $limit) {
+        my $tmp_str = substr($string, 0, $limit, "");
+
+        my $data    = pack("C", $encoding) . $tmp_str;
+        my $length  = length $data;
+        my $header  = pack("vv", $record, $length);
+
+        $self->_append($header, $data);
+    }
+
     # Pack the record.
     my $data    = pack("C", $encoding) . $string;
-       $length  = length $data;
+    my $length  = length $data;
     my $header  = pack("vv", $record, $length);
 
     $self->_append($header, $data);
@@ -5522,7 +5550,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVI, John McNamara.
+© MM-MMVII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

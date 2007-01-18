@@ -88,14 +88,16 @@ WorkbookBig - A writer class for Excel Workbooks > 7MB.
 
 =head1 SYNOPSIS
 
-See the documentation for Spreadsheet::WriteExcel.
+The direct use of this module is deprecated. See below.
 
 
 =head1 DESCRIPTION
 
-This module is used in conjunction with Spreadsheet::WriteExcel.
+The module is a sub-class of Spreadsheet::WriteExcel used for creating Excel files greater than 7MB.
 
-It is a sub-class of the Spreadsheet::WriteExcel::Workbook module.
+Direct use of this module is deprecated. As of version 2.17 Spreadsheet::WriteExcel can create files larger than 7MB if OLE::Storage_Lite is installed.
+
+This module only exists for backwards compatibility.
 
 
 =head1 REQUIREMENTS
@@ -112,6 +114,6 @@ Kawai Takanori kwitknr@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVI, John McNamara and Kawai Takanori.
+© MM-MMVII, John McNamara and Kawai Takanori.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

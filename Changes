@@ -1,5 +1,36 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.18 January 18 2007 - Minor
+
+    ! Correct invalid user set_column() calls to prevent
+      crashes after Excel patch KB918419 is applied.
+      Thanks to Sharron McKenzie for debugging.
+
+    ! Fixed bug when writing comments longer than 8219 bytes.
+      Reported by jscaglione.
+
+    ! Fixed bug when using copy() with merged formats.
+      Reported by jscaglione.
+
+    ! Fixed bug where $@ was clobbered during garbage collection.
+      Reported by afoxson.
+      http://rt.cpan.org/Public/Bug/Display.html?id=24218
+
+    ! Removed all non-ascii characters from main docs to
+      avoid problems with troff and man.
+      Reported by Ken Williams.
+      http://rt.cpan.org/Public/Bug/Display.html?id=20948
+
+    + Added autoloading of OLE::Storage_Lite, when available,
+      to create workbooks larger than 7MB. It is no longer
+      required to explicitly use ::Big.
+
+    + Added handling of Unicode sheet names in formulas
+      as suggested by Zhur:
+      http://rt.cpan.org/Public/Bug/Display.html?id=20059
+
+
+
 2.17 May 21 2006 - Minor
 
     + Added set_tab_color() method and example (tab_colors.pl).

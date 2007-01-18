@@ -1,10 +1,11 @@
 name:               Spreadsheet-WriteExcel
 abstract:           Write to a cross platform Excel binary file
-version:            2.17
+version:            2.18
 version_from:       lib/Spreadsheet/WriteExcel.pm
 installdirs:        site
 requires:
     File::Temp:                    0
+    OLE::Storage_Lite:             0.14
     Parse::RecDescent:             0
 
 distribution_type:  module

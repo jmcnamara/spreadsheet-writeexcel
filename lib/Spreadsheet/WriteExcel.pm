@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.17'; # Rip Grant McLennan, 6th May 2006.
+$VERSION = '2.18'; # Action Packed, 18th January 2007.
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.17 of Spreadsheet::WriteExcel, released May 21, 2006.
+This document refers to version 2.18 of Spreadsheet::WriteExcel, released January 18, 2007.
 
 
 
@@ -1277,7 +1277,7 @@ As usual you can replace the C<$row> and C<$column> parameters with an C<A1> cel
 On systems with C<perl 5.8> and later the C<write_comment()> method will also handle strings in Perl's C<utf8> format.
 
     $worksheet->write_comment('C3', "\x{263a}");       # Smiley
-    $worksheet->write_comment('C4', 'Comment ça va?');
+    $worksheet->write_comment('C4', 'Comment ca va?');
 
 In addition to the basic 3 argument form of C<write_comment()> you can pass in several optional key/value pairs to control the format of the comment. For example:
 
@@ -1730,7 +1730,9 @@ Excel allows up to 7 outline levels. Therefore the C<$level> parameter should be
 
 This method can be used to change the default properties of a single column or a range of columns. All parameters apart from C<$first_col> and C<$last_col> are optional.
 
-If C<set_column()> is applied to a single column the value of C<$first_col> and C<$last_col> should be the same. It is also possible to specify a column range using the form of A1 notation used for columns. See the note about L<Cell notation>.
+If C<set_column()> is applied to a single column the value of C<$first_col> and C<$last_col> should be the same. In the case where C<$last_col> is zero it is set to the same value as C<$first_col>.
+
+It is also possible, and generally clearer, to specify a column range using the form of A1 notation used for columns. See the note about L<Cell notation>.
 
 Examples:
 
@@ -1919,7 +1921,7 @@ This is useful when creating Arabic, Hebrew or other near or far eastern workshe
 
 The C<hide_zero()> method is used to hide any zero values that appear in cells.
 
-    $worksheet->right_to_left();
+    $worksheet->hide_zero();
 
 In Excel this option is found under Tools->Options->View.
 
@@ -2824,11 +2826,8 @@ Using format strings you can define very sophisticated formatting of numbers.
     $format04->set_num_format('$0.00');
     $worksheet->write(3,  0, 49.99,     $format04);    # $49.99
 
-    $format05->set_num_format('£0.00');
-    $worksheet->write(4,  0, 49.99,     $format05);    # £49.99
-
-    $format06->set_num_format('¥0.00');
-    $worksheet->write(5,  0, 49.99,     $format06);    # ¥49.99
+    # Note you can use other currency symbols such as the pound or yen as well.
+    # Other currencies may require the use of Unicode.
 
     $format07->set_num_format('mm/dd/yy');
     $worksheet->write(6,  0, 36892.521, $format07);    # 01/01/01
@@ -3970,7 +3969,7 @@ The following limits are imposed by Excel:
     Maximum chars in a header/footer     254
 
 
-The minimum file size is 6K due to the OLE overhead. The maximum file size is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by using Takanori Kawai's OLE::Storage_Lite module http://search.cpan.org/search?dist=OLE-Storage_Lite see the C<bigfile.pl> example in the C<examples> directory of the distro.
+The minimum file size is 6K due to the OLE overhead. The maximum file size is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by installing Takanori Kawai's OLE::Storage_Lite module http://search.cpan.org/search?dist=OLE-Storage_Lite see the C<bigfile.pl> example in the C<examples> directory of the distro.
 
 
 
@@ -3984,19 +3983,20 @@ The latest version of this module is always available at: http://search.cpan.org
 
 =head1 REQUIREMENTS
 
-This module requires Perl 5.005 (or later), Parse::RecDescent and File::Temp:
+This module requires Perl >= 5.005, Parse::RecDescent, File::Temp and OLE::Storage_Lite:
 
-    http://search.cpan.org/search?dist=Parse-RecDescent/
-    http://search.cpan.org/search?dist=File-Temp/
+    http://search.cpan.org/search?dist=Parse-RecDescent/ # For formulas.
+    http://search.cpan.org/search?dist=File-Temp/        # For set_tempdir().
+    http://search.cpan.org/search?dist=OLE-Storage_Lite/ # For files > 7MB.
 
-
+Note, these aren't strict requirements. Spreadsheet::WriteExcel will work without these modules if you don't use write_formula(), set_tempdir() or create files greater than 7MB. However, it is best to install them if possible and they will be installed automatically if you use a tool such as CPAN.pm or ppm.
 
 
 =head1 INSTALLATION
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.16/INSTALL
+http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.17/INSTALL
 
 
 
@@ -4055,7 +4055,7 @@ Operating system doesn't support 64 bit IEEE float or it is byte-ordered in a wa
 
 You may sometimes encounter the following error when trying to open a file in Excel: "file.xls cannot be accessed. The file may be read-only, or you may be trying to access a read-only location. Or, the server the document is stored on may not be responding."
 
-This error generally means that the Excel file has been corrupted. There are two likely causes of this: the file was FTPed in ASCII mode instead of binary mode or else the file was created with UTF8 data returned by an XML parser. See L<WORKING WITH XML> for further details.
+This error generally means that the Excel file has been corrupted. There are two likely causes of this: the file was FTPed in ASCII mode instead of binary mode or else the file was created with UTF8 data returned by an XML parser. See L<Warning about XML::Parser and Perl 5.6> for further details.
 
 =back
 
@@ -4309,7 +4309,7 @@ DateTime::Format::Excel: http://search.cpan.org/dist/DateTime-Format-Excel
 
 "Reading and writing Excel files with Perl" by Teodor Zlatanov, atIBM developerWorks: http://www-106.ibm.com/developerworks/library/l-pexcel/
 
-"Excel-Dateien mit Perl erstellen - Controller im Glück" by Peter Dintelmann and Christian Kirsch in the German Unix/web journal iX: http://www.heise.de/ix/artikel/2001/06/175/
+"Excel-Dateien mit Perl erstellen - Controller im Gluck" by Peter Dintelmann and Christian Kirsch in the German Unix/web journal iX: http://www.heise.de/ix/artikel/2001/06/175/
 
 Spreadsheet::WriteExcel documentation in Japanese by Takanori Kawai. http://member.nifty.ne.jp/hippo2000/perltips/Spreadsheet/WriteExcel.htm
 
@@ -4322,7 +4322,7 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Damyan Ivanov, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Pérez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian Foley, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Damyan Ivanov, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Perez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Sharron McKenzie, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
 
 The following people contributed patches, examples or Excel information:
 
@@ -4343,45 +4343,37 @@ Thanks to Michael Meeks and Jody Goldberg for their work on Gnumeric.
 
 
 
+=head1 DISCLAIMER OF WARRANTY
+
+Because this software is licensed free of charge, there is no warranty for the software, to the extent permitted by applicable law. Except when otherwise stated in writing the copyright holders and/or other parties provide the software "as is" without warranty of any kind, either expressed or implied, including, but not limited to, the implied warranties of merchantability and fitness for a particular purpose. The entire risk as to the quality and performance of the software is with you. Should the software prove defective, you assume the cost of all necessary servicing, repair, or correction.
+
+In no event unless required by applicable law or agreed to in writing will any copyright holder, or any other party who may modify and/or redistribute the software as permitted by the above licence, be liable to you for damages, including any general, special, incidental, or consequential damages arising out of the use or inability to use the software (including but not limited to loss of data or data being rendered inaccurate or losses sustained by you or third parties or a failure of the software to operate with any other software), even if such holder or other party has been advised of the possibility of such damages.
+
+
+
+
 =head1 AUTHOR
 
 John McNamara jmcnamara@cpan.org
 
-    Cattle and Cane
+    I was nineteen when I came to town, they called it the Summer of Love
+    They were burning babies, burning flags. The hawks against the doves
+    I took a job in the steamie down on Cauldrum Street
+    And I fell in love with a laundry girl who was working next to me
 
-    I recall a schoolboy coming home
-    Through fields of cane
-    To a house of tin and timber
-    And in the sky a rain of falling cinders.
-    From time to time
-    The waste memory-wastes
+    Oh she was a rare thing, fine as a bee's wing
+    So fine a breath of wind might blow her away
+    She was a lost child, oh she was running wild
+    She said "As long as there's no price on love, I'll stay.
+    And you wouldn't want me any other way"
 
-    I recall a boy in bigger pants
-    Like everyone
-    Just waiting for a chance
-    His father's watch
-    He left it in the shower
-    From time to time
-    The waste memory-wastes
+        -- Richard Thompson
 
-    I recall a bigger brighter world
-    A world of books
-    And silent times in thought
-    And then the railroad
-    The railroad takes him home
-    Through fields of cattle
-    Through fields of cane
-    From time to time
-    The waste memory-wastes
-    The waste memory-wastes
-    Further, longer, higher, older.
-
-        -- Grant McLennan
 
 
 =head1 COPYRIGHT
 
-© MM-MMVI, John McNamara.
+Copyright MM-MMVII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 
