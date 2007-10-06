@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::WorkbookBig;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2006, John McNamara and Kawai Takanori.
+# Copyright 2000-2007, John McNamara and Kawai Takanori.
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.15';
+$VERSION = '2.20';
 
 ###############################################################################
 #

@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::BIFFwriter;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use strict;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.01';
+$VERSION = '2.20';
 
 ###############################################################################
 #
@@ -45,10 +45,11 @@ sub new {
     my $class  = $_[0];
 
     my $self   = {
-                    _byte_order    => '',
-                    _data          => '',
-                    _datasize      => 0,
-                    _limit         => 8224,
+                    _byte_order      => '',
+                    _data            => '',
+                    _datasize        => 0,
+                    _limit           => 8224,
+                    _ignore_continue => 0,
                  };
 
     bless $self, $class;
@@ -196,15 +197,20 @@ sub _store_eof {
 # This function take a long BIFF record and inserts CONTINUE records as
 # necessary.
 #
+# Some records have their own specialised Continue blocks so there is also an
+# option to bypass this function.
+#
 sub _add_continue {
 
     my $self        = shift;
     my $data        = $_[0];
     my $limit       = $self->{_limit};
     my $record      = 0x003C; # Record identifier
-    my $length;               # Number of bytes to follow
     my $header;
     my $tmp;
+
+    # Skip this if another method handles the continue blocks.
+    return $data if $self->{_ignore_continue};
 
     # The first 2080/8224 bytes remain intact. However, we have to change
     # the length field of the record.

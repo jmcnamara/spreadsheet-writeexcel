@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Workbook;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -20,11 +20,13 @@ use Spreadsheet::WriteExcel::OLEwriter;
 use Spreadsheet::WriteExcel::Worksheet;
 use Spreadsheet::WriteExcel::Format;
 use Spreadsheet::WriteExcel::Chart;
+#use Digest::MD5 'md5_hex';
+#use Digest::Perl::MD4 'md4_hex';
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.18';
+$VERSION = '2.20';
 
 ###############################################################################
 #
@@ -150,6 +152,7 @@ sub new {
     require Encode if $] >= 5.008;
 
     $self->_initialize();
+    $self->_get_checksum_method();
     return $self;
 }
 
@@ -224,6 +227,42 @@ sub _initialize {
                  "Spreadsheet::WriteExcel documentation.\n" ;
         }
     }
+}
+
+
+###############################################################################
+#
+# _get_checksum_method.
+#
+# Check for modules available to calculate image checksum. Excel uses MD4 but
+# MD5 will also work.
+#
+sub _get_checksum_method {
+
+    my $self = shift;
+
+    eval { require Digest::MD4};
+    if (not $@) {
+        $self->{_checksum_method} = 1;
+        return;
+    }
+
+
+    eval { require Digest::Perl::MD4};
+    if (not $@) {
+        $self->{_checksum_method} = 2;
+        return;
+    }
+
+
+    eval { require Digest::MD5};
+    if (not $@) {
+        $self->{_checksum_method} = 3;
+        return;
+    }
+
+    # Default.
+    $self->{_checksum_method} = 0;
 }
 
 
@@ -533,7 +572,7 @@ sub _check_sheetname {
                 $error  = 1 if lc($name_a) eq lc($name_b);
             }
             else {
-            # We can't easily do a case insensite test of the UTF16 names.
+            # We can't easily do a case insensitive test of the UTF16 names.
             # As a special case we check if all of the high bytes are nulls and
             # then do an ASCII style case insensitive test.
 
@@ -850,7 +889,7 @@ sub _store_workbook {
     # Calculate the offsets required by the BOUNDSHEET records
     $self->_calc_sheet_offsets();
 
-    # Add BOUNDSHEET records. For BIFF 7+ TODO ....
+    # Add BOUNDSHEET records.
     foreach my $sheet (@{$self->{_worksheets}}) {
         $self->_store_boundsheet($sheet->{_name},
                                  $sheet->{_offset},
@@ -916,6 +955,10 @@ sub _store_OLE_file {
         eval { require OLE::Storage_Lite };
 
         if (not $@) {
+
+            # Protect print() from -l on the command line.
+            local $\ = undef;
+
             my $stream  = pack 'v*', unpack 'C*', 'Workbook';
             my $OLE     = OLE::Storage_Lite::PPS::File->newFile($stream);
 
@@ -972,9 +1015,11 @@ sub _calc_sheet_offsets {
     # Add the length of the SUPBOOK, EXTERNSHEET and NAME records
     $offset += $self->_calculate_extern_sizes();
 
-    # Add the length of the MSODRAWINGGROUP records
-    $offset += $self->{_mso_size};
-
+    # Add the length of the MSODRAWINGGROUP records including an extra 4 bytes
+    # for any CONTINUE headers. See _add_mso_drawing_group_continue().
+    my $mso_size = $self->{_mso_size};
+    $mso_size += 4 * int(($mso_size -1) / $self->{_limit});
+    $offset   += $mso_size ;
 
     foreach my $sheet (@{$self->{_worksheets}}) {
         $offset += $BOF + length($sheet->{_name});
@@ -998,13 +1043,12 @@ sub _calc_sheet_offsets {
 # Calculate the MSODRAWINGGROUP sizes and the indexes of the Worksheet
 # MSODRAWING records.
 #
-# In the following SPID is shape id, according to Escher nonemclature.
+# In the following SPID is shape id, according to Escher nomenclature.
 #
 sub _calc_mso_sizes {
 
     my $self            = shift;
 
-    my $num_shapes      = 0;
     my $mso_size        = 0;    # Size of the MSODRAWINGGROUP record
     my $start_spid      = 1024; # Initial spid for each sheet
     my $max_spid        = 1024; # spidMax
@@ -1014,17 +1058,35 @@ sub _calc_mso_sizes {
     my @clusters        = ();
 
 
+    $self->_process_images();
+
+    # Add Bstore container size if there are images.
+    $mso_size += 8 if @{$self->{_images_data}};
+
+
     # Iterate through the worksheets, calculate the MSODRAWINGGROUP parameters
     # and space required to store the record and the MSODRAWING parameters
     # required by each worksheet.
     #
     foreach my $sheet (@{$self->{_worksheets}}) {
-        next if ref $sheet eq "Spreadsheet::WriteExcel::Chart";
-        next unless $num_shapes = $sheet->_prepare_comments();
+        next unless ref $sheet eq "Spreadsheet::WriteExcel::Worksheet";
+
+        my $num_images     = $sheet->{_num_images} || 0;
+        my $image_mso_size = $sheet->{_image_mso_size} || 0;
+        my $num_comments   = $sheet->_prepare_comments();
+        my $num_charts     = $sheet->_prepare_charts();
+        my $num_filters    = $sheet->{_filter_count};
+
+        next unless $num_images + $num_comments + $num_charts +$num_filters;
+
 
         # Include 1 parent MSODRAWING shape, per sheet, in the shape count.
-        $num_shapes   += 1;
-        $shapes_saved += $num_shapes;
+        my $num_shapes   += 1 + $num_images
+                              + $num_comments
+                              + $num_charts
+                              + $num_filters;
+           $shapes_saved += $num_shapes;
+           $mso_size     += $image_mso_size;
 
 
         # Add a drawing object for each sheet with comments.
@@ -1050,8 +1112,8 @@ sub _calc_mso_sizes {
         }
 
 
-        # Pass calculate values back to the worksheet
-        $sheet->{_comments_ids} = [$start_spid, $drawings_saved,
+        # Pass calculated values back to the worksheet
+        $sheet->{_object_ids} = [$start_spid, $drawings_saved,
                                   $num_shapes, $max_spid -1];
     }
 
@@ -1065,6 +1127,261 @@ sub _calc_mso_sizes {
                                 $max_spid, $num_clusters, $shapes_saved,
                                 $drawings_saved, [@clusters]
                               ];
+}
+
+
+
+###############################################################################
+#
+# _process_images()
+#
+# We need to process each image in each worksheet and extract information.
+# Some of this information is stored and used in the Workbook and some is
+# passed back into each Worksheet. The overall size for the image related
+# BIFF structures in the Workbook is calculated here.
+#
+# MSO size =  8 bytes for bstore_container +
+#            44 bytes for blip_store_entry +
+#            25 bytes for blip
+#          = 77 + image size.
+#
+sub _process_images {
+
+    my $self = shift;
+
+    my %images_seen;
+    my @image_data;
+    my @previous_images;
+    my $image_id    = 1;
+    my $images_size = 0;
+
+
+    foreach my $sheet (@{$self->{_worksheets}}) {
+        next unless ref $sheet eq "Spreadsheet::WriteExcel::Worksheet";
+        next unless $sheet->_prepare_images();
+
+        my $num_images      = 0;
+        my $image_mso_size  = 0;
+
+
+        for my $image_ref (@{$sheet->{_images_array}}) {
+            my $filename = $image_ref->[2];
+            $num_images++;
+
+            #
+            # For each Worksheet image we get a structure like this
+            # [
+            #   $row,
+            #   $col,
+            #   $name,
+            #   $x_offset,
+            #   $y_offset,
+            #   $scale_x,
+            #   $scale_y,
+            # ]
+            #
+            # And we add additional information:
+            #
+            #   $image_id,
+            #   $type,
+            #   $width,
+            #   $height;
+
+            if (not exists $images_seen{$filename}) {
+                # TODO should also match seen images based on checksum.
+
+                # Open the image file and import the data.
+                my $fh = FileHandle->new($filename);
+                croak "Couldn't import $filename: $!" unless defined $fh;
+                binmode $fh;
+
+                # Slurp the file into a string and do some size calcs.
+                my $data        = do {local $/; <$fh>};
+                my $size        = length $data;
+                my $checksum1   = $self->_image_checksum($data, $image_id);
+                my $checksum2   = $checksum1;
+                my $ref_count   = 1;
+
+
+                # Process the image and extract dimensions.
+                my ($type, $width, $height);
+
+                if    (unpack('x A3', $data) eq 'PNG') {
+                    ($type, $width, $height) = $self->_process_png($data);
+                }
+                elsif (unpack('A2',   $data) eq 'BM') {
+                    ($type, $width, $height) = $self->_process_bmp($data,
+                                                                   $filename);
+                    # The 14 byte header of the BMP is stripped off.
+                    $data       = substr $data, 14;
+
+                    # A checksum of the new image data is also required.
+                    $checksum2  = $self->_image_checksum($data,
+                                                         $image_id,
+                                                         $image_id
+                                                         );
+
+                    # Adjust size -14 (header) + 16 (extra checksum).
+                    $size += 2;
+                }
+                else {
+                    croak "Unsupported image format for file: $filename\n";
+                }
+
+
+                # Push the new data back into the Worksheet array;
+                push @$image_ref, $image_id, $type, $width, $height;
+
+                # Also store new data for use in duplicate images.
+                push @previous_images, [$image_id, $type, $width, $height];
+
+
+                # Store information required by the Workbook.
+                push @image_data, [$ref_count, $type, $data, $size,
+                                   $checksum1, $checksum2];
+
+                # Keep track of overall data size.
+                $images_size       += $size +61; # Size for bstore container.
+                $image_mso_size    += $size +69; # Size for dgg container.
+
+                $images_seen{$filename} = $image_id++;
+                $fh->close;
+            }
+            else {
+                # We've processed this file already.
+                my $index = $images_seen{$filename} -1;
+
+                # Increase image reference count.
+                $image_data[$index]->[0]++;
+
+                # Add previously calculated data back onto the Worksheet array.
+                # $image_id, $type, $width, $height
+                my $a_ref = $sheet->{_images_array}->[$index];
+                push @$image_ref, @{$previous_images[$index]};
+            }
+        }
+
+        # Store information required by the Worksheet.
+        $sheet->{_num_images}     = $num_images;
+        $sheet->{_image_mso_size} = $image_mso_size;
+
+    }
+
+
+    # Store information required by the Workbook.
+    $self->{_images_size} = $images_size;
+    $self->{_images_data} = \@image_data; # Store the data for MSODRAWINGGROUP.
+
+}
+
+
+###############################################################################
+#
+# _image_checksum()
+#
+# Generate a checksum for the image using whichever module is available..The
+# available modules are checked in _get_checksum_method(). Excel uses an MD4
+# checksum but any other will do. In the event of no checksum module being
+# available we simulate a checksum using the image index.
+#
+sub _image_checksum {
+
+    my $self    = shift;
+
+    my $data    = $_[0];
+    my $index1  = $_[1];
+    my $index2  = $_[2] || 0;
+
+    if    ($self->{_checksum_method} == 1) {
+        # Digest::MD4
+        return Digest::MD4::md4_hex($data);
+    }
+    elsif ($self->{_checksum_method} == 2) {
+        # Digest::Perl::MD4
+        return Digest::Perl::MD4::md4_hex($data);
+    }
+    elsif ($self->{_checksum_method} == 3) {
+        # Digest::MD5
+        return Digest::MD5::md5_hex($data);
+    }
+    else {
+        # Default
+        return sprintf '%016X%016X', $index2, $index1;
+    }
+}
+
+
+###############################################################################
+#
+# _process_png()
+#
+# Extract width and height information from a PNG file.
+#
+sub _process_png {
+
+    my $self    = shift;
+
+    my $type    = 6; # Excel Blip type (MSOBLIPTYPE).
+    my $width   = unpack "N", substr $_[0], 16, 4;
+    my $height  = unpack "N", substr $_[0], 20, 4;
+
+    return ($type, $width, $height);
+}
+
+
+###############################################################################
+#
+# _process_bmp()
+#
+# Extract width and height information from a BMP file.
+#
+# Most of these checks came from the old Worksheet::_process_bitmap() method.
+#
+sub _process_bmp {
+
+    my $self     = shift;
+    my $data     = $_[0];
+    my $filename = $_[1];
+    my $type     = 7; # Excel Blip type (MSOBLIPTYPE).
+
+
+    # Check that the file is big enough to be a bitmap.
+    if (length $data <= 0x36) {
+        croak "$filename doesn't contain enough data.";
+    }
+
+
+    # Read the bitmap width and height. Verify the sizes.
+    my ($width, $height) = unpack "x18 V2", $data;
+
+    if ($width > 0xFFFF) {
+        croak "$filename: largest image width $width supported is 65k.";
+    }
+
+    if ($height > 0xFFFF) {
+        croak "$filename: largest image height supported is 65k.";
+    }
+
+    # Read the bitmap planes and bpp data. Verify them.
+    my ($planes, $bitcount) = unpack "x26 v2", $data;
+
+    if ($bitcount != 24) {
+        croak "$filename isn't a 24bit true color bitmap.";
+    }
+
+    if ($planes != 1) {
+        croak "$filename: only 1 plane supported in bitmap image.";
+    }
+
+
+    # Read the bitmap compression. Verify compression.
+    my $compression = unpack "x30 V", $data;
+
+    if ($compression != 0) {
+        croak "$filename: compression not supported in bitmap image.";
+    }
+
+    return ($type, $width, $height);
 }
 
 
@@ -1087,7 +1404,7 @@ sub _store_all_fonts {
     }
 
 
-    # Add the font for comments. This is connected to any XF format.
+    # Add the font for comments. This isn't connected to any XF format.
     my $tmp    = Spreadsheet::WriteExcel::Format->new(undef,
                                                       font => 'Tahoma',
                                                       size => 8);
@@ -1105,17 +1422,23 @@ sub _store_all_fonts {
     $key = $format->get_font_key(); # The default font for cell formats.
     $fonts{$key} = 0;               # Index of the default font
 
+    # Fonts that are marked as '_font_only' are always stored. These are used
+    # mainly for charts and may not have an associated XF record.
 
     foreach $format (@{$self->{_formats}}) {
         $key = $format->get_font_key();
 
-        if (exists $fonts{$key}) {
+        if (not $format->{_font_only} and exists $fonts{$key}) {
             # FONT has already been used
             $format->{_font_index} = $fonts{$key};
         }
         else {
             # Add a new FONT record
-            $fonts{$key}           = $index;
+
+            if (not $format->{_font_only}) {
+                $fonts{$key} = $index;
+            }
+
             $format->{_font_index} = $index;
             $index++;
             $font = $format->get_font();
@@ -1242,11 +1565,25 @@ sub _store_names {
         my $ref = $ext_refs{$key};
         $index++;
 
+        # Write a Name record if Autofilter has been defined
+        if ($worksheet->{_filter_count}) {
+            $self->_store_name_short(
+                $worksheet->{_index},
+                0x0D, # NAME type = Filter Database
+                $ref,
+                $worksheet->{_filter_area}->[0],
+                $worksheet->{_filter_area}->[1],
+                $worksheet->{_filter_area}->[2],
+                $worksheet->{_filter_area}->[3],
+                1, # Hidden
+            );
+        }
+
         # Write a Name record if the print area has been defined
         if (defined $worksheet->{_print_rowmin}) {
             $self->_store_name_short(
                 $worksheet->{_index},
-                0x06, # NAME type
+                0x06, # NAME type = Print_Area
                 $ref,
                 $worksheet->{_print_rowmin},
                 $worksheet->{_print_rowmax},
@@ -1254,6 +1591,7 @@ sub _store_names {
                 $worksheet->{_print_colmax}
             );
         }
+
     }
 
     $index = 0;
@@ -1277,7 +1615,7 @@ sub _store_names {
             # Row title has been defined.
             $self->_store_name_long(
                 $worksheet->{_index},
-                0x07, # NAME type
+                0x07, # NAME type = Print_Titles
                 $ref,
                 $rowmin,
                 $rowmax,
@@ -1289,7 +1627,7 @@ sub _store_names {
             # Row title has been defined.
             $self->_store_name_short(
                 $worksheet->{_index},
-                0x07, # NAME type
+                0x07, # NAME type = Print_Titles
                 $ref,
                 $rowmin,
                 $rowmax,
@@ -1301,7 +1639,7 @@ sub _store_names {
             # Column title has been defined.
             $self->_store_name_short(
                 $worksheet->{_index},
-                0x07, # NAME type
+                0x07, # NAME type = Print_Titles
                 $ref,
                 0x0000,
                 0xffff,
@@ -1606,6 +1944,8 @@ sub _store_name_short {
     my $colmin          = $_[2];        # Start column
     my $colmax          = $_[3];        # end column
 
+    my $hidden          = $_[4];        # Name is hidden
+    $grbit              = 0x0021 if $hidden;
 
     my $header          = pack("vv", $record, $length);
     my $data            = pack("v",  $grbit);
@@ -1811,11 +2151,13 @@ sub _calculate_extern_sizes {
 
         my $rowmin      = $worksheet->{_title_rowmin};
         my $colmin      = $worksheet->{_title_colmin};
+        my $filter      = $worksheet->{_filter_count};
         my $key         = "$index:$index";
         $index++;
 
 
-        # Print area NAME records
+        # Add area NAME records
+        #
         if (defined $worksheet->{_print_rowmin}) {
             $ext_refs{$key} = $ext_ref_count++ if not exists $ext_refs{$key};
 
@@ -1823,7 +2165,8 @@ sub _calculate_extern_sizes {
         }
 
 
-        # Print title  NAME records
+        # Add title  NAME records
+        #
         if (defined $rowmin and defined $colmin) {
             $ext_refs{$key} = $ext_ref_count++ if not exists $ext_refs{$key};
 
@@ -1835,24 +2178,29 @@ sub _calculate_extern_sizes {
             $length += 31;
         }
         else {
-            # TODO
+            # TODO, may need this later.
         }
 
 
+        # Add Autofilter  NAME records
+        #
+        if ($filter) {
+            $ext_refs{$key} = $ext_ref_count++ if not exists $ext_refs{$key};
+
+            $length += 31;
+        }
     }
 
 
-    # TODO
+    # Update the ref counts.
     $self->{_ext_ref_count} = $ext_ref_count;
     $self->{_ext_refs}      = {%ext_refs};
-
 
 
     # If there are no external refs then we don't write, SUPBOOK, EXTERNSHEET
     # and NAME. Therefore the length is 0.
 
     return $length = 0 if $ext_ref_count == 0;
-
 
 
     # The SUPBOOK record is 8 bytes
@@ -2209,6 +2557,7 @@ sub _store_shared_strings {
     }
 }
 
+
 #
 # Methods related to comments and MSO objects.
 #
@@ -2231,17 +2580,86 @@ sub _add_mso_drawing_group {
 
     my $data    = $self->_store_mso_dgg_container();
        $data   .= $self->_store_mso_dgg(@{$self->{_mso_clusters}});
+       $data   .= $self->_store_mso_bstore_container();
+       $data   .= $self->_store_mso_images(@$_) for @{$self->{_images_data}};
        $data   .= $self->_store_mso_opt();
        $data   .= $self->_store_mso_split_menu_colors();
 
        $length  = length $data;
     my $header  = pack("vv", $record, $length);
 
+    $self->_add_mso_drawing_group_continue($header . $data);
+
+    return $header . $data; # For testing only.
+}
+
+
+###############################################################################
+#
+# _add_mso_drawing_group_continue()
+#
+# See first the Spreadsheet::WriteExcel::BIFFwriter::_add_continue() method.
+#
+# Add specialised CONTINUE headers to large MSODRAWINGGROUP data block.
+# We use the Excel 97 max block size of 8228 - 4 bytes for the header = 8224.
+#
+# The structure depends on the size of the data block:
+#
+#     Case 1:  <=   8224 bytes      1 MSODRAWINGGROUP
+#     Case 2:  <= 2*8224 bytes      1 MSODRAWINGGROUP + 1 CONTINUE
+#     Case 3:  >  2*8224 bytes      2 MSODRAWINGGROUP + n CONTINUE
+#
+sub _add_mso_drawing_group_continue {
+
+    my $self        = shift;
+
+    my $data        = $_[0];
+    my $limit       = 8228 -4;
+    my $mso_group   = 0x00EB; # Record identifier
+    my $continue    = 0x003C; # Record identifier
+    my $block_count = 1;
+    my $header;
+    my $tmp;
+
+    # Ignore the base class _add_continue() method.
+    $self->{_ignore_continue} = 1;
+
+    # Case 1 above. Just return the data as it is.
+    if (length $data <= $limit) {
+        $self->_append($data);
+        return;
+    }
+
+    # Change length field of the first MSODRAWINGGROUP block. Case 2 and 3.
+    $tmp = substr($data, 0, $limit +4, "");
+    substr($tmp, 2, 2, pack("v", $limit));
+    $self->_append($tmp);
+
+
+    # Add MSODRAWINGGROUP and CONTINUE blocks for Case 3 above.
+    while (length($data) > $limit) {
+        if ($block_count == 1) {
+            # Add extra MSODRAWINGGROUP block header.
+            $header = pack("vv", $mso_group, $limit);
+            $block_count++;
+        }
+        else {
+            # Add normal CONTINUE header.
+            $header = pack("vv", $continue, $limit);
+        }
+
+        $tmp = substr($data, 0, $limit, "");
+        $self->_append($header, $tmp);
+    }
+
+
+    # Last CONTINUE block for remaining data. Case 2 and 3 above.
+    $header = pack("vv", $continue, length($data));
     $self->_append($header, $data);
 
 
-    return $header . $data;
-
+    # Turn the base class _add_continue() method back on.
+    $self->{_ignore_continue} = 0;
 }
 
 
@@ -2274,7 +2692,7 @@ sub _store_mso_dgg_container {
 #
 sub _store_mso_dgg {
 
-    my $self        = shift;
+    my $self            = shift;
 
     my $type            = 0xF006;
     my $version         = 0;
@@ -2301,6 +2719,137 @@ sub _store_mso_dgg {
 
     return $self->_add_mso_generic($type, $version, $instance, $data, $length);
 }
+
+
+###############################################################################
+#
+# _store_mso_bstore_container()
+#
+# Write the Escher BstoreContainer record that is part of MSODRAWINGGROUP.
+#
+sub _store_mso_bstore_container {
+
+    my $self        = shift;
+
+    return '' unless $self->{_images_size};
+
+    my $type        = 0xF001;
+    my $version     = 15;
+    my $instance    = @{$self->{_images_data}}; # Number of images.
+    my $data        = '';
+    my $length      = $self->{_images_size} +8 *$instance;
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+
+###############################################################################
+#
+# _store_mso_images()
+#
+# Write the Escher BstoreContainer record that is part of MSODRAWINGGROUP.
+#
+sub _store_mso_images {
+
+    my $self        = shift;
+
+    my $ref_count   = $_[0];
+    my $image_type  = $_[1];
+    my $image       = $_[2];
+    my $size        = $_[3];
+    my $checksum1   = $_[4];
+    my $checksum2   = $_[5];
+
+    my $blip_store_entry =  $self->_store_mso_blip_store_entry($ref_count,
+                                                               $image_type,
+                                                               $size,
+                                                               $checksum1);
+
+    my $blip             =  $self->_store_mso_blip($image_type,
+                                                   $image,
+                                                   $size,
+                                                   $checksum1,
+                                                   $checksum2);
+
+    return $blip_store_entry . $blip;
+}
+
+
+
+###############################################################################
+#
+# _store_mso_blip_store_entry()
+#
+# Write the Escher BlipStoreEntry record that is part of MSODRAWINGGROUP.
+#
+sub _store_mso_blip_store_entry {
+
+    my $self        = shift;
+
+    my $ref_count   = $_[0];
+    my $image_type  = $_[1];
+    my $size        = $_[2];
+    my $checksum1   = $_[3];
+
+
+    my $type        = 0xF007;
+    my $version     = 2;
+    my $instance    = $image_type;
+    my $length      = $size +61;
+    my $data        = pack('C',  $image_type)   # Win32
+                    . pack('C',  $image_type)   # Mac
+                    . pack('H*', $checksum1)    # Uid checksum
+                    . pack('v',  0xFF)          # Tag
+                    . pack('V',  $size +25)     # Next Blip size
+                    . pack('V',  $ref_count)    # Image ref count
+                    . pack('V',  0x00000000)    # File offset
+                    . pack('C',  0x00)          # Usage
+                    . pack('C',  0x00)          # Name length
+                    . pack('C',  0x00)          # Unused
+                    . pack('C',  0x00)          # Unused
+                    ;
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_blip()
+#
+# Write the Escher Blip record that is part of MSODRAWINGGROUP.
+#
+sub _store_mso_blip {
+
+    my $self        = shift;
+
+    my $image_type  = $_[0];
+    my $image_data  = $_[1];
+    my $size        = $_[2];
+    my $checksum1   = $_[3];
+    my $checksum2   = $_[4];
+    my $instance;
+
+    $instance = 0x06E0 if $image_type == 6; # PNG
+    $instance = 0x07A9 if $image_type == 7; # BMP
+
+    # BMPs contain an extra checksum for the stripped data.
+    if ( $image_type == 7) {
+        $checksum1 = $checksum2 . $checksum1;
+    }
+
+    my $type        = 0xF018 + $image_type;
+    my $version     = 0x0000;
+    my $length      = $size +17;
+    my $data        = pack('H*', $checksum1) # Uid checksum
+                    . pack('C',  0xFF)       # Tag
+                    . $image_data            # Image
+                    ;
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
 
 
 ###############################################################################

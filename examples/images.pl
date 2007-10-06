@@ -3,7 +3,7 @@
 #######################################################################
 #
 # Example of how to insert images into an Excel worksheet using the
-# Spreadsheet::WriteExcel insert_bitmap() method.
+# Spreadsheet::WriteExcel insert_image() method.
 #
 # reverse('©'), October 2001, John McNamara, jmcnamara@cpan.org
 #
@@ -20,22 +20,22 @@ my $worksheet4 = $workbook->add_worksheet('Image 4');
 
 # Insert a basic image
 $worksheet1->write('A10', "Image inserted into worksheet.");
-$worksheet1->insert_bitmap('A1', 'republic.bmp');
+$worksheet1->insert_image('A1', 'republic.png');
 
 
 # Insert an image with an offset
 $worksheet2->write('A10', "Image inserted with an offset.");
-$worksheet2->insert_bitmap('A1', 'republic.bmp', 32, 10);
+$worksheet2->insert_image('A1', 'republic.png', 32, 10);
 
 # Insert a scaled image
 $worksheet3->write('A10', "Image scaled: width x 2, height x 0.8.");
-$worksheet3->insert_bitmap('A1', 'republic.bmp', 0, 0, 2, 0.8);
+$worksheet3->insert_image('A1', 'republic.png', 0, 0, 2, 0.8);
 
 # Insert an image over varied column and row sizes
 # This does not require any additional work
 
 # Set the cols and row sizes
-# NOTE: you must do this before you call insert_bitmap()
+# NOTE: you must do this before you call insert_image()
 $worksheet4->set_column('A:A', 5);
 $worksheet4->set_column('B:B', undef, undef, 1); # Hidden
 $worksheet4->set_column('C:D', 10);
@@ -43,7 +43,7 @@ $worksheet4->set_row(0, 30);
 $worksheet4->set_row(3, 5);
 
 $worksheet4->write('A10', "Image inserted over scaled rows and columns.");
-$worksheet4->insert_bitmap('A1', 'republic.bmp');
+$worksheet4->insert_image('A1', 'republic.png');
 
 
 

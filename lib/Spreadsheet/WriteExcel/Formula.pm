@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Formula;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Carp;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.04';
+$VERSION = '2.20';
 
 ###############################################################################
 #

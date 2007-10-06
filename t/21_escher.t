@@ -14,7 +14,7 @@
 use strict;
 
 use Spreadsheet::WriteExcel;
-use Test::More tests => 41;
+use Test::More tests => 42;
 #use Test::More 'no_plan';
 
 my @tests = (
@@ -132,6 +132,15 @@ my @tests = (
                     '40 00 1E F1 10 00 00 00 ' .    # Target
                     '0D 00 00 08 0C 00 00 08 ' .
                     '17 00 00 08 F7 00 00 10',
+                ],
+
+                [   'BstoreContainer',              # Caption
+                    0xF001,                         # Type
+                    15,                             # Version
+                    1,                              # Instance
+                    '',                             # Data
+                    163,                            # Length
+                    '1F 00 01 F0 A3 00 00 00',      # Target
                 ],
             );
 
@@ -356,13 +365,13 @@ $range   = 'A1';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 01 00 F0 00 00 00
                         1E 00 03 00 F0 00 04 00 78 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -375,13 +384,13 @@ $range   = 'A2';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 01 00 F0 00 00 00
                         69 00 03 00 F0 00 04 00 C4 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -394,13 +403,13 @@ $range   = 'A3';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 01 00 F0 00 01 00
                         69 00 03 00 F0 00 05 00 C4 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -413,13 +422,13 @@ $range   = 'A65534';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 01 00 F0 00 F9 FF
                         3C 00 03 00 F0 00 FD FF 97 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -432,13 +441,13 @@ $range   = 'A65535';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 01 00 F0 00 FA FF
                         3C 00 03 00 F0 00 FE FF 97 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -451,13 +460,13 @@ $range   = 'A65536';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 01 00 F0 00 FB FF
                         1E 00 03 00 F0 00 FF FF 78 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -470,13 +479,13 @@ $range   = 'IT3';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 FA 00 10 03 01 00
                         69 00 FC 00 10 03 05 00 C4 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -489,13 +498,13 @@ $range   = 'IU3';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 FB 00 10 03 01 00
                         69 00 FD 00 10 03 05 00 C4 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -508,13 +517,13 @@ $range   = 'IV3';
 $caption = sprintf " \t_store_mso_client_anchor(%s)", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00 FC 00 10 03 01 00
                         69 00 FE 00 10 03 05 00 C4 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -528,14 +537,14 @@ $range   = 'A3';
 $caption = sprintf " \t_store_mso_client_anchor(%s). Cell offsets changed.", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test', x_offset => 18, y_offset => 9);
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00
                         00 00 03 00 01 00 20 01 01 00 88 00 03 00 20 01
                         05 00 E2 00
                         );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -549,14 +558,14 @@ $range   = 'A3';
 $caption = sprintf " \t_store_mso_client_anchor(%s). Dimensions changed.", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test', x_scale => 3, y_scale => 2);
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00
                         01 00 F0 00 01 00 69 00 07 00 F0 00 0A 00 1E 00
 
                         );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -570,14 +579,14 @@ $range   = 'A3';
 $caption = sprintf " \t_store_mso_client_anchor(%s). Dimensions changed.", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test', width => 385, height => 149);
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00
                         01 00 F0 00 01 00 69 00 07 00 F0 00 0A 00 1E 00
 
                         );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -592,14 +601,14 @@ $worksheet->set_column('G:G', 20);
 $caption = sprintf " \t_store_mso_client_anchor(%s). Col width changed.", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00
                         00 00 03 00 06 00 6A 00 01 00 69 00 06 00 F2 03
                         05 00 C4 00
                         );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -614,14 +623,14 @@ $worksheet->set_column('L:O', 4);
 $caption = sprintf " \t_store_mso_client_anchor(%s). Col width changed.", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00
                         00 00 03 00 0B 00 D1 01 01 00 69 00 0F 00 B0 00
                         05 00 C4 00
                         );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -639,14 +648,14 @@ $worksheet->set_row(8,   6);
 $caption = sprintf " \t_store_mso_client_anchor(%s). Row height changed.", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00
                         00 00 03 00 01 00 F0 00 04 00 69 00 03 00 F0 00
                         0A 00 E2 00
                         );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -661,14 +670,14 @@ $worksheet->set_row(14, 60);
 $caption = sprintf " \t_store_mso_client_anchor(%s). Row height changed.", $range;
 @data    = $worksheet->_substitute_cellref($range);
 @data    = $worksheet->_comment_params(@data, 'Test');
-@data    = ($data[0], $data[0], @{$data[-1]});
+@data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00
                         00 00 03 00 01 00 F0 00 0D 00 69 00 03 00 F0 00
                         0E 00 CD 00
                         );
 
-$result  = unpack_record($worksheet->_store_mso_client_anchor(@data));
+$result  = unpack_record($worksheet->_store_mso_client_anchor(3, @data));
 
 is($result, $target, $caption);
 
@@ -737,17 +746,3 @@ unlink $test_file;
 
 __END__
 
-
-
-
-0
-
-93 00 0B F0 36 00 00 00
-80 00 E8 1E 5C 01 BF 00 08 00 08 00
-58 01 00 00 00 00 81 01 50 00 00 08 83 01 50 00
-00 08 BF 01 10 00 11 00 01 02 00 00 00 00 3F 02
-03 00 03 00 BF 03 02 00 0A 00
-
-00 00 10 F0 12 00
-00 00 03 00 01 00 F0 00 01 00 69 00 03 00 F0 00
-05 00 C4 00 00 00 11 F0 00 00 00 00

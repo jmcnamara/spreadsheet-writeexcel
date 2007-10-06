@@ -12,10 +12,14 @@ The files are as follows:
     demo1.pl        A demo of a line chart.
     demo2.pl        A demo of a pie chart.
     demo3.pl        A demo of a Open-High-Low-Close stock chart.
+    demo4.pl        A demo of a Open-High-Low-Close stock chart (embedded).
+    demo5.pl        A demo of a line chart (embedded).
 
     Chart1.xls      A template for use with demo1.pl.
     Chart2.xls      A template for use with demo2.pl.
     Chart3.xls      A template for use with demo3.pl.
+    Chart4.xls      A template for use with demo4.pl.
+    Chart5.xls      A template for use with demo5.pl.
 
     * If you performed a normal installation then the chartex utility
       should be installed to your 'somepath/perl/bin' directory and
@@ -32,6 +36,12 @@ You can run the examples as follows:
 
     perl chartex.pl -c=demo3 Chart3.xls
     perl demo3.pl
+
+    perl chartex.pl -c=demo4 Chart4.xls
+    perl demo4.pl
+
+    perl chartex.pl -c=demo5 Chart5.xls
+    perl demo5.pl
 
 
 See charts.txt for further details of how to include externally generated charts in a Spreadsheet::WriteExcel file.

@@ -295,7 +295,7 @@ sub borders {
     $worksheet->write(0, 5, "The style is highlighted in red for ", $heading);
     $worksheet->write(1, 5, "emphasis, the default color is black.", $heading);
 
-    for my $i (0..7){
+    for my $i (0..13){
         my $format = $workbook->add_format();
         $format->set_border($i);
         $format->set_border_color('red');
@@ -307,9 +307,10 @@ sub borders {
         $worksheet->write((2*($i+1)), 3, "Border", $format);
     }
 
-    $worksheet->write(18, 0, "Diag type", $heading);
-    $worksheet->write(18, 1, "Index", $heading);
-    $worksheet->write(18, 3, "Style", $heading);
+    $worksheet->write(30, 0, "Diag type", $heading);
+    $worksheet->write(30, 1, "Index", $heading);
+    $worksheet->write(30, 3, "Style", $heading);
+    $worksheet->write(30, 5, "Diagonal Boder styles", $heading);
 
     for my $i (1..3){
         my $format = $workbook->add_format();
@@ -318,10 +319,10 @@ sub borders {
         $format->set_diag_color('red');
         $format->set_align('center');
 
-        $worksheet->write((2*($i+9)), 0, $i,                    $center);
-        $worksheet->write((2*($i+9)), 1, sprintf("0x%02X", 1),  $center);
+        $worksheet->write((2*($i+15)), 0, $i,                     $center);
+        $worksheet->write((2*($i+15)), 1, sprintf("0x%02X", $i),  $center);
 
-        $worksheet->write((2*($i+9)), 3, "Border", $format);
+        $worksheet->write((2*($i+15)), 3, "Border", $format);
     }
 }
 

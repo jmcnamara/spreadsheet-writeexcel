@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Chart;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::BIFFwriter;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.13';
+$VERSION = '2.20';
 
 ###############################################################################
 #

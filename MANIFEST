@@ -29,6 +29,9 @@ t/21_escher.t
 t/22_mso_drawing_group.t
 t/23_note.t
 t/24_txo.t
+t/26_autofilter.t
+t/27_autofilter.t
+t/28_autofilter.t
 
 doc/index.html
 doc/WriteExcel.html
@@ -54,6 +57,7 @@ doc/tpj0503-0004-05.gif
 doc/win32ole.gif
 
 examples/README
+examples/autofilter.pl
 examples/autofit.pl
 examples/bigfile.pl
 examples/bug_report.pl
@@ -95,7 +99,7 @@ examples/panes.pl
 examples/protection.pl
 examples/regions.pl
 examples/repeat.pl
-examples/republic.bmp
+examples/republic.png
 examples/right_to_left.pl
 examples/row_wrap.pl
 examples/sales.pl
@@ -107,7 +111,6 @@ examples/stocks.pl
 examples/tab2xls.pl
 examples/tab_colors.pl
 examples/textwrap.pl
-examples/unicode.pl
 examples/unicode_2022_jp.pl
 examples/unicode_2022_jp.txt
 examples/unicode_8859_11.pl
@@ -121,7 +124,6 @@ examples/unicode_cp1251.txt
 examples/unicode_cp1256.pl
 examples/unicode_cp1256.txt
 examples/unicode_cyrillic.pl
-examples/unicode_japan.pl
 examples/unicode_koi8r.pl
 examples/unicode_koi8r.txt
 examples/unicode_list.pl
@@ -129,6 +131,8 @@ examples/unicode_polish_utf8.pl
 examples/unicode_polish_utf8.txt
 examples/unicode_shift_jis.pl
 examples/unicode_shift_jis.txt
+examples/unicode_utf16.pl
+examples/unicode_utf16_japan.pl
 examples/win32ole.pl
 examples/writeA1.pl
 examples/write_arrays.pl
@@ -145,8 +149,12 @@ charts/charts.txt
 charts/demo1.pl
 charts/demo2.pl
 charts/demo3.pl
+charts/demo4.pl
+charts/demo5.pl
 charts/Chart1.xls
 charts/Chart2.xls
 charts/Chart3.xls
+charts/Chart4.xls
+charts/Chart5.xls
 
 bin/chartex

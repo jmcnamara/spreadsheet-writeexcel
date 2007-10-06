@@ -62,7 +62,7 @@ $worksheet->write('B2', "Hello Excel");
 $worksheet->write('A3', "Formatted text");
 $worksheet->write('B3', "Hello Excel", $text_format);
 $worksheet->write('A4', "Unicode text");
-$worksheet->write_unicode('B4', $unicode);
+$worksheet->write_utf16be_string('B4', $unicode);
 
 #######################################################################
 #
@@ -102,7 +102,7 @@ $worksheet->write('B9',  'http://www.perl.com/' );
 # Images
 #
 $worksheet->write('A10', "Images");
-$worksheet->insert_bitmap('B10', 'republic.bmp', 16, 8);
+$worksheet->insert_image('B10', 'republic.png', 16, 8);
 
 
 #######################################################################

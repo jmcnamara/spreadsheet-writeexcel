@@ -18,9 +18,9 @@ my $worksheet3 = $workbook->add_worksheet();
 # Sheet2 won't be visible until it is unhidden in Excel.
 $worksheet2->hide();
 
-$worksheet1->write(0, 0, "Hello");
-$worksheet2->write(0, 0, "Hello");
-$worksheet3->write(0, 0, "Hello");
+$worksheet1->write(0, 0, 'Sheet2 is hidden');
+$worksheet2->write(0, 0, 'How did you find me?');
+$worksheet3->write(0, 0, 'Sheet2 is hidden');
 
 
 __END__

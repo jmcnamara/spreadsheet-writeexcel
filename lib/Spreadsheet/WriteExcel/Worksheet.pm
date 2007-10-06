@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.18';
+$VERSION = '2.20';
 
 ###############################################################################
 #
@@ -34,127 +34,135 @@ $VERSION = '2.18';
 #
 sub new {
 
-    my $class                       = shift;
-    my $self                        = Spreadsheet::WriteExcel::BIFFwriter->new();
-    my $rowmax                      = 65536;
-    my $colmax                      = 256;
-    my $strmax                      = 0;
+    my $class                     = shift;
+    my $self                      = Spreadsheet::WriteExcel::BIFFwriter->new();
+    my $rowmax                    = 65536;
+    my $colmax                    = 256;
+    my $strmax                    = 0;
 
-    $self->{_name}                  = $_[0];
-    $self->{_index}                 = $_[1];
-    $self->{_encoding}              = $_[2];
-    $self->{_activesheet}           = $_[3];
-    $self->{_firstsheet}            = $_[4];
-    $self->{_url_format}            = $_[5];
-    $self->{_parser}                = $_[6];
-    $self->{_tempdir}               = $_[7];
+    $self->{_name}                = $_[0];
+    $self->{_index}               = $_[1];
+    $self->{_encoding}            = $_[2];
+    $self->{_activesheet}         = $_[3];
+    $self->{_firstsheet}          = $_[4];
+    $self->{_url_format}          = $_[5];
+    $self->{_parser}              = $_[6];
+    $self->{_tempdir}             = $_[7];
 
-    $self->{_str_total}             = $_[8];
-    $self->{_str_unique}            = $_[9];
-    $self->{_str_table}             = $_[10];
-    $self->{_1904}                  = $_[11];
+    $self->{_str_total}           = $_[8];
+    $self->{_str_unique}          = $_[9];
+    $self->{_str_table}           = $_[10];
+    $self->{_1904}                = $_[11];
 
-    $self->{_type}                  = 0x0000;
-    $self->{_ext_sheets}            = [];
-    $self->{_using_tmpfile}         = 1;
-    $self->{_filehandle}            = "";
-    $self->{_fileclosed}            = 0;
-    $self->{_offset}                = 0;
-    $self->{_xls_rowmax}            = $rowmax;
-    $self->{_xls_colmax}            = $colmax;
-    $self->{_xls_strmax}            = $strmax;
-    $self->{_dim_rowmin}            = $rowmax +1;
-    $self->{_dim_rowmax}            = 0;
-    $self->{_dim_colmin}            = $colmax +1;
-    $self->{_dim_colmax}            = 0;
-    $self->{_dim_changed}           = 0;
-    $self->{_colinfo}               = [];
-    $self->{_selection}             = [0, 0];
-    $self->{_panes}                 = [];
-    $self->{_active_pane}           = 3;
-    $self->{_frozen}                = 0;
-    $self->{_selected}              = 0;
-    $self->{_hidden}                = 0;
-    $self->{_active}                = 0;
-    $self->{_tab_color}             = 0;
+    $self->{_type}                = 0x0000;
+    $self->{_ext_sheets}          = [];
+    $self->{_using_tmpfile}       = 1;
+    $self->{_filehandle}          = "";
+    $self->{_fileclosed}          = 0;
+    $self->{_offset}              = 0;
+    $self->{_xls_rowmax}          = $rowmax;
+    $self->{_xls_colmax}          = $colmax;
+    $self->{_xls_strmax}          = $strmax;
+    $self->{_dim_rowmin}          = $rowmax +1;
+    $self->{_dim_rowmax}          = 0;
+    $self->{_dim_colmin}          = $colmax +1;
+    $self->{_dim_colmax}          = 0;
+    $self->{_dim_changed}         = 0;
+    $self->{_colinfo}             = [];
+    $self->{_selection}           = [0, 0];
+    $self->{_panes}               = [];
+    $self->{_active_pane}         = 3;
+    $self->{_frozen}              = 0;
+    $self->{_frozen_no_split}     = 1;
+    $self->{_selected}            = 0;
+    $self->{_hidden}              = 0;
+    $self->{_active}              = 0;
+    $self->{_tab_color}           = 0;
 
-    $self->{_first_row}             = 0;
-    $self->{_first_col}             = 0;
-    $self->{_display_formulas}      = 0;
-    $self->{_display_headers}       = 1;
-    $self->{_display_zeros}         = 1;
-    $self->{_display_arabic}        = 0;
+    $self->{_first_row}           = 0;
+    $self->{_first_col}           = 0;
+    $self->{_display_formulas}    = 0;
+    $self->{_display_headers}     = 1;
+    $self->{_display_zeros}       = 1;
+    $self->{_display_arabic}      = 0;
 
-    $self->{_paper_size}            = 0x0;
-    $self->{_orientation}           = 0x1;
-    $self->{_header}                = '';
-    $self->{_footer}                = '';
-    $self->{_header_encoding}       = 0;
-    $self->{_footer_encoding}       = 0;
-    $self->{_hcenter}               = 0;
-    $self->{_vcenter}               = 0;
-    $self->{_margin_header}         = 0.50;
-    $self->{_margin_footer}         = 0.50;
-    $self->{_margin_left}           = 0.75;
-    $self->{_margin_right}          = 0.75;
-    $self->{_margin_top}            = 1.00;
-    $self->{_margin_bottom}         = 1.00;
+    $self->{_paper_size}          = 0x0;
+    $self->{_orientation}         = 0x1;
+    $self->{_header}              = '';
+    $self->{_footer}              = '';
+    $self->{_header_encoding}     = 0;
+    $self->{_footer_encoding}     = 0;
+    $self->{_hcenter}             = 0;
+    $self->{_vcenter}             = 0;
+    $self->{_margin_header}       = 0.50;
+    $self->{_margin_footer}       = 0.50;
+    $self->{_margin_left}         = 0.75;
+    $self->{_margin_right}        = 0.75;
+    $self->{_margin_top}          = 1.00;
+    $self->{_margin_bottom}       = 1.00;
 
-    $self->{_title_rowmin}          = undef;
-    $self->{_title_rowmax}          = undef;
-    $self->{_title_colmin}          = undef;
-    $self->{_title_colmax}          = undef;
-    $self->{_print_rowmin}          = undef;
-    $self->{_print_rowmax}          = undef;
-    $self->{_print_colmin}          = undef;
-    $self->{_print_colmax}          = undef;
+    $self->{_title_rowmin}        = undef;
+    $self->{_title_rowmax}        = undef;
+    $self->{_title_colmin}        = undef;
+    $self->{_title_colmax}        = undef;
+    $self->{_print_rowmin}        = undef;
+    $self->{_print_rowmax}        = undef;
+    $self->{_print_colmin}        = undef;
+    $self->{_print_colmax}        = undef;
 
-    $self->{_print_gridlines}       = 1;
-    $self->{_screen_gridlines}      = 1;
-    $self->{_print_headers}         = 0;
+    $self->{_print_gridlines}     = 1;
+    $self->{_screen_gridlines}    = 1;
+    $self->{_print_headers}       = 0;
 
-    $self->{_page_order}            = 0;
-    $self->{_black_white}           = 0;
-    $self->{_draft_quality}         = 0;
-    $self->{_print_comments}        = 0;
-    $self->{_page_start}            = 1;
+    $self->{_page_order}          = 0;
+    $self->{_black_white}         = 0;
+    $self->{_draft_quality}       = 0;
+    $self->{_print_comments}      = 0;
+    $self->{_page_start}          = 1;
 
-    $self->{_fit_page}              = 0;
-    $self->{_fit_width}             = 0;
-    $self->{_fit_height}            = 0;
+    $self->{_fit_page}            = 0;
+    $self->{_fit_width}           = 0;
+    $self->{_fit_height}          = 0;
 
-    $self->{_hbreaks}               = [];
-    $self->{_vbreaks}               = [];
+    $self->{_hbreaks}             = [];
+    $self->{_vbreaks}             = [];
 
-    $self->{_protect}               = 0;
-    $self->{_password}              = undef;
+    $self->{_protect}             = 0;
+    $self->{_password}            = undef;
 
-    $self->{_col_sizes}             = {};
-    $self->{_row_sizes}             = {};
+    $self->{_col_sizes}           = {};
+    $self->{_row_sizes}           = {};
 
-    $self->{_col_formats}           = {};
-    $self->{_row_formats}           = {};
+    $self->{_col_formats}         = {};
+    $self->{_row_formats}         = {};
 
-    $self->{_zoom}                  = 100;
-    $self->{_print_scale}           = 100;
-    $self->{_page_view}             = 0;
+    $self->{_zoom}                = 100;
+    $self->{_print_scale}         = 100;
+    $self->{_page_view}           = 0;
 
-    $self->{_leading_zeros}         = 0;
+    $self->{_leading_zeros}       = 0;
 
-    $self->{_outline_row_level}     = 0;
-    $self->{_outline_style}         = 0;
-    $self->{_outline_below}         = 1;
-    $self->{_outline_right}         = 1;
-    $self->{_outline_on}            = 1;
+    $self->{_outline_row_level}   = 0;
+    $self->{_outline_style}       = 0;
+    $self->{_outline_below}       = 1;
+    $self->{_outline_right}       = 1;
+    $self->{_outline_on}          = 1;
 
-    $self->{_write_match}           = [];
-    $self->{_comments}              = {};
-    $self->{_comments_ids}          = [];
-    $self->{_comments_author}       = '';
-    $self->{_comments_author_enc}   = 0;
-    $self->{_comments_visible}      = 0;
+    $self->{_write_match}         = [];
 
-    $self->{_writing_url}           = 0;
+    $self->{_object_ids}          = [];
+    $self->{_images}              = {};
+    $self->{_charts}              = {};
+    $self->{_comments}            = {};
+    $self->{_comments_author}     = '';
+    $self->{_comments_author_enc} = 0;
+    $self->{_comments_visible}    = 0;
+
+    $self->{_filter_area}         = [];
+    $self->{_filter_count}        = 0;
+    $self->{_filter_on}           = 0;
+
+    $self->{_writing_url}         = 0;
 
 
     bless $self, $class;
@@ -254,6 +262,15 @@ sub _close {
     # Prepend the sheet dimensions
     $self->_store_dimensions();
 
+    # Prepend the autofilter filters.
+    $self->_store_autofilters;
+
+    # Prepend the sheet autofilter info.
+    $self->_store_autofilterinfo();
+
+    # Prepend the sheet filtermode record.
+    $self->_store_filtermode();
+
     # Prepend the COLINFO records if they exist
     if (@{$self->{_colinfo}}){
         my @colinfo = @{$self->{_colinfo}};
@@ -263,7 +280,7 @@ sub _close {
         }
     }
 
-    # Add the DEFCOLWIDTH record
+    # Prepend the DEFCOLWIDTH record
     $self->_store_defcol();
 
     # Prepend the sheet password
@@ -332,6 +349,9 @@ sub _close {
     ################################################
 
     # Append
+    $self->_store_images();
+    $self->_store_charts();
+    $self->_store_filters();
     $self->_store_comments();
     $self->_store_window2();
     $self->_store_page_view();
@@ -517,7 +537,7 @@ sub set_column {
     # Store the col sizes for use when calculating image vertices taking
     # hidden columns into account. Also store the column formats.
     #
-    my $width  = $data[4] ? 0 : $data[2]; # Set width to zero if column is hidden
+    my $width  = $data[4] ? 0 : $data[2]; # Set width to zero if col is hidden
        $width  ||= 0;                 # Ensure width isn't undef.
     my $format = $data[3];
 
@@ -565,6 +585,9 @@ sub freeze_panes {
         @_ = $self->_substitute_cellref(@_);
     }
 
+    # Extra flag indicated a split and freeze.
+    $self->{_frozen_no_split} = 0 if $_[4];
+
     $self->{_frozen} = 1;
     $self->{_panes}  = [ @_ ];
 }
@@ -572,17 +595,21 @@ sub freeze_panes {
 
 ###############################################################################
 #
-# thaw_panes()
+# split_panes()
 #
-# Set panes and mark them as unfrozen. See also _store_panes().
+# Set panes and mark them as split. See also _store_panes().
 #
-sub thaw_panes {
+sub split_panes {
 
     my $self = shift;
 
-    $self->{_frozen} = 0;
-    $self->{_panes}  = [ @_ ];
+    $self->{_frozen}            = 0;
+    $self->{_frozen_no_split}   = 0;
+    $self->{_panes}             = [ @_ ];
 }
+
+# Older method name for backwards compatibility.
+*thaw_panes = *split_panes;
 
 
 ###############################################################################
@@ -935,6 +962,276 @@ sub print_area {
     $self->{_print_colmin} = $_[1];
     $self->{_print_rowmax} = $_[2];
     $self->{_print_colmax} = $_[3];
+}
+
+
+###############################################################################
+#
+# autofilter($first_row, $first_col, $last_row, $last_col)
+#
+# Set the autofilter area in the worksheet.
+#
+sub autofilter {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    return if @_ != 4; # Require 4 parameters
+
+    my ($row1, $col1, $row2, $col2) = @_;
+
+    # Reverse max and min values if necessary.
+    ($row1, $row2) = ($row2, $row1) if $row2 < $row1;
+    ($col1, $col2) = ($col2, $col1) if $col2 < $col1;
+
+    # Store the Autofilter information
+    $self->{_filter_area}  = [$row1, $row2, $col1, $col2];
+    $self->{_filter_count} = 1+ $col2 -$col1;
+}
+
+
+###############################################################################
+#
+# filter_column($column, $criteria, ...)
+#
+# Set the column filter criteria.
+#
+sub filter_column {
+
+    my $self        = shift;
+    my $col         = $_[0];
+    my $expression  = $_[1];
+
+
+    croak "Must call autofilter() before filter_column()"
+                                                 unless $self->{_filter_count};
+    croak "Incorrect number of arguments to filter_column()" unless @_ == 2;
+
+
+    # Check for a column reference in A1 notation and substitute.
+    if ($col =~ /^\D/) {
+        # Convert col ref to a cell ref and then to a col number.
+        (undef, $col) = $self->_substitute_cellref($col . '1');
+    }
+
+    my (undef, undef, $col_first, $col_last) = @{$self->{_filter_area}};
+
+    # Reject column if it is outside filter range.
+    if ($col < $col_first or $col > $col_last) {
+        croak "Column '$col' outside autofilter() column range " .
+              "($col_first .. $col_last)";
+    }
+
+
+    my @tokens = $self->_extract_filter_tokens($expression);
+
+    croak "Incorrect number of tokens in expression '$expression'"
+          unless (@tokens == 3 or @tokens == 7);
+
+
+    @tokens = $self->_parse_filter_expression($expression, @tokens);
+
+    $self->{_filter_cols}->{$col} = [@tokens];
+    $self->{_filter_on}           = 1;
+}
+
+
+###############################################################################
+#
+# _extract_filter_tokens($expression)
+#
+# Extract the tokens from the filter expression. The tokens are mainly non-
+# whitespace groups. The only tricky part is to extract string tokens that
+# contain whitespace and/or quoted double quotes (Excel's escaped quotes).
+#
+# Examples: 'x <  2000'
+#           'x >  2000 and x <  5000'
+#           'x = "foo"'
+#           'x = "foo bar"'
+#           'x = "foo "" bar"'
+#
+sub _extract_filter_tokens {
+
+    my $self        = shift;
+    my $expression  = $_[0];
+
+    return unless $expression;
+
+    my @tokens = ($expression  =~ /"(?:[^"]|"")*"|\S+/g); #"
+
+    # Remove leading and trailing quotes and unescape other quotes
+    for (@tokens) {
+        s/^"//;     #"
+        s/"$//;     #"
+        s/""/"/g;   #"
+    }
+
+    return @tokens;
+}
+
+
+###############################################################################
+#
+# _parse_filter_expression(@token)
+#
+# Converts the tokens of a possibly conditional expression into 1 or 2
+# sub expressions for further parsing.
+#
+# Examples:
+#          ('x', '==', 2000) -> exp1
+#          ('x', '>',  2000, 'and', 'x', '<', 5000) -> exp1 and exp2
+#
+sub _parse_filter_expression {
+
+    my $self        = shift;
+    my $expression  = shift;
+    my @tokens      = @_;
+
+    # The number of tokens will be either 3 (for 1 expression)
+    # or 7 (for 2  expressions).
+    #
+    if (@tokens == 7) {
+
+        my $conditional = $tokens[3];
+
+        if    ($conditional =~ /^(and|&&)$/) {
+            $conditional = 0;
+        }
+        elsif ($conditional =~ /^(or|\|\|)$/) {
+            $conditional = 1;
+        }
+        else {
+            croak "Token '$conditional' is not a valid conditional " .
+                  "in filter expression '$expression'";
+        }
+
+        my @expression_1 = $self->_parse_filter_tokens($expression,
+                                                       @tokens[0, 1, 2]);
+        my @expression_2 = $self->_parse_filter_tokens($expression,
+                                                       @tokens[4, 5, 6]);
+
+        return (@expression_1, $conditional, @expression_2);
+    }
+    else {
+        return $self->_parse_filter_tokens($expression, @tokens);
+    }
+}
+
+
+###############################################################################
+#
+# _parse_filter_tokens(@token)
+#
+# Parse the 3 tokens of a filter expression and return the operator and token.
+#
+sub _parse_filter_tokens {
+
+    my $self        = shift;
+    my $expression  = shift;
+    my @tokens      = @_;
+
+    my %operators = (
+                        '==' => 2,
+                        '='  => 2,
+                        '=~' => 2,
+                        'eq' => 2,
+
+                        '!=' => 5,
+                        '!~' => 5,
+                        'ne' => 5,
+                        '<>' => 5,
+
+                        '<'  => 1,
+                        '<=' => 3,
+                        '>'  => 4,
+                        '>=' => 6,
+                    );
+
+    my $operator = $operators{$tokens[1]};
+    my $token    = $tokens[2];
+
+
+    # Special handling of "Top" filter expressions.
+    if ($tokens[0] =~ /^top|bottom$/i) {
+
+        my $value = $tokens[1];
+
+        if ($value =~ /\D/ or
+            $value < 1     or
+            $value > 500)
+        {
+            croak "The value '$value' in expression '$expression' " .
+                   "must be in the range 1 to 500";
+        }
+
+        $token = lc $token;
+
+        if ($token ne 'items' and $token ne '%') {
+            croak "The type '$token' in expression '$expression' " .
+                   "must be either 'items' or '%'";
+        }
+
+        if ($tokens[0] =~ /^top$/i) {
+            $operator = 30;
+        }
+        else {
+            $operator = 32;
+        }
+
+        if ($tokens[2] eq '%') {
+            $operator++;
+        }
+
+        $token    = $value;
+    }
+
+
+    if (not $operator and $tokens[0]) {
+        croak "Token '$tokens[1]' is not a valid operator " .
+              "in filter expression '$expression'";
+    }
+
+
+    # Special handling for Blanks/NonBlanks.
+    if ($token =~ /^blanks|nonblanks$/i) {
+
+        # Only allow Equals or NotEqual in this context.
+        if ($operator != 2 and $operator != 5) {
+            croak "The operator '$tokens[1]' in expression '$expression' " .
+                   "is not valid in relation to Blanks/NonBlanks'";
+        }
+
+        $token = lc $token;
+
+        # The operator should always be 2 (=) to flag a "simple" equality in
+        # the binary record. Therefore we convert <> to =.
+        if ($token eq 'blanks') {
+            if ($operator == 5) {
+                $operator = 2;
+                $token    = 'nonblanks';
+            }
+        }
+        else {
+            if ($operator == 5) {
+                $operator = 2;
+                $token    = 'blanks';
+            }
+        }
+    }
+
+
+    # if the string token contains an Excel match character then change the
+    # operator type to indicate a non "simple" equality.
+    if ($operator == 2 and $token =~ /[*?]/) {
+        $operator = 22;
+    }
+
+
+    return ($operator, $token);
 }
 
 
@@ -1776,7 +2073,7 @@ sub write_string {
 
         if (Encode::is_utf8($str)) {
             my $tmp = Encode::encode("UTF-16LE", $str);
-            return $self->write_unicode_le($row, $col, $tmp, $_[3]);
+            return $self->write_utf16le_string($row, $col, $tmp, $_[3]);
         }
     }
 
@@ -1791,7 +2088,7 @@ sub write_string {
     }
 
 
-    # Preprend the string with the type.
+    # Prepend the string with the type.
     my $str_header  = pack("vC", length($str), $encoding);
     $str            = $str_header . $str;
 
@@ -2211,7 +2508,7 @@ sub repeat_formula {
 # alternative string is specified.
 #
 # The parameters $string and $format are optional and their order is
-# interchangeable for backward compatibity reasons.
+# interchangeable for backward compatibility reasons.
 #
 # The hyperlink can be to a http, ftp, mail, internal sheet, or external
 # directory url.
@@ -3061,7 +3358,7 @@ sub _store_window2 {
     my $fDefaultHdr    = 1;                          # 5
     my $fArabic        = $self->{_display_arabic};   # 6
     my $fDspGuts       = $self->{_outline_on};       # 7
-    my $fFrozenNoSplit = 0;                          # 0 - bit
+    my $fFrozenNoSplit = $self->{_frozen_no_split};  # 0 - bit
     my $fSelected      = $self->{_selected};         # 1
     my $fPaged         = $self->{_active};           # 2
     my $fBreakPreview  = 0;                          # 3
@@ -3251,6 +3548,53 @@ sub _store_colinfo {
 
 ###############################################################################
 #
+# _store_filtermode()
+#
+# Write BIFF record FILTERMODE to indicate that the worksheet contains
+# AUTOFILTER record, ie. autofilters with a filter set.
+#
+sub _store_filtermode {
+
+    my $self        = shift;
+
+    my $record      = 0x009B;      # Record identifier
+    my $length      = 0x0000;      # Number of bytes to follow
+
+    # Only write the record if the worksheet contains a filtered autofilter.
+    return unless $self->{_filter_on};
+
+    my $header   = pack("vv", $record, $length);
+
+    $self->_prepend($header);
+}
+
+
+###############################################################################
+#
+# _store_autofilterinfo()
+#
+# Write BIFF record AUTOFILTERINFO.
+#
+sub _store_autofilterinfo {
+
+    my $self        = shift;
+
+    my $record      = 0x009D;      # Record identifier
+    my $length      = 0x0002;      # Number of bytes to follow
+    my $num_filters = $self->{_filter_count};
+
+    # Only write the record if the worksheet contains an autofilter.
+    return unless $self->{_filter_count};
+
+    my $header   = pack("vv", $record, $length);
+    my $data     = pack("v",  $num_filters);
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
 # _store_selection($first_row, $first_col, $last_row, $last_col)
 #
 # Write BIFF record SELECTION.
@@ -3375,15 +3719,16 @@ sub _store_externsheet {
 #
 sub _store_panes {
 
-    my $self    = shift;
-    my $record  = 0x0041;       # Record identifier
-    my $length  = 0x000A;       # Number of bytes to follow
+    my $self        = shift;
+    my $record      = 0x0041;       # Record identifier
+    my $length      = 0x000A;       # Number of bytes to follow
 
-    my $y       = $_[0] || 0;   # Vertical split position
-    my $x       = $_[1] || 0;   # Horizontal split position
-    my $rwTop   = $_[2];        # Top row visible
-    my $colLeft = $_[3];        # Leftmost column visible
-    my $pnnAct  = $_[4];        # Active pane
+    my $y           = $_[0] || 0;   # Vertical split position
+    my $x           = $_[1] || 0;   # Horizontal split position
+    my $rwTop       = $_[2];        # Top row visible
+    my $colLeft     = $_[3];        # Leftmost column visible
+    my $no_split    = $_[4];        # No used here.
+    my $pnnAct      = $_[5];        # Active pane
 
 
     # Code specific to frozen or thawed panes.
@@ -3799,10 +4144,10 @@ sub merge_range {
 
     # Write the first cell
     if ($encoding) {
-        $self->write_unicode($rwFirst, $colFirst, $string, $format);
+        $self->write_utf16be_string($rwFirst, $colFirst, $string, $format);
     }
     else {
-        $self->write        ($rwFirst, $colFirst, $string, $format);
+        $self->write               ($rwFirst, $colFirst, $string, $format);
     }
 
     # Pad out the rest of the area with formatted blank cells.
@@ -4116,12 +4461,11 @@ sub _store_password {
 
 ###############################################################################
 #
-# insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)
+# embed_chart($row, $col, $filename, $x, $y, $scale_x, $scale_y)
 #
-# Insert a 24bit bitmap image in a worksheet. The main record required is
-# IMDATA but it must be proceeded by a OBJ record to define its position.
+# TODO.
 #
-sub insert_bitmap {
+sub embed_chart {
 
     my $self        = shift;
 
@@ -4132,33 +4476,68 @@ sub insert_bitmap {
 
     my $row         = $_[0];
     my $col         = $_[1];
-    my $bitmap      = $_[2];
-    my $x           = $_[3] || 0;
-    my $y           = $_[4] || 0;
+    my $chart       = $_[2];
+    my $x_offset    = $_[3] || 0;
+    my $y_offset    = $_[4] || 0;
     my $scale_x     = $_[5] || 1;
     my $scale_y     = $_[6] || 1;
 
-    my ($width, $height, $size, $data) = $self->_process_bitmap($bitmap);
+    croak "Insufficient arguments in embed_chart()" unless @_ >= 3;
+    croak "Couldn't locate $chart: $!"              unless -e $chart;
 
-    # Scale the frame of the image.
-    $width  *= $scale_x;
-    $height *= $scale_y;
+    $self->{_charts}->{$row}->{$col} =  [
+                                           $row,
+                                           $col,
+                                           $chart,
+                                           $x_offset,
+                                           $y_offset,
+                                           $scale_x,
+                                           $scale_y,
+                                        ];
 
-    # Calculate the vertices of the image and write the OBJ record
-    my @vertices = $self->_position_object($col, $row, $x, $y, $width, $height);
-    $self->_store_obj_picture(@vertices );
-
-    # Write the IMDATA record to store the bitmap data
-    my $record      = 0x007f;
-    my $length      = 8 + $size;
-    my $cf          = 0x09;
-    my $env         = 0x01;
-    my $lcb         = $size;
-
-    my $header      = pack("vvvvV", $record, $length, $cf, $env, $lcb);
-
-    $self->_append($header, $data);
 }
+
+
+###############################################################################
+#
+# insert_image($row, $col, $filename, $x, $y, $scale_x, $scale_y)
+#
+# Insert an image into the worksheet.
+#
+sub insert_image {
+
+    my $self        = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    my $row         = $_[0];
+    my $col         = $_[1];
+    my $image       = $_[2];
+    my $x_offset    = $_[3] || 0;
+    my $y_offset    = $_[4] || 0;
+    my $scale_x     = $_[5] || 1;
+    my $scale_y     = $_[6] || 1;
+
+    croak "Insufficient arguments in insert_image()" unless @_ >= 3;
+    croak "Couldn't locate $image: $!"               unless -e $image;
+
+    $self->{_images}->{$row}->{$col} = [
+                                           $row,
+                                           $col,
+                                           $image,
+                                           $x_offset,
+                                           $y_offset,
+                                           $scale_x,
+                                           $scale_y,
+                                        ];
+
+}
+
+# Older method name for backwards compatibility.
+*insert_bitmap = *insert_image;
 
 
 ###############################################################################
@@ -4353,190 +4732,6 @@ sub _size_row {
 
 ###############################################################################
 #
-# _store_obj_picture(   $col_start, $x1,
-#                       $row_start, $y1,
-#                       $col_end,   $x2,
-#                       $row_end,   $y2 )
-#
-# Store the OBJ record that precedes an IMDATA record. This could be generalise
-# to support other Excel objects.
-#
-sub _store_obj_picture {
-
-    my $self        = shift;
-
-    my $record      = 0x005d;   # Record identifier
-    my $length      = 0x003c;   # Bytes to follow
-
-    my $cObj        = 0x0001;   # Count of objects in file (set to 1)
-    my $OT          = 0x0008;   # Object type. 8 = Picture
-    my $id          = 0x0001;   # Object ID
-    my $grbit       = 0x0614;   # Option flags
-
-    my $colL        = $_[0];    # Col containing upper left corner of object
-    my $dxL         = $_[1];    # Distance from left side of cell
-
-    my $rwT         = $_[2];    # Row containing top left corner of object
-    my $dyT         = $_[3];    # Distance from top of cell
-
-    my $colR        = $_[4];    # Col containing lower right corner of object
-    my $dxR         = $_[5];    # Distance from right of cell
-
-    my $rwB         = $_[6];    # Row containing bottom right corner of object
-    my $dyB         = $_[7];    # Distance from bottom of cell
-
-    my $cbMacro     = 0x0000;   # Length of FMLA structure
-    my $Reserved1   = 0x0000;   # Reserved
-    my $Reserved2   = 0x0000;   # Reserved
-
-    my $icvBack     = 0x09;     # Background colour
-    my $icvFore     = 0x09;     # Foreground colour
-    my $fls         = 0x00;     # Fill pattern
-    my $fAuto       = 0x00;     # Automatic fill
-    my $icv         = 0x08;     # Line colour
-    my $lns         = 0xff;     # Line style
-    my $lnw         = 0x01;     # Line weight
-    my $fAutoB      = 0x00;     # Automatic border
-    my $frs         = 0x0000;   # Frame style
-    my $cf          = 0x0009;   # Image format, 9 = bitmap
-    my $Reserved3   = 0x0000;   # Reserved
-    my $cbPictFmla  = 0x0000;   # Length of FMLA structure
-    my $Reserved4   = 0x0000;   # Reserved
-    my $grbit2      = 0x0001;   # Option flags
-    my $Reserved5   = 0x0000;   # Reserved
-
-
-    my $header      = pack("vv", $record, $length);
-    my $data        = pack("V",  $cObj);
-       $data       .= pack("v",  $OT);
-       $data       .= pack("v",  $id);
-       $data       .= pack("v",  $grbit);
-       $data       .= pack("v",  $colL);
-       $data       .= pack("v",  $dxL);
-       $data       .= pack("v",  $rwT);
-       $data       .= pack("v",  $dyT);
-       $data       .= pack("v",  $colR);
-       $data       .= pack("v",  $dxR);
-       $data       .= pack("v",  $rwB);
-       $data       .= pack("v",  $dyB);
-       $data       .= pack("v",  $cbMacro);
-       $data       .= pack("V",  $Reserved1);
-       $data       .= pack("v",  $Reserved2);
-       $data       .= pack("C",  $icvBack);
-       $data       .= pack("C",  $icvFore);
-       $data       .= pack("C",  $fls);
-       $data       .= pack("C",  $fAuto);
-       $data       .= pack("C",  $icv);
-       $data       .= pack("C",  $lns);
-       $data       .= pack("C",  $lnw);
-       $data       .= pack("C",  $fAutoB);
-       $data       .= pack("v",  $frs);
-       $data       .= pack("V",  $cf);
-       $data       .= pack("v",  $Reserved3);
-       $data       .= pack("v",  $cbPictFmla);
-       $data       .= pack("v",  $Reserved4);
-       $data       .= pack("v",  $grbit2);
-       $data       .= pack("V",  $Reserved5);
-
-    $self->_append($header, $data);
-}
-
-
-###############################################################################
-#
-# _process_bitmap()
-#
-# Convert a 24 bit bitmap into the modified internal format used by Windows.
-# This is described in BITMAPCOREHEADER and BITMAPCOREINFO structures in the
-# MSDN library.
-#
-sub _process_bitmap {
-
-    my $self   = shift;
-    my $bitmap = shift;
-
-    # Open file and binmode the data in case the platform needs it.
-    my $fh = FileHandle->new($bitmap);
-    croak "Couldn't import $bitmap: $!" unless defined $fh;
-    binmode $fh;
-
-
-    # Slurp the file into a string.
-    my $data = do {local $/; <$fh>};
-
-    $fh->close;
-
-    # Check that the file is big enough to be a bitmap.
-    if (length $data <= 0x36) {
-        croak "$bitmap doesn't contain enough data.";
-    }
-
-
-    # The first 2 bytes are used to identify the bitmap.
-    if (unpack("A2", $data) ne "BM") {
-        croak "$bitmap doesn't appear to be a valid bitmap image.";
-    }
-
-
-    # Remove bitmap data: ID.
-    $data = substr $data, 2;
-
-
-    # Read and remove the bitmap size. This is more reliable than reading
-    # the data size at offset 0x22.
-    #
-    my $size   =  unpack "V", substr $data, 0, 4, "";
-       $size  -=  0x36;   # Subtract size of bitmap header.
-       $size  +=  0x0C;   # Add size of BIFF header.
-
-
-    # Remove bitmap data: reserved, offset, header length.
-    $data = substr $data, 12;
-
-
-    # Read and remove the bitmap width and height. Verify the sizes.
-    my ($width, $height) = unpack "V2", substr $data, 0, 8, "";
-
-    if ($width > 0xFFFF) {
-        croak "$bitmap: largest image width supported is 65k.";
-    }
-
-    if ($height > 0xFFFF) {
-        croak "$bitmap: largest image height supported is 65k.";
-    }
-
-    # Read and remove the bitmap planes and bpp data. Verify them.
-    my ($planes, $bitcount) = unpack "v2", substr $data, 0, 4, "";
-
-    if ($bitcount != 24) {
-        croak "$bitmap isn't a 24bit true color bitmap.";
-    }
-
-    if ($planes != 1) {
-        croak "$bitmap: only 1 plane supported in bitmap image.";
-    }
-
-
-    # Read and remove the bitmap compression. Verify compression.
-    my $compression = unpack "V", substr $data, 0, 4, "";
-
-    if ($compression != 0) {
-        croak "$bitmap: compression not supported in bitmap image.";
-    }
-
-    # Remove bitmap data: data size, hres, vres, colours, imp. colours.
-    $data = substr $data, 20;
-
-    # Add the BITMAPCOREHEADER data
-    my $header  = pack("Vvvvv", 0x000c, $width, $height, 0x01, 0x18);
-    $data       = $header . $data;
-
-    return ($width, $height, $size, $data);
-}
-
-
-###############################################################################
-#
 # _store_zoom($zoom)
 #
 #
@@ -4562,7 +4757,7 @@ sub _store_zoom {
 
 ###############################################################################
 #
-# write_unicode ($row, $col, $string, $format)
+# write_utf16be_string($row, $col, $string, $format)
 #
 # Write a Unicode string to the specified row and column (zero indexed).
 # $format is optional.
@@ -4571,7 +4766,7 @@ sub _store_zoom {
 #         -2 : row or column out of range
 #         -3 : long string truncated to 255 chars
 #
-sub write_unicode {
+sub write_utf16be_string {
 
     my $self = shift;
 
@@ -4637,21 +4832,18 @@ sub write_unicode {
 }
 
 
-
 ###############################################################################
 #
-# write_unicode_le ($row, $col, $string, $format)
+# write_utf16le_string($row, $col, $string, $format)
 #
-# Write a Unicode string to the specified row and column (zero indexed).
+# Write a UTF-16LE string to the specified row and column (zero indexed).
 # $format is optional.
 # Returns  0 : normal termination
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
 #         -3 : long string truncated to 255 chars
 #
-# TODO Refactor. Too much code share with write_unicode().
-#
-sub write_unicode_le {
+sub write_utf16le_string {
 
     my $self = shift;
 
@@ -4667,55 +4859,338 @@ sub write_unicode_le {
 
     my $row         = $_[0];                         # Zero indexed row
     my $col         = $_[1];                         # Zero indexed column
-    my $strlen      = length($_[2]);
     my $str         = $_[2];
-    my $xf          = _XF($self, $row, $col, $_[3]); # The cell format
-    my $encoding    = 0x1;
-    my $str_error   = 0;
-
-    # Check that row and col are valid and store max and min values
-    return -2 if $self->_check_dimensions($row, $col);
-
-    # Limit the utf16 string to the max number of chars (not bytes).
-    if ($strlen > 32767* 2) {
-        $str       = substr($str, 0, 32767*2);
-        $str_error = -3;
-    }
+    my $format      = $_[3];                         # The cell format
 
 
-    my $num_bytes = length $str;
-    my $num_chars = int($num_bytes / 2);
+    # Change from UTF16 big-endian to little endian
+    $str = pack "v*", unpack "n*", $str;
 
 
-    # Check for a valid 2-byte char string.
-    croak "Uneven number of bytes in Unicode string" if $num_bytes % 2;
-
-    # Add the encoding and length header to the string.
-    my $str_header  = pack("vC", $num_chars, $encoding);
-       $str         = $str_header . $str;
-
-
-    if (not exists ${$self->{_str_table}}->{$str}) {
-        ${$self->{_str_table}}->{$str} = ${$self->{_str_unique}}++;
-    }
-
-
-    ${$self->{_str_total}}++;
-
-
-    my $header = pack("vv",   $record, $length);
-    my $data   = pack("vvvV", $row, $col, $xf, ${$self->{_str_table}}->{$str});
-
-    $self->_append($header, $data);
-
-    return $str_error;
+    return $self->write_utf16be_string($row, $col, $str, $format);
 }
 
+
+# Older method name for backwards compatibility.
+*write_unicode    = *write_utf16be_string;
+*write_unicode_le = *write_utf16le_string;
+
+
+
+###############################################################################
+#
+# _store_autofilters()
+#
+# Function to iterate through the columns that form part of an autofilter
+# range and write Biff AUTOFILTER records if a filter expression has been set.
+#
+sub _store_autofilters {
+
+    my $self = shift;
+
+    # Skip all columns if no filter have been set.
+    return unless $self->{_filter_on};
+
+    my (undef, undef, $col1, $col2) = @{$self->{_filter_area}};
+
+    for my $i ($col1 .. $col2) {
+        # Reverse order since records are being pre-pended.
+        my $col = $col2 -$i;
+
+        # Skip if column doesn't have an active filter.
+        next unless $self->{_filter_cols}->{$col};
+
+        # Retrieve the filter tokens and write the autofilter records.
+        my @tokens =  @{$self->{_filter_cols}->{$col}};
+        $self->_store_autofilter($col, @tokens);
+    }
+}
+
+
+###############################################################################
+#
+# _store_autofilter()
+#
+# Function to write worksheet AUTOFILTER records. These contain 2 Biff Doper
+# structures to represent the 2 possible filter conditions.
+#
+sub _store_autofilter {
+
+    my $self            = shift;
+
+    my $record          = 0x009E;
+    my $length          = 0x0000;
+
+    my $index           = $_[0];
+    my $operator_1      = $_[1];
+    my $token_1         = $_[2];
+    my $join            = $_[3]; # And/Or
+    my $operator_2      = $_[4];
+    my $token_2         = $_[5];
+
+    my $top10_active    = 0;
+    my $top10_direction = 0;
+    my $top10_percent   = 0;
+    my $top10_value     = 101;
+
+    my $grbit       = $join;
+    my $optimised_1 = 0;
+    my $optimised_2 = 0;
+    my $doper_1     = '';
+    my $doper_2     = '';
+    my $string_1    = '';
+    my $string_2    = '';
+
+    # Excel used an optimisation in the case of a simple equality.
+    $optimised_1 = 1 if                         $operator_1 == 2;
+    $optimised_2 = 1 if defined $operator_2 and $operator_2 == 2;
+
+
+    # Convert non-simple equalities back to type 2. See  _parse_filter_tokens().
+    $operator_1 = 2 if                         $operator_1 == 22;
+    $operator_2 = 2 if defined $operator_2 and $operator_2 == 22;
+
+
+    # Handle a "Top" style expression.
+    if ($operator_1 >= 30) {
+        # Remove the second expression if present.
+        $operator_2 = undef;
+        $token_2    = undef;
+
+        # Set the active flag.
+        $top10_active    = 1;
+
+        if ($operator_1 == 30 or $operator_1 == 31) {
+            $top10_direction = 1;
+        }
+
+        if ($operator_1 == 31 or $operator_1 == 33) {
+            $top10_percent = 1;
+        }
+
+        if ($top10_direction == 1) {
+            $operator_1 = 6
+        }
+        else {
+            $operator_1 = 3
+        }
+
+        $top10_value     = $token_1;
+        $token_1         = 0;
+    }
+
+
+    $grbit     |= $optimised_1      << 2;
+    $grbit     |= $optimised_2      << 3;
+    $grbit     |= $top10_active     << 4;
+    $grbit     |= $top10_direction  << 5;
+    $grbit     |= $top10_percent    << 6;
+    $grbit     |= $top10_value      << 7;
+
+    ($doper_1, $string_1) = $self->_pack_doper($operator_1, $token_1);
+    ($doper_2, $string_2) = $self->_pack_doper($operator_2, $token_2);
+
+    my $data    = pack 'v', $index;
+       $data   .= pack 'v', $grbit;
+       $data   .= $doper_1;
+       $data   .= $doper_2;
+       $data   .= $string_1;
+       $data   .= $string_2;
+
+       $length  = length $data;
+    my $header  = pack('vv',  $record, $length);
+
+    $self->_prepend($header, $data);
+}
+
+
+###############################################################################
+#
+# _pack_doper()
+#
+# Create a Biff Doper structure that represents a filter expression. Depending
+# on the type of the token we pack an Empty, String or Number doper.
+#
+sub _pack_doper {
+
+    my $self        = shift;
+
+    my $operator    = $_[0];
+    my $token       = $_[1];
+
+    my $doper       = '';
+    my $string      = '';
+
+
+    # Return default doper for non-defined filters.
+    if (not defined $operator) {
+        return ($self->_pack_unused_doper, $string);
+    }
+
+
+    if ($token =~ /^blanks|nonblanks$/i) {
+        $doper  = $self->_pack_blanks_doper($operator, $token);
+    }
+    elsif ($operator == 2 or
+        $token    !~ /^([+-]?)(?=\d|\.\d)\d*(\.\d*)?([Ee]([+-]?\d+))?$/)
+    {
+        # Excel treats all tokens as strings if the operator is equality, =.
+
+        $string = $token;
+
+        my $encoding = 0;
+        my $length   = length $string;
+
+        # Handle utf8 strings in perl 5.8.
+        if ($] >= 5.008) {
+            require Encode;
+
+            if (Encode::is_utf8($string)) {
+                $string = Encode::encode("UTF-16BE", $string);
+                $encoding = 1;
+            }
+        }
+
+        $string = pack('C', $encoding) . $string;
+        $doper  = $self->_pack_string_doper($operator, $length);
+    }
+    else {
+        $string = '';
+        $doper  = $self->_pack_number_doper($operator, $token);
+    }
+
+    return ($doper, $string);
+}
+
+
+###############################################################################
+#
+# _pack_unused_doper()
+#
+# Pack an empty Doper structure.
+#
+sub _pack_unused_doper {
+
+    my $self        = shift;
+
+    return pack 'C10', (0x0) x 10;
+}
+
+
+###############################################################################
+#
+# _pack_blanks_doper()
+#
+# Pack an Blanks/NonBlanks Doper structure.
+#
+sub _pack_blanks_doper {
+
+    my $self        = shift;
+
+    my $operator    = $_[0];
+    my $token       = $_[1];
+    my $type;
+
+    if ($token eq 'blanks') {
+        $type     = 0x0C;
+        $operator = 2;
+
+    }
+    else {
+        $type     = 0x0E;
+        $operator = 5;
+    }
+
+
+    my $doper       = pack 'CCVV',    $type,         # Data type
+                                      $operator,     #
+                                      0x0000,        # Reserved
+                                      0x0000;        # Reserved
+    return $doper;
+}
+
+
+###############################################################################
+#
+# _pack_string_doper()
+#
+# Pack an string Doper structure.
+#
+sub _pack_string_doper {
+
+    my $self        = shift;
+
+    my $operator    = $_[0];
+    my $length      = $_[1];
+    my $doper       = pack 'CCVCCCC', 0x06,          # Data type
+                                      $operator,     #
+                                      0x0000,        # Reserved
+                                      $length,       # String char length.
+                                      0x0, 0x0, 0x0; # Reserved
+    return $doper;
+}
+
+
+###############################################################################
+#
+# _pack_number_doper()
+#
+# Pack an IEEE double number Doper structure.
+#
+sub _pack_number_doper {
+
+    my $self        = shift;
+
+    my $operator    = $_[0];
+    my $number      = $_[1];
+       $number      = pack 'd', $number;
+       $number      = reverse $number if $self->{_byte_order};
+
+    my $doper       = pack 'CC', 0x04, $operator;
+       $doper      .= $number;
+
+    return $doper;
+}
 
 
 #
 # Methods related to comments and MSO objects.
 #
+
+
+###############################################################################
+#
+# _prepare_images()
+#
+# Turn the HoH that stores the images into an array for easier handling.
+#
+sub _prepare_images {
+
+    my $self    = shift;
+
+    my $count   = 0;
+    my @images;
+
+
+    # We sort the images by row and column but that isn't strictly required.
+    #
+    my @rows = sort {$a <=> $b} keys %{$self->{_images}};
+
+    for my $row (@rows) {
+        my @cols = sort {$a <=> $b} keys %{$self->{_images}->{$row}};
+
+        for my $col (@cols) {
+            push @images, $self->{_images}->{$row}->{$col};
+            $count++;
+        }
+    }
+
+    $self->{_images}       = {};
+    $self->{_images_array} = \@images;
+
+    return $count;
+}
+
 
 ###############################################################################
 #
@@ -4745,9 +5220,386 @@ sub _prepare_comments {
     }
 
     $self->{_comments}       = {};
-    $self->{_comments_array} = [@comments];
+    $self->{_comments_array} = \@comments;
 
     return $count;
+}
+
+
+###############################################################################
+#
+# _prepare_charts()
+#
+# Turn the HoH that stores the charts into an array for easier handling.
+#
+sub _prepare_charts {
+
+    my $self    = shift;
+
+    my $count   = 0;
+    my @charts;
+
+
+    # We sort the charts by row and column but that isn't strictly required.
+    #
+    my @rows = sort {$a <=> $b} keys %{$self->{_charts}};
+
+    for my $row (@rows) {
+        my @cols = sort {$a <=> $b} keys %{$self->{_charts}->{$row}};
+
+        for my $col (@cols) {
+            push @charts, $self->{_charts}->{$row}->{$col};
+            $count++;
+        }
+    }
+
+    $self->{_charts}       = {};
+    $self->{_charts_array} = \@charts;
+
+    return $count;
+}
+
+
+###############################################################################
+#
+# _store_images()
+#
+# Store the collections of records that make up images.
+#
+sub _store_images {
+
+    my $self            = shift;
+
+    my $record          = 0x00EC;           # Record identifier
+    my $length          = 0x0000;           # Bytes to follow
+
+    my @ids             = @{$self->{_object_ids  }};
+    my $spid            = shift @ids;
+
+    my @images          = @{$self->{_images_array}};
+    my $num_images      = scalar @images;
+
+    my $num_filters     = $self->{_filter_count};
+    my $num_comments    = @{$self->{_comments_array}};
+    my $num_charts      = @{$self->{_charts_array  }};
+
+    # Skip this if there aren't any images.
+    return unless $num_images;
+
+    for my $i (0 .. $num_images-1) {
+        my $row         =   $images[$i]->[0];
+        my $col         =   $images[$i]->[1];
+        my $name        =   $images[$i]->[2];
+        my $x_offset    =   $images[$i]->[3];
+        my $y_offset    =   $images[$i]->[4];
+        my $scale_x     =   $images[$i]->[5];
+        my $scale_y     =   $images[$i]->[6];
+        my $image_id    =   $images[$i]->[7];
+        my $type        =   $images[$i]->[8];
+        my $width       =   $images[$i]->[9];
+        my $height      =   $images[$i]->[10];
+
+        $width  *= $scale_x if $scale_x;
+        $height *= $scale_y if $scale_y;
+
+
+        # Calculate the positions of image object.
+        my @vertices = $self->_position_object( $col,
+                                                $row,
+                                                $x_offset,
+                                                $y_offset,
+                                                $width,
+                                                $height
+                                              );
+
+        if ($i == 0) {
+            # Write the parent MSODRAWIING record.
+            my $dg_length    = 156 + 84*($num_images -1);
+            my $spgr_length  = 132 + 84*($num_images -1);
+
+               $dg_length   += 120 *$num_charts;
+               $spgr_length += 120 *$num_charts;
+
+               $dg_length   +=  96 *$num_filters;
+               $spgr_length +=  96 *$num_filters;
+
+               $dg_length   += 128 *$num_comments;
+               $spgr_length += 128 *$num_comments;
+
+
+
+            my $data        = $self->_store_mso_dg_container($dg_length);
+               $data       .= $self->_store_mso_dg(@ids);
+               $data       .= $self->_store_mso_spgr_container($spgr_length);
+               $data       .= $self->_store_mso_sp_container(40);
+               $data       .= $self->_store_mso_spgr();
+               $data       .= $self->_store_mso_sp(0x0, $spid++, 0x0005);
+               $data       .= $self->_store_mso_sp_container(76);
+               $data       .= $self->_store_mso_sp(75, $spid++, 0x0A00);
+               $data       .= $self->_store_mso_opt_image($image_id);
+               $data       .= $self->_store_mso_client_anchor(2, @vertices);
+               $data       .= $self->_store_mso_client_data();
+
+            $length         = length $data;
+            my $header      = pack("vv", $record, $length);
+            $self->_append($header, $data);
+
+        }
+        else {
+            # Write the child MSODRAWIING record.
+            my $data        = $self->_store_mso_sp_container(76);
+               $data       .= $self->_store_mso_sp(75, $spid++, 0x0A00);
+               $data       .= $self->_store_mso_opt_image($image_id);
+               $data       .= $self->_store_mso_client_anchor(2, @vertices);
+               $data       .= $self->_store_mso_client_data();
+
+            $length         = length $data;
+            my $header      = pack("vv", $record, $length);
+            $self->_append($header, $data);
+
+
+        }
+
+        $self->_store_obj_image($i+1);
+    }
+
+    $self->{_object_ids}->[0] = $spid;
+}
+
+
+
+###############################################################################
+#
+# _store_charts()
+#
+# Store the collections of records that make up charts.
+#
+sub _store_charts {
+
+    my $self            = shift;
+
+    my $record          = 0x00EC;           # Record identifier
+    my $length          = 0x0000;           # Bytes to follow
+
+    my @ids             = @{$self->{_object_ids}};
+    my $spid            = shift @ids;
+
+    my @charts          = @{$self->{_charts_array}};
+    my $num_charts      = scalar @charts;
+
+    my $num_filters     = $self->{_filter_count};
+    my $num_comments    = @{$self->{_comments_array}};
+
+    # Number of objects written so far.
+    my $num_objects     = @{$self->{_images_array}};
+
+    # Skip this if there aren't any charts.
+    return unless $num_charts;
+
+    for my $i (0 .. $num_charts-1 ) {
+        my $row         =   $charts[$i]->[0];
+        my $col         =   $charts[$i]->[1];
+        my $name        =   $charts[$i]->[2];
+        my $x_offset    =   $charts[$i]->[3];
+        my $y_offset    =   $charts[$i]->[4];
+        my $scale_x     =   $charts[$i]->[5];
+        my $scale_y     =   $charts[$i]->[6];
+        my $width       =   526;
+        my $height      =   319;
+
+        $width  *= $scale_x if $scale_x;
+        $height *= $scale_y if $scale_y;
+
+        # Calculate the positions of chart object.
+        my @vertices = $self->_position_object( $col,
+                                                $row,
+                                                $x_offset,
+                                                $y_offset,
+                                                $width,
+                                                $height
+                                              );
+
+
+        if ($i == 0 and not $num_objects) {
+            # Write the parent MSODRAWIING record.
+            my $dg_length    = 192 + 120*($num_charts -1);
+            my $spgr_length  = 168 + 120*($num_charts -1);
+
+               $dg_length   +=  96 *$num_filters;
+               $spgr_length +=  96 *$num_filters;
+
+               $dg_length   += 128 *$num_comments;
+               $spgr_length += 128 *$num_comments;
+
+
+            my $data        = $self->_store_mso_dg_container($dg_length);
+               $data       .= $self->_store_mso_dg(@ids);
+               $data       .= $self->_store_mso_spgr_container($spgr_length);
+               $data       .= $self->_store_mso_sp_container(40);
+               $data       .= $self->_store_mso_spgr();
+               $data       .= $self->_store_mso_sp(0x0, $spid++, 0x0005);
+               $data       .= $self->_store_mso_sp_container(112);
+               $data       .= $self->_store_mso_sp(201, $spid++, 0x0A00);
+               $data       .= $self->_store_mso_opt_chart();
+               $data       .= $self->_store_mso_client_anchor(0, @vertices);
+               $data       .= $self->_store_mso_client_data();
+
+            $length         = length $data;
+            my $header      = pack("vv", $record, $length);
+            $self->_append($header, $data);
+
+        }
+        else {
+            # Write the child MSODRAWIING record.
+            my $data        = $self->_store_mso_sp_container(112);
+               $data       .= $self->_store_mso_sp(201, $spid++, 0x0A00);
+               $data       .= $self->_store_mso_opt_chart();
+               $data       .= $self->_store_mso_client_anchor(0, @vertices);
+               $data       .= $self->_store_mso_client_data();
+
+            $length         = length $data;
+            my $header      = pack("vv", $record, $length);
+            $self->_append($header, $data);
+
+
+        }
+
+        $self->_store_obj_chart($num_objects+$i+1);
+        $self->_store_chart_binary($name);
+    }
+
+
+    # Simulate the EXTERNSHEET link between the chart and data using a formula
+    # such as '=Sheet1!A1'.
+    # TODO. Won't work for external data refs. Also should use a more direct
+    #       method.
+    #
+    my $formula = "='$self->{_name}'!A1";
+    $self->store_formula($formula);
+
+    $self->{_object_ids}->[0] = $spid;
+}
+
+
+###############################################################################
+#
+# _store_chart_binary
+#
+# Add a binary chart object extracted from an Excel file.
+#
+sub _store_chart_binary {
+
+    my $self     = shift;
+    my $filename = $_[0];
+    my $tmp;
+
+    my $filehandle = FileHandle->new($filename) or
+                     die "Couldn't open $filename in add_chart_ext(): $!.\n";
+
+    binmode($filehandle);
+
+    while (read($filehandle, $tmp, 4096)) {
+        $self->_append($tmp);
+    }
+}
+
+
+###############################################################################
+#
+# _store_filters()
+#
+# Store the collections of records that make up filters.
+#
+sub _store_filters {
+
+    my $self            = shift;
+
+    my $record          = 0x00EC;           # Record identifier
+    my $length          = 0x0000;           # Bytes to follow
+
+    my @ids             = @{$self->{_object_ids}};
+    my $spid            = shift @ids;
+
+    my $filter_area     = $self->{_filter_area};
+    my $num_filters     = $self->{_filter_count};
+
+    my $num_comments    = @{$self->{_comments_array}};
+
+    # Number of objects written so far.
+    my $num_objects     = @{$self->{_images_array}}
+                        + @{$self->{_charts_array}};
+
+    # Skip this if there aren't any filters.
+    return unless $num_filters;
+
+
+    my ($row1, $row2, $col1, $col2) = @$filter_area;
+
+    for my $i (0 .. $num_filters-1 ) {
+
+        my @vertices = ( $col1 +$i,
+                         0,
+                         $row1,
+                         0,
+                         $col1 +$i +1,
+                         0,
+                         $row1 +1,
+                         0);
+
+        if ($i == 0 and not $num_objects) {
+            # Write the parent MSODRAWIING record.
+            my $dg_length    = 168 + 96*($num_filters -1);
+            my $spgr_length  = 144 + 96*($num_filters -1);
+
+               $dg_length   += 128 *$num_comments;
+               $spgr_length += 128 *$num_comments;
+
+
+            my $data        = $self->_store_mso_dg_container($dg_length);
+               $data       .= $self->_store_mso_dg(@ids);
+               $data       .= $self->_store_mso_spgr_container($spgr_length);
+               $data       .= $self->_store_mso_sp_container(40);
+               $data       .= $self->_store_mso_spgr();
+               $data       .= $self->_store_mso_sp(0x0, $spid++, 0x0005);
+               $data       .= $self->_store_mso_sp_container(88);
+               $data       .= $self->_store_mso_sp(201, $spid++, 0x0A00);
+               $data       .= $self->_store_mso_opt_filter();
+               $data       .= $self->_store_mso_client_anchor(1, @vertices);
+               $data       .= $self->_store_mso_client_data();
+
+            $length         = length $data;
+            my $header      = pack("vv", $record, $length);
+            $self->_append($header, $data);
+
+        }
+        else {
+            # Write the child MSODRAWIING record.
+            my $data        = $self->_store_mso_sp_container(88);
+               $data       .= $self->_store_mso_sp(201, $spid++, 0x0A00);
+               $data       .= $self->_store_mso_opt_filter();
+               $data       .= $self->_store_mso_client_anchor(1, @vertices);
+               $data       .= $self->_store_mso_client_data();
+
+            $length         = length $data;
+            my $header      = pack("vv", $record, $length);
+            $self->_append($header, $data);
+
+
+        }
+
+        $self->_store_obj_filter($num_objects+$i+1, $col1 +$i);
+    }
+
+
+    # Simulate the EXTERNSHEET link between the filter and data using a formula
+    # such as '=Sheet1!A1'.
+    # TODO. Won't work for external data refs. Also should use a more direct
+    #       method.
+    #
+    my $formula = "='$self->{_name}'!A1";
+    $self->store_formula($formula);
+
+    $self->{_object_ids}->[0] = $spid;
 }
 
 
@@ -4757,6 +5609,9 @@ sub _prepare_comments {
 #
 # Store the collections of records that make up cell comments.
 #
+# NOTE: We write the comment objects last since that makes it a little easier
+# to write the NOTE records directly after the MSODRAWIING records.
+#
 sub _store_comments {
 
     my $self            = shift;
@@ -4764,13 +5619,19 @@ sub _store_comments {
     my $record          = 0x00EC;           # Record identifier
     my $length          = 0x0000;           # Bytes to follow
 
-    my @ids             = @{$self->{_comments_ids}};
-    my @comments        = @{$self->{_comments_array}};
-    my $num_comments    = scalar @comments;
+    my @ids             = @{$self->{_object_ids}};
     my $spid            = shift @ids;
 
-    return unless $num_comments;
+    my @comments        = @{$self->{_comments_array}};
+    my $num_comments    = scalar @comments;
 
+    # Number of objects written so far.
+    my $num_objects     = @{$self->{_images_array}}
+                        +   $self->{_filter_count}
+                        + @{$self->{_charts_array}};
+
+    # Skip this if there aren't any comments.
+    return unless $num_comments;
 
     for my $i (0 .. $num_comments-1) {
 
@@ -4781,13 +5642,12 @@ sub _store_comments {
         my $visible     =   $comments[$i]->[6];
         my $color       =   $comments[$i]->[7];
         my @vertices    = @{$comments[$i]->[8]};
-        my @anchor_data = ($row, $col, @vertices);
         my $str_len     = length $str;
            $str_len    /= 2 if $encoding; # Num of chars not bytes.
         my $formats     = [[0, 5], [$str_len, 0]];
 
 
-        if ($i == 0) {
+        if ($i == 0 and not $num_objects) {
             # Write the parent MSODRAWIING record.
             my $dg_length   = 200 + 128*($num_comments -1);
             my $spgr_length = 176 + 128*($num_comments -1);
@@ -4801,7 +5661,7 @@ sub _store_comments {
                $data       .= $self->_store_mso_sp_container(120);
                $data       .= $self->_store_mso_sp(202, $spid++, 0x0A00);
                $data       .= $self->_store_mso_opt(0x80, $visible, $color);
-               $data       .= $self->_store_mso_client_anchor(@anchor_data);
+               $data       .= $self->_store_mso_client_anchor(3, @vertices);
                $data       .= $self->_store_mso_client_data();
 
             $length         = length $data;
@@ -4813,8 +5673,8 @@ sub _store_comments {
             # Write the child MSODRAWIING record.
             my $data        = $self->_store_mso_sp_container(120);
                $data       .= $self->_store_mso_sp(202, $spid++, 0x0A00);
-               $data       .= $self->_store_mso_opt(0x80, $visible,$color);
-               $data       .= $self->_store_mso_client_anchor(@anchor_data);
+               $data       .= $self->_store_mso_opt(0x80, $visible, $color);
+               $data       .= $self->_store_mso_client_anchor(3, @vertices);
                $data       .= $self->_store_mso_client_data();
 
             $length         = length $data;
@@ -4824,7 +5684,7 @@ sub _store_comments {
 
         }
 
-        $self->_store_obj_comment($i+1);
+        $self->_store_obj_comment($num_objects+$i+1);
         $self->_store_mso_drawing_text_box();
         $self->_store_txo($str_len);
         $self->_store_txo_continue_1($str, $encoding);
@@ -4841,7 +5701,8 @@ sub _store_comments {
         my $author_enc  = $comments[$i]->[5];
         my $visible     = $comments[$i]->[6];
 
-        $self->_store_note($row, $col, $i+1, $author, $author_enc, $visible);
+        $self->_store_note($row, $col, $num_objects+$i+1,
+                           $author, $author_enc, $visible);
     }
 }
 
@@ -4985,6 +5846,7 @@ sub _store_mso_sp {
 # _store_mso_opt()
 #
 # Write the Escher Opt record that is part of MSODRAWING.
+# TODO make this _store_mso_opt_comment.
 #
 sub _store_mso_opt {
 
@@ -5027,6 +5889,121 @@ sub _store_mso_opt {
 
 ###############################################################################
 #
+# _store_mso_opt_image()
+#
+# Write the Escher Opt record that is part of MSODRAWING.
+#
+sub _store_mso_opt_image {
+
+    my $self        = shift;
+
+    my $type        = 0xF00B;
+    my $version     = 3;
+    my $instance    = 3;
+    my $data        = '';
+    my $length      = undef;
+    my $spid        = $_[0];
+
+    $data    = pack 'v', 0x4104;        # Blip -> pib
+    $data   .= pack 'V', $spid;
+    $data   .= pack 'v', 0x01BF;        # Fill Style -> fNoFillHitTest
+    $data   .= pack 'V', 0x00010000;
+    $data   .= pack 'v', 0x03BF;        # Group Shape -> fPrint
+    $data   .= pack 'V', 0x00080000;
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_opt_chart()
+#
+# Write the Escher Opt record that is part of MSODRAWING.
+#
+sub _store_mso_opt_chart {
+
+    my $self        = shift;
+
+    my $type        = 0xF00B;
+    my $version     = 3;
+    my $instance    = 9;
+    my $data        = '';
+    my $length      = undef;
+
+    $data    = pack 'v', 0x007F;        # Protection -> fLockAgainstGrouping
+    $data   .= pack 'V', 0x01040104;
+
+    $data   .= pack 'v', 0x00BF;        # Text -> fFitTextToShape
+    $data   .= pack 'V', 0x00080008;
+
+    $data   .= pack 'v', 0x0181;        # Fill Style -> fillColor
+    $data   .= pack 'V', 0x0800004E ;
+
+    $data   .= pack 'v', 0x0183;        # Fill Style -> fillBackColor
+    $data   .= pack 'V', 0x0800004D;
+
+    $data   .= pack 'v', 0x01BF;        # Fill Style -> fNoFillHitTest
+    $data   .= pack 'V', 0x00110010;
+
+    $data   .= pack 'v', 0x01C0;        # Line Style -> lineColor
+    $data   .= pack 'V', 0x0800004D;
+
+    $data   .= pack 'v', 0x01FF;        # Line Style -> fNoLineDrawDash
+    $data   .= pack 'V', 0x00080008;
+
+    $data   .= pack 'v', 0x023F;        # Shadow Style -> fshadowObscured
+    $data   .= pack 'V', 0x00020000;
+
+    $data   .= pack 'v', 0x03BF;        # Group Shape -> fPrint
+    $data   .= pack 'V', 0x00080000;
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
+# _store_mso_opt_filter()
+#
+# Write the Escher Opt record that is part of MSODRAWING.
+#
+sub _store_mso_opt_filter {
+
+    my $self        = shift;
+
+    my $type        = 0xF00B;
+    my $version     = 3;
+    my $instance    = 5;
+    my $data        = '';
+    my $length      = undef;
+
+
+
+    $data    = pack 'v', 0x007F;        # Protection -> fLockAgainstGrouping
+    $data   .= pack 'V', 0x01040104;
+
+    $data   .= pack 'v', 0x00BF;        # Text -> fFitTextToShape
+    $data   .= pack 'V', 0x00080008;
+
+    $data   .= pack 'v', 0x01BF;        # Fill Style -> fNoFillHitTest
+    $data   .= pack 'V', 0x00010000;
+
+    $data   .= pack 'v', 0x01FF;        # Line Style -> fNoLineDrawDash
+    $data   .= pack 'V', 0x00080000;
+
+    $data   .= pack 'v', 0x03BF;        # Group Shape -> fPrint
+    $data   .= pack 'V', 0x000A0000;
+
+
+    return $self->_add_mso_generic($type, $version, $instance, $data, $length);
+}
+
+
+###############################################################################
+#
 # _store_mso_client_anchor()
 #
 # Write the Escher ClientAnchor record that is part of MSODRAWING.
@@ -5041,26 +6018,19 @@ sub _store_mso_client_anchor {
     my $data        = '';
     my $length      = 18;
 
-    my $flag        = 3;
-    my $row         = $_[0];
-    my $col         = $_[1];
+    my $flag        = shift;
 
+    my $col_start   = $_[0];    # Col containing upper left corner of object
+    my $x1          = $_[1];    # Distance to left side of object
 
-    my $col_start   = $_[2];    # Col containing upper left corner of object
-    my $x1          = $_[3];    # Distance to left side of object
+    my $row_start   = $_[2];    # Row containing top left corner of object
+    my $y1          = $_[3];    # Distance to top of object
 
-    my $row_start   = $_[4];    # Row containing top left corner of object
-    my $y1          = $_[5];    # Distance to top of object
+    my $col_end     = $_[4];    # Col containing lower right corner of object
+    my $x2          = $_[5];    # Distance to right side of object
 
-    my $col_end     = $_[6];    # Col containing lower right corner of object
-    my $x2          = $_[7];    # Distance to right side of object
-
-    my $row_end     = $_[8];    # Row containing bottom right corner of object
-    my $y2          = $_[9];    # Distance to bottom of object
-
-    my $width       = $_[10];   # Width of image frame
-    my $height      = $_[11];   # Height of image frame
-
+    my $row_end     = $_[6];    # Row containing bottom right corner of object
+    my $y2          = $_[7];    # Distance to bottom of object
 
     $data   = pack "v9",    $flag,
                             $col_start, $x1,
@@ -5146,6 +6116,184 @@ sub _store_obj_comment {
 
     $self->_append($header, $data);
 
+}
+
+
+###############################################################################
+#
+# _store_obj_image()
+#
+# Write the OBJ record that is part of image records.
+#
+sub _store_obj_image {
+
+    my $self        = shift;
+
+    my $record      = 0x005D;   # Record identifier
+    my $length      = 0x0026;   # Bytes to follow
+
+    my $obj_id      = $_[0];    # Object ID number.
+    my $obj_type    = 0x0008;   # Object type (Picture).
+    my $data        = '';       # Record data.
+
+    my $sub_record  = 0x0000;   # Sub-record identifier.
+    my $sub_length  = 0x0000;   # Length of sub-record.
+    my $sub_data    = '';       # Data of sub-record.
+    my $options     = 0x6011;
+    my $reserved    = 0x0000;
+
+    # Add ftCmo (common object data) subobject
+    $sub_record     = 0x0015;   # ftCmo
+    $sub_length     = 0x0012;
+    $sub_data       = pack 'vvvVVV', $obj_type, $obj_id,   $options,
+                                     $reserved, $reserved, $reserved;
+    $data           = pack 'vv',     $sub_record, $sub_length;
+    $data          .= $sub_data;
+
+
+    # Add ftCf (Clipboard format) subobject
+    $sub_record     = 0x0007;   # ftCf
+    $sub_length     = 0x0002;
+    $sub_data       = pack 'v',      0xFFFF;
+    $data          .= pack 'vv',     $sub_record, $sub_length;
+    $data          .= $sub_data;
+
+    # Add ftPioGrbit (Picture option flags) subobject
+    $sub_record     = 0x0008;   # ftPioGrbit
+    $sub_length     = 0x0002;
+    $sub_data       = pack 'v',      0x0001;
+    $data          .= pack 'vv',     $sub_record, $sub_length;
+    $data          .= $sub_data;
+
+
+    # Add ftEnd (end of object) subobject
+    $sub_record     = 0x0000;   # ftNts
+    $sub_length     = 0x0000;
+    $data          .= pack 'vv',     $sub_record, $sub_length;
+
+
+    # Pack the record.
+    my $header  = pack('vv',        $record, $length);
+
+    $self->_append($header, $data);
+
+}
+
+
+###############################################################################
+#
+# _store_obj_chart()
+#
+# Write the OBJ record that is part of chart records.
+#
+sub _store_obj_chart {
+
+    my $self        = shift;
+
+    my $record      = 0x005D;   # Record identifier
+    my $length      = 0x001A;   # Bytes to follow
+
+    my $obj_id      = $_[0];    # Object ID number.
+    my $obj_type    = 0x0005;   # Object type (chart).
+    my $data        = '';       # Record data.
+
+    my $sub_record  = 0x0000;   # Sub-record identifier.
+    my $sub_length  = 0x0000;   # Length of sub-record.
+    my $sub_data    = '';       # Data of sub-record.
+    my $options     = 0x6011;
+    my $reserved    = 0x0000;
+
+    # Add ftCmo (common object data) subobject
+    $sub_record     = 0x0015;   # ftCmo
+    $sub_length     = 0x0012;
+    $sub_data       = pack 'vvvVVV', $obj_type, $obj_id,   $options,
+                                     $reserved, $reserved, $reserved;
+    $data           = pack 'vv',     $sub_record, $sub_length;
+    $data          .= $sub_data;
+
+    # Add ftEnd (end of object) subobject
+    $sub_record     = 0x0000;   # ftNts
+    $sub_length     = 0x0000;
+    $data          .= pack 'vv',     $sub_record, $sub_length;
+
+
+    # Pack the record.
+    my $header  = pack('vv',        $record, $length);
+
+    $self->_append($header, $data);
+
+}
+
+
+
+
+###############################################################################
+#
+# _store_obj_filter()
+#
+# Write the OBJ record that is part of filter records.
+#
+sub _store_obj_filter {
+
+    my $self        = shift;
+
+    my $record      = 0x005D;   # Record identifier
+    my $length      = 0x0046;   # Bytes to follow
+
+    my $obj_id      = $_[0];    # Object ID number.
+    my $obj_type    = 0x0014;   # Object type (combo box).
+    my $data        = '';       # Record data.
+
+    my $sub_record  = 0x0000;   # Sub-record identifier.
+    my $sub_length  = 0x0000;   # Length of sub-record.
+    my $sub_data    = '';       # Data of sub-record.
+    my $options     = 0x2101;
+    my $reserved    = 0x0000;
+
+    # Add ftCmo (common object data) subobject
+    $sub_record     = 0x0015;   # ftCmo
+    $sub_length     = 0x0012;
+    $sub_data       = pack 'vvvVVV', $obj_type, $obj_id,   $options,
+                                     $reserved, $reserved, $reserved;
+    $data           = pack 'vv',     $sub_record, $sub_length;
+    $data          .= $sub_data;
+
+    # Add ftSbs Scroll bar subobject
+    $sub_record     = 0x000C;   # ftSbs
+    $sub_length     = 0x0014;
+    $sub_data       = pack 'H*', '0000000000000000640001000A00000010000100';
+    $data          .= pack 'vv',     $sub_record, $sub_length;
+    $data          .= $sub_data;
+
+
+    # Add ftLbsData (List box data) subobject
+    $sub_record     = 0x0013;   # ftLbsData
+    $sub_length     = 0x1FEE;   # Special case (undocumented).
+
+
+    # If the filter is active we set one of the undocumented flags.
+    my $col         = $_[1];
+
+    if ($self->{_filter_cols}->{$col}) {
+        $sub_data       = pack 'H*', '000000000100010300000A0008005700';
+    }
+    else {
+        $sub_data       = pack 'H*', '00000000010001030000020008005700';
+    }
+
+    $data          .= pack 'vv',     $sub_record, $sub_length;
+    $data          .= $sub_data;
+
+
+    # Add ftEnd (end of object) subobject
+    $sub_record     = 0x0000;   # ftNts
+    $sub_length     = 0x0000;
+    $data          .= pack 'vv', $sub_record, $sub_length;
+
+    # Pack the record.
+    my $header  = pack('vv',        $record, $length);
+
+    $self->_append($header, $data);
 }
 
 

@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Format;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Carp;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.18';
+$VERSION = '2.20';
 
 ###############################################################################
 #
@@ -90,6 +90,8 @@ sub new {
                     _diag_type      => 0,
                     _diag_color     => 0x40,
                     _diag_border    => 0,
+
+                    _font_only      => 0,
 
                     # Temp code to prevent merged formats in non-merged cells.
                     _used_merge     => 0,

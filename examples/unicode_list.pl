@@ -37,7 +37,7 @@ for my $row (0 .. 2 ** 12 -1) {
                                            sprintf('0x%04X', $char), $courier);
         }
         else {
-            $worksheet->write_unicode($row, $col,
+            $worksheet->write_utf16be_string($row, $col,
                                             pack('n', $char++), $uni_font);
         }
     }

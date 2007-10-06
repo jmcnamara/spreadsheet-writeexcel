@@ -13,7 +13,7 @@ WriteMakefile(
     'NEEDS_LINKING' => 0,
     'PREREQ_PM'     => { Parse::RecDescent => 0,
                          File::Temp        => 0,
-                         OLE::Storage_Lite => 0.14
+                         OLE::Storage_Lite => 0.14,
                        },
     'dist'          => { COMPRESS => 'gzip --best', SUFFIX => 'gz' },
     'EXE_FILES'     => ['bin/chartex'],

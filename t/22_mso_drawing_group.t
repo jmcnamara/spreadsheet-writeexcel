@@ -74,7 +74,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -117,7 +117,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -160,7 +160,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -203,7 +203,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -247,7 +247,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -291,7 +291,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -340,7 +340,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -389,7 +389,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -438,7 +438,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -487,7 +487,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -537,7 +537,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -586,7 +586,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -639,7 +639,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -692,7 +692,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -746,7 +746,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -800,7 +800,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);
@@ -860,7 +860,7 @@ $caption   .= ' (params)';
               );
 
 for my $sheet ($workbook->sheets()) {
-    push @result_ids, @{$sheet->{_comments_ids}};
+    push @result_ids, @{$sheet->{_object_ids}};
 }
 
 is_deeply(\@result_ids, \@target_ids , $caption);

@@ -14,7 +14,8 @@ stats.pl                Basic formulas and functions.
 
 Advanced
 ========
-autofit.pl              Simuluate Excel's autofit for colums widths.
+autofilter.pl           Examples of worksheet autofilters.
+autofit.pl              Simulate Excel's autofit for column widths.
 bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
 cgi.pl                  A simple CGI program.
 chess.pl                An example of formatting using properties.
@@ -63,9 +64,9 @@ write_to_scalar.pl      Example of writing an Excel file to a Perl scalar.
 
 Unicode
 =======
-unicode.pl              Simple example of using Unicode UTF16 strings.
-unicode_japan.pl        Write Japanese Unicode strings using UTF16.
-unicode_cyrillic.pl     Write Russian cyrillic strings using UTF8.
+unicode_utf16.pl        Simple example of using Unicode UTF16 strings.
+unicode_utf16_japan.pl  Write Japanese Unicode strings using UTF-16.
+unicode_cyrillic.pl     Write Russian cyrillic strings using UTF-8.
 unicode_list.pl         List the chars in a Unicode font.
 unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
 unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.

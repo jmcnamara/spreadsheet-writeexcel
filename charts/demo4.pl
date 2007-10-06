@@ -2,39 +2,34 @@
 
 ###############################################################################
 #
-# Simple example of how to add an externally created chart to a Spreadsheet::
-# WriteExcel file.
+# Simple example of how to embed an externally created chart into a
+# Spreadsheet:: WriteExcel worksheet.
 #
 #
 # This example adds an "Open-high-low-close" stock chart extracted from the
 # file Chart3.xls as follows:
 #
-#   perl chartex.pl -c=demo3 Chart3.xls
+#   perl chartex.pl -c=demo4 Chart4.xls
 #
-# reverse('©'), September 2004, John McNamara, jmcnamara@cpan.org
+# reverse('©'), September 2007, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
 use Spreadsheet::WriteExcel;
 
-my $workbook  = Spreadsheet::WriteExcel->new("demo3.xls");
+my $workbook  = Spreadsheet::WriteExcel->new("demo4.xls");
 my $worksheet = $workbook->add_worksheet();
 
 
 # Add the chart extracted using the chartex utility
-my $chart     = $workbook->add_chart_ext('demo301.bin', 'Chart1');
-
-
-# Link the chart to the worksheet data using a dummy formula.
-$worksheet->store_formula('=Sheet1!A1');
+$worksheet->embed_chart('G2', 'demo401.bin', 3, 3, 1.08, 1.21);
 
 
 # Add some extra formats to cover formats used in the charts.
 my $chart_font_1 = $workbook->add_format(font_only => 1);
-my $chart_font_2 = $workbook->add_format(font_only => 1);
+my $chart_font_2 = $workbook->add_format(font_only => 1, bold => 1);
 my $chart_font_3 = $workbook->add_format(font_only => 1);
 my $chart_font_4 = $workbook->add_format(font_only => 1);
-my $chart_font_5 = $workbook->add_format(font_only => 1);
 
 # Add all other formats.
 my $bold        = $workbook->add_format(bold => 1);

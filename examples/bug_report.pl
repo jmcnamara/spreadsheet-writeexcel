@@ -105,10 +105,13 @@ print "\n    Module versions: (not all are required)\n";
 
 my @modules = qw(
                   Spreadsheet::WriteExcel
+                  Spreadsheet::ParseExcel
+                  OLE::Storage_Lite
                   Parse::RecDescent
                   File::Temp
-                  OLE::Storage_Lite
-                  IO::Stringy
+                  Digest::MD4
+                  Digest::Perl::MD4
+                  Digest::MD5
                 );
 
 

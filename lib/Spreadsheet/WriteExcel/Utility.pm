@@ -4,7 +4,7 @@ package Spreadsheet::WriteExcel::Utility;
 #
 # Utility - Helper functions for Spreadsheet::WriteExcel.
 #
-# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
 #
 #
 
@@ -47,7 +47,7 @@ my @dates       = qw(
                         dates   => \@dates
                     );
 
-$VERSION        = '2.01';
+$VERSION        = '2.20';
 
 
 

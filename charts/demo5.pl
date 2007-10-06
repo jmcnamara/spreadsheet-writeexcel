@@ -2,39 +2,35 @@
 
 ###############################################################################
 #
-# Simple example of how to add an externally created chart to a Spreadsheet::
-# WriteExcel file.
+# Simple example of how to embed an externally created chart into a
+# Spreadsheet:: WriteExcel worksheet.
 #
 #
 # This example adds a line chart extracted from the file Chart1.xls as follows:
 #
-#   perl chartex.pl -c=demo1 Chart1.xls
+#   perl chartex.pl -c=demo5 Chart5.xls
 #
 #
-# reverse('©'), September 2004, John McNamara, jmcnamara@cpan.org
+# reverse('©'), September 2007, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
 use Spreadsheet::WriteExcel;
 
-my $workbook  = Spreadsheet::WriteExcel->new("demo1.xls");
+my $workbook  = Spreadsheet::WriteExcel->new('demo5.xls');
 my $worksheet = $workbook->add_worksheet();
 
 
-# Add the chart extracted using the chartex utility
-my $chart     = $workbook->add_chart_ext('demo101.bin', 'Chart1');
-
-
-# Link the chart to the worksheet data using a dummy formula.
-$worksheet->store_formula('=Sheet1!A1');
+# Embed a chart extracted using the chartex utility
+$worksheet->embed_chart('D3', 'demo501.bin');
 
 
 # Add some extra formats to cover formats used in the charts.
 my $chart_font_1 = $workbook->add_format(font_only => 1);
 my $chart_font_2 = $workbook->add_format(font_only => 1);
-my $chart_font_3 = $workbook->add_format(font_only => 1);
 
 # Add all other formats (if any).
+
 
 # Add data to range that the chart refers to.
 my @nums    = (0, 1, 2, 3, 4,  5,  6,  7,  8,  9,  10 );

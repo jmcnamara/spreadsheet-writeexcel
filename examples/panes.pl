@@ -17,18 +17,17 @@ my $worksheet2 = $workbook->add_worksheet('Panes 2');
 my $worksheet3 = $workbook->add_worksheet('Panes 3');
 my $worksheet4 = $workbook->add_worksheet('Panes 4');
 
-# Frozen panes
+# Freeze panes
 $worksheet1->freeze_panes(1, 0); # 1 row
+
 $worksheet2->freeze_panes(0, 1); # 1 column
 $worksheet3->freeze_panes(1, 1); # 1 row and column
 
-# Un-frozen panes. The divisions must be specified in terms of row and column
-# dimensions. The default row height is 12.75 and the default column width
-# is 8.43
+# Split panes.
+# The divisions must be specified in terms of row and column dimensions.
+# The default row height is 12.75 and the default column width is 8.43
 #
-$worksheet4->thaw_panes(12.75, 8.43, 1, 1); # 1 row and column
-
-
+$worksheet4->split_panes(12.75, 8.43, 1, 1); # 1 row and column
 
 
 #######################################################################

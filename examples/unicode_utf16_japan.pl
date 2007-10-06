@@ -19,7 +19,7 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 
-my $workbook  = Spreadsheet::WriteExcel->new('japan.xls');
+my $workbook  = Spreadsheet::WriteExcel->new('unicode_utf16_japan.xls');
 my $worksheet = $workbook->add_worksheet();
 
 
@@ -34,9 +34,9 @@ my $hiragana  = pack 'n*', 0x306b, 0x307b, 0x3093;
 
 
 
-$worksheet->write_unicode('A1', $kanji,    $uni_font);
-$worksheet->write_unicode('A2', $katakana, $uni_font);
-$worksheet->write_unicode('A3', $hiragana, $uni_font);
+$worksheet->write_utf16be_string('A1', $kanji,    $uni_font);
+$worksheet->write_utf16be_string('A2', $katakana, $uni_font);
+$worksheet->write_utf16be_string('A3', $hiragana, $uni_font);
 
 
 $worksheet->write('B1', 'Kanji');

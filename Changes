@@ -1,5 +1,36 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+
+2.20 October 6 2007 - Major
+
+
+    + Added autofilter() and filter_column() method and
+      autofilter.pl example.
+
+    + Added embed_chart() method to allow extracted chart
+      templates to be embedded in a worksheet.
+      Added demo4.pl and demo5.pl examples.
+
+    + Added the insert_image() method and proper Excel 97
+      style image handling for PNG and BMP.
+      Images now work with Gnumeric and OpenOffice.
+      insert_bitmap() is now deprecated.
+
+    ! Made pane split optional when calling freeze_panes().
+      Also renamed thaw_panes() as split_panes(). The old
+      method name is still available, but deprected..
+
+    ! Renamed write_unicode() and write_unicode_le() methods
+      to the more explicit write_utf16be_string() and
+      write_utf16le_string(). The old method names are
+      still available, but deprected.
+
+
+2.19 June 14 2007 - Major
+
+    + Beta testing only. Not release to CPAN.
+
+
 2.18 January 18 2007 - Minor
 
     ! Correct invalid user set_column() calls to prevent

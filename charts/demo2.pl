@@ -30,10 +30,11 @@ $worksheet->store_formula('=Sheet1!A1');
 
 
 # Add some extra formats to cover formats used in the charts.
-$workbook->add_format(color => 1, bold => 1);
-$workbook->add_format(color => 2);
-$workbook->add_format(color => 3);
-
+my $chart_font_1 = $workbook->add_format(font_only => 1);
+my $chart_font_2 = $workbook->add_format(font_only => 1);
+my $chart_font_3 = $workbook->add_format(font_only => 1);
+my $chart_font_4 = $workbook->add_format(font_only => 1);
+my $chart_font_5 = $workbook->add_format(font_only => 1);
 
 # Add all other formats.
 my $bold      = $workbook->add_format(bold => 1);

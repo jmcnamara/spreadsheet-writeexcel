@@ -14,8 +14,8 @@
 
 
 # Perl 5.8 or later is required for proper utf8 handling. For older perl
-# versions you should use UTF16 and the write_unicode() method.
-# See the write_unicode section of the Spreadsheet::WriteExcel docs.
+# versions you should use UTF16 and the write_utf16be_string() method.
+# See the write_utf16be_string section of the Spreadsheet::WriteExcel docs.
 #
 require 5.008;
 

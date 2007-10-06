@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::OLEwriter;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2006, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.15';
+$VERSION = '2.20';
 
 ###############################################################################
 #

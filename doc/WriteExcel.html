@@ -63,8 +63,8 @@
 		<LI><A HREF="#write_row_column_token_fo">write($row, $column, $token, $format)</A></LI>
 		<LI><A HREF="#write_number_row_column_num">write_number($row, $column, $number, $format)</A></LI>
 		<LI><A HREF="#write_string_row_column_str">write_string($row, $column, $string, $format)</A></LI>
-		<LI><A HREF="#write_unicode_row_column_st">write_unicode($row, $column, $string, $format)</A></LI>
-		<LI><A HREF="#write_unicode_le_row_column_">write_unicode_le($row, $column, $string, $format)</A></LI>
+		<LI><A HREF="#write_utf16be_string_row_colu">write_utf16be_string($row, $column, $string, $format)</A></LI>
+		<LI><A HREF="#write_utf16le_string_row_colu">write_utf16le_string($row, $column, $string, $format)</A></LI>
 		<LI><A HREF="#keep_leading_zeros_">keep_leading_zeros()</A></LI>
 		<LI><A HREF="#write_blank_row_column_form">write_blank($row, $column, $format)</A></LI>
 		<LI><A HREF="#write_row_row_column_array_">write_row($row, $column, $array_ref, $format)</A></LI>
@@ -78,7 +78,8 @@
 		<LI><A HREF="#write_comment_row_column_st">write_comment($row, $column, $string, ...)</A></LI>
 		<LI><A HREF="#show_comments_">show_comments()</A></LI>
 		<LI><A HREF="#add_write_handler_re_code_ref">add_write_handler($re, $code_ref)</A></LI>
-		<LI><A HREF="#insert_bitmap_row_col_filen">insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
+		<LI><A HREF="#insert_image_row_col_filena">insert_image($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
+		<LI><A HREF="#embed_chart_row_col_filenam">embed_chart($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
 		<LI><A HREF="#get_name_">get_name()</A></LI>
 		<LI><A HREF="#activate_">activate()</A></LI>
 		<LI><A HREF="#select_">select()</A></LI>
@@ -90,7 +91,7 @@
 		<LI><A HREF="#set_column_first_col_last_col">set_column($first_col, $last_col, $width, $format, $hidden, $level)</A></LI>
 		<LI><A HREF="#outline_settings_visible_symb">outline_settings($visible, $symbols_below, $symbols_right, $auto_style)</A></LI>
 		<LI><A HREF="#freeze_panes_row_col_top_ro">freeze_panes($row, $col, $top_row, $left_col)</A></LI>
-		<LI><A HREF="#thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col)</A></LI>
+		<LI><A HREF="#split_panes_y_x_top_row_l">split_panes($y, $x, $top_row, $left_col)</A></LI>
 		<LI><A HREF="#merge_range_first_row_first_c">merge_range($first_row, $first_col, $last_row, $last_col, $token, $format, $encoding)</A></LI>
 		<LI><A HREF="#set_zoom_scale_">set_zoom($scale)</A></LI>
 		<LI><A HREF="#right_to_left_">right_to_left()</A></LI>
@@ -167,8 +168,9 @@
         </code>
 	</UL>
 
+	<LI><A HREF="#UNICODE_IN_EXCEL">UNICODE IN EXCEL</A></LI>
 	<LI><A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A></LI>
-	<LI><A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A></LI>
+	<LI><A HREF="#DATES_AND_TIME_IN_EXCEL">DATES AND TIME IN EXCEL</A></LI>
 	<LI><A HREF="#OUTLINES_AND_GROUPING_IN_EXCEL">OUTLINES AND GROUPING IN EXCEL</A></LI>
 	<LI><A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A></LI>
 	<UL>
@@ -200,14 +202,15 @@
 	<LI><A HREF="#THE_EXCEL_BINARY_FORMAT">THE EXCEL BINARY FORMAT</A></LI>
 	<LI><A HREF="#WRITING_EXCEL_FILES">WRITING EXCEL FILES</A></LI>
 	<LI><A HREF="#READING_EXCEL_FILES">READING EXCEL FILES</A></LI>
-	<LI><A HREF="#Warning_about_XML_Parser_and_Pe">Warning about XML::Parser and Perl 5.6</A></LI>
+	<LI><A HREF="#Warning_about_XML_Parser_and_pe">Warning about XML::Parser and perl 5.6</A></LI>
 	<LI><A HREF="#BUGS">BUGS</A></LI>
 	<LI><A HREF="#TO_DO">TO DO</A></LI>
 	<LI><A HREF="#MAILING_LIST">MAILING LIST</A></LI>
-	<LI><A HREF="#DONATATIONS">DONATATIONS</A></LI>
+	<LI><A HREF="#DONATIONS">DONATIONS</A></LI>
 	<LI><A HREF="#SEE_ALSO">SEE ALSO</A></LI>
-	<LI><A HREF="#ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></LI>
+	<LI><A HREF="#ACKNOWLEDGMENTS">ACKNOWLEDGMENTS</A></LI>
 	<LI><A HREF="#DISCLAIMER_OF_WARRANTY">DISCLAIMER OF WARRANTY</A></LI>
+	<LI><A HREF="#LICENSE">LICENSE</A></LI>
 	<LI><A HREF="#AUTHOR">AUTHOR</A></LI>
 	<LI><A HREF="#COPYRIGHT">COPYRIGHT</A></LI>
 </UL>
@@ -224,8 +227,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.18 of Spreadsheet::WriteExcel, released
-January 18, 2007.
+This document refers to version 2.20 of Spreadsheet::WriteExcel, released
+October 6, 2007.
 
 </P>
 <P>
@@ -344,7 +347,7 @@ Like this:
 </P>
 <P>
 This will create an Excel file called <CODE>perl.xls</CODE> with a single worksheet and the text <CODE>&quot;Hi Excel!&quot;</CODE> in the relevant cell. And that's it. Okay, so there is actually a zeroth
-step as well, but <CODE>use module</CODE> goes without saying. There are also more than 70 examples that come with
+step as well, but <CODE>use module</CODE> goes without saying. There are also more than 80 examples that come with
 the distribution and which you can use to get you started. See <A HREF="#EXAMPLES">EXAMPLES</A>.
 
 </P>
@@ -545,9 +548,8 @@ See also the <CODE>write_to_scalar.pl</CODE> and <CODE>filehandle.pl</CODE> prog
 <P>
 <STRONG>Note about the requirement for</STRONG>  <CODE>binmode()</CODE>: An Excel file is comprised of binary data. Therefore, if you are using a
 filehandle you should ensure that you <CODE>binmode()</CODE> it prior to passing it to <CODE>new()</CODE>.You should do this regardless of whether you are on a Windows platform or
-not. This applies especially to users of perl 5.8 on systems where utf8 is
-likely to be in operation such as RedHat Linux 9. If your program, either
-intentionally or not, writes UTF8 data to a filehandle that is passed to <CODE>new()</CODE> it will corrupt the Excel file that is created.
+not. This applies especially to users of perl 5.8 on systems where <CODE>UTF-8</CODE> is likely to be in operation such as RedHat Linux 9. If your program,
+either intentionally or not, writes <CODE>UTF-8</CODE> data to a filehandle that is passed to <CODE>new()</CODE> it will corrupt the Excel file that is created.
 
 </P>
 <P>
@@ -719,7 +721,7 @@ same, case insensitive, <CODE>$sheetname</CODE> for more than one worksheet.
 
 </P>
 <P>
-On systems with <CODE>perl 5.8</CODE> and later the <CODE>add_worksheet()</CODE> method will also handle strings in Perl's <CODE>utf8</CODE> format.
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>add_worksheet()</CODE> method will also handle strings in &lt;UTF-8&gt; format.
 
 </P>
 <P>
@@ -728,8 +730,7 @@ On systems with <CODE>perl 5.8</CODE> and later the <CODE>add_worksheet()</CODE>
 </PRE>
 </P>
 <P>
-On earlier Perl systems your can specify UTF-16BE worksheet names using an
-additional encoding parameter:
+On earlier Perl systems your can specify <CODE>UTF-16BE</CODE> worksheet names using an additional encoding parameter:
 
 </P>
 <P>
@@ -920,7 +921,7 @@ wish to change this you can call the <CODE>set_1904()</CODE> workbook method. Yo
 
 </P>
 <P>
-See also <A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A> for more information about working with Excel's date system.
+See also <A HREF="#DATES_AND_TIME_IN_EXCEL">DATES AND TIME IN EXCEL</A> for more information about working with Excel's date system.
 
 </P>
 <P>
@@ -974,8 +975,8 @@ The following methods are available through a new worksheet:
     write()
     write_number()
     write_string()
-    write_unicode()
-    write_unicode_le()
+    write_utf16be_string()
+    write_utf16le_string()
     keep_leading_zeros()
     write_blank()
     write_row()
@@ -989,7 +990,7 @@ The following methods are available through a new worksheet:
     write_comment()
     show_comments()
     add_write_handler()
-    insert_bitmap()
+    insert_image()
     get_name()
     activate()
     select()
@@ -1001,12 +1002,13 @@ The following methods are available through a new worksheet:
     set_column()
     outline_settings()
     freeze_panes()
-    thaw_panes()
+    split_panes()
     merge_range()
     set_zoom()
     right_to_left()
     hide_zero()
     set_tab_color()
+    autofilter()
 </PRE>
 </P>
 <P>
@@ -1223,7 +1225,7 @@ You can also add your own data handlers to the <CODE>write()</CODE> method using
 
 </P>
 <P>
-On systems with <CODE>perl 5.8</CODE> and later the <CODE>write()</CODE> method will also handle Unicode strings in Perl's <CODE>utf8</CODE> format.
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>write()</CODE> method will also handle Unicode strings in <CODE>UTF-8</CODE> format.
 
 </P>
 <P>
@@ -1283,7 +1285,7 @@ The <CODE>$format</CODE> parameter is optional.
 
 </P>
 <P>
-On systems with <CODE>perl 5.8</CODE> and later the <CODE>write()</CODE> method will also handle strings in Perl's <CODE>utf8</CODE> format. With older perls you can also write Unicode in <CODE>UTF16</CODE> format via the <CODE>write_unicode()</CODE> method. See also the <CODE>unicode_*.pl</CODE> programs in the examples directory of the distro.
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>write()</CODE> method will also handle strings in <CODE>UTF-8</CODE> format. With older perls you can also write Unicode in <CODE>UTF16</CODE> format via the <CODE>write_utf16be_string()</CODE> method. See also the <CODE>unicode_*.pl</CODE> programs in the examples directory of the distro.
 
 </P>
 <P>
@@ -1315,25 +1317,15 @@ See also the note about <A HREF="#Cell_notation">Cell notation</A>.
 </P>
 <P>
 <HR>
-<H2><A NAME="write_unicode_row_column_st">write_unicode($row, $column, $string, $format)</A></H2>
+<H2><A NAME="write_utf16be_string_row_colu">write_utf16be_string($row, $column, $string, $format)</A></H2>
 <P>
-This method is used to write Unicode strings to a cell in Excel. It is
-functionally the same as the <CODE>write_string()</CODE> method except that the string should be in UTF-16 Unicode format.
+This method is used to write <CODE>UTF-16BE</CODE> strings to a cell in Excel. It is functionally the same as the <CODE>write_string()</CODE> method except that the string should be in <CODE>UTF-16BE</CODE> Unicode format. It is generally easier, when using Spreadsheet::WriteExcel,
+to write unicode strings in <CODE>UTF-8</CODE> format, see <A HREF="#UNICODE_IN_EXCEL">UNICODE IN EXCEL</A>. The <CODE>write_utf16be_string()</CODE> method is mainly of use in versions of perl prior to 5.8.
 
 </P>
 <P>
-<STRONG>Note</STRONG>: on systems with <CODE>perl 5.8</CODE> and later the <CODE>write()</CODE> and <CODE>write_string()</CODE>methods will also handle strings in Perl's <CODE>utf8</CODE> format. With older perls you must use the <CODE>write_unicode()</CODE> method.
-
-</P>
-<P>
-The Unicode format required by Excel is UTF-16. Additionally <CODE>Spreadsheet::WriteExcel</CODE> requires that the 16-bit characters are in big-endian order. This is
-generally referred to as UTF-16BE. To write UTF-16 strings in little-endian
-format use the <CODE>write_unicode_le()</CODE> method.
-
-</P>
-<P>
-The following is a simple example showing how to write some Unicode
-strings:
+The following is a simple example showing how to write some Unicode strings
+in <CODE>UTF-16BE</CODE> format:
 
 </P>
 <P>
@@ -1350,7 +1342,7 @@ strings:
 </P>
 <P>
 <PRE>
-    my $workbook  = Spreadsheet::WriteExcel-&gt;new('unicode.xls');
+    my $workbook  = Spreadsheet::WriteExcel-&gt;new('utf_16_be.xls');
     my $worksheet = $workbook-&gt;add_worksheet();
 </PRE>
 </P>
@@ -1375,20 +1367,20 @@ strings:
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;write_unicode('A3', $smiley, $big_font);
+    $worksheet-&gt;write_utf16be_string('A3', $smiley, $big_font);
 </PRE>
 </P>
 <P>
 <PRE>
     # Write a phrase in Cyrillic using a hex-encoded string
     #
-    my $uni_str = pack &quot;H*&quot;, &quot;042d0442043e0020044404400430043704300020043d&quot; .
-                             &quot;043000200440044304410441043a043e043c0021&quot;;
+    my $str = pack &quot;H*&quot;, &quot;042d0442043e0020044404400430043704300020043d&quot; .
+                         &quot;043000200440044304410441043a043e043c0021&quot;;
 </PRE>
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;write_unicode('A5', $uni_str);
+    $worksheet-&gt;write_utf16be_string('A5', $str);
 </PRE>
 </P>
 <P>
@@ -1401,64 +1393,11 @@ strings:
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;write_unicode('A7', $utf16);
+    $worksheet-&gt;write_utf16be_string('A7', $utf16);
 </PRE>
 </P>
 <P>
-The following is an example of creating an Excel file with some Japanese
-text. You will need to have a Unicode font installed, such as <CODE>Arial Unicode MS</CODE>, to view the results:
-
-</P>
-<P>
-<PRE>
-    #!/usr/bin/perl -w
-</PRE>
-</P>
-<P>
-<PRE>
-    use strict;
-    use Spreadsheet::WriteExcel;
-</PRE>
-</P>
-<P>
-<PRE>
-    my $workbook  = Spreadsheet::WriteExcel-&gt;new('unicode.xls');
-    my $worksheet = $workbook-&gt;add_worksheet();
-</PRE>
-</P>
-<P>
-<PRE>
-    # It is only required to specify a Unicode font via add_format() if
-    # you are using Excel 97. For Excel 2000+ the text will display
-    # with the default font (if you have Unicode fonts installed).
-    #
-    my $uni_font  = $workbook-&gt;add_format(font =&gt; 'Arial Unicode MS');
-</PRE>
-</P>
-<P>
-<PRE>
-    my $kanji     = pack 'n*', 0x65e5, 0x672c;
-    my $katakana  = pack 'n*', 0xff86, 0xff8e, 0xff9d;
-    my $hiragana  = pack 'n*', 0x306b, 0x307b, 0x3093;
-</PRE>
-</P>
-<P>
-<PRE>
-    $worksheet-&gt;write_unicode('A1', $kanji,    $uni_font);
-    $worksheet-&gt;write_unicode('A2', $katakana, $uni_font);
-    $worksheet-&gt;write_unicode('A3', $hiragana, $uni_font);
-</PRE>
-</P>
-<P>
-<PRE>
-    $worksheet-&gt;write('B1', 'Kanji');
-    $worksheet-&gt;write('B2', 'Katakana');
-    $worksheet-&gt;write('B3', 'Hiragana');
-</PRE>
-</P>
-<P>
-Note: You can convert ascii encodings to the required UTF-16BE format using
-one of the many Unicode modules on CPAN. For example <CODE>Unicode::Map</CODE> and <CODE>Unicode::String</CODE>: <A
+You can convert ASCII encodings to the required <CODE>UTF-16BE</CODE> format using one of the many Unicode modules on CPAN. For example <CODE>Unicode::Map</CODE> and <CODE>Unicode::String</CODE>: <A
 HREF="http://search.cpan.org/author/MSCHWARTZ/Unicode-Map/Map.pm">http://search.cpan.org/author/MSCHWARTZ/Unicode-Map/Map.pm</A>
 and <A
 HREF="http://search.cpan.org/author/GAAS/Unicode-String/String.pm">http://search.cpan.org/author/GAAS/Unicode-String/String.pm</A>
@@ -1472,32 +1411,34 @@ HREF="http://search.cpan.org/search?query=unicode&mode=all">http://search.cpan.o
 
 </P>
 <P>
+<CODE>UTF-16BE</CODE> is the format most often returned by <CODE>Perl</CODE> modules that generate <CODE>UTF-16</CODE>. To write <CODE>UTF-16</CODE> strings in little-endian format use the <CODE>write_utf16be_string_le()</CODE> method below.
+
+</P>
+<P>
+The <CODE>write_utf16be_string()</CODE> method was previously called <CODE>write_unicode()</CODE>. That, overly general, name is still supported but deprecated.
+
+</P>
+<P>
 See also the <CODE>unicode_*.pl</CODE> programs in the examples directory of the distro.
 
 </P>
 <P>
 <HR>
-<H2><A NAME="write_unicode_le_row_column_">write_unicode_le($row, $column, $string, $format)</A></H2>
+<H2><A NAME="write_utf16le_string_row_colu">write_utf16le_string($row, $column, $string, $format)</A></H2>
 <P>
-This method is the same as <CODE>write_unicode()</CODE> except that the string should be 16-bit characters in little-endian format.
-This is generally referred to as UTF-16LE.
+This method is the same as <CODE>write_utf16be()</CODE> except that the string should be 16-bit characters in little-endian format.
+This is generally referred to as <CODE>UTF-16LE</CODE>. See <A HREF="#UNICODE_IN_EXCEL">UNICODE IN EXCEL</A>.
 
 </P>
 <P>
-UTF-16 data can be changed from little-endian to big-endian format (and
+<CODE>UTF-16</CODE> data can be changed from little-endian to big-endian format (and
 vice-versa) as follows:
 
 </P>
 <P>
 <PRE>
-    $utf16 = pack &quot;n*&quot;, unpack &quot;v*&quot;, $utf16;
+    $utf16be = pack &quot;n*&quot;, unpack &quot;v*&quot;, $utf16le;
 </PRE>
-</P>
-<P>
-Note, it is slightly faster to write little-endian data via
-<CODE>write_unicode_le()</CODE> than it is to write big-endian data via
-<CODE>write_unicode().</CODE>
-
 </P>
 <P>
 <HR>
@@ -1934,7 +1875,7 @@ Note that the <CODE>T</CODE> is required in all cases.
 
 </P>
 <P>
-A date should always have a <CODE>$format</CODE>, otherwise it will appear as a number, see <A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A> and <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. Here is a typical example:
+A date should always have a <CODE>$format</CODE>, otherwise it will appear as a number, see <A HREF="#DATES_AND_TIME_IN_EXCEL">DATES AND TIME IN EXCEL</A> and <A HREF="#CELL_FORMATTING">CELL FORMATTING</A>. Here is a typical example:
 
 </P>
 <P>
@@ -2373,11 +2314,6 @@ See also the <CODE>repeat.pl</CODE> program in the <CODE>examples</CODE> directo
 <HR>
 <H2><A NAME="write_comment_row_column_st">write_comment($row, $column, $string, ...)</A></H2>
 <P>
-<STRONG>NOTE:</STRONG> This method is currently incompatible with <CODE>insert_bitmap()</CODE>. You can use either method but not both in the same workbook. This will be
-fixed soon.
-
-</P>
-<P>
 The <CODE>write_comment()</CODE> method is used to add a comment to a cell. A cell comment is indicated in
 Excel by a small red triangle in the upper right-hand corner of the cell.
 Moving the cursor over the red triangle will reveal the comment.
@@ -2404,7 +2340,7 @@ As usual you can replace the <CODE>$row</CODE> and <CODE>$column</CODE> paramete
 </PRE>
 </P>
 <P>
-On systems with <CODE>perl 5.8</CODE> and later the <CODE>write_comment()</CODE> method will also handle strings in Perl's <CODE>utf8</CODE> format.
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>write_comment()</CODE> method will also handle strings in <CODE>UTF-8</CODE> format.
 
 </P>
 <P>
@@ -2451,8 +2387,7 @@ available:
 <DL>
 <DT><A NAME="item_Option">Option: encoding</A><DD>
 <P>
-This option is used to indicate that the comment string is encoded as
-UTF-16BE.
+This option is used to indicate that the comment string is encoded as <CODE>UTF-16BE</CODE>.
 
 </P>
 <P>
@@ -2467,7 +2402,7 @@ UTF-16BE.
 </P>
 <P>
 If you wish to use Unicode characters in the comment string then the
-preferred method is to use perl 5.8 and UTF-8 strings.
+preferred method is to use perl 5.8 and <CODE>UTF-8</CODE> strings, see <A HREF="#UNICODE_IN_EXCEL">UNICODE IN EXCEL</A>.
 
 </P>
 <DT>Option: author<DD>
@@ -2485,8 +2420,7 @@ several people might review and provide comments to a workbook.
 </P>
 <DT>Option: author_encoding<DD>
 <P>
-This option is used to indicate that the author string is encoded as
-UTF-16BE.
+This option is used to indicate that the author string is encoded as <CODE>UTF-16BE</CODE>.
 
 </P>
 <DT>Option: visible<DD>
@@ -2703,9 +2637,9 @@ The <CODE>add_write_handler()</CODE> method take two arguments, <CODE>$re</CODE>
 
 </P>
 <P>
-The method is use as follows. say you wished to write 7 digit ID numbers as
-a string so that any leading zeros were preserved*, you could do something
-like the following:
+The method is used as follows. say you wished to write 7 digit ID numbers
+as a string so that any leading zeros were preserved*, you could do
+something like the following:
 
 </P>
 <P>
@@ -2812,36 +2746,18 @@ See the <CODE>write_handler 1-4</CODE> programs in the <CODE>examples</CODE> dir
 </P>
 <P>
 <HR>
-<H2><A NAME="insert_bitmap_row_col_filen">insert_bitmap($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></H2>
+<H2><A NAME="insert_image_row_col_filena">insert_image($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></H2>
 <P>
-<STRONG>NOTE:</STRONG> This method is currently incompatible with <CODE>write_comment()</CODE>. You can use either method but not both in the same workbook. This will be
-fixed soon.
-
-</P>
-<P>
-<STRONG>NOTE:</STRONG> The images inserted using this method do not display in OpenOffice.org or
-Gnumeric. This is related to the previous note and will also be fixed soon.
-
-</P>
-<P>
-This method can be used to insert a bitmap into a worksheet. The bitmap
-must be a 24 bit, true colour, bitmap. No other format is supported. The <CODE>$x</CODE>, <CODE>$y</CODE>, <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> parameters are optional.
+This method can be used to insert a image into a worksheet. The image can
+be in PNG or BMP format. The <CODE>$x</CODE>, <CODE>$y</CODE>, <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> parameters are optional.
 
 </P>
 <P>
 <PRE>
-    $worksheet1-&gt;insert_bitmap('A1', 'perl.bmp');
-    $worksheet2-&gt;insert_bitmap('A1', '../images/perl.bmp');
-    $worksheet3-&gt;insert_bitmap('A1', '.c:\images\perl.bmp');
+    $worksheet1-&gt;insert_image('A1', 'perl.bmp');
+    $worksheet2-&gt;insert_image('A1', '../images/perl.bmp');
+    $worksheet3-&gt;insert_image('A1', '.c:\images\perl.bmp');
 </PRE>
-</P>
-<P>
-Note: you must call <CODE>set_row()</CODE> or <CODE>set_column()</CODE> before <CODE>insert_bitmap()</CODE> if you wish to change the default dimensions of any of the rows or columns
-that the images occupies. The height of a row can also change if you use a
-font that is larger than the default. This in turn will affect the scaling
-of your image. To avoid this you should explicitly set the height of the
-row using <CODE>set_row()</CODE> if it contains a font size that will change the row height.
-
 </P>
 <P>
 The parameters <CODE>$x</CODE> and <CODE>$y</CODE> can be used to specify an offset from the top left hand corner of the cell
@@ -2850,7 +2766,7 @@ specified by <CODE>$row</CODE> and <CODE>$col</CODE>. The offset values are in p
 </P>
 <P>
 <PRE>
-    $worksheet1-&gt;insert_bitmap('A1', 'perl.bmp', 32, 10);
+    $worksheet1-&gt;insert_image('A1', 'perl.bmp', 32, 10);
 </PRE>
 </P>
 <P>
@@ -2888,29 +2804,85 @@ The parameters <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> can be used to sc
 <P>
 <PRE>
     # Scale the inserted image: width x 2.0, height x 0.8
-    $worksheet-&gt;insert_bitmap('A1', 'perl.bmp', 0, 0, 2, 0.8);
+    $worksheet-&gt;insert_image('A1', 'perl.bmp', 0, 0, 2, 0.8);
 </PRE>
 </P>
 <P>
-Note: although Excel allows you to import several graphics formats such as
-gif, jpeg, png and eps these are converted internally into a proprietary
-format. One of the few non-proprietary formats that Excel supports is 24
-bit, true colour, bitmaps. Therefore if you wish to use images in any other
-format you must first use an external application such as the ImageMagick <EM>convert</EM> utility to convert them to 24 bit bitmaps.
+See also the <CODE>images.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
+
+</P>
+<P>
+Note: you must call <CODE>set_row()</CODE> or <CODE>set_column()</CODE> before <CODE>insert_image()</CODE> if you wish to change the default dimensions of any of the rows or columns
+that the image occupies. The height of a row can also change if you use a
+font that is larger than the default. This in turn will affect the scaling
+of your image. To avoid this you should explicitly set the height of the
+row using <CODE>set_row()</CODE> if it contains a font size that will change the row height.
+
+</P>
+<P>
+BMP images must be 24 bit, true colour, bitmaps. In general it is best to
+avoid BMP images since they aren't compressed. The older <CODE>insert_bitmap()</CODE> method is still supported but deprecated.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="embed_chart_row_col_filenam">embed_chart($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></H2>
+<P>
+This method can be used to insert a chart into a worksheet. The chart must
+first be extracted from an existing Excel file. See the separate <CODE>Charts</CODE> documentation.
+
+</P>
+<P>
+Here is an example:
 
 </P>
 <P>
 <PRE>
-    convert test.png test.bmp
+    $worksheet-&gt;embed_chart('B2', 'sales_chart.bin');
 </PRE>
 </P>
 <P>
-A later release will support the use of file handles and pre-encoded bitmap
-strings.
+The <CODE>$x</CODE>, <CODE>$y</CODE>, <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> parameters are optional.
 
 </P>
 <P>
-See also the <CODE>images.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
+The parameters <CODE>$x</CODE> and <CODE>$y</CODE> can be used to specify an offset from the top left hand corner of the cell
+specified by <CODE>$row</CODE> and <CODE>$col</CODE>. The offset values are in pixels. See the <CODE>insert_image</CODE> method above for more information on sizes.
+
+</P>
+<P>
+<PRE>
+    $worksheet1-&gt;embed_chart('B2', 'sales_chart.bin', 3, 3);
+</PRE>
+</P>
+<P>
+The parameters <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> can be used to scale the inserted image horizontally and vertically:
+
+</P>
+<P>
+<PRE>
+    # Scale the width by 120% and the height by 150%
+    $worksheet-&gt;embed_chart('B2', 'sales_chart.bin', 0, 0, 1.2, 1.5);
+</PRE>
+</P>
+<P>
+The easiest way to calculate the required scaling is to create a test chart
+worksheet with Spreadsheet::WriteExcel. Then open the file, select the
+chart and drag the corner to get the required size. While holding down the
+mouse the scale of the resized chart is shown to the left of the formula
+bar.
+
+</P>
+<P>
+See also the example programs in the <CODE>charts</CODE> directory of the distro.
+
+</P>
+<P>
+Note: you must call <CODE>set_row()</CODE> or <CODE>set_column()</CODE> before <CODE>embed_chart()</CODE> if you wish to change the default dimensions of any of the rows or columns
+that the chart occupies. The height of a row can also change if you use a
+font that is larger than the default. This in turn will affect the scaling
+of your chart. To avoid this you should explicitly set the height of the
+row using <CODE>set_row()</CODE> if it contains a font size that will change the row height.
 
 </P>
 <P>
@@ -2926,6 +2898,11 @@ The <CODE>get_name()</CODE> method is used to retrieve the name of a worksheet. 
         print $sheet-&gt;get_name();
     }
 </PRE>
+</P>
+<P>
+For reasons related to the design of Spreadsheet::WriteExcel and to the
+internals of Excel there is no <CODE>set_name()</CODE> method. The only way to set the worksheet name is via the <CODE>add_worksheet()</CODE> method.
+
 </P>
 <P>
 <HR>
@@ -2949,8 +2926,11 @@ multi-sheet workbook:
 </P>
 <P>
 This is similar to the Excel VBA activate method. More than one worksheet
-can be selected via the <CODE>select()</CODE> method, however only one worksheet can be active. The default value is the
-first worksheet.
+can be selected via the <CODE>select()</CODE> method, see below, however only one worksheet can be active.
+
+</P>
+<P>
+The default active worksheet is the first worksheet.
 
 </P>
 <P>
@@ -2971,7 +2951,7 @@ workbook:
 <P>
 A selected worksheet has its tab highlighted. Selecting worksheets is a way
 of grouping them together so that, for example, several worksheets could be
-printed in one go. A worksheet that has been activated via the <CODE>activate()</CODE> method will also appear as selected. You probably won't need to use the <CODE>select()</CODE> method very often.
+printed in one go. A worksheet that has been activated via the <CODE>activate()</CODE> method will also appear as selected.
 
 </P>
 <P>
@@ -2983,7 +2963,7 @@ The <CODE>hide()</CODE> method is used to hide a worksheet:
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;hide();
+    $worksheet2-&gt;hide();
 </PRE>
 </P>
 <P>
@@ -2993,8 +2973,16 @@ intermediate data or calculations.
 </P>
 <P>
 A hidden worksheet can not be activated or selected so this method is
-mutually exclusive with the <CODE>activate()</CODE> and <CODE>select()</CODE> methods.
+mutually exclusive with the <CODE>activate()</CODE> and <CODE>select()</CODE> methods. In addition, since the first worksheet will default to being the
+active worksheet, you cannot hide the first worksheet without activating
+another sheet:
 
+</P>
+<P>
+<PRE>
+    $worksheet2-&gt;activate();
+    $worksheet1-&gt;hide();
+</PRE>
 </P>
 <P>
 <HR>
@@ -3442,7 +3430,7 @@ See also the <CODE>panes.pl</CODE> program in the <CODE>examples</CODE> director
 </P>
 <P>
 <HR>
-<H2><A NAME="thaw_panes_y_x_top_row_le">thaw_panes($y, $x, $top_row, $left_col)</A></H2>
+<H2><A NAME="split_panes_y_x_top_row_l">split_panes($y, $x, $top_row, $left_col)</A></H2>
 <P>
 This method can be used to divide a worksheet into horizontal or vertical
 regions known as panes. This method is different from the <CODE>freeze_panes()</CODE> method in that the splits between the panes will be visible to the user and
@@ -3469,9 +3457,9 @@ Example:
 </P>
 <P>
 <PRE>
-    $worksheet-&gt;thaw_panes(12.75, 0,    1, 0); # First row
-    $worksheet-&gt;thaw_panes(0,     8.43, 0, 1); # First column
-    $worksheet-&gt;thaw_panes(12.75, 8.43, 1, 1); # First row and column
+    $worksheet-&gt;split_panes(12.75, 0,    1, 0); # First row
+    $worksheet-&gt;split_panes(0,     8.43, 0, 1); # First column
+    $worksheet-&gt;split_panes(12.75, 8.43, 1, 1); # First row and column
 </PRE>
 </P>
 <P>
@@ -3480,6 +3468,11 @@ You cannot use A1 notation with this method.
 </P>
 <P>
 See also the <CODE>freeze_panes()</CODE> method and the <CODE>panes.pl</CODE> program in the <CODE>examples</CODE> directory of the distribution.
+
+</P>
+<P>
+Note: This <CODE>split_panes()</CODE> method was called <CODE>thaw_panes()</CODE> in older versions. The older name is still available for backwards
+compatiblity.
 
 </P>
 <P>
@@ -3531,7 +3524,7 @@ option.
 
 </P>
 <P>
-On systems with <CODE>perl 5.8</CODE> and later the <CODE>merge_range()</CODE> method will also handle strings in Perl's <CODE>utf8</CODE> format.
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>merge_range()</CODE> method will also handle strings in <CODE>UTF-8</CODE> format.
 
 </P>
 <P>
@@ -3540,8 +3533,7 @@ On systems with <CODE>perl 5.8</CODE> and later the <CODE>merge_range()</CODE> m
 </PRE>
 </P>
 <P>
-On earlier Perl systems your can specify UTF-16BE worksheet names using an
-additional encoding parameter:
+On earlier Perl systems your can specify <CODE>UTF-16BE</CODE> worksheet names using an additional encoding parameter:
 
 </P>
 <P>
@@ -3630,6 +3622,180 @@ colour names provided by the Format object or a colour index. See <A HREF="#COLO
 </P>
 <P>
 See the <CODE>tab_colors.pl</CODE> program in the examples directory of the distro.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="autofilter_first_row_first_co">autofilter($first_row, $first_col, $last_row, $last_col)</A></H2>
+<P>
+This method allows an autofilter to be added to a worksheet. An autofilter
+is a way of adding drop down lists to the headers of a 2D range of
+worksheet data. This is turn allow users to filter the data based on simple
+criteria so that some data is highlighted and some is hidden.
+
+</P>
+<P>
+To add an autofilter to a worksheet:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;autofilter(0, 0, 10, 3);
+    $worksheet-&gt;autofilter('A1:D11');    # Same as above in A1 notation.
+</PRE>
+</P>
+<P>
+Filter conditions can be applied using the <CODE>filter_column()</CODE> method.
+
+</P>
+<P>
+See the <CODE>autofilter.pl</CODE> program in the examples directory of the distro for a more detailed
+example.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="filter_column_column_expressi">filter_column($column, $expression)</A></H2>
+<P>
+The <CODE>filter_column</CODE> method can be used to filter columns in a autofilter range based on simple
+conditions.
+
+</P>
+<P>
+<STRONG>NOTE:</STRONG> It isn't sufficient to just specify the filter condition. You must also
+hide any rows that don't match the filter condition. Rows are hidden using
+the <CODE>set_row()</CODE>  <CODE>visible</CODE> parameter. <CODE>Spreadsheet::WriteExcel</CODE> cannot do this automatically since it isn't part of the file format. See
+the <CODE>autofilter.pl</CODE> program in the examples directory of the distro for an example.
+
+</P>
+<P>
+The conditions for the filter are specified using simple expressions:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;filter_column('A', 'x &gt; 2000');
+    $worksheet-&gt;filter_column('B', 'x &gt; 2000 and x &lt; 5000');
+</PRE>
+</P>
+<P>
+The <CODE>$column</CODE> parameter can either be a zero indexed column number or a string column
+name.
+
+</P>
+<P>
+The following operators are available:
+
+</P>
+<P>
+<PRE>
+    Operator        Synonyms
+       ==           =   eq  =~
+       !=           &lt;&gt;  ne  !=
+       &gt;
+       &lt;
+       &gt;=
+       &lt;=
+</PRE>
+</P>
+<P>
+<PRE>
+       and          &amp;&amp;
+       or           ||
+</PRE>
+</P>
+<P>
+The operator synonyms are just syntactic sugar to make you more comfortable
+using the expressions. It is important to remember that the expressions
+will be interpreted by Excel and not by perl.
+
+</P>
+<P>
+An expression can comprise a single statement or two statements separated
+by the <CODE>and</CODE> and <CODE>or</CODE> operators. For example:
+
+</P>
+<P>
+<PRE>
+    'x &lt;  2000'
+    'x &gt;  2000'
+    'x == 2000'
+    'x &gt;  2000 and x &lt;  5000'
+    'x == 2000 or  x == 5000'
+</PRE>
+</P>
+<P>
+Filtering of blank or non-blank data can be achieved by using a value of <CODE>Blanks</CODE> or <CODE>NonBlanks</CODE> in the expression:
+
+</P>
+<P>
+<PRE>
+    'x == Blanks'
+    'x == NonBlanks'
+</PRE>
+</P>
+<P>
+Top 10 style filters can be specified using a expression like the
+following:
+
+</P>
+<P>
+<PRE>
+    Top|Bottom 1-500 Items|%
+</PRE>
+</P>
+<P>
+For example:
+
+</P>
+<P>
+<PRE>
+    'Top    10 Items'
+    'Bottom  5 Items'
+    'Top    25 %'
+    'Bottom 50 %'
+</PRE>
+</P>
+<P>
+Excel also allows some simple string matching operations:
+
+</P>
+<P>
+<PRE>
+    'x =~ b*'   # begins with b
+    'x !~ b*'   # doesn't begin with b
+    'x =~ *b'   # ends with b
+    'x !~ *b'   # doesn't end with b
+    'x =~ *b*'  # contains b
+    'x !~ *b*'  # doesn't contains b
+</PRE>
+</P>
+<P>
+You can also use <CODE>*</CODE> to match any character or number and <CODE>?</CODE> to match any single character or number. No other regular expression
+quantifier is supported by Excel's filters. Excel's regular expression
+characters can be escaped using <CODE>~</CODE>.
+
+</P>
+<P>
+The placeholder variable <CODE>x</CODE> in the above examples can be replaced by any simple string. The actual
+placeholder name is ignored internally so the following are all equivalent:
+
+</P>
+<P>
+<PRE>
+    'x     &lt; 2000'
+    'col   &lt; 2000'
+    'Price &lt; 2000'
+</PRE>
+</P>
+<P>
+Also, note that a filter condition can only be applied to a column in a
+range specified by the <CODE>autofilter()</CODE> Worksheet method.
+
+</P>
+<P>
+See the <CODE>autofilter.pl</CODE> program in the examples directory of the distro for a more detailed
+example.
 
 </P>
 <P>
@@ -4079,7 +4245,7 @@ longer than this will not be written and a warning will be generated.
 
 </P>
 <P>
-On systems with <CODE>perl 5.8</CODE> and later the <CODE>set_header()</CODE> method can also handle Unicode strings in Perl's <CODE>utf8</CODE> format.
+On systems with <CODE>perl 5.8</CODE> and later the <CODE>set_header()</CODE> method can also handle Unicode strings in <CODE>UTF-8</CODE> format.
 
 </P>
 <P>
@@ -5102,7 +5268,7 @@ numbers.
 </PRE>
 </P>
 <P>
-The number system used for dates is described in <A HREF="#DATES_IN_EXCEL">DATES IN EXCEL</A>.
+The number system used for dates is described in <A HREF="#DATES_AND_TIME_IN_EXCEL">DATES AND TIME IN EXCEL</A>.
 
 </P>
 <P>
@@ -5587,21 +5753,83 @@ For further examples see the 'Patterns' worksheet created by formats.pl.
 <PRE>
     Default state:      Border is off
     Default action:     Set border type 1
-    Valid args:         0 No border
-                        1 Thin single border
-                        2 Medium single border
-                        3 Dashed border
-                        4 Dotted border
-                        5 Thick single border
-                        6 Double line border
-                        7 Hair border
+    Valid args:         0-13, See below.
 </PRE>
 </P>
 <P>
 A cell border is comprised of a border on the bottom, top, left and right.
-These can be set to the same value using <CODE>set_border()</CODE> or individually using the relevant method calls shown above. Examples of
-the available border styles are shown in the 'Borders' worksheet created by
-formats.pl.
+These can be set to the same value using <CODE>set_border()</CODE> or individually using the relevant method calls shown above.
+
+</P>
+<P>
+The following shows the border styles sorted by Spreadsheet::WriteExcel
+index number:
+
+</P>
+<P>
+<PRE>
+    Index   Name            Weight   Style
+    =====   =============   ======   ===========
+    0       None            0
+    1       Continuous      1        -----------
+    2       Continuous      2        -----------
+    3       Dash            1        - - - - - -
+    4       Dot             1        . . . . . .
+    5       Continuous      3        -----------
+    6       Double          3        ===========
+    7       Continuous      0        -----------
+    8       Dash            2        - - - - - -
+    9       Dash Dot        1        - . - . - .
+    10      Dash Dot        2        - . - . - .
+    11      Dash Dot Dot    1        - . . - . .
+    12      Dash Dot Dot    2        - . . - . .
+    13      SlantDash Dot   2        / - . / - .
+</PRE>
+</P>
+<P>
+The following shows the borders sorted by style:
+
+</P>
+<P>
+<PRE>
+    Name            Weight   Style         Index
+    =============   ======   ===========   =====
+    Continuous      0        -----------   7
+    Continuous      1        -----------   1
+    Continuous      2        -----------   2
+    Continuous      3        -----------   5
+    Dash            1        - - - - - -   3
+    Dash            2        - - - - - -   8
+    Dash Dot        1        - . - . - .   9
+    Dash Dot        2        - . - . - .   10
+    Dash Dot Dot    1        - . . - . .   11
+    Dash Dot Dot    2        - . . - . .   12
+    Dot             1        . . . . . .   4
+    Double          3        ===========   6
+    None            0                      0
+    SlantDash Dot   2        / - . / - .   13
+</PRE>
+</P>
+<P>
+The following shows the borders in the order shown in the Excel Dialog.
+
+</P>
+<P>
+<PRE>
+    Index   Style             Index   Style
+    =====   =====             =====   =====
+    0       None              12      - . . - . .
+    7       -----------       13      / - . / - .
+    4       . . . . . .       10      - . - . - .
+    11      - . . - . .       8       - - - - - -
+    9       - . - . - .       2       -----------
+    3       - - - - - -       5       -----------
+    1       -----------       6       ===========
+</PRE>
+</P>
+<P>
+Examples of the available border styles are shown in the 'Borders'
+worksheet created by formats.pl.
 
 </P>
 <P>
@@ -5662,6 +5890,105 @@ properties directly using hashes.
 <P>
 Note: this is not a copy constructor, both objects must exist prior to
 copying.
+
+</P>
+<P>
+<HR>
+<H1><A NAME="UNICODE_IN_EXCEL">UNICODE IN EXCEL</A></H1>
+<P>
+<EM>For a more general introduction to Unicode handling in Perl see</EM>  <EM>perlunitut</EM> and <EM>perluniintro</EM>.
+
+</P>
+<P>
+When using <CODE>Spreadsheet::WriteExcel</CODE> the best and easiest way to write unicode strings to an Excel file is to
+use <CODE>UTF-8</CODE> encoded strings and perl 5.8 (or later). The module also allows you to
+write unicode strings using older perls but it generally requires more
+work, as explained below.
+
+</P>
+<P>
+Internally, Excel encodes unicode data as <CODE>UTF-16LE</CODE> (where LE means little-endian). If you are using perl 5.8+ then
+Spreadsheet::WriteExcel will convert <CODE>UTF-8</CODE> strings to <CODE>UTF-16LE</CODE> when required. No further intervention is required from the programmer, for
+example:
+
+</P>
+<P>
+<PRE>
+    # perl 5.8+ example:
+    my $smiley = &quot;\x{263A}&quot;;
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write('A1', 'Hello world');
+    $worksheet-&gt;write('A2', $smiley);
+</PRE>
+</P>
+<P>
+Spreadsheet::WriteExcel also lets you write unicode data as <CODE>UTF-16</CODE>. Since the majority of CPAN modules default to <CODE>UTF-16BE</CODE> (big-endian) Spreadsheet::WriteExcel also uses <CODE>UTF-16BE</CODE> and converts it internally to <CODE>UTF-16LE</CODE>:
+
+</P>
+<P>
+<PRE>
+    # perl 5.005 example:
+    my $smiley = pack &quot;n&quot;, 0x263A;
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write               ('A3', 'Hello world');
+    $worksheet-&gt;write_utf16be_string('A4', $smiley);
+</PRE>
+</P>
+<P>
+Although the above examples look similar there is an important difference.
+With <CODE>uft8</CODE> and perl 5.8+ Spreadsheet::WriteExcel treats <CODE>UTF-8</CODE> strings in exactly the same way as any other string. However, with <CODE>UTF16</CODE> data we need to distinguish it from other strings either by calling a
+separate function or by passing an additional flag to indicate the data
+type.
+
+</P>
+<P>
+If you are dealing with non-ASCII character sets then your data probably
+won't be in <CODE>UTF-8</CODE> to begin with. However, perl 5.8+ provides useful tools in the guise of the <CODE>Encode</CODE> module to help you to convert to the required <CODE>UTF-8</CODE> format. For example:
+
+</P>
+<P>
+<PRE>
+    use Encode 'decode';
+</PRE>
+</P>
+<P>
+<PRE>
+    my $string = 'some string with koi8-r characters';
+       $string = decode('koi8-r', $string); # koi8-r to utf8
+</PRE>
+</P>
+<P>
+Alternatively you can read data from an encoded file and convert it to <CODE>UTF-8</CODE> as you read it in:
+
+</P>
+<P>
+<PRE>
+    my $file = 'unicode_koi8r.txt';
+    open FH, '&lt;:encoding(koi8-r)', $file  or die &quot;Couldn't open $file: $!\n&quot;;
+</PRE>
+</P>
+<P>
+<PRE>
+    my $row = 0;
+    while (&lt;FH&gt;) {
+        # Data read in is now in utf8 format.
+        chomp;
+        $worksheet-&gt;write($row++, 0,  $_);
+    }
+</PRE>
+</P>
+<P>
+These methodologies are explained in more detail in <EM>perlunitut</EM>, <EM>perluniintro</EM> and <EM>perlunicode</EM>.
+
+</P>
+<P>
+See also the <CODE>unicode_*.pl</CODE> programs in the examples directory of the distro.
 
 </P>
 <P>
@@ -5782,7 +6109,7 @@ HREF="http://www.hypersolutions.org/pages/rgbhex.html">http://www.hypersolutions
 </P>
 <P>
 <HR>
-<H1><A NAME="DATES_IN_EXCEL">DATES IN EXCEL</A></H1>
+<H1><A NAME="DATES_AND_TIME_IN_EXCEL">DATES AND TIME IN EXCEL</A></H1>
 <P>
 Dates and times in Excel are represented by real numbers, for example "Jan
 1 2001 12:30 AM&quot; is represented by the number 36892.521.
@@ -6743,7 +7070,8 @@ features and options of the module.
 <PRE>
     Advanced
     ========
-    autofit.pl              Simuluate Excel's autofit for colums widths.
+    autofilter.pl           Examples of worksheet autofilters.
+    autofit.pl              Simulate Excel's autofit for column widths.
     bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
     cgi.pl                  A simple CGI program.
     chess.pl                An example of formatting using properties.
@@ -6794,9 +7122,9 @@ features and options of the module.
 <PRE>
     Unicode
     =======
-    unicode.pl              Simple example of using Unicode UTF16 strings.
-    unicode_japan.pl        Write Japanese Unicode strings using UTF16.
-    unicode_cyrillic.pl     Write Russian cyrillic strings using UTF8.
+    unicode_utf16.pl        Simple example of using Unicode UTF16 strings.
+    unicode_utf16_japan.pl  Write Japanese Unicode strings using UTF-16.
+    unicode_cyrillic.pl     Write Russian cyrillic strings using UTF-8.
     unicode_list.pl         List the chars in a Unicode font.
     unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
     unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.
@@ -6994,8 +7322,7 @@ is stored on may not be responding."
 <P>
 This error generally means that the Excel file has been corrupted. There
 are two likely causes of this: the file was FTPed in ASCII mode instead of
-binary mode or else the file was created with UTF8 data returned by an XML
-parser. See <A HREF="#Warning_about_XML_Parser_and_Pe">Warning about XML::Parser and Perl 5.6</A> for further details.
+binary mode or else the file was created with <CODE>UTF-8</CODE> data returned by an XML parser. See <A HREF="#Warning_about_XML_Parser_and_pe">Warning about XML::Parser and perl 5.6</A> for further details.
 
 </P>
 </DL>
@@ -7150,8 +7477,8 @@ HREF="http://search.cpan.org/dist/Excel-Template/">http://search.cpan.org/dist/E
 <LI><A NAME="item_Spreadsheet">Spreadsheet::WriteExcel::FromXML</A>
 <P>
 This module allows you to turn a simple XML file into an Excel file using
-Spreadsheet::WriteExcel as a backend. The format of the XML file is defined
-by a supplied DTD: <A
+Spreadsheet::WriteExcel as a back-end. The format of the XML file is
+defined by a supplied DTD: <A
 HREF="http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML">http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML</A>
 
 
@@ -7286,25 +7613,24 @@ HREF="http://office.microsoft.com/downloads/2000/xlviewer.aspx">http://office.mi
 </P>
 <P>
 <HR>
-<H1><A NAME="Warning_about_XML_Parser_and_Pe">Warning about XML::Parser and Perl 5.6</A></H1>
+<H1><A NAME="Warning_about_XML_Parser_and_pe">Warning about XML::Parser and perl 5.6</A></H1>
 <P>
 You must be careful when using Spreadsheet::WriteExcel in conjunction with
-Perl 5.6 and XML::Parser (and other XML parsers) due to the fact that the
-data returned by the parser is generally in UTF8 format.
+perl 5.6 and XML::Parser (and other XML parsers) due to the fact that the
+data returned by the parser is generally in <CODE>UTF-8</CODE> format.
 
 </P>
 <P>
-When UTF8 strings are added to Spreadsheet::WriteExcel's internal data it
-causes the generated Excel file to become corrupt.
+When <CODE>UTF-8</CODE> strings are added to Spreadsheet::WriteExcel's internal data it causes the
+generated Excel file to become corrupt.
 
 </P>
 <P>
-Note, this doesn't affect Perl 5.005 (which doesn't try to handle UTF8) or
-5.8 (which handles it correctly).
+Note, this doesn't affect perl 5.005 (which doesn't try to handle <CODE>UTF-8</CODE>) or 5.8 (which handles it correctly).
 
 </P>
 <P>
-To avoid this problem you should upgrade to Perl 5.8, if possible, or else
+To avoid this problem you should upgrade to perl 5.8, if possible, or else
 you should convert the output data from XML::Parser to ASCII or ISO-8859-1
 using one of the following methods:
 
@@ -7328,8 +7654,8 @@ Formulas are formulae.
 
 </P>
 <P>
-XML and UTF8 data on Perl 5.6 can cause Excel files created by
-Spreadsheet::WriteExcel to become corrupt. See <A HREF="#Warning_about_XML_Parser_and_Pe">Warning about XML::Parser and Perl 5.6</A> for further details.
+XML and <CODE>UTF-8</CODE> data on perl 5.6 can cause Excel files created by Spreadsheet::WriteExcel
+to become corrupt. See <A HREF="#Warning_about_XML_Parser_and_pe">Warning about XML::Parser and perl 5.6</A> for further details.
 
 </P>
 <P>
@@ -7352,20 +7678,11 @@ only stores the formula and not the calculated result.
 
 </P>
 <P>
-OpenOffice.org: Images are not displayed. Some formatting is not displayed
-correctly.
+OpenOffice.org: No known issues in this release.
 
 </P>
 <P>
-Gnumeric: Images are not displayed. Some formatting is not displayed
-correctly. URLs are not displayed as links. Page setup may cause Gnumeric
-to crash.
-
-</P>
-<P>
-The lack of a portable way of writing a little-endian 64 bit IEEE float.
-There is beta code available to fix this. Let me know if you wish to test
-it on your platform.
+Gnumeric: No known issues in this release.
 
 </P>
 <P>
@@ -7380,8 +7697,7 @@ The roadmap is as follows:
 
 </P>
 <UL>
-<LI><A NAME="item_Fix">Fix insert_bitmap to work with write_comment(), OpenOffice.org and Gnumeric.</A>
-<LI><A NAME="item_Add">Add AutoFilters.</A>
+<LI><A NAME="item_Add">Add JPEG support to insert_image().</A>
 </UL>
 <P>
 Also, here are some of the most requested features that probably won't get
@@ -7450,7 +7766,7 @@ HREF="http://freshmeat.net/projects/writeexcel/">http://freshmeat.net/projects/w
 </P>
 <P>
 <HR>
-<H1><A NAME="DONATATIONS">DONATATIONS</A></H1>
+<H1><A NAME="DONATIONS">DONATIONS</A></H1>
 <P>
 If you'd care to donate to the Spreadsheet::WriteExcel project, you can do
 so via PayPal:
@@ -7503,7 +7819,7 @@ HREF="http://search.cpan.org/dist/DateTime-Format-Excel">http://search.cpan.org/
 
 </P>
 <P>
-"Reading and writing Excel files with Perl" by Teodor Zlatanov, atIBM
+"Reading and writing Excel files with Perl" by Teodor Zlatanov, at IBM
 developerWorks: <A
 HREF="http://www-106.ibm.com/developerworks/library/l-pexcel/">http://www-106.ibm.com/developerworks/library/l-pexcel/</A>
 
@@ -7530,7 +7846,7 @@ HREF="http://oesterly.com/releases/12102000.html">http://oesterly.com/releases/1
 </P>
 <P>
 <HR>
-<H1><A NAME="ACKNOWLEDGEMENTS">ACKNOWLEDGEMENTS</A></H1>
+<H1><A NAME="ACKNOWLEDGMENTS">ACKNOWLEDGMENTS</A></H1>
 <P>
 The following people contributed to the debugging and testing of
 Spreadsheet::WriteExcel:
@@ -7565,6 +7881,11 @@ Fowler, Matisse Enzer, Sam Kington, Takanori Kawai, Tom O'Sullivan.
 <P>
 Many thanks to Ron McKelvey, Ronzo Consulting for Siemens, who sponsored
 the development of the formula caching routines.
+
+</P>
+<P>
+Many thanks to Cassens Transport who sponsored the development of the
+embedded charts and autofilters.
 
 </P>
 <P>
@@ -7617,6 +7938,17 @@ advised of the possibility of such damages.
 </P>
 <P>
 <HR>
+<H1><A NAME="LICENSE">LICENSE</A></H1>
+<P>
+Either the Perl Artistic Licence <A
+HREF="http://dev.perl.org/licenses/artistic.html">http://dev.perl.org/licenses/artistic.html</A>
+or the GPL <A
+HREF="http://www.opensource.org/licenses/gpl-license.php">http://www.opensource.org/licenses/gpl-license.php</A>
+
+
+</P>
+<P>
+<HR>
 <H1><A NAME="AUTHOR">AUTHOR</A></H1>
 <P>
 John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
@@ -7624,24 +7956,19 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    I was nineteen when I came to town, they called it the Summer of Love
-    They were burning babies, burning flags. The hawks against the doves
-    I took a job in the steamie down on Cauldrum Street
-    And I fell in love with a laundry girl who was working next to me
+    This, no song of an ingenue,
+    This, no ballad of innocence;
+    This, the rhyme of a lady who
+    Followed ever her natural bents.
+    This, a solo of sapience,
+    This, a chantey of sophistry,
+    This, the sum of experiments,
+    I loved them until they loved me.
 </PRE>
 </P>
 <P>
 <PRE>
-    Oh she was a rare thing, fine as a bee's wing
-    So fine a breath of wind might blow her away
-    She was a lost child, oh she was running wild
-    She said &quot;As long as there's no price on love, I'll stay.
-    And you wouldn't want me any other way&quot;
-</PRE>
-</P>
-<P>
-<PRE>
-        -- Richard Thompson
+        -- Dorothy Parker
 </PRE>
 </P>
 <P>
