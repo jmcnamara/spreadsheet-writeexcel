@@ -21,7 +21,7 @@ METHODOLOGY
 
     1. Create a new workbook in Excel or with Spreadsheet::WriteExcel. The file should be in Excel 97 or later format.
     2. Add one or more worksheets with sample data of the type and format that you would like to have in the final version.
-    3. Create a chart on a new chart sheet that refers to a data range in one of the worksheets. Note, charts embedded in worksheets aren't currently supported.
+    3. Create a chart on a new chart sheet that refers to a data range in one of the worksheets. Charts embedded in worksheets are also supported. See the 'add_chart_ext()' section of the main Spreadsheet::WriteExcel documentation.
     4. Extend the chart data series to cover a sufficient range for any additional data that might be added. For example, if you initially have only 10 data points but you think that you may add up to 2000 at a later stage then increase the chart data series to 2000 points. In this case you should probably also leave the axes on automatic scaling.
     5. Format the chart as you would like it to appear in the final version.
     6. Save the workbook.
@@ -189,4 +189,3 @@ COPYRIGHT
     All Rights Reserved. This module is free software. It may be
     used, redistributed and/or modified under the same terms as Perl
     itself.
-

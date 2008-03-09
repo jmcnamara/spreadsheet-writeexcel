@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Workbook;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2008, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -20,8 +20,6 @@ use Spreadsheet::WriteExcel::OLEwriter;
 use Spreadsheet::WriteExcel::Worksheet;
 use Spreadsheet::WriteExcel::Format;
 use Spreadsheet::WriteExcel::Chart;
-#use Digest::MD5 'md5_hex';
-#use Digest::Perl::MD4 'md4_hex';
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
@@ -41,44 +39,47 @@ sub new {
     my $byte_order  = $self->{_byte_order};
     my $parser      = Spreadsheet::WriteExcel::Formula->new($byte_order);
 
-    $self->{_filename}          = $_[0] || '';
-    $self->{_parser}            = $parser;
-    $self->{_tempdir}           = undef;
-    $self->{_1904}              = 0;
-    $self->{_activesheet}       = 0;
-    $self->{_firstsheet}        = 0;
-    $self->{_selected}          = 0;
-    $self->{_xf_index}          = 0;
-    $self->{_fileclosed}        = 0;
-    $self->{_biffsize}          = 0;
-    $self->{_sheetname}         = "Sheet";
-    $self->{_url_format}        = '';
-    $self->{_codepage}          = 0x04E4;
-    $self->{_worksheets}        = [];
-    $self->{_sheetnames}        = [];
-    $self->{_formats}           = [];
-    $self->{_palette}           = [];
+    $self->{_filename}              = $_[0] || '';
+    $self->{_parser}                = $parser;
+    $self->{_tempdir}               = undef;
+    $self->{_1904}                  = 0;
+    $self->{_activesheet}           = 0;
+    $self->{_firstsheet}            = 0;
+    $self->{_selected}              = 0;
+    $self->{_xf_index}              = 0;
+    $self->{_fileclosed}            = 0;
+    $self->{_biffsize}              = 0;
+    $self->{_sheetname}             = "Sheet";
+    $self->{_url_format}            = '';
+    $self->{_codepage}              = 0x04E4;
+    $self->{_worksheets}            = [];
+    $self->{_sheetnames}            = [];
+    $self->{_formats}               = [];
+    $self->{_palette}               = [];
 
-    $self->{_using_tmpfile}     = 1;
-    $self->{_filehandle}        = "";
-    $self->{_temp_file}         = "";
-    $self->{_internal_fh}       = 0;
-    $self->{_fh_out}            = "";
+    $self->{_using_tmpfile}         = 1;
+    $self->{_filehandle}            = "";
+    $self->{_temp_file}             = "";
+    $self->{_internal_fh}           = 0;
+    $self->{_fh_out}                = "";
 
-    $self->{_str_total}         = 0;
-    $self->{_str_unique}        = 0;
-    $self->{_str_table}         = {};
-    $self->{_str_array}         = [];
-    $self->{_str_block_sizes}   = [];
+    $self->{_str_total}             = 0;
+    $self->{_str_unique}            = 0;
+    $self->{_str_table}             = {};
+    $self->{_str_array}             = [];
+    $self->{_str_block_sizes}       = [];
+    $self->{_extsst_offsets}        = [];
+    $self->{_extsst_buckets}        = 0;
+    $self->{_extsst_bucket_size}    = 0;
 
-    $self->{_ext_ref_count}     = 0;
-    $self->{_ext_refs}          = {};
+    $self->{_ext_ref_count}         = 0;
+    $self->{_ext_refs}              = {};
 
-    $self->{_mso_clusters}      = [];
-    $self->{_mso_size}          = 0;
+    $self->{_mso_clusters}          = [];
+    $self->{_mso_size}              = 0;
 
-    $self->{_hideobj}           = 0;
-
+    $self->{_hideobj}               = 0;
+    $self->{_compatibility}         = 0;
 
     bless $self, $class;
 
@@ -359,6 +360,8 @@ sub DESTROY {
 
     my $self = shift;
 
+    local ($@, $!, $^E, $?);
+
     $self->close() if not $self->{_fileclosed};
 }
 
@@ -438,6 +441,7 @@ sub add_worksheet {
                         \$self->{_str_unique},
                         \$self->{_str_table},
                          $self->{_1904},
+                         $self->{_compatibility},
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
@@ -446,6 +450,9 @@ sub add_worksheet {
     $self->{_parser}->set_ext_sheets($name, $index); # Store names in Formula.pm
     return $worksheet;
 }
+
+# Older method name for backwards compatibility.
+*addworksheet = *add_worksheet;
 
 
 ###############################################################################
@@ -602,20 +609,6 @@ sub _check_sheetname {
 
 ###############################################################################
 #
-# addworksheet($name)
-#
-# This method is now deprecated. Use the add_worksheet() method instead.
-#
-sub addworksheet {
-
-    my $self = shift;
-
-    $self->add_worksheet(@_);
-}
-
-
-###############################################################################
-#
 # add_format(%properties)
 #
 # Add a new format to the Excel workbook. This adds an XF record and
@@ -633,18 +626,43 @@ sub add_format {
     return $format;
 }
 
+# Older method name for backwards compatibility.
+*addformat = *add_format;
+
 
 ###############################################################################
 #
-# addformat()
+# compatibility_mode()
 #
-# This method is now deprecated. Use the add_format() method instead.
+# Set the compatibility mode.
 #
-sub addformat {
+# Excel doesn't require every possible Biff record to be present in a file.
+# In particular if the indexing records INDEX, ROW and DBCELL aren't present
+# it just ignores the fact and reads the cells anyway. This is also true of
+# the EXTSST record. Gnumeric and OOo also take this approach. This allows
+# WriteExcel to ignore these records in order to minimise the amount of data
+# stored in memory. However, other third party applications that read Excel
+# files often expect these records to be present. In "compatibility mode"
+# WriteExcel writes these records and tries to be as close to an Excel
+# generated file as possible.
+#
+# This requires additional data to be stored in memory until the file is
+# about to be written. This incurs a memory and speed penalty and may not be
+# suitable for very large files.
+#
+sub compatibility_mode {
 
-    my $self = shift;
+    my $self      = shift;
 
-    $self->add_format(@_);
+    croak "compatibility_mode() must be called before add_worksheet()"
+          if $self->sheets();
+
+    if (defined($_[0])) {
+        $self->{_compatibility} = $_[0];
+    }
+    else {
+        $self->{_compatibility} = 1;
+    }
 }
 
 
@@ -658,7 +676,8 @@ sub set_1904 {
 
     my $self      = shift;
 
-    croak "set_1904() must be called before add_worksheet" if $self->sheets();
+    croak "set_1904() must be called before add_worksheet()"
+          if $self->sheets();
 
 
     if (defined($_[0])) {
@@ -871,14 +890,13 @@ sub _store_workbook {
     foreach my $sheet (@{$self->{_worksheets}}) {
         $self->{_selected}++ if $sheet->{_selected};
         $sheet->{_active} = 1 if $sheet->{_index} == $self->{_activesheet};
-        $sheet->_close($self->{_sheetnames});
     }
 
     # Add Workbook globals
     $self->_store_bof(0x0005);
     $self->_store_codepage();
-    $self->_store_hideobj();
     $self->_store_window1();
+    $self->_store_hideobj();
     $self->_store_1904();
     $self->_store_all_fonts();
     $self->_store_all_num_formats();
@@ -900,6 +918,7 @@ sub _store_workbook {
 
     # NOTE: If any records are added between here and EOF the
     # _calc_sheet_offsets() should be updated to include the new length.
+    $self->_store_country();
     if ($self->{_ext_ref_count}) {
         $self->_store_supbook();
         $self->_store_externsheet();
@@ -907,6 +926,7 @@ sub _store_workbook {
     }
     $self->_add_mso_drawing_group();
     $self->_store_shared_strings();
+    $self->_store_extsst();
 
     # End Workbook globals
     $self->_store_eof();
@@ -931,6 +951,9 @@ sub _store_OLE_file {
     if ($self->{_biffsize} <= $maxsize) {
         # Write the OLE file using OLEwriter if data <= 7MB
         my $OLE  = Spreadsheet::WriteExcel::OLEwriter->new($self->{_fh_out});
+
+        # Write the BIFF data without the OLE container for testing.
+        $OLE->{_biff_only} = $self->{_biff_only};
 
         # Indicate that we created the filehandle and want to close it.
         $OLE->{_internal_fh} = $self->{_internal_fh};
@@ -1009,8 +1032,14 @@ sub _calc_sheet_offsets {
     my $EOF     = 4;
     my $offset  = $self->{_datasize};
 
+    # Add the length of the COUNTRY record
+    $offset += 8;
+
     # Add the length of the SST and associated CONTINUEs
     $offset += $self->_calculate_shared_string_sizes();
+
+    # Add the length of the EXTSST record.
+    $offset += $self->_calculate_extsst_size();
 
     # Add the length of the SUPBOOK, EXTERNSHEET and NAME records
     $offset += $self->_calculate_extern_sizes();
@@ -1029,6 +1058,7 @@ sub _calc_sheet_offsets {
 
     foreach my $sheet (@{$self->{_worksheets}}) {
         $sheet->{_offset} = $offset;
+        $sheet->_close($self->{_sheetnames});
         $offset += $sheet->{_datasize};
     }
 
@@ -1867,10 +1897,9 @@ sub _store_supbook {
 #
 # _store_externsheet()
 #
-#
 # Writes the Excel BIFF EXTERNSHEET record. These references are used by
-# formulas. TODO NAME record is required to define the print area and the repeat
-# rows and columns.
+# formulas. TODO NAME record is required to define the print area and the
+# repeat rows and columns.
 #
 sub _store_externsheet {
 
@@ -2103,6 +2132,30 @@ sub _store_codepage {
 
 ###############################################################################
 #
+# _store_country()
+#
+# Stores the COUNTRY biff record.
+#
+# TODO: Add setter method for the country codes when/if required.
+#
+sub _store_country {
+
+    my $self            = shift;
+
+    my $record          = 0x008C;               # Record identifier
+    my $length          = 0x0004;               # Number of bytes to follow
+    my $country_default = 1;
+    my $country_win_ini = 1;
+
+    my $header          = pack("vv", $record, $length);
+    my $data            = pack("vv", $country_default, $country_win_ini);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
 # _store_hideobj()
 #
 # Stores the HIDEOBJ biff record.
@@ -2120,8 +2173,6 @@ sub _store_hideobj {
 
     $self->_append($header, $data);
 }
-
-
 
 
 ###############################################################################
@@ -2396,10 +2447,7 @@ sub _calculate_shared_string_sizes {
 #
 # See the comments in _calculate_shared_string_sizes() for more information.
 #
-# The Excel documentation says that the SST record should be followed by an
-# EXTSST record. The EXTSST record is a hash table that is used to optimise
-# access to SST. However, despite the documentation it doesn't seem to be
-# required so we will ignore it.
+# TODO document EXTSST
 #
 sub _store_shared_strings {
 
@@ -2434,10 +2482,16 @@ sub _store_shared_strings {
         $length = 8;
     }
 
+
+    # TODO
+    my $extsst_str_num  = -1;
+    my $sst_block_start = $self->{_datasize};
+
     # Write the SST block header information
     my $header      = pack("vv", $record, $length);
     my $data        = pack("VV", $self->{_str_total}, $self->{_str_unique});
     $self->_append($header, $data);
+
 
 
     # Iterate through the strings and write them out
@@ -2446,6 +2500,14 @@ sub _store_shared_strings {
         my $string_length = length $string;
         my $encoding      = unpack "xx C", $string;
         my $split_string  = 0;
+        my $bucket_string = 0;
+
+
+        $extsst_str_num++;
+
+        if ($extsst_str_num % $self->{_extsst_bucket_size} == 0) {
+            $bucket_string = 1;
+        }
 
 
         # Block length is the total length of the strings that will be
@@ -2456,6 +2518,15 @@ sub _store_shared_strings {
 
         # We can write the string if it doesn't cross a CONTINUE boundary
         if ($block_length < $continue_limit) {
+
+            if ($bucket_string) {
+                my $global_offset   = $self->{_datasize};
+                my $local_offset    = $self->{_datasize} - $sst_block_start;
+
+                push @{$self->{_extsst_offsets}}, [$global_offset, $local_offset];
+                $bucket_string = 0;
+            }
+
             $self->_append($string);
             $written += $string_length;
             next;
@@ -2505,7 +2576,17 @@ sub _store_shared_strings {
             if ($space_remaining > $header_length) {
                 # Write as much as possible of the string in the current block
                 my $tmp = substr $string, 0, $space_remaining;
+
+                if ($bucket_string) {
+                    my $global_offset   = $self->{_datasize};
+                    my $local_offset    = $self->{_datasize} - $sst_block_start;
+
+                    push @{$self->{_extsst_offsets}}, [$global_offset, $local_offset];
+                    $bucket_string = 0;
+                }
+
                 $self->_append($tmp);
+
 
                 # The remainder will be written in the next block(s)
                 $string = substr $string, $space_remaining;
@@ -2532,11 +2613,13 @@ sub _store_shared_strings {
 
             # Write the CONTINUE block header
             if (@block_sizes) {
-                $record  = 0x003C;
-                $length  = shift @block_sizes;
+                $sst_block_start= $self->{_datasize};
 
-                $header  = pack("vv", $record, $length);
-                $header .= pack("C", $encoding) if $continue;
+                $record         = 0x003C;
+                $length         = shift @block_sizes;
+
+                $header         = pack("vv", $record, $length);
+                $header        .= pack("C", $encoding) if $continue;
 
                 $self->_append($header);
             }
@@ -2546,6 +2629,14 @@ sub _store_shared_strings {
             # one or more CONTINUE blocks
             #
             if ($block_length < $continue_limit) {
+                if ($bucket_string) {
+                    my $global_offset   = $self->{_datasize};
+                    my $local_offset    = $self->{_datasize} - $sst_block_start;
+
+                    push @{$self->{_extsst_offsets}}, [$global_offset, $local_offset];
+
+                    $bucket_string = 0;
+                }
                 $self->_append($string);
 
                 $written = $block_length;
@@ -2556,6 +2647,76 @@ sub _store_shared_strings {
         }
     }
 }
+
+
+###############################################################################
+#
+# _calculate_extsst_size
+#
+# TODO
+#
+sub _calculate_extsst_size {
+
+    my $self            = shift;
+
+    my $unique_strings  = $self->{_str_unique};
+
+    my $bucket_size;
+    my $buckets;
+
+    if ($unique_strings < 1024) {
+        $bucket_size = 8;
+    }
+    else {
+        $bucket_size = int($unique_strings / 128);
+
+        if ($unique_strings / 128) {
+            $bucket_size++
+        }
+    }
+
+    $buckets = int(($unique_strings + $bucket_size -1)  / $bucket_size);
+
+
+    $self->{_extsst_buckets}        = $buckets ;
+    $self->{_extsst_bucket_size}    = $bucket_size;
+
+
+    return 6 + 8 * $buckets;
+}
+
+
+###############################################################################
+#
+# _store_extsst
+#
+# TODO
+#
+sub _store_extsst {
+
+    my $self = shift;
+
+    my @offsets     = @{$self->{_extsst_offsets}};
+    my $bucket_size = $self->{_extsst_bucket_size};
+
+    # TODO temp check.
+    warn "Critical EXTSST error" if @offsets != $self->{_extsst_buckets};
+
+    my $record      = 0x00FF;             # Record identifier
+    my $length      = 2 + 8 * @offsets;   # Bytes to follow
+
+    my $header      = pack 'vv',   $record, $length;
+    my $data        = pack 'v',    $bucket_size,;
+
+    for my $offset (@offsets) {
+       $data .= pack 'Vvv', $offset->[0], $offset->[1], 0;
+    }
+
+    $self->_append($header, $data);
+
+}
+
+
 
 
 #
@@ -2894,7 +3055,6 @@ sub _store_mso_split_menu_colors {
 
     $data           = pack "H*", '0D0000080C00000817000008F7000010';
 
-
     return $self->_add_mso_generic($type, $version, $instance, $data, $length);
 }
 
@@ -2923,6 +3083,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVII, John McNamara.
+© MM-MMVIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

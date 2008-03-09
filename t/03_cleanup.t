@@ -7,7 +7,7 @@
 #
 # See: http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/f5007499fc381870
 #
-# reverse('Â©'), January 2007, John McNamara, jmcnamara@cpan.org
+# reverse('©'), January 2007, John McNamara, jmcnamara@cpan.org
 #
 
 

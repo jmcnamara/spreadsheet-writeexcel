@@ -1,6 +1,37 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
 
+2.21 March 9 2008 - Major
+
+    ! Fixed bug where UTF-8 strings in formulas weren't handled.
+      Thanks Sergey Zhuravlev.
+      http://rt.cpan.org/Public/Bug/Display.html?id=30368
+
+    ! Fixed collapse outlines compatibility with Gnumeric
+      and OpenOffice.org.
+      Reported by Barrie Slaymaker.
+      http://rt.cpan.org/Public/Bug/Display.html?id=33662
+
+    + Added outline_collapsed.pl example.
+
+    + Added document section about rewriting Excel files.
+
+    + Minor security fix to Format to avoid eval and
+      additional fix for RT 24218.
+      Thanks to Bram.
+
+    + Added increased compatibility with third party
+      Excel reading applications such as POI.
+
+    + Added optional compatibility_mode() to fix problems
+      that can occur with Office SP3.
+
+    + Fixed compatibility problem with Google Docs.
+
+    + Added set_start_page() method for setting the start page
+      number when printing.
+
+
 2.20 October 6 2007 - Major
 
 
@@ -18,17 +49,17 @@ Revision history for Perl module Spreadsheet::WriteExcel.
 
     ! Made pane split optional when calling freeze_panes().
       Also renamed thaw_panes() as split_panes(). The old
-      method name is still available, but deprected..
+      method name is still available, but deprecated.
 
     ! Renamed write_unicode() and write_unicode_le() methods
       to the more explicit write_utf16be_string() and
       write_utf16le_string(). The old method names are
-      still available, but deprected.
+      still available, but deprecated.
 
 
 2.19 June 14 2007 - Major
 
-    + Beta testing only. Not release to CPAN.
+    + Beta testing only. Not released to CPAN.
 
 
 2.18 January 18 2007 - Minor

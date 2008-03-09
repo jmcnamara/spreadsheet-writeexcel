@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Worksheet;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2008, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -53,6 +53,7 @@ sub new {
     $self->{_str_unique}          = $_[9];
     $self->{_str_table}           = $_[10];
     $self->{_1904}                = $_[11];
+    $self->{_compatibility}       = $_[12];
 
     $self->{_type}                = 0x0000;
     $self->{_ext_sheets}          = [];
@@ -63,11 +64,10 @@ sub new {
     $self->{_xls_rowmax}          = $rowmax;
     $self->{_xls_colmax}          = $colmax;
     $self->{_xls_strmax}          = $strmax;
-    $self->{_dim_rowmin}          = $rowmax +1;
-    $self->{_dim_rowmax}          = 0;
-    $self->{_dim_colmin}          = $colmax +1;
-    $self->{_dim_colmax}          = 0;
-    $self->{_dim_changed}         = 0;
+    $self->{_dim_rowmin}          = undef;
+    $self->{_dim_rowmax}          = undef;
+    $self->{_dim_colmin}          = undef;
+    $self->{_dim_colmax}          = undef;
     $self->{_colinfo}             = [];
     $self->{_selection}           = [0, 0];
     $self->{_panes}               = [];
@@ -119,6 +119,7 @@ sub new {
     $self->{_draft_quality}       = 0;
     $self->{_print_comments}      = 0;
     $self->{_page_start}          = 1;
+    $self->{_custom_start}        = 0;
 
     $self->{_fit_page}            = 0;
     $self->{_fit_width}           = 0;
@@ -164,6 +165,7 @@ sub new {
 
     $self->{_writing_url}         = 0;
 
+    $self->{_db_indices}          = [];
 
     bless $self, $class;
     $self->_initialize();
@@ -341,14 +343,12 @@ sub _close {
     # Prepend PRINTHEADERS
     $self->_store_print_headers();
 
-    # Prepend the BOF record
-    $self->_store_bof(0x0010);
-
     #
     # End of prepend. Read upwards from here.
     ################################################
 
     # Append
+    $self->_store_table();
     $self->_store_images();
     $self->_store_charts();
     $self->_store_filters();
@@ -360,6 +360,32 @@ sub _close {
     $self->_store_selection(@{$self->{_selection}});
     $self->_store_tab_color();
     $self->_store_eof();
+
+    # Prepend the BOF and INDEX records
+    $self->_store_index();
+    $self->_store_bof(0x0010);
+}
+
+
+###############################################################################
+#
+# _compatibility_mode()
+#
+# Set the compatibility mode.
+#
+# See the explanation in Workbook::compatibility_mode(). This private method
+# is mainly used for test purposes.
+#
+sub _compatibility_mode {
+
+    my $self      = shift;
+
+    if (defined($_[0])) {
+        $self->{_compatibility} = $_[0];
+    }
+    else {
+        $self->{_compatibility} = 1;
+    }
 }
 
 
@@ -1472,6 +1498,22 @@ sub print_across {
 
 ###############################################################################
 #
+# set_start_page()
+#
+# Set the start page number.
+#
+sub set_start_page {
+
+    my $self = shift;
+    return unless defined $_[0];
+
+    $self->{_page_start}    = $_[0];
+    $self->{_custom_start}  = 1;
+}
+
+
+###############################################################################
+#
 # set_first_row_column()
 #
 # Set the topmost and leftmost visible row and column.
@@ -2026,7 +2068,13 @@ sub write_number {
 
     if ($self->{_byte_order}) { $xl_double = reverse $xl_double }
 
-    $self->_append($header, $data, $xl_double);
+    # Store the data or write immediately depending on the compatibility mode.
+    if ($self->{_compatibility}) {
+        $self->{_table}->[$row]->[$col] = $header . $data . $xl_double;
+    }
+    else {
+        $self->_append($header, $data, $xl_double);
+    }
 
     return 0;
 }
@@ -2104,7 +2152,14 @@ sub write_string {
     my $header = pack("vv",   $record, $length);
     my $data   = pack("vvvV", $row, $col, $xf, ${$self->{_str_table}}->{$str});
 
-    $self->_append($header, $data);
+
+    # Store the data or write immediately depending on the compatibility mode.
+    if ($self->{_compatibility}) {
+        $self->{_table}->[$row]->[$col] = $header . $data;
+    }
+    else {
+        $self->_append($header, $data);
+    }
 
     return $str_error;
 }
@@ -2155,7 +2210,13 @@ sub write_blank {
     my $header    = pack("vv",  $record, $length);
     my $data      = pack("vvv", $row, $col, $xf);
 
-    $self->_append($header, $data);
+    # Store the data or write immediately depending on the compatibility mode.
+    if ($self->{_compatibility}) {
+        $self->{_table}->[$row]->[$col] = $header . $data;
+    }
+    else {
+        $self->_append($header, $data);
+    }
 
     return 0;
 }
@@ -2177,7 +2238,7 @@ sub write_blank {
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
 #
-sub write_formula{
+sub write_formula {
 
     my $self = shift;
 
@@ -2197,20 +2258,20 @@ sub write_formula{
     my $value     = $_[4];      # The formula text string
 
 
-    # Excel normally stores the last calculated value of the formula in $num.
-    # Clearly we are not in a position to calculate this a priori. Instead
-    # we set $num to zero and set the option flags in $grbit to ensure
-    # automatic calculation of the formula when the file is opened.
-
-    # As a workaround for some non-Excel apps we also allow the user to
-    # specify the result of the formula.
-    #
     my $xf        = _XF($self, $row, $col, $_[3]);  # The cell format
     my $chn       = 0x0000;                         # Must be zero
     my $is_string = 0;                              # Formula evaluates to str
     my $num;                                        # Current value of formula
     my $grbit;                                      # Option flags
 
+
+    # Excel normally stores the last calculated value of the formula in $num.
+    # Clearly we are not in a position to calculate this "a priori". Instead
+    # we set $num to zero and set the option flags in $grbit to ensure
+    # automatic calculation of the formula when the file is opened.
+    # As a workaround for some non-Excel apps we also allow the user to
+    # specify the result of the formula.
+    #
     ($num, $grbit, $is_string) = $self->_encode_formula_result($value);
 
 
@@ -2244,19 +2305,30 @@ sub write_formula{
        $data   .= $num;
        $data   .= pack("vVv",   $grbit, $chn, $formlen);
 
-    $self->_append($header, $data, $formula);
+    # The STRING record if the formula evaluates to a string.
+    my $string  = '';
+       $string  = $self->_get_formula_string($value) if $is_string;
 
-    $self->_write_formula_string($value) if $is_string;
+
+    # Store the data or write immediately depending on the compatibility mode.
+    if ($self->{_compatibility}) {
+        $self->{_table}->[$row]->[$col] = $header . $data . $formula . $string;
+    }
+    else {
+        $self->_append($header, $data, $formula, $string);
+    }
 
     return 0;
 }
+
+
 ###############################################################################
 #
 # _encode_formula_result()
 #
 # Encode the user supplied result for a formula.
 #
-sub _encode_formula_result{
+sub _encode_formula_result {
 
     my $self = shift;
 
@@ -2316,12 +2388,12 @@ sub _encode_formula_result{
 
 ###############################################################################
 #
-# _write_formula_string()
+# _get_formula_string()
 #
-# Write the string value when a formula evaluates to a string. The value cannot
+# Pack the string value when a formula evaluates to a string. The value cannot
 # be calculated by the module and thus must be supplied by the user.
 #
-sub _write_formula_string {
+sub _get_formula_string {
 
     my $self = shift;
 
@@ -2348,9 +2420,7 @@ sub _write_formula_string {
     my $header    = pack("vv", $record, $length);
     my $data      = pack("vC", $strlen, $encoding);
 
-    $self->_append($header, $data, $string);
-
-    return 0;
+    return $header . $data . $string;
 }
 
 
@@ -2462,20 +2532,19 @@ sub repeat_formula {
     croak "Unrecognised token in formula" unless defined $formula;
 
 
-    # Excel normally stores the last calculated value of the formula in $num.
-    # Clearly we are not in a position to calculate this a priori. Instead
-    # we set $num to zero and set the option flags in $grbit to ensure
-    # automatic calculation of the formula when the file is opened.
-
-    # As a workaround for some non-Excel apps we also allow the user to
-    # specify the result of the formula.
-    #
     my $xf        = _XF($self, $row, $col, $format); # The cell format
     my $chn       = 0x0000;                          # Must be zero
     my $is_string = 0;                               # Formula evaluates to str
     my $num;                                         # Current value of formula
     my $grbit;                                       # Option flags
 
+    # Excel normally stores the last calculated value of the formula in $num.
+    # Clearly we are not in a position to calculate this "a priori". Instead
+    # we set $num to zero and set the option flags in $grbit to ensure
+    # automatic calculation of the formula when the file is opened.
+    # As a workaround for some non-Excel apps we also allow the user to
+    # specify the result of the formula.
+    #
     ($num, $grbit, $is_string) = $self->_encode_formula_result($value);
 
     # Check that row and col are valid and store max and min values
@@ -2491,9 +2560,21 @@ sub repeat_formula {
        $data     .= pack("vVv",   $grbit, $chn, $formlen);
 
 
-    $self->_append($header, $data, $formula);
+    # The STRING record if the formula evaluates to a string.
+    my $string  = '';
+       $string  = $self->_encode_formula_result($value) if $is_string;
 
-    $self->_write_formula_string($value) if $is_string;
+
+    # Store the data or write immediately depending on the compatibility mode.
+    if ($self->{_compatibility}) {
+        my $string = '';
+           $string = $self->_get_formula_string($value) if $is_string;
+
+        $self->{_table}->[$row]->[$col] = $header . $data . $formula . $string;
+    }
+    else {
+        $self->_append($header, $data, $formula, $string);
+    }
 
     return 0;
 }
@@ -2874,7 +2955,7 @@ sub _write_url_external {
 
 
     # Write the packed data
-    $self->_append( $header, $data);
+    $self->_append($header, $data);
 
     return $error;
 }
@@ -2977,7 +3058,7 @@ sub _write_url_external_net {
 
 
     # Write the packed data
-    $self->_append( $header, $data);
+    $self->_append($header, $data);
 
     return $error;
 }
@@ -3185,7 +3266,7 @@ sub set_row {
     my $record      = 0x0208;               # Record identifier
     my $length      = 0x0010;               # Number of bytes to follow
 
-    my $rw          = $_[0];                # Row Number
+    my $row         = $_[0];                # Row Number
     my $colMic      = 0x0000;               # First defined column
     my $colMac      = 0x0000;               # Last defined column
     my $miyRw;                              # Row height
@@ -3197,10 +3278,13 @@ sub set_row {
     my $format      = $_[2];                # Format object
     my $hidden      = $_[3] || 0;           # Hidden flag
     my $level       = $_[4] || 0;           # Outline level
+    my $collapsed   = $_[5] || 0;           # Collapsed row
 
 
-    return unless defined $rw;  # Ensure at least $row is specified.
+    return unless defined $row;  # Ensure at least $row is specified.
 
+    # Check that row and col are valid and store max and min values
+    return -2 if $self->_check_dimensions($row, 0, 1);
 
     # Check for a format object
     if (ref $format) {
@@ -3230,29 +3314,71 @@ sub set_row {
     $self->{_outline_row_level} = $level if $level >$self->{_outline_row_level};
 
 
-    # Set the options flags. fUnsynced is used to show that the font and row
-    # heights are not compatible. This is usually the case for WriteExcel.
-    # The collapsed flag 0x10 doesn't seem to be used to indicate that a row
-    # is collapsed. Instead it is used to indicate that the previous row is
-    # collapsed. The zero height flag, 0x20, is used to collapse a row.
+    # Set the options flags.
+    # 0x10: The fCollapsed flag indicates that the row contains the "+"
+    #       when an outline group is collapsed.
+    # 0x20: The fDyZero height flag indicates a collapsed or hidden row.
+    # 0x40: The fUnsynced flag is used to show that the font and row heights
+    #       are not compatible. This is usually the case for WriteExcel.
+    # 0x80: The fGhostDirty flag indicates that the row has been formatted.
     #
     $grbit |= $level;
+    $grbit |= 0x0010 if $collapsed;
     $grbit |= 0x0020 if $hidden;
-    $grbit |= 0x0040; # fUnsynced
+    $grbit |= 0x0040;
     $grbit |= 0x0080 if $format;
     $grbit |= 0x0100;
 
 
     my $header   = pack("vv",       $record, $length);
-    my $data     = pack("vvvvvvvv", $rw, $colMic, $colMac, $miyRw,
+    my $data     = pack("vvvvvvvv", $row, $colMic, $colMac, $miyRw,
                                     $irwMac,$reserved, $grbit, $ixfe);
 
-    $self->_append($header, $data);
+
+    # Store the data or write immediately depending on the compatibility mode.
+    if ($self->{_compatibility}) {
+        $self->{_row_data}->{$_[0]} = $header . $data;
+    }
+    else {
+        $self->_append($header, $data);
+    }
+
 
     # Store the row sizes for use when calculating image vertices.
     # Also store the column formats.
     $self->{_row_sizes}->{$_[0]}   = $height;
     $self->{_row_formats}->{$_[0]} = $format if defined $format;
+}
+
+
+
+###############################################################################
+#
+# _write_row_default()
+#
+# Write a default row record, in compatibility mode, for rows that don't have
+# user specified values..
+#
+sub _write_row_default {
+
+    my $self        = shift;
+    my $record      = 0x0208;               # Record identifier
+    my $length      = 0x0010;               # Number of bytes to follow
+
+    my $row         = $_[0];                # Row Number
+    my $colMic      = $_[1];                # First defined column
+    my $colMac      = $_[2];                # Last defined column
+    my $miyRw       = 0xFF;                 # Row height
+    my $irwMac      = 0x0000;               # Used by Excel to optimise loading
+    my $reserved    = 0x0000;               # Reserved
+    my $grbit       = 0x0100;               # Option flags
+    my $ixfe        = 0x0F;                 # XF index
+
+    my $header   = pack("vv",       $record, $length);
+    my $data     = pack("vvvvvvvv", $row, $colMic, $colMac, $miyRw,
+                                    $irwMac,$reserved, $grbit, $ixfe);
+
+    $self->_append($header, $data);
 }
 
 
@@ -3263,21 +3389,44 @@ sub set_row {
 # Check that $row and $col are valid and store max and min values for use in
 # DIMENSIONS record. See, _store_dimensions().
 #
+# The $ignore_col flag is used to indicate that we wish to change the row
+# dimensions without affecting the col dimensions. This happens when we set
+# a row via set_row().
+#
 sub _check_dimensions {
 
-    my $self    = shift;
-    my $row     = $_[0];
-    my $col     = $_[1];
+    my $self        = shift;
+    my $row         = $_[0];
+    my $col         = $_[1];
+    my $ignore_col  = $_[2];
 
-    if ($row >= $self->{_xls_rowmax}) { return -2 }
-    if ($col >= $self->{_xls_colmax}) { return -2 }
 
-    $self->{_dim_changed} = 1;
+    return -2 if not defined $row;
+    return -2 if $row >= $self->{_xls_rowmax};
 
-    if ($row <  $self->{_dim_rowmin}) { $self->{_dim_rowmin} = $row }
-    if ($row >  $self->{_dim_rowmax}) { $self->{_dim_rowmax} = $row }
-    if ($col <  $self->{_dim_colmin}) { $self->{_dim_colmin} = $col }
-    if ($col >  $self->{_dim_colmax}) { $self->{_dim_colmax} = $col }
+    return -2 if not defined $col;
+    return -2 if $col >= $self->{_xls_colmax};
+
+
+    if (not defined $self->{_dim_rowmin} or $row < $self->{_dim_rowmin}) {
+        $self->{_dim_rowmin} = $row;
+    }
+
+    if (not defined $self->{_dim_rowmax} or $row > $self->{_dim_rowmax}) {
+        $self->{_dim_rowmax} = $row;
+    }
+
+    # Ignore for set_row()
+    if (not $ignore_col) {
+
+        if (not defined $self->{_dim_colmin} or $col < $self->{_dim_colmin}) {
+            $self->{_dim_colmin} = $col;
+        }
+
+        if (not defined $self->{_dim_colmax} or $col > $self->{_dim_colmax}) {
+            $self->{_dim_colmax} = $col;
+        }
+    }
 
     return 0;
 }
@@ -3287,7 +3436,13 @@ sub _check_dimensions {
 #
 # _store_dimensions()
 #
-# Writes Excel DIMENSIONS to define the area in which there is data.
+# Writes Excel DIMENSIONS to define the area in which there is cell data.
+#
+# Notes:
+#   Excel stores the max row/col as row/col +1.
+#   Max and min values of 0 are used to indicate that no cell data.
+#   We set the undef member data to 0 since it is used by _store_table().
+#   Inserting images or charts doesn't change the DIMENSION data.
 #
 sub _store_dimensions {
 
@@ -3300,22 +3455,24 @@ sub _store_dimensions {
     my $col_max;                    # Last column plus 1
     my $reserved  = 0x0000;         # Reserved by Excel
 
+    if (defined $self->{_dim_rowmin}) {$row_min = $self->{_dim_rowmin}    }
+    else                              {$row_min = 0                       }
 
-    # Set the data range if data has been written to the worksheet
-    if ($self->{_dim_changed}) {
-        $row_min = $self->{_dim_rowmin};
-        $row_max = $self->{_dim_rowmax} +1;
-        $col_min = $self->{_dim_colmin};
-        $col_max = $self->{_dim_colmax} +1;
-    }
-    else {
-        # Special case, not data was written
-        $row_min = 0;
-        $row_max = 0;
-        $col_min = 0;
-        $col_max = 256;
+    if (defined $self->{_dim_rowmax}) {$row_max = $self->{_dim_rowmax} + 1}
+    else                              {$row_max = 0                       }
 
-    }
+    if (defined $self->{_dim_colmin}) {$col_min = $self->{_dim_colmin}    }
+    else                              {$col_min = 0                       }
+
+    if (defined $self->{_dim_colmax}) {$col_max = $self->{_dim_colmax} + 1}
+    else                              {$col_max = 0                       }
+
+
+    # Set member data to the new max/min value for use by _store_table().
+    $self->{_dim_rowmin} = $row_min;
+    $self->{_dim_rowmax} = $row_max;
+    $self->{_dim_colmin} = $col_min;
+    $self->{_dim_colmax} = $col_max;
 
 
     my $header    = pack("vv",    $record, $length);
@@ -3507,12 +3664,13 @@ sub _store_colinfo {
     $coldx = int($pixels *256/7);
 
 
-    my $ixfe;                       # XF index
-    my $grbit    = 0x0000;          # Option flags
-    my $reserved = 0x00;            # Reserved
-    my $format   = $_[3];           # Format object
-    my $hidden   = $_[4] || 0;      # Hidden flag
-    my $level    = $_[5] || 0;      # Outline level
+    my $ixfe;                          # XF index
+    my $grbit       = 0x0000;          # Option flags
+    my $reserved    = 0x00;            # Reserved
+    my $format      = $_[3];           # Format object
+    my $hidden      = $_[4] || 0;      # Hidden flag
+    my $level       = $_[5] || 0;      # Outline level
+    my $collapsed   = $_[6] || 0;      # Outline level
 
 
     # Check for a format object
@@ -3529,13 +3687,10 @@ sub _store_colinfo {
     $level = 7 if $level > 7;
 
 
-    # Set the options flags.
-    # The collapsed flag 0x10 doesn't seem to be used to indicate that a col
-    # is collapsed. Instead it is used to indicate that the previous col is
-    # collapsed. The zero height flag, 0x20, is used to collapse a col.
-    #
+    # Set the options flags. (See set_row() for more details).
     $grbit |= 0x0001 if $hidden;
     $grbit |= $level << 8;
+    $grbit |= 0x1000 if $collapsed;
 
 
     my $header   = pack("vv",     $record, $length);
@@ -3786,7 +3941,7 @@ sub _store_setup {
     my $length       = 0x0022;                  # Number of bytes to follow
 
 
-    # TODO some of these props don't have accessors. Add then as requested.
+    # TODO some of these props don't have accessors. Add them as requested.
 
     my $iPaperSize   = $self->{_paper_size};    # Paper size
     my $iScale       = $self->{_print_scale};   # Print scaling factor
@@ -3808,8 +3963,7 @@ sub _store_setup {
     my $fDraft       = $self->{_draft_quality}; # Print draft quality
     my $fNotes       = $self->{_print_comments};# Print notes
     my $fNoOrient    = 0x0;                     # Orientation not set
-    my $fUsePage     = 0x0;                     # Use custom starting page
-       $fUsePage     = 0x1 if $self->{_page_start} > 1;
+    my $fUsePage     = $self->{_custom_start};  # Use custom starting page
 
 
     $grbit           = $fLeftToRight;
@@ -4459,11 +4613,196 @@ sub _store_password {
 }
 
 
+#
+# Note about compatibility mode.
+#
+# Excel doesn't require every possible Biff record to be present in a file.
+# In particular if the indexing records INDEX, ROW and DBCELL aren't present
+# it just ignores the fact and reads the cells anyway. This is also true of
+# the EXTSST record. Gnumeric and OOo also take this approach. This allows
+# WriteExcel to ignore these records in order to minimise the amount of data
+# stored in memory. However, other third party applications that read Excel
+# files often expect these records to be present. In "compatibility mode"
+# WriteExcel writes these records and tries to be as close to an Excel
+# generated file as possible.
+#
+# This requires additional data to be stored in memory until the file is
+# about to be written. This incurs a memory and speed penalty and may not be
+# suitable for very large files.
+#
+
+
+
+###############################################################################
+#
+# _store_table()
+#
+# Write cell data stored in the worksheet row/col table.
+#
+# This is only used when compatibity_mode() is in operation.
+#
+# This method writes ROW data, then cell data (NUMBER, LABELSST, etc) and then
+# DBCELL records in blocks of 32 rows. This is explained in detail (for a
+# change) in the Excel SDK and in the OOo Excel file format doc.
+#
+sub _store_table {
+
+    my $self = shift;
+
+    return unless $self->{_compatibility};
+
+    # TODO remove after debug.
+    #print "Using Index table \n";
+
+    # Offset from the DBCELL record back to the first ROW of the 32 row block.
+    my $row_offset = 0;
+
+    # Track rows that have cell data or modified by set_row().
+    my @written_rows;
+
+
+    # Write the ROW records with updated max/min col fields.
+    #
+    for my $row (0 .. $self->{_dim_rowmax} -1) {
+        # Skip unless there is cell data in row or the row has been modified.
+        next unless $self->{_table}->[$row] or $self->{_row_data}->{$row};
+
+        # Store the rows with data.
+        push @written_rows, $row;
+
+        # Increase the row offset by the length of a ROW record;
+        $row_offset += 20;
+
+        # The max/min cols in the ROW records are the same as in DIMENSIONS.
+        my $col_min = $self->{_dim_colmin};
+        my $col_max = $self->{_dim_colmax};
+
+        # Write a user specifed ROW record (modified by set_row()).
+        if ($self->{_row_data}->{$row}) {
+            # Rewrite the min and max cols for user defined row record.
+            my $packed_row = $self->{_row_data}->{$row};
+            substr $packed_row, 6, 4, pack('vv', $col_min, $col_max);
+            $self->_append($packed_row);
+        }
+        else {
+            # Write a default Row record if there isn't a  user defined ROW.
+            $self->_write_row_default($row, $col_min, $col_max);
+        }
+
+
+
+        # If 32 rows have been written or we are at the last row in the
+        # worksheet then write the cell data and the DBCELL record.
+        #
+        if (@written_rows == 32 or $row == $self->{_dim_rowmax} -1) {
+
+            # Offsets to the first cell of each row.
+            my @cell_offsets;
+            push @cell_offsets, $row_offset - 20;
+
+            # Write the cell data in each row and sum their lengths for the
+            # cell offsets.
+            #
+            for my $row (@written_rows) {
+                my $cell_offset = 0;
+
+                for my $col (@{$self->{_table}->[$row]}) {
+                    next unless $col;
+                    $self->_append($col);
+                    my $length = length $col;
+                    $row_offset  += $length;
+                    $cell_offset += $length;
+                }
+                push @cell_offsets, $cell_offset;
+            }
+
+            # The last offset isn't required.
+            pop @cell_offsets;
+
+            # Stores the DBCELL offset for use in the INDEX record.
+            push @{$self->{_db_indices}}, $self->{_datasize};
+
+            # Write the DBCELL record.
+            $self->_store_dbcell($row_offset, @cell_offsets);
+
+            # Clear the variable for the next block of rows.
+            @written_rows   = ();
+            @cell_offsets   = ();
+            $row_offset     = 0;
+        }
+    }
+}
+
+
+###############################################################################
+#
+# _store_dbcell()
+#
+# Store the DBCELL record using the offset calculated in _store_table().
+#
+# This is only used when compatibity_mode() is in operation.
+#
+sub _store_dbcell {
+
+    my $self            = shift;
+    my $row_offset      = shift;
+    my @cell_offsets    = @_;
+
+
+    my $record          = 0x00D7;                 # Record identifier
+    my $length          = 4 + 2 * @cell_offsets;  # Bytes to follow
+
+
+    my $header          = pack 'vv', $record, $length;
+    my $data            = pack 'V',  $row_offset;
+       $data           .= pack 'v', $_ for @cell_offsets;
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_index()
+#
+# Store the INDEX record using the DBCELL offsets calculated in _store_table().
+#
+# This is only used when compatibity_mode() is in operation.
+#
+sub _store_index {
+
+    my $self = shift;
+
+    return unless $self->{_compatibility};
+
+    my @indices     = @{$self->{_db_indices}};
+    my $reserved    = 0x00000000;
+    my $row_min     = $self->{_dim_rowmin};
+    my $row_max     = $self->{_dim_rowmax};
+
+    my $record      = 0x020B;             # Record identifier
+    my $length      = 16 + 4 * @indices;  # Bytes to follow
+
+    my $header      = pack 'vv',   $record, $length;
+    my $data        = pack 'VVVV', $reserved,
+                                   $row_min,
+                                   $row_max,
+                                   $reserved;
+
+    for my $index (@indices) {
+       $data .= pack 'V', $index + $self->{_offset} + 20 + $length +4;
+    }
+
+    $self->_prepend($header, $data);
+
+}
+
+
 ###############################################################################
 #
 # embed_chart($row, $col, $filename, $x, $y, $scale_x, $scale_y)
 #
-# TODO.
+# Embed an extracted chart in a worksheet.
 #
 sub embed_chart {
 
@@ -4826,7 +5165,13 @@ sub write_utf16be_string {
     my $header = pack("vv",   $record, $length);
     my $data   = pack("vvvV", $row, $col, $xf, ${$self->{_str_table}}->{$str});
 
-    $self->_append($header, $data);
+    # Store the data or write immediately depending on the compatibility mode.
+    if ($self->{_compatibility}) {
+        $self->{_table}->[$row]->[$col] = $header . $data;
+    }
+    else {
+        $self->_append($header, $data);
+    }
 
     return $str_error;
 }
@@ -6698,7 +7043,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVII, John McNamara.
+© MM-MMVIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

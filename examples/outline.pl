@@ -38,7 +38,7 @@ my $bold = $workbook->add_format(bold => 1);
 # same $level are grouped together. The group will be collapsed if $hidden is
 # non-zero. $height and $XF are assigned default values if they are undef.
 #
-# The syntax is: set_row($row, $height, $XF, $hidden, $level)
+# The syntax is: set_row($row, $height, $XF, $hidden, $level, $collapsed)
 #
 $worksheet1->set_row(1,  undef, undef, 0, 2);
 $worksheet1->set_row(2,  undef, undef, 0, 2);
@@ -91,11 +91,11 @@ $worksheet1->write('B12', '=SUBTOTAL(9,B2:B10)', $bold);
 #
 # Example 2: Create a worksheet with outlined rows. This is the same as the
 # previous example except that the rows are collapsed.
-#
-
+# Note: We need to indicate the row that contains the collapsed symbol '+'
+# with the optional parameter, $collapsed.
 
 # The group will be collapsed if $hidden is non-zero.
-# The syntax is: set_row($row, $height, $XF, $hidden, $level)
+# The syntax is: set_row($row, $height, $XF, $hidden, $level, $collapsed)
 #
 $worksheet2->set_row(1,  undef, undef, 1, 2);
 $worksheet2->set_row(2,  undef, undef, 1, 2);
@@ -108,6 +108,7 @@ $worksheet2->set_row(7,  undef, undef, 1, 2);
 $worksheet2->set_row(8,  undef, undef, 1, 2);
 $worksheet2->set_row(9,  undef, undef, 1, 2);
 $worksheet2->set_row(10, undef, undef, 1, 1);
+$worksheet2->set_row(11, undef, undef, 0, 0, 1);
 
 
 # Add a column format for clarity
@@ -160,7 +161,7 @@ my $data = [
 # Add bold format to the first row
 $worksheet3->set_row(0, undef, $bold);
 
-# The syntax is: set_column($first, $last, $height, $XF, $hidden, $level)
+# Syntax: set_column($col1, $col2, $width, $XF, $hidden, $level, $collapsed)
 $worksheet3->set_column('A:A', 10, $bold      );
 $worksheet3->set_column('B:G', 5,  undef, 0, 1);
 $worksheet3->set_column('H:H', 10);

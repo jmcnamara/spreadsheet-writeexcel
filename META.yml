@@ -1,6 +1,6 @@
 name:               Spreadsheet-WriteExcel
 abstract:           Write to a cross platform Excel binary file
-version:            2.20
+version:            2.21
 version_from:       lib/Spreadsheet/WriteExcel.pm
 installdirs:        site
 requires:
@@ -11,3 +11,6 @@ requires:
 distribution_type:  module
 license:            perl
 generated_by:       hand
+resources:
+    CPANForum: http://groups.google.com/group/spreadsheet-writeexcel
+    GoogleGroup: http://groups.google.com/group/spreadsheet-writeexcel

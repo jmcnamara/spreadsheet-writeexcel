@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::WorkbookBig;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2007, John McNamara and Kawai Takanori.
+# Copyright 2000-2008, John McNamara and Kawai Takanori.
 #
 # Documentation after __END__
 #
@@ -36,6 +36,9 @@ sub new {
 
     my $class = shift;
     my $self  = Spreadsheet::WriteExcel::Workbook->new(@_);
+
+    # Drop some compatibility to save memory and speed up big files.
+    $self->{_compatibility} = 1;
 
     bless $self, $class;
     return $self;
@@ -114,6 +117,6 @@ Kawai Takanori kwitknr@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVII, John McNamara and Kawai Takanori.
+© MM-MMVIII, John McNamara and Kawai Takanori.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

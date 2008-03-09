@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Format;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2008, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -710,27 +710,10 @@ sub set_properties {
         # Strip leading "-" from Tk style properties e.g. -color => 'red'.
         $key =~ s/^-//;
 
-
-        # Make sure method names are alphanumeric characters only, in case
-        # tainted data is passed to the eval().
-        #
-        die "Unknown method: \$self->set_$key\n" if $key =~ /\W/;
-
-
-        # Evaling all $values as a strings gets around the problem of some
-        # numerical format strings being evaluated as numbers, for example
-        # "00000" for a zip code.
-        #
-        local $@;
-        if (defined $value) {
-            eval "\$self->set_$key('$value')";
-        }
-        else {
-            eval "\$self->set_$key(undef)";
-        }
-
-        die $@ if $@; # Rethrow the eval error.
-    }
+        # Create a sub to set the property.
+        my $sub = \&{"set_$key"};
+        $sub->($self, $value);
+   }
 }
 
 
@@ -820,6 +803,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVII, John McNamara.
+© MM-MMVIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

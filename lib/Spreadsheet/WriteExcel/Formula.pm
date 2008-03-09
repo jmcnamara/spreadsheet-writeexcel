@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Formula;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2008, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -516,7 +516,16 @@ sub _convert_string {
 
     my $length = length($str);
 
-    # TODO string length
+    # Handle utf8 strings in perl 5.8.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($str)) {
+            $str = Encode::encode("UTF-16LE", $str);
+            $encoding = 1;
+        }
+    }
+
     die "String in formula has more than 255 chars\n" if $length > 255;
 
     return pack("CCC", $ptg{ptgStr}, $length, $encoding) . $str;
@@ -1415,6 +1424,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVII, John McNamara.
+© MM-MMVIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

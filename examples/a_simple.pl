@@ -12,7 +12,7 @@ use strict;
 use Spreadsheet::WriteExcel;
 
 # Create a new workbook called simple.xls and add a worksheet
-my $workbook  = Spreadsheet::WriteExcel->new("simple.xls");
+my $workbook  = Spreadsheet::WriteExcel->new('a_simple.xls');
 my $worksheet = $workbook->add_worksheet();
 
 # The general syntax is write($row, $column, $token). Note that row and

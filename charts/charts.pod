@@ -21,7 +21,7 @@ The steps involved are as follows:
 
 =item 2. Add one or more worksheets with sample data of the type and format that you would like to have in the final version.
 
-=item 3. Create a chart on a new chart sheet that refers to a data range in one of the worksheets. B<Note, charts embedded in worksheets aren't currently supported>.
+=item 3. Create a chart on a new chart sheet that refers to a data range in one of the worksheets. Charts embedded in worksheets are also supported. See the C<add_chart_ext()> section of the main Spreadsheet::WriteExcel documentation.
 
 =item 4. Extend the chart data series to cover a sufficient range for any additional data that might be added. For example, if you initially have only 10 data points but you think that you may add up to 2000 at a later stage then increase the chart data series to 2000 points. In this case you should probably also leave the axes on automatic scaling.
 

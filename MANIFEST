@@ -22,6 +22,10 @@ t/00_IEEE_double.t
 t/01_add_worksheet.t
 t/02_merge_formats.t
 t/03_cleanup.t
+t/04_dimensions.t
+t/05_rows.t
+t/06_extsst.t
+t/07_set_propertes.t
 t/11_date_time.t
 t/12_date_only.t
 t/13_date_seconds.t
@@ -57,6 +61,7 @@ doc/tpj0503-0004-05.gif
 doc/win32ole.gif
 
 examples/README
+examples/a_simple.pl
 examples/autofilter.pl
 examples/autofit.pl
 examples/bigfile.pl
@@ -95,6 +100,7 @@ examples/merge6.pl
 examples/mod_perl1.pl
 examples/mod_perl2.pl
 examples/outline.pl
+examples/outline_collapsed.pl
 examples/panes.pl
 examples/protection.pl
 examples/regions.pl
@@ -104,7 +110,6 @@ examples/right_to_left.pl
 examples/row_wrap.pl
 examples/sales.pl
 examples/sendmail.pl
-examples/simple.pl
 examples/stats.pl
 examples/stats_ext.pl
 examples/stocks.pl

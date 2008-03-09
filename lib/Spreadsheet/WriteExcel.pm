@@ -6,7 +6,7 @@ package Spreadsheet::WriteExcel;
 #
 # Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 #
-# Copyright 2000-2007, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2008, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.20'; # La Bruni.
+$VERSION = '2.21'; # La Bruni.
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.20 of Spreadsheet::WriteExcel, released October 6, 2007.
+This document refers to version 2.21 of Spreadsheet::WriteExcel, released March 9, 2007.
 
 
 
@@ -75,7 +75,7 @@ To write a string, a formatted string, a number and a formula to the first works
     use Spreadsheet::WriteExcel;
 
     # Create a new Excel workbook
-    my $workbook = Spreadsheet::WriteExcel->new("perl.xls");
+    my $workbook = Spreadsheet::WriteExcel->new('perl.xls');
 
     # Add a worksheet
     $worksheet = $workbook->add_worksheet();
@@ -88,8 +88,8 @@ To write a string, a formatted string, a number and a formula to the first works
 
     # Write a formatted and unformatted string, row and column notation.
     $col = $row = 0;
-    $worksheet->write($row, $col, "Hi Excel!", $format);
-    $worksheet->write(1,    $col, "Hi Excel!");
+    $worksheet->write($row, $col, 'Hi Excel!', $format);
+    $worksheet->write(1,    $col, 'Hi Excel!');
 
     # Write a number and a formula using A1 notation
     $worksheet->write('A3', 1.2345);
@@ -106,7 +106,7 @@ The Excel file produced by this module is compatible with 97, 2000, 2002 and 200
 
 The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.org.
 
-This module cannot be used to write to an existing Excel file.
+This module cannot be used to write to an existing Excel file (See L<MODIFYING AND REWRITING EXCEL FILES>).
 
 
 
@@ -125,11 +125,11 @@ Like this:
 
     use Spreadsheet::WriteExcel;                             # Step 0
 
-    my $workbook = Spreadsheet::WriteExcel->new("perl.xls"); # Step 1
+    my $workbook = Spreadsheet::WriteExcel->new('perl.xls'); # Step 1
     $worksheet   = $workbook->add_worksheet();               # Step 2
-    $worksheet->write('A1', "Hi Excel!");                    # Step 3
+    $worksheet->write('A1', 'Hi Excel!');                    # Step 3
 
-This will create an Excel file called C<perl.xls> with a single worksheet and the text C<"Hi Excel!"> in the relevant cell. And that's it. Okay, so there is actually a zeroth step as well, but C<use module> goes without saying. There are also more than 80 examples that come with the distribution and which you can use to get you started. See L<EXAMPLES>.
+This will create an Excel file called C<perl.xls> with a single worksheet and the text C<'Hi Excel!'> in the relevant cell. And that's it. Okay, so there is actually a zeroth step as well, but C<use module> goes without saying. There are also more than 80 examples that come with the distribution and which you can use to get you started. See L<EXAMPLES>.
 
 Those of you who read the instructions first and assemble the furniture afterwards will know how to proceed. ;-)
 
@@ -162,12 +162,12 @@ A new Excel workbook is created using the C<new()> constructor which accepts eit
 
     my $workbook  = Spreadsheet::WriteExcel->new('filename.xls');
     my $worksheet = $workbook->add_worksheet();
-    $worksheet->write(0, 0, "Hi Excel!");
+    $worksheet->write(0, 0, 'Hi Excel!');
 
 Here are some other examples of using C<new()> with filenames:
 
     my $workbook1 = Spreadsheet::WriteExcel->new($filename);
-    my $workbook2 = Spreadsheet::WriteExcel->new("/tmp/filename.xls");
+    my $workbook2 = Spreadsheet::WriteExcel->new('/tmp/filename.xls');
     my $workbook3 = Spreadsheet::WriteExcel->new("c:\\tmp\\filename.xls");
     my $workbook4 = Spreadsheet::WriteExcel->new('c:\tmp\filename.xls');
 
@@ -226,7 +226,7 @@ For example here is a way to write an Excel file to a scalar with C<perl 5.8>:
     my $workbook  = Spreadsheet::WriteExcel->new($fh);
     my $worksheet = $workbook->add_worksheet();
 
-    $worksheet->write(0, 0,  "Hi Excel!");
+    $worksheet->write(0, 0,  'Hi Excel!');
 
     $workbook->close();
 
@@ -241,6 +241,54 @@ B<Note about the requirement for> C<binmode()>: An Excel file is comprised of bi
 
 You don't have to worry about C<binmode()> if you are using filenames instead of filehandles. Spreadsheet::WriteExcel performs the C<binmode()> internally when it converts the filename to a filehandle. For more information about C<binmode()> see C<perlfunc> and C<perlopentut> in the main Perl documentation.
 
+
+
+
+
+=head2 add_worksheet($sheetname, $utf_16_be)
+
+At least one worksheet should be added to a new workbook. A worksheet is used to write data into cells:
+
+    $worksheet1 = $workbook->add_worksheet();           # Sheet1
+    $worksheet2 = $workbook->add_worksheet('Foglio2');  # Foglio2
+    $worksheet3 = $workbook->add_worksheet('Data');     # Data
+    $worksheet4 = $workbook->add_worksheet();           # Sheet4
+
+If C<$sheetname> is not specified the default Excel convention will be followed, i.e. Sheet1, Sheet2, etc. The C<$utf_16_be> parameter is optional, see below.
+
+The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<[ ] : * ? / \> and it must be less than 32 characters. In addition, you cannot use the same, case insensitive, C<$sheetname> for more than one worksheet.
+
+On systems with C<perl 5.8> and later the C<add_worksheet()> method will also handle strings in C<UTF-8> format.
+
+    $worksheet = $workbook->add_worksheet("\x{263a}"); # Smiley
+
+On earlier Perl systems your can specify C<UTF-16BE> worksheet names using an additional optional parameter:
+
+    my $name = pack 'n', 0x263a;
+    $worksheet = $workbook->add_worksheet($name, 1);   # Smiley
+
+
+
+
+=head2 add_format(%properties)
+
+The C<add_format()> method can be used to create new Format objects which are used to apply formatting to a cell. You can either define the properties at creation time via a hash of property values or later via method calls.
+
+    $format1 = $workbook->add_format(%props); # Set properties at creation
+    $format2 = $workbook->add_format();       # Set properties later
+
+See the L<CELL FORMATTING> section for more details about Format properties and how to set them.
+
+
+
+
+=head2 add_chart_ext($chart_data, $chartname)
+
+This method is use to include externally generated charts in a Spreadsheet::WriteExcel file.
+
+    my $chart = $workbook->add_chart_ext('chart01.bin', 'Chart1');
+
+This feature is new and would be best described as experimental. Read C<charts.txt> in the charts directory of the distro for a full explanation.
 
 
 
@@ -278,6 +326,25 @@ The return value of C<close()> is the same as that returned by perl when it clos
 
 
 
+=head2 compatibility_mode()
+
+This method is used to improve compatibility with third party applications that read Excel files.
+
+    $workbook->compatibility_mode();
+
+An Excel file is comprised of binary records that describe properties of a spreadsheet. Excel is reasonably liberal about this and, outside of a core subset, it doesn't require every possible record to be present when it reads a file. This is also true of Gnumeric and OpenOffice.Org Calc.
+
+Spreadsheet::WriteExcel takes advantage of this fact to omit some records in order to minimise the amount of data stored in memory and to simplify and speed up the writing of files. However, some third party applications that read Excel files often expect certain records to be present. In "compatibility mode" Spreadsheet::WriteExcel writes these records and tries to be as close to an Excel generated file as possible.
+
+Applications that require C<compatibility_mode()> are Apache POI, and Quickoffice on Nokia, Palm and other devices. If you encounter others, please let me know.
+
+It should be noted that C<compatibility_mode()> requires additional data to be stored in memory and additonal processing. This incurs a memory and speed penalty and may not be suitable for very large files (>20MB).
+
+You must call C<compatibility_mode()> before calling C<add_worksheet()>.
+
+
+
+
 =head2 set_tempdir()
 
 For speed and efficiency C<Spreadsheet::WriteExcel> stores worksheet data in temporary files prior to assembling the final workbook.
@@ -292,7 +359,7 @@ To check if this might be a problem on a particular system you can run a simple 
 
     use Spreadsheet::WriteExcel;
 
-    my $workbook  = Spreadsheet::WriteExcel->new("test.xls");
+    my $workbook  = Spreadsheet::WriteExcel->new('test.xls');
     my $worksheet = $workbook->add_worksheet();
 
 To avoid this problem the C<set_tempdir()> method can be used to specify a directory that is accessible for the creation of temporary files.
@@ -309,53 +376,6 @@ Even if the default temporary file directory is accessible you may wish to speci
 The directory for the temporary file must exist, C<set_tempdir()> will not create a new directory.
 
 One disadvantage of using the C<set_tempdir()> method is that on some Windows systems it will limit you to approximately 800 concurrent tempfiles. This means that a single program running on one of these systems will be limited to creating a total of 800 workbook and worksheet objects. You can run multiple, non-concurrent programs to work around this if necessary.
-
-
-
-
-=head2 add_worksheet($sheetname, $encoding)
-
-At least one worksheet should be added to a new workbook. A worksheet is used to write data into cells:
-
-    $worksheet1 = $workbook->add_worksheet();           # Sheet1
-    $worksheet2 = $workbook->add_worksheet('Foglio2');  # Foglio2
-    $worksheet3 = $workbook->add_worksheet('Data');     # Data
-    $worksheet4 = $workbook->add_worksheet();           # Sheet4
-
-If C<$sheetname> is not specified the default Excel convention will be followed, i.e. Sheet1, Sheet2, etc. The C<$encoding> parameter is optional, see below.
-
-The worksheet name must be a valid Excel worksheet name, i.e. it cannot contain any of the following characters, C<[ ] : * ? / \> and it must be less than 32 characters. In addition, you cannot use the same, case insensitive, C<$sheetname> for more than one worksheet.
-
-On systems with C<perl 5.8> and later the C<add_worksheet()> method will also handle strings in <UTF-8> format.
-
-    $worksheet = $workbook->add_worksheet("\x{263a}"); # Smiley
-
-On earlier Perl systems your can specify C<UTF-16BE> worksheet names using an additional encoding parameter:
-
-    my $name = pack "n", 0x263a;
-    $worksheet = $workbook->add_worksheet($name, 1);   # Smiley
-
-
-
-
-=head2 add_chart_ext($chart_data, $chartname)
-
-This method is use to include externally generated charts in a Spreadsheet::WriteExcel file.
-
-    my $chart = $workbook->add_chart_ext('chart01.bin', 'Chart1');
-
-This feature is new and would be best described as experimental. Read C<charts.txt> in the charts directory of the distro for a full explanation.
-
-
-
-=head2 add_format(%properties)
-
-The C<add_format()> method can be used to create new Format objects which are used to apply formatting to a cell. You can either define the properties at creation time via a hash of property values or later via method calls.
-
-    $format1 = $workbook->add_format(%props); # Set properties at creation
-    $format2 = $workbook->add_format();       # Set properties later
-
-See the L<CELL FORMATTING> section for more details about Format properties and how to set them.
 
 
 
@@ -422,12 +442,12 @@ If no arguments are passed the method returns a list of all the worksheets in th
 You can also specify a slice list to return one or more worksheet objects:
 
     $worksheet = $workbook->sheets(0);
-    $worksheet->write('A1', "Hello");
+    $worksheet->write('A1', 'Hello');
 
 
 Or since return value from C<sheets()> is a reference to a worksheet object you can write the above example as:
 
-    $workbook->sheets(0)->write('A1', "Hello");
+    $workbook->sheets(0)->write('A1', 'Hello');
 
 
 The following example returns the first and last worksheet in a workbook:
@@ -497,6 +517,7 @@ The following methods are available through a new worksheet:
     show_comments()
     add_write_handler()
     insert_image()
+    embed_chart()
     get_name()
     activate()
     select()
@@ -515,7 +536,7 @@ The following methods are available through a new worksheet:
     hide_zero()
     set_tab_color()
     autofilter()
-
+    filter_column()
 
 
 
@@ -575,7 +596,7 @@ Excel makes a distinction between data types such as strings, numbers, blanks, f
 The general rule is that if the data looks like a I<something> then a I<something> is written. Here are some examples in both row-column and A1 notation:
 
                                                       # Same as:
-    $worksheet->write(0, 0, "Hello"                ); # write_string()
+    $worksheet->write(0, 0, 'Hello'                ); # write_string()
     $worksheet->write(1, 0, 'One'                  ); # write_string()
     $worksheet->write(2, 0,  2                     ); # write_number()
     $worksheet->write(3, 0,  3.00001               ); # write_number()
@@ -625,7 +646,7 @@ The C<$format> parameter is optional. It should be a valid Format object, see L<
     $format->set_color('red');
     $format->set_align('center');
 
-    $worksheet->write(4, 0, "Hello", $format ); # Formatted string
+    $worksheet->write(4, 0, 'Hello', $format); # Formatted string
 
 The write() method will ignore empty strings or C<undef> tokens unless a format is also supplied. As such you needn't worry about special handling for empty or C<undef> values in your data. See also the C<write_blank()> method.
 
@@ -663,8 +684,8 @@ In general it is sufficient to use the C<write()> method.
 
 Write a string to the cell specified by C<$row> and C<$column>:
 
-    $worksheet->write_string(0, 0, "Your text here" );
-    $worksheet->write_string('A2', "or here" );
+    $worksheet->write_string(0, 0, 'Your text here' );
+    $worksheet->write_string('A2', 'or here' );
 
 The maximum string size is 32767 characters. However the maximum string segment that Excel can display in a cell is 1000. All 32767 characters can be displayed in the formula bar.
 
@@ -711,7 +732,7 @@ The following is a simple example showing how to write some Unicode strings in C
 
     # Write a Unicode character
     #
-    my $smiley = pack "n", 0x263a;
+    my $smiley = pack 'n', 0x263a;
 
     # Increase the font size for legibility.
     my $big_font = $workbook->add_format(size => 72);
@@ -722,8 +743,8 @@ The following is a simple example showing how to write some Unicode strings in C
 
     # Write a phrase in Cyrillic using a hex-encoded string
     #
-    my $str = pack "H*", "042d0442043e0020044404400430043704300020043d" .
-                         "043000200440044304410441043a043e043c0021";
+    my $str = pack 'H*', '042d0442043e0020044404400430043704300020043d' .
+                         '043000200440044304410441043a043e043c0021';
 
     $worksheet->write_utf16be_string('A5', $str);
 
@@ -731,8 +752,8 @@ The following is a simple example showing how to write some Unicode strings in C
 
     # Map a string to UTF-16BE using an external module.
     #
-    my $map   = Unicode::Map->new("ISO-8859-1");
-    my $utf16 = $map->to_unicode("Hello world!");
+    my $map   = Unicode::Map->new('ISO-8859-1');
+    my $utf16 = $map->to_unicode('Hello world!');
 
     $worksheet->write_utf16be_string('A7', $utf16);
 
@@ -755,7 +776,7 @@ This method is the same as C<write_utf16be()> except that the string should be 1
 
 C<UTF-16> data can be changed from little-endian to big-endian format (and vice-versa) as follows:
 
-    $utf16be = pack "n*", unpack "v*", $utf16le;
+    $utf16be = pack 'n*', unpack 'v*', $utf16le;
 
 
 
@@ -901,7 +922,7 @@ The C<write_row()> method allows the following idiomatic conversion of a text fi
     my $workbook  = Spreadsheet::WriteExcel->new('file.xls');
     my $worksheet = $workbook->add_worksheet();
 
-    open INPUT, "file.txt" or die "Couldn't open file: $!";
+    open INPUT, 'file.txt' or die "Couldn't open file: $!";
 
     $worksheet->write($.-1, 0, [split]) while <INPUT>;
 
@@ -976,7 +997,7 @@ The C<$date_string> should be in the following format:
 
     yyyy-mm-ddThh:mm:ss.sss
 
-This conforms to am ISO8601 date but it should be noted that the full range of ISO8601 formats are not supported.
+This conforms to an ISO8601 date but it should be noted that the full range of ISO8601 formats are not supported.
 
 The following variations on the C<$date_string> parameter are permitted:
 
@@ -1268,7 +1289,7 @@ Most of these options are quite specific and in general the default comment beha
 
 This option is used to indicate that the comment string is encoded as C<UTF-16BE>.
 
-    my $comment = pack "n", 0x263a; # UTF-16BE Smiley symbol
+    my $comment = pack 'n', 0x263a; # UTF-16BE Smiley symbol
 
     $worksheet->write_comment('C3', $comment, encoding => 1);
 
@@ -1672,7 +1693,7 @@ The default cell selections is (0, 0), 'A1'.
 
 
 
-=head2 set_row($row, $height, $format, $hidden, $level)
+=head2 set_row($row, $height, $format, $hidden, $level, $collapsed)
 
 This method can be used to change the default properties of a row. All parameters apart from C<$row> are optional.
 
@@ -1687,8 +1708,8 @@ If you wish to set the format without changing the height you can pass C<undef> 
 The C<$format> parameter will be applied to any cells in the row that don't  have a format. For example
 
     $worksheet->set_row(0, undef, $format1);    # Set the format for row 1
-    $worksheet->write('A1', "Hello");           # Defaults to $format1
-    $worksheet->write('B1', "Hello", $format2); # Keeps $format2
+    $worksheet->write('A1', 'Hello');           # Defaults to $format1
+    $worksheet->write('B1', 'Hello', $format2); # Keeps $format2
 
 If you wish to define a row format in this way you should call the method before any calls to C<write()>. Calling it afterwards will overwrite any format that was previously specified.
 
@@ -1704,17 +1725,23 @@ The following example sets an outline level of 1 for rows 1 and 2 (zero-indexed)
     $worksheet->set_row(1, undef, undef, 0, 1);
     $worksheet->set_row(2, undef, undef, 0, 1);
 
-The C<$hidden> parameter can also be used to collapse outlined rows when used in conjunction with the C<$level> parameter.
+The C<$hidden> parameter can also be used to hide collapsed outlined rows when used in conjunction with the C<$level> parameter.
 
     $worksheet->set_row(1, undef, undef, 1, 1);
     $worksheet->set_row(2, undef, undef, 1, 1);
+
+For collapsed outlines you should also indicate which row has the collapsed C<+> symbol using the optional C<$collapsed> parameter.
+
+    $worksheet->set_row(3, undef, undef, 0, 0, 1);
+
+For a more complete example see the C<outline.pl> and C<outline_collapsed.pl> programs in the examples directory of the distro.
 
 Excel allows up to 7 outline levels. Therefore the C<$level> parameter should be in the range C<0 E<lt>= $level E<lt>= 7>.
 
 
 
 
-=head2 set_column($first_col, $last_col, $width, $format, $hidden, $level)
+=head2 set_column($first_col, $last_col, $width, $format, $hidden, $level, $collapsed)
 
 This method can be used to change the default properties of a single column or a range of columns. All parameters apart from C<$first_col> and C<$last_col> are optional.
 
@@ -1738,8 +1765,8 @@ As usual the C<$format> parameter is optional, for additional information, see L
 The C<$format> parameter will be applied to any cells in the column that don't  have a format. For example
 
     $worksheet->set_column('A:A', undef, $format1); # Set format for col 1
-    $worksheet->write('A1', "Hello");               # Defaults to $format1
-    $worksheet->write('A2', "Hello", $format2);     # Keeps $format2
+    $worksheet->write('A1', 'Hello');               # Defaults to $format1
+    $worksheet->write('A2', 'Hello', $format2);     # Keeps $format2
 
 If you wish to define a column format in this way you should call the method before any calls to C<write()>. If you call it afterwards it won't have any effect.
 
@@ -1747,8 +1774,8 @@ A default row format takes precedence over a default column format
 
     $worksheet->set_row(0, undef,        $format1); # Set format for row 1
     $worksheet->set_column('A:A', undef, $format2); # Set format for col 1
-    $worksheet->write('A1', "Hello");               # Defaults to $format1
-    $worksheet->write('A2', "Hello");               # Defaults to $format2
+    $worksheet->write('A1', 'Hello');               # Defaults to $format1
+    $worksheet->write('A2', 'Hello');               # Defaults to $format2
 
 The C<$hidden> parameter should be set to 1 if you wish to hide a column. This can be used, for example, to hide intermediary steps in a complicated calculation:
 
@@ -1761,9 +1788,15 @@ The following example sets an outline level of 1 for columns B to G:
 
     $worksheet->set_column('B:G', undef, undef, 0, 1);
 
-The C<$hidden> parameter can also be used to collapse outlined columns when used in conjunction with the C<$level> parameter.
+The C<$hidden> parameter can also be used to hide collapsed outlined columns when used in conjunction with the C<$level> parameter.
 
     $worksheet->set_column('B:G', undef, undef, 1, 1);
+
+For collapsed outlines you should also indicate which row has the collapsed C<+> symbol using the optional C<$collapsed> parameter.
+
+    $worksheet->set_column('H:H', undef, undef, 0, 0, 1);
+
+For a more complete example see the C<outline.pl> and C<outline_collapsed.pl> programs in the examples directory of the distro.
 
 Excel allows up to 7 outline levels. Therefore the C<$level> parameter should be in the range C<0 E<lt>= $level E<lt>= 7>.
 
@@ -1845,7 +1878,7 @@ Note: This C<split_panes()> method was called C<thaw_panes()> in older versions.
 
 
 
-=head2 merge_range($first_row, $first_col, $last_row, $last_col, $token, $format, $encoding)
+=head2 merge_range($first_row, $first_col, $last_row, $last_col, $token, $format, $utf_16_be)
 
 Merging cells can be achieved by setting the C<merge> property of a Format object, see L<CELL FORMATTING>. However, this only allows simple Excel5 style horizontal merging which Excel refers to as "center across selection".
 
@@ -1861,7 +1894,7 @@ The C<merge_range()> method allows you to do Excel97+ style formatting where the
 
 B<WARNING>. The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range. It is a fatal error to use a merged format in a non-merged cell. Instead you should use separate formats for merged and non-merged cells. This restriction will be removed in a future release.
 
-The C<$encoding> parameter is optional, see below.
+The C<$utf_16_be> parameter is optional, see below.
 
 C<merge_range()> writes its C<$token> argument using the worksheet C<write()> method. Therefore it will handle numbers, strings, formulas or urls as required.
 
@@ -1871,9 +1904,9 @@ On systems with C<perl 5.8> and later the C<merge_range()> method will also hand
 
     $worksheet->merge_range('B3:D4', "\x{263a}", $format); # Smiley
 
-On earlier Perl systems your can specify C<UTF-16BE> worksheet names using an additional encoding parameter:
+On earlier Perl systems your can specify C<UTF-16BE> worksheet names using an additional optional parameter:
 
-    my $str = pack "n", 0x263a;
+    my $str = pack 'n', 0x263a;
     $worksheet->merge_range('B3:D4', $str, $format, 1); # Smiley
 
 The full possibilities of this method are shown in the C<merge3.pl> to C<merge6.pl> programs in the C<examples> directory of the distribution.
@@ -2046,6 +2079,7 @@ The following methods are available for page set-up:
     print_area()
     print_across()
     fit_to_pages()
+    set_start_page()
     set_print_scale()
     set_h_pagebreaks()
     set_v_pagebreaks()
@@ -2396,7 +2430,7 @@ Do not confuse these headers with page headers as described in the C<set_header(
 This method is used to specify the area of the worksheet that will be printed. All four parameters must be specified. You can also use A1 notation, see the note about L<Cell notation>.
 
 
-    $worksheet1->print_area("A1:H20");    # Cells A1 to H20
+    $worksheet1->print_area('A1:H20');    # Cells A1 to H20
     $worksheet2->print_area(0, 0, 19, 7); # The same
     $worksheet2->print_area('A:H');       # Columns A to H if rows have data
 
@@ -2441,6 +2475,15 @@ A common requirement is to fit the printed output to I<n> pages wide but have th
 Note that although it is valid to use both C<fit_to_pages()> and C<set_print_scale()> on the same worksheet only one of these options can be active at a time. The last method call made will set the active option.
 
 Note that C<fit_to_pages()> will override any manual page breaks that are defined in the worksheet.
+
+
+
+
+=head2 set_start_page($start_page)
+
+The C<set_start_page()> method is used to set the number of the starting page when the worksheet is printed out. The default value is 1.
+
+    $worksheet->set_start_page(2);
 
 
 
@@ -2511,8 +2554,8 @@ The format object holds all the formatting properties that can be applied to a c
 
 Once a Format object has been constructed and it properties have been set it can be passed as an argument to the worksheet C<write> methods as follows:
 
-    $worksheet->write(0, 0, "One", $format);
-    $worksheet->write_string(1, 0, "Two", $format);
+    $worksheet->write(0, 0, 'One', $format);
+    $worksheet->write_string(1, 0, 'Two', $format);
     $worksheet->write_number(2, 0, 3, $format);
     $worksheet->write_blank(3, 0, $format);
 
@@ -2636,9 +2679,9 @@ Each unique format in Spreadsheet::WriteExcel must have a corresponding Format o
     my $format = $workbook->add_format();
     $format->set_bold();
     $format->set_color('red');
-    $worksheet->write('A1', "Cell A1", $format);
+    $worksheet->write('A1', 'Cell A1', $format);
     $format->set_color('green');
-    $worksheet->write('B1', "Cell B1", $format);
+    $worksheet->write('B1', 'Cell B1', $format);
 
 Cell A1 is assigned the Format C<$format> which is initially set to the colour red. However, the colour is subsequently set to green. When Excel displays Cell A1 it will display the final state of the Format which in this case will be the colour green.
 
@@ -2777,7 +2820,7 @@ Set the font colour. The C<set_color()> method is used as follows:
 
     my $format = $workbook->add_format();
     $format->set_color('red');
-    $worksheet->write(0, 0, "wheelbarrow", $format);
+    $worksheet->write(0, 0, 'wheelbarrow', $format);
 
 Note: The C<set_color()> method is used to set the colour of the font in a cell. To set the colour of a cell use the C<set_bg_color()> and C<set_pattern()> methods.
 
@@ -3079,7 +3122,7 @@ This method is used to set the horizontal and vertical text alignment within a c
     $format->set_align('center');
     $format->set_align('vcenter');
     $worksheet->set_row(0, 30);
-    $worksheet->write(0, 0, "X", $format);
+    $worksheet->write(0, 0, 'X', $format);
 
 Text can be aligned across two or more adjacent cells using the C<center_across> property. However, for genuine merged cells it is better to use the C<merge_range()> worksheet method.
 
@@ -3139,7 +3182,7 @@ Set the rotation of the text in a cell. The rotation can be any angle in the ran
 
     my $format = $workbook->add_format();
     $format->set_rotation(30);
-    $worksheet->write(0, 0, "This text is rotated", $format);
+    $worksheet->write(0, 0, 'This text is rotated', $format);
 
 
 The angle 270 is also supported. This indicates text where the letters run from top to bottom.
@@ -3159,7 +3202,7 @@ This method can be used to indent text. The argument, which should be an integer
 
     my $format = $workbook->add_format();
     $format->set_indent(2);
-    $worksheet->write(0, 0, "This text is indented", $format);
+    $worksheet->write(0, 0, 'This text is indented', $format);
 
 
 Indentation is a horizontal alignment property. It will override any other horizontal properties but it can be used in conjunction with vertical properties.
@@ -3180,7 +3223,7 @@ This method can be used to shrink text so that it fits in a cell.
 
     my $format = $workbook->add_format();
     $format->set_shrink();
-    $worksheet->write(0, 0, "Honey, I shrunk the text!", $format);
+    $worksheet->write(0, 0, 'Honey, I shrunk the text!', $format);
 
 
 
@@ -3359,29 +3402,31 @@ Note: this is not a copy constructor, both objects must exist prior to copying.
 
 =head1 UNICODE IN EXCEL
 
+The following is a brief introduction to handling Unicode in C<Spreadsheet::WriteExcel>.
+
 I<For a more general introduction to Unicode handling in Perl see> L<perlunitut> and L<perluniintro>.
 
-When using C<Spreadsheet::WriteExcel> the best and easiest way to write unicode strings to an Excel file is to use C<UTF-8> encoded strings and perl 5.8 (or later). The module also allows you to write unicode strings using older perls but it generally requires more work, as explained below.
+When using Spreadsheet::WriteExcel the best and easiest way to write unicode strings to an Excel file is to use C<UTF-8> encoded strings and perl 5.8 (or later). Spreadsheet::WriteExcel also allows you to write unicode strings using older perls but it generally requires more work, as explained below.
 
 Internally, Excel encodes unicode data as C<UTF-16LE> (where LE means little-endian). If you are using perl 5.8+ then Spreadsheet::WriteExcel will convert C<UTF-8> strings to C<UTF-16LE> when required. No further intervention is required from the programmer, for example:
 
     # perl 5.8+ example:
     my $smiley = "\x{263A}";
 
-    $worksheet->write('A1', 'Hello world');
-    $worksheet->write('A2', $smiley);
+    $worksheet->write('A1', 'Hello world'); # ASCII
+    $worksheet->write('A2', $smiley);       # UTF-8
 
 Spreadsheet::WriteExcel also lets you write unicode data as C<UTF-16>. Since the majority of CPAN modules default to C<UTF-16BE> (big-endian) Spreadsheet::WriteExcel also uses C<UTF-16BE> and converts it internally to C<UTF-16LE>:
 
     # perl 5.005 example:
-    my $smiley = pack "n", 0x263A;
+    my $smiley = pack 'n', 0x263A;
 
-    $worksheet->write               ('A3', 'Hello world');
-    $worksheet->write_utf16be_string('A4', $smiley);
+    $worksheet->write               ('A3', 'Hello world'); # ASCII
+    $worksheet->write_utf16be_string('A4', $smiley);       # UTF-16
 
 Although the above examples look similar there is an important difference. With C<uft8> and perl 5.8+ Spreadsheet::WriteExcel treats C<UTF-8> strings in exactly the same way as any other string. However, with C<UTF16> data we need to distinguish it from other strings either by calling a separate function or by passing an additional flag to indicate the data type.
 
-If you are dealing with non-ASCII character sets then your data probably won't be in C<UTF-8> to begin with. However, perl 5.8+ provides useful tools in the guise of the C<Encode> module to help you to convert to the required C<UTF-8> format. For example:
+If you are dealing with non-ASCII characters that aren't in C<UTF-8> then perl 5.8+ provides useful tools in the guise of the C<Encode> module to help you to convert to the required format. For example:
 
     use Encode 'decode';
 
@@ -3478,27 +3523,50 @@ Dates and times in Excel are represented by real numbers, for example "Jan 1 200
 
 The integer part of the number stores the number of days since the epoch and the fractional part stores the percentage of the day.
 
-The epoch can be either 1900 or 1904. Excel for Windows uses 1900 and Excel for Macintosh uses 1904. The epochs are:
+A date or time in Excel is like any other number. To display the number as a date you must apply a number format to it. Here are some examples.
 
-    1900: 0 January 1900 i.e. 31 December 1899
-    1904: 1 January 1904
+    #!/usr/bin/perl -w
 
-By default Spreadsheet::WriteExcel uses the Windows/1900 format although it generally isn't an issue since Excel on Windows and the Macintosh will convert automatically between one system and the other. To use the 1904 epoch you must use the C<set_1904()> workbook method.
+    use strict;
+    use Spreadsheet::WriteExcel;
 
-There are two things to note about the 1900 date format. The first is that the epoch starts on 0 January 1900. The second is that the year 1900 is erroneously but deliberately treated as a leap year. Therefore you must add an extra day to dates after 28 February 1900. The reason for this anomaly is explained in Microsoft Knowledge Base article Q181370.
+    my $workbook  = Spreadsheet::WriteExcel->new('date_examples.xls');
+    my $worksheet = $workbook->add_worksheet();
 
-A date or time in Excel is like any other number. To display the number as a date you must apply a number format to it. Refer to the C<set_num_format()> method above:
+    $worksheet->set_column('A:A', 30); # For extra visibility.
 
-    $format->set_num_format('mmm d yyyy hh:mm AM/PM');
-    $worksheet->write('A1', 36892.521 , $format); # Jan 1 2001 12:30 AM
 
-You can also use the C<write_date_time()> worksheet method to write dates in  ISO8601 date format.
+    my $number    = 39506.5;
 
-    $worksheet->write_date_time('A2', '2001-01-01T12:20', format);
 
-See the C<write_date_time()> section of the documentation for more details.
+    $worksheet->write('A1', $number);            #     39506.5
 
-See also the C<Spreadsheet::WriteExcel::Utility> module that is included in the distro and which includes date handling functions and the DateTime::Format::Excel module, http://search.cpan.org/search?dist=DateTime-Format-Excel which is part of the DateTime project and which deals specifically with converting dates and times to and from Excel's format.
+    my $format2 = $workbook->add_format(num_format => 'dd/mm/yy');
+    $worksheet->write('A2', $number , $format2); #     28/02/08
+
+    my $format3 = $workbook->add_format(num_format => 'mm/dd/yy');
+    $worksheet->write('A3', $number , $format3); #     02/28/08
+
+    my $format4 = $workbook->add_format(num_format => 'd-m-yyyy');
+    $worksheet->write('A4', $number , $format4); #     28-2-2008
+
+    my $format5 = $workbook->add_format(num_format => 'dd/mm/yy hh:mm');
+    $worksheet->write('A5', $number , $format5); #     28/02/08 12:00
+
+    my $format6 = $workbook->add_format(num_format => 'd mmm yyyy');
+    $worksheet->write('A6', $number , $format6); #     28 Feb 2008
+
+    my $format7 = $workbook->add_format(num_format => 'mmm d yyyy hh:mm AM/PM');
+    $worksheet->write('A7', $number , $format7); #     Feb 28 2008 12:00 PM
+
+
+Spreadsheet::WriteExcel doesn't try to automatically convert input date strings into Excel's formatted date numbers due to the large number of possible date formats and also due to the possibility of misintepretation (does 02/03/04 mean Mar 2 2004, Feb 3 2004 or even Mar 4 2002!!). Instead it provides the C<write_date_time()> worksheet method to write dates in ISO8601 date format.
+
+    $worksheet->write_date_time('A2', '2001-01-01T12:20', $format);
+
+See the C<write_date_time()> section of the documentation for more details. It should be generally easy to modify your date strings into the ISO8601 format and then use C<write_date_time()> with a format. You could even use the C<add_write_handler()> method to add your own automated conversion to C<write()>.
+
+See also the C<Spreadsheet::WriteExcel::Utility> module that is included in the distro for additional date handling functions and the DateTime::Format::Excel module, http://search.cpan.org/search?dist=DateTime-Format-Excel
 
 
 
@@ -3552,8 +3620,8 @@ Clicking on the minus sign on the level 1 outline will collapse the remaining ro
 
 Grouping in C<Spreadsheet::WriteExcel> is achieved by setting the outline level via the C<set_row()> and C<set_column()> worksheet methods:
 
-    set_row($row, $height, $format, $hidden, $level)
-    set_column($first_col, $last_col, $width, $format, $hidden, $level)
+    set_row($row, $height, $format, $hidden, $level, $collapsed)
+    set_column($first_col, $last_col, $width, $format, $hidden, $level, $collapsed)
 
 The following example sets an outline level of 1 for rows 1 and 2 (zero-indexed) and columns B to G. The parameters C<$height> and C<$XF> are assigned default values since they are undefined:
 
@@ -3563,13 +3631,18 @@ The following example sets an outline level of 1 for rows 1 and 2 (zero-indexed)
 
 Excel allows up to 7 outline levels. Therefore the C<$level> parameter should be in the range C<0 E<lt>= $level E<lt>= 7>.
 
-Rows and columns can be collapsed by setting the C<$hidden> flag:
+Rows and columns can be collapsed by setting the C<$hidden> flag for the hidden rows/columns and setting the C<$collapsed> flag for the row/column that has the collapsed C<+> symbol:
 
     $worksheet->set_row(1, undef, undef, 1, 1);
     $worksheet->set_row(2, undef, undef, 1, 1);
-    $worksheet->set_column('B:G', undef, undef, 1, 1);
+    $worksheet->set_row(3, undef, undef, 0, 0, 1);        # Collapsed flag.
 
-For a more complete example see the C<outline.pl> program in the examples directory of the distro.
+    $worksheet->set_column('B:G', undef, undef, 1, 1);
+    $worksheet->set_column('H:H', undef, undef, 0, 0, 1); # Collapsed flag.
+
+Note: Setting the C<$collapsed> flag is particularly important for compatibility with OpenOffice.org and Gnumeric.
+
+For a more complete example see the C<outline.pl> and C<outline_collapsed.pl> programs in the examples directory of the distro.
 
 Some additional outline properties can be set via the C<outline_settings()> worksheet method, see above.
 
@@ -3796,14 +3869,14 @@ The following example shows some of the basic features of Spreadsheet::WriteExce
     use Spreadsheet::WriteExcel;
 
     # Create a new workbook called simple.xls and add a worksheet
-    my $workbook  = Spreadsheet::WriteExcel->new("simple.xls");
+    my $workbook  = Spreadsheet::WriteExcel->new('simple.xls');
     my $worksheet = $workbook->add_worksheet();
 
     # The general syntax is write($row, $column, $token). Note that row and
     # column are zero indexed
 
     # Write some text
-    $worksheet->write(0, 0,  "Hi Excel!");
+    $worksheet->write(0, 0,  'Hi Excel!');
 
 
     # Write some numbers
@@ -3834,13 +3907,13 @@ The following is a general example which demonstrates some features of working w
     use Spreadsheet::WriteExcel;
 
     # Create a new Excel workbook
-    my $workbook = Spreadsheet::WriteExcel->new("regions.xls");
+    my $workbook = Spreadsheet::WriteExcel->new('regions.xls');
 
     # Add some worksheets
-    my $north = $workbook->add_worksheet("North");
-    my $south = $workbook->add_worksheet("South");
-    my $east  = $workbook->add_worksheet("East");
-    my $west  = $workbook->add_worksheet("West");
+    my $north = $workbook->add_worksheet('North');
+    my $south = $workbook->add_worksheet('South');
+    my $east  = $workbook->add_worksheet('East');
+    my $west  = $workbook->add_worksheet('West');
 
     # Add a Format
     my $format = $workbook->add_format();
@@ -3849,7 +3922,7 @@ The following is a general example which demonstrates some features of working w
 
     # Add a caption to each worksheet
     foreach my $worksheet ($workbook->sheets()) {
-        $worksheet->write(0, 0, "Sales", $format);
+        $worksheet->write(0, 0, 'Sales', $format);
     }
 
     # Write some data
@@ -3878,7 +3951,7 @@ This example shows how to use a conditional numerical format with colours to ind
     use Spreadsheet::WriteExcel;
 
     # Create a new workbook and add a worksheet
-    my $workbook  = Spreadsheet::WriteExcel->new("stocks.xls");
+    my $workbook  = Spreadsheet::WriteExcel->new('stocks.xls');
     my $worksheet = $workbook->add_worksheet();
 
     # Set the column width for columns 1, 2, 3 and 4
@@ -3950,7 +4023,7 @@ The following is a simple example of using functions.
     use Spreadsheet::WriteExcel;
 
     # Create a new workbook and add a worksheet
-    my $workbook  = Spreadsheet::WriteExcel->new("stats.xls");
+    my $workbook  = Spreadsheet::WriteExcel->new('stats.xls');
     my $worksheet = $workbook->add_worksheet('Test data');
 
     # Set the column width for columns 1
@@ -4016,9 +4089,9 @@ The following example converts a tab separated file called C<tab.txt> into an Ex
     use strict;
     use Spreadsheet::WriteExcel;
 
-    open (TABFILE, "tab.txt") or die "tab.txt: $!";
+    open (TABFILE, 'tab.txt') or die "tab.txt: $!";
 
-    my $workbook  = Spreadsheet::WriteExcel->new("tab.xls");
+    my $workbook  = Spreadsheet::WriteExcel->new('tab.xls');
     my $worksheet = $workbook->add_worksheet();
 
     # Row and column are zero indexed
@@ -4050,10 +4123,10 @@ different features and options of the module.
     Getting started
     ===============
     bug_report.pl           A template for submitting bug reports.
+    a_simple.pl             An example of some of the basic features.
     demo.pl                 Creates a demo of some of the features.
     formats.pl              Creates a demo of the available formatting.
     regions.pl              Demonstrates multiple worksheets.
-    simple.pl               An example of some of the basic features.
     stats.pl                Basic formulas and functions.
 
     Advanced
@@ -4086,6 +4159,7 @@ different features and options of the module.
     mod_perl1.pl            A simple mod_perl 1 program.
     mod_perl2.pl            A simple mod_perl 2 program.
     outline.pl              An example of outlines and grouping.
+    outline_collapsed.pl    Examples of collapsed outlines and grouping.
     panes.pl                An examples of how to create panes.
     protection.pl           Example of cell locking and formula hiding.
     repeat.pl               Example of writing repeated formulas.
@@ -4180,7 +4254,7 @@ Note, these aren't strict requirements. Spreadsheet::WriteExcel will work withou
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.17/INSTALL
+http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.21/INSTALL
 
 
 
@@ -4189,7 +4263,7 @@ http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.17/INSTALL
 
 Spreadsheet::WriteExcel will work on the majority of Windows, UNIX and Macintosh platforms. Specifically, the module will work on any system where perl packs floats in the 64 bit IEEE format. The float must also be in little-endian format but it will be reversed if necessary. Thus:
 
-    print join(" ", map { sprintf "%#02x", $_ } unpack("C*", pack "d", 1.2345)), "\n";
+    print join(' ', map { sprintf '%#02x', $_ } unpack('C*', pack 'd', 1.2345)), "\n";
 
 should give (or in reverse order):
 
@@ -4250,28 +4324,17 @@ This error generally means that the Excel file has been corrupted. There are two
 
 The following is some general information about the Excel binary format for anyone who may be interested.
 
-Excel data is stored in the "Binary Interchange File Format" (BIFF) file format. Details of this format are given in the Excel SDK, the "Excel Developer's Kit" from Microsoft Press. It is also included in the MSDN CD library but is no longer available on the MSDN website. Versions of the BIFF documentation are available at www.wotsit.org, http://www.wotsit.org/search.asp?page=2&s=database
-
-Charles Wybble has collected together almost all of the available information about the Excel file format. See "The Chicago Project" at http://chicago.sourceforge.net/devel/
+Excel data is stored in the "Binary Interchange File Format" (BIFF) file format. Details of this format are given in "Excel 97-2007 Binary File Format Specification" http://www.microsoft.com/interop/docs/OfficeBinaryFormats.mspx
 
 Daniel Rentz of OpenOffice.org has also written a detailed description of the Excel workbook records, see http://sc.openoffice.org/excelfileformat.pdf
 
-The BIFF portion of the Excel file is comprised of contiguous binary records that have different functions and that hold different types of data. Each BIFF record is comprised of the following three parts:
-
-        Record name;   Hex identifier, length = 2 bytes
-        Record length; Length of following data, length = 2 bytes
-        Record data;   Data, length = variable
+Charles Wybble has collected together additional information about the Excel file format. See "The Chicago Project" at http://chicago.sourceforge.net/devel/
 
 The BIFF data is stored along with other data in an OLE Compound File. This is a structured storage which acts like a file system within a file. A Compound File is comprised of storages and streams which, to follow the file system analogy, are like directories and files.
 
-The documentation for the OLE::Storage module, http://user.cs.tu-berlin.de/~schwartz/pmh/guide.html , contains one of the few descriptions of the OLE Compound File in the public domain. The Digital Imaging Group have also detailed the OLE format in the JPEG2000 specification: see Appendix A of http://www.i3a.org/pdf/wg1n1017.pdf
+The OLE format is explained in the "Windows Compound Binary File Format Specification" http://www.microsoft.com/interop/docs/supportingtechnologies.mspx
 
-The source code for the Excel plugin of the Gnumeric spreadsheet also contains information relevant to the Excel BIFF format and the OLE container, http://www.gnome.org/projects/gnumeric/
-
-In addition the source code for OpenOffice.org is available at http://www.openoffice.org/
-
-An article describing Spreadsheet::WriteExcel and how it works appeared in Issue 19 of The Perl Journal. It is reproduced, by kind permission, in the C<doc> directory of the distro.
-
+The Digital Imaging Group have also detailed the OLE format in the JPEG2000 specification: see Appendix A of http://www.i3a.org/pdf/wg1n1017.pdf
 
 Please note that the provision of this information does not constitute an invitation to start hacking at the BIFF or OLE file formats. There are more interesting ways to waste your time. ;-)
 
@@ -4390,6 +4453,71 @@ If you wish to view Excel files on a Windows platform which doesn't have Excel i
 
 
 
+=head1 MODIFYING AND REWRITING EXCEL FILES
+
+An Excel file is a binary file within a binary file. It contains several interlinked checksums and changing even one byte can cause it to become corrupted.
+
+As such you cannot simply append or update an Excel file. The only way to achieve this is to read the entire file into memory, make the required changes or additions and write the file out again.
+
+You can read and rewrite an Excel file using the Spreadsheet::ParseExcel::SaveParser module which is a wrapper around Spreadsheet::ParseExcel and Spreadsheet::WriteExcel. It is part of the Spreadsheet::ParseExcel package: http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
+
+However, you can only rewrite the features that Spreadsheet::WriteExcel supports so macros, graphs and some other features in the original Excel file will be lost. Also, formulas aren't rewritten, only the result of a formula is written.
+
+Here is an example:
+
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::ParseExcel;
+    use Spreadsheet::ParseExcel::SaveParser;
+
+    # Open the template with SaveParser
+    my $parser   = new Spreadsheet::ParseExcel::SaveParser;
+    my $template = $parser->Parse('template.xls');
+
+    my $sheet    = 0;
+    my $row      = 0;
+    my $col      = 0;
+
+    # Get the format from the cell
+    my $format   = $template->{Worksheet}[$sheet]
+                            ->{Cells}[$row][$col]
+                            ->{FormatNo};
+
+    # Write data to some cells
+    $template->AddCell(0, $row,   $col,   1,     $format);
+    $template->AddCell(0, $row+1, $col, "Hello", $format);
+
+    # Add a new worksheet
+    $template->AddWorksheet('New Data');
+
+    # The SaveParser SaveAs() method returns a reference to a
+    # Spreadsheet::WriteExcel object. If you wish you can then
+    # use this to access any of the methods that aren't
+    # available from the SaveParser object. If you don't need
+    # to do this just use SaveAs().
+    #
+    my $workbook;
+
+    {
+        # SaveAs generates a lot of harmless warnings about unset
+        # Worksheet properties. You can ignore them if you wish.
+        local $^W = 0;
+
+        # Rewrite the file or save as a new file
+        $workbook = $template->SaveAs('new.xls');
+    }
+
+    # Use Spreadsheet::WriteExcel methods
+    my $worksheet  = $workbook->sheets(0);
+
+    $worksheet->write($row+2, $col, "World2");
+
+    $workbook->close();
+
+
+
+
 =head1 Warning about XML::Parser and perl 5.6
 
 You must be careful when using Spreadsheet::WriteExcel in conjunction with perl 5.6 and XML::Parser (and other XML parsers) due to the fact that the data returned by the parser is generally in C<UTF-8> format.
@@ -4460,7 +4588,7 @@ If there is some feature of an Excel file that you really, really need then you 
 
 =head1 MAILING LIST
 
-There is a Google group for discussing and asking questions about Spreadsheet::WriteExcel:  http://groups-beta.google.com/group/spreadsheet-writeexcel/
+There is a Google group for discussing and asking questions about Spreadsheet::WriteExcel. This is a good place to search to see if your question has been asked before:  http://groups-beta.google.com/group/spreadsheet-writeexcel/
 
 Alternatively you can keep up to date with future releases by subscribing at:
 http://freshmeat.net/projects/writeexcel/
@@ -4502,7 +4630,7 @@ http://oesterly.com/releases/12102000.html
 
 The following people contributed to the debugging and testing of Spreadsheet::WriteExcel:
 
-Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Borgar Olsen, Brian Foley, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Damyan Ivanov, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Perez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Sharron McKenzie, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
+Alexander Farber, Andre de Bruin, Arthur@ais, Artur Silveira da Cunha, Bob Rose, Borgar Olsen, Brian Foley, Brian White, Bob Mackay, Cedric Bouvier, Chad Johnson, CPAN testers, Damyan Ivanov, Daniel Berger, Daniel Gardner, Dmitry Kochurov, Eric Frazier, Ernesto Baschny, Felipe Perez Galiana, Gordon Simpson, Hanc Pavel, Harold Bamford, James Holmes, James Wilkinson, Johan Ekenberg, Johann Hanne, Jonathan Scott Duff, J.C. Wren, Kenneth Stacey, Keith Miller, Kyle Krom, Marc Rosenthal, Markus Schmitz, Michael Braig, Michael Buschauer, Mike Blazer, Michael Erickson, Michael W J West, Ning Xie, Paul J. Falbe, Paul Medynski, Peter Dintelmann, Pierre Laplante, Praveen Kotha, Reto Badertscher, Rich Sorden, Shane Ashby, Sharron McKenzie, Shenyu Zheng, Stephan Loescher, Steve Sapovits, Sven Passig, Svetoslav Marinov, Tamas Gulacsi, Troy Daniels, Vahe Sarkissian.
 
 The following people contributed patches, examples or Excel information:
 
@@ -4560,7 +4688,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright MM-MMVII, John McNamara.
+Copyright MM-MMVIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 
