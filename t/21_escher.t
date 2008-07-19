@@ -340,9 +340,9 @@ is($result, $target, $caption);
 
 ###############################################################################
 #
-# Test for _store_mso_opt.
+# Test for _store_mso_opt_comment.
 #
-$caption = sprintf " \t_store_mso_opt()";
+$caption = sprintf " \t_store_mso_opt_comment()";
 @data    = (0x80);
 $target  = join ' ', qw(
                         93 00 0B F0 36 00 00 00
@@ -352,7 +352,7 @@ $target  = join ' ', qw(
                         03 00 03 00 BF 03 02 00 0A 00
                        );
 
-$result  = unpack_record($worksheet->_store_mso_opt(@data));
+$result  = unpack_record($worksheet->_store_mso_opt_comment(@data));
 
 is($result, $target, $caption);
 

@@ -4,11 +4,20 @@
 #
 # Example of how to use the WriteExcel module
 #
-# Program to convert a CSV comma-separated value file into an Excel file.
+# Simple program to convert a CSV comma-separated value file to an Excel file.
 # This is more or less an non-op since Excel can read CSV files.
 # The program uses Text::CSV_XS to parse the CSV.
 #
 # Usage: csv2xls.pl file.csv newfile.xls
+#
+#
+# NOTE: This is only a simple conversion utility for illustrative purposes.
+# For converting a CSV or Tab separated or any other type of delimited
+# text file to Excel I recommend the more rigorous csv2xls program that is
+# part of H.Merijn Brand's Text::CSV_XS module distro.
+#
+# See the examples/csv2xls link here:
+#     http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

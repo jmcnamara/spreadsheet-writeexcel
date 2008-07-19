@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.20';
+$VERSION = '2.22';
 
 ###############################################################################
 #
@@ -3941,8 +3941,6 @@ sub _store_setup {
     my $length       = 0x0022;                  # Number of bytes to follow
 
 
-    # TODO some of these props don't have accessors. Add them as requested.
-
     my $iPaperSize   = $self->{_paper_size};    # Paper size
     my $iScale       = $self->{_print_scale};   # Print scaling factor
     my $iPageStart   = $self->{_page_start};    # Starting page number
@@ -4650,9 +4648,6 @@ sub _store_table {
     my $self = shift;
 
     return unless $self->{_compatibility};
-
-    # TODO remove after debug.
-    #print "Using Index table \n";
 
     # Offset from the DBCELL record back to the first ROW of the 32 row block.
     my $row_offset = 0;
@@ -6005,7 +6000,7 @@ sub _store_comments {
                $data       .= $self->_store_mso_sp(0x0, $spid++, 0x0005);
                $data       .= $self->_store_mso_sp_container(120);
                $data       .= $self->_store_mso_sp(202, $spid++, 0x0A00);
-               $data       .= $self->_store_mso_opt(0x80, $visible, $color);
+               $data       .= $self->_store_mso_opt_comment(0x80, $visible, $color);
                $data       .= $self->_store_mso_client_anchor(3, @vertices);
                $data       .= $self->_store_mso_client_data();
 
@@ -6018,7 +6013,7 @@ sub _store_comments {
             # Write the child MSODRAWIING record.
             my $data        = $self->_store_mso_sp_container(120);
                $data       .= $self->_store_mso_sp(202, $spid++, 0x0A00);
-               $data       .= $self->_store_mso_opt(0x80, $visible, $color);
+               $data       .= $self->_store_mso_opt_comment(0x80, $visible, $color);
                $data       .= $self->_store_mso_client_anchor(3, @vertices);
                $data       .= $self->_store_mso_client_data();
 
@@ -6188,12 +6183,11 @@ sub _store_mso_sp {
 
 ###############################################################################
 #
-# _store_mso_opt()
+# _store_mso_opt_comment()
 #
 # Write the Escher Opt record that is part of MSODRAWING.
-# TODO make this _store_mso_opt_comment.
 #
-sub _store_mso_opt {
+sub _store_mso_opt_comment {
 
     my $self        = shift;
 
@@ -6445,7 +6439,7 @@ sub _store_obj_comment {
     # Add ftNts (note structure) subobject
     $sub_record     = 0x000D;   # ftNts
     $sub_length     = 0x0016;
-    $sub_data       = pack "VVVVVv", ($reserved) x 5;
+    $sub_data       = pack "VVVVVv", ($reserved) x 6;
     $data          .= pack("vv",     $sub_record, $sub_length);
     $data          .= $sub_data;
 
@@ -6811,8 +6805,8 @@ sub _store_note {
 
 
     # Use the visible flag if set by the user or else use the worksheet value.
-    # The flag is also set in _store_mso_opt() but with the opposite value.
-    #
+    # The flag is also set in _store_mso_opt_comment() but with the opposite
+    # value.
     if (defined $visible) {
         $visible = $visible                   ? 0x0002 : 0x0000;
     }

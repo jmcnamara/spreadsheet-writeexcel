@@ -1,5 +1,22 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.22 July 19 2008 - Minor Beta
+
+    + Added JPEG support.
+
+    + Added 29_process_jpg.t test for jpg dimension processing.
+
+    + Turned off compatibility_mode() in Spreadsheet::WriteExcel::Big
+      which was on by accident.
+
+    + Added "Warning about Office Service Pack 3" section to the
+      docs to explain Excel warnings with duplicate data.
+
+    + Expanded "Dates and Time in Excel" section of the docs.
+
+    + Added isa() to _process_images() to allow subclassing.
+      Reported by David Worenklein.
+
 
 2.21 March 9 2008 - Major
 

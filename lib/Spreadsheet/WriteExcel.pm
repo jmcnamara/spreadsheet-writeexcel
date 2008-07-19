@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.21'; # La Bruni.
+$VERSION = '2.22'; # Oh, Inverted World.
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.21 of Spreadsheet::WriteExcel, released March 9, 2007.
+This document refers to version 2.22 of Spreadsheet::WriteExcel, released July 19, 2008.
 
 
 
@@ -336,7 +336,9 @@ An Excel file is comprised of binary records that describe properties of a sprea
 
 Spreadsheet::WriteExcel takes advantage of this fact to omit some records in order to minimise the amount of data stored in memory and to simplify and speed up the writing of files. However, some third party applications that read Excel files often expect certain records to be present. In "compatibility mode" Spreadsheet::WriteExcel writes these records and tries to be as close to an Excel generated file as possible.
 
-Applications that require C<compatibility_mode()> are Apache POI, and Quickoffice on Nokia, Palm and other devices. If you encounter others, please let me know.
+Applications that require C<compatibility_mode()> are Apache POI, and Quickoffice on Nokia, Palm and other devices. You should also use C<compatibility_mode()> if your Excel file will be used as an external data source by another Excel file.
+
+If you encounter other situations that require C<compatibility_mode()>, please let me know.
 
 It should be noted that C<compatibility_mode()> requires additional data to be stored in memory and additonal processing. This incurs a memory and speed penalty and may not be suitable for very large files (>20MB).
 
@@ -1493,7 +1495,7 @@ See the C<write_handler 1-4> programs in the C<examples> directory for further e
 
 =head2 insert_image($row, $col, $filename, $x, $y, $scale_x, $scale_y)
 
-This method can be used to insert a image into a worksheet. The image can be in PNG or BMP format. The C<$x>, C<$y>, C<$scale_x> and C<$scale_y> parameters are optional.
+This method can be used to insert a image into a worksheet. The image can be in PNG, JPEG or BMP format. The C<$x>, C<$y>, C<$scale_x> and C<$scale_y> parameters are optional.
 
     $worksheet1->insert_image('A1', 'perl.bmp');
     $worksheet2->insert_image('A1', '../images/perl.bmp');
@@ -3518,12 +3520,30 @@ A hex RGB chart: : http://www.hypersolutions.org/pages/rgbhex.html
 
 =head1 DATES AND TIME IN EXCEL
 
+There are two important things to understand about dates and times in Excel:
+
+=over 4
+
+=item 1 A date/time in Excel is a real number plus an Excel number format.
+
+=item 2 Spreadsheet::WriteExcel doesn't automatically convert date/time strings in C<write()> to an Excel date/time.
+
+=back
+
+These two points are explained in more detail below along with some suggestions on how to convert times and dates to the required format.
+
+
+=head2 An Excel date/time is a number plus a format
+
+If you write a date string with C<write()> then all you will get is a string:
+
+    $worksheet->write('A1', '02/03/04'); # !! Writes a string not a date. !!
 
 Dates and times in Excel are represented by real numbers, for example "Jan 1 2001 12:30 AM" is represented by the number 36892.521.
 
 The integer part of the number stores the number of days since the epoch and the fractional part stores the percentage of the day.
 
-A date or time in Excel is like any other number. To display the number as a date you must apply a number format to it. Here are some examples.
+A date or time in Excel is just like any other number. To have the number display as a date you must apply an Excel number format to it. Here are some examples.
 
     #!/usr/bin/perl -w
 
@@ -3535,9 +3555,7 @@ A date or time in Excel is like any other number. To display the number as a dat
 
     $worksheet->set_column('A:A', 30); # For extra visibility.
 
-
     my $number    = 39506.5;
-
 
     $worksheet->write('A1', $number);            #     39506.5
 
@@ -3560,13 +3578,95 @@ A date or time in Excel is like any other number. To display the number as a dat
     $worksheet->write('A7', $number , $format7); #     Feb 28 2008 12:00 PM
 
 
-Spreadsheet::WriteExcel doesn't try to automatically convert input date strings into Excel's formatted date numbers due to the large number of possible date formats and also due to the possibility of misintepretation (does 02/03/04 mean Mar 2 2004, Feb 3 2004 or even Mar 4 2002!!). Instead it provides the C<write_date_time()> worksheet method to write dates in ISO8601 date format.
+=head2 Spreadsheet::WriteExcel doesn't automatically convert date/time strings
+
+Spreadsheet::WriteExcel doesn't automatically convert input date strings into Excel's formatted date numbers due to the large number of possible date formats and also due to the possibility of misintepretation.
+
+For example, does C<02/03/04> mean March 2 2004, February 3 2004 or even March 4 2002.
+
+Therefore, in order to handle dates you will have to convert them to numbers and apply an Excel format. Some methods for converting dates are listed in the next section.
+
+The most direct way is to convert your dates to the ISO8601 C<yyyy-mm-ddThh:mm:ss.sss> date format and use the C<write_date_time()> worksheet method:
 
     $worksheet->write_date_time('A2', '2001-01-01T12:20', $format);
 
-See the C<write_date_time()> section of the documentation for more details. It should be generally easy to modify your date strings into the ISO8601 format and then use C<write_date_time()> with a format. You could even use the C<add_write_handler()> method to add your own automated conversion to C<write()>.
+See the C<write_date_time()> section of the documentation for more details.
 
-See also the C<Spreadsheet::WriteExcel::Utility> module that is included in the distro for additional date handling functions and the DateTime::Format::Excel module, http://search.cpan.org/search?dist=DateTime-Format-Excel
+A general methodology for handling date strings with C<write_date_time()> is:
+
+    1. Identify incoming date/time strings with a regex.
+    2. Extract the component parts of the date/time using the same regex.
+    3. Convert the date/time to the ISO8601 format.
+    4. Write the date/time using write_date_time() and a number format.
+
+Here is an example:
+
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+    my $workbook    = Spreadsheet::WriteExcel->new('example.xls');
+    my $worksheet   = $workbook->add_worksheet();
+
+    # Set the default format for dates.
+    my $date_format = $workbook->add_format(num_format => 'mmm d yyyy');
+
+    # Increase column width to improve visibility of data.
+    $worksheet->set_column('A:C', 20);
+
+    # Simulate reading from a data source.
+    my $row = 0;
+
+    while (<DATA>) {
+        chomp;
+
+        my $col  = 0;
+        my @data = split ' ';
+
+        for my $item (@data) {
+
+            # Match dates in the following formats: d/m/yy, d/m/yyyy
+            if ($item =~ qr[^(\d{1,2})/(\d{1,2})/(\d{4})$]) {
+
+                # Change to the date format required by write_date_time().
+                my $date = sprintf "%4d-%02d-%02dT", $3, $2, $1;
+
+                $worksheet->write_date_time($row, $col++, $date, $date_format);
+            }
+            else {
+                # Just plain data
+                $worksheet->write($row, $col++, $item);
+            }
+        }
+        $row++;
+    }
+
+    __DATA__
+    Item    Cost    Date
+    Book    10      1/9/2007
+    Beer    4       12/9/2007
+    Bed     500     5/10/2007
+
+For a slightly more advanced solution you can modify the C<write()> method to handle date formats of your choice via the C<add_write_handler()> method. See the C<add_write_handler()> section of the docs and the write_handler3.pl and write_handler4.pl programs in the examples directory of the distro.
+
+
+=head2 Converting dates and times to an Excel date or time
+
+The C<write_date_time()> method above is just one way of handling dates and times.
+
+The L<Spreadsheet::WriteExcel::Utility> module which is included in the distro has date/time handling functions:
+
+    use Spreadsheet::WriteExcel::Utility;
+
+    $date           = xl_date_list(2002, 1, 1);         # 37257
+    $date           = xl_parse_date("11 July 1997");    # 35622
+    $time           = xl_parse_time('3:21:36 PM');      # 0.64
+    $date           = xl_decode_date_EU("13 May 2002"); # 37389
+
+Note: some of these functions require additional CPAN modules.
+
+For date conversions using the CPAN C<DateTime> framework see L<DateTime::Format::Excel> http://search.cpan.org/search?dist=DateTime-Format-Excel
 
 
 
@@ -4111,6 +4211,13 @@ The following example converts a tab separated file called C<tab.txt> into an Ex
     }
 
 
+NOTE: This is a simple conversion program for illustrative purposes only. For converting a CSV or Tab separated or any other type of delimited text file to Excel I recommend the more rigorous csv2xls program that is part of H.Merijn Brand's Text::CSV_XS module distro.
+
+See the examples/csv2xls link here: http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST
+
+
+
+
 =head2 Additional Examples
 
 If you performed a normal installation the following examples files should have been copied to your C<~site/Spreadsheet/WriteExcel/examples> directory:
@@ -4537,6 +4644,21 @@ To avoid this problem you should upgrade to perl 5.8, if possible, or else you s
 
 
 
+=head1 Warning about Office Service Pack 3
+
+If you have Office Service Pack 3 (SP3) installed you may see the following warning when you open a file created by Spreadsheet::WriteExcel:
+
+    "File Error: data may have been lost".
+
+This is usually caused by multiple instances of data in a cell.
+
+SP3 changed Excel's default behaviour when it encounters multiple data in a cell so that it issues a warning when the file is opened and it displays the first data that was written. Prior to SP3 it didn't issue a warning and displayed the last data written.
+
+For a longer discussion and some workarounds see the following: http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/3dcea40e6620af3a
+
+
+
+
 =head1 BUGS
 
 Formulas are formulae.
@@ -4553,6 +4675,8 @@ OpenOffice.org: No known issues in this release.
 
 Gnumeric: No known issues in this release.
 
+Excel 2008 for Mac: Hyperlinks generate a "File Error: data may have been lost" warning.
+
 If you wish to submit a bug report run the C<bug_report.pl> program in the C<examples> directory of the distro.
 
 
@@ -4564,7 +4688,7 @@ The roadmap is as follows:
 
 =over 4
 
-=item * Add JPEG support to insert_image().
+=item * Add named ranges.
 
 =back
 
@@ -4624,6 +4748,10 @@ Spreadsheet::WriteExcel documentation in Japanese by Takanori Kawai. http://memb
 Oesterly user brushes with fame:
 http://oesterly.com/releases/12102000.html
 
+The csv2xls program that is part of Text::CSV_XS:
+http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST
+
+
 
 =head1 ACKNOWLEDGMENTS
 
@@ -4673,16 +4801,20 @@ Either the Perl Artistic Licence http://dev.perl.org/licenses/artistic.html or t
 
 John McNamara jmcnamara@cpan.org
 
-    This, no song of an ingenue,
-    This, no ballad of innocence;
-    This, the rhyme of a lady who
-    Followed ever her natural bents.
-    This, a solo of sapience,
-    This, a chantey of sophistry,
-    This, the sum of experiments,
-    I loved them until they loved me.
+    Girl inform me
+    All my senses warn me
+    Your clever eyes could easily disguise
+    Some backwards purpose
+    It's enough to make me nervous.
+    Do you harbor sighs, or spit in my eye
 
-        -- Dorothy Parker
+    But your lips when we speak
+    Are the valleys and peaks of a mountain range on fire.
+    So let me walk these coals till you believe
+    I can cut the mustard well enough
+    Cause you know as soon as breathe we scrutinize
+
+        -- The Shins
 
 
 

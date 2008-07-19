@@ -8,6 +8,7 @@
 # The following example shows how to add a handler for dates in a specific
 # format.
 #
+# This is a more rigorous version of write_handler3.pl.
 #
 # reverse('©'), September 2004, John McNamara, jmcnamara@cpan.org
 #

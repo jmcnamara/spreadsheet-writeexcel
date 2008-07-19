@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.20';
+$VERSION = '2.22';
 
 ###############################################################################
 #
@@ -38,7 +38,7 @@ sub new {
     my $self  = Spreadsheet::WriteExcel::Workbook->new(@_);
 
     # Drop some compatibility to save memory and speed up big files.
-    $self->{_compatibility} = 1;
+    $self->{_compatibility} = 0;
 
     bless $self, $class;
     return $self;

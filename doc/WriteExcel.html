@@ -173,6 +173,13 @@
 	<LI><A HREF="#UNICODE_IN_EXCEL">UNICODE IN EXCEL</A></LI>
 	<LI><A HREF="#COLOURS_IN_EXCEL">COLOURS IN EXCEL</A></LI>
 	<LI><A HREF="#DATES_AND_TIME_IN_EXCEL">DATES AND TIME IN EXCEL</A></LI>
+	<UL>
+
+		<LI><A HREF="#An_Excel_date_time_is_a_number_p">An Excel date/time is a number plus a format</A></LI>
+		<LI><A HREF="#Spreadsheet_WriteExcel_doesn_t_">Spreadsheet::WriteExcel doesn't automatically convert date/time strings</A></LI>
+		<LI><A HREF="#Converting_dates_and_times_to_an">Converting dates and times to an Excel date or time</A></LI>
+	</UL>
+
 	<LI><A HREF="#OUTLINES_AND_GROUPING_IN_EXCEL">OUTLINES AND GROUPING IN EXCEL</A></LI>
 	<LI><A HREF="#FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A></LI>
 	<UL>
@@ -206,6 +213,7 @@
 	<LI><A HREF="#READING_EXCEL_FILES">READING EXCEL FILES</A></LI>
 	<LI><A HREF="#MODIFYING_AND_REWRITING_EXCEL_FI">MODIFYING AND REWRITING EXCEL FILES</A></LI>
 	<LI><A HREF="#Warning_about_XML_Parser_and_pe">Warning about XML::Parser and perl 5.6</A></LI>
+	<LI><A HREF="#Warning_about_Office_Service_Pac">Warning about Office Service Pack 3</A></LI>
 	<LI><A HREF="#BUGS">BUGS</A></LI>
 	<LI><A HREF="#TO_DO">TO DO</A></LI>
 	<LI><A HREF="#MAILING_LIST">MAILING LIST</A></LI>
@@ -230,8 +238,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.21 of Spreadsheet::WriteExcel, released
-March 9, 2007.
+This document refers to version 2.22 of Spreadsheet::WriteExcel, released
+July 19, 2008.
 
 </P>
 <P>
@@ -730,8 +738,13 @@ to be as close to an Excel generated file as possible.
 
 </P>
 <P>
-Applications that require <CODE>compatibility_mode()</CODE> are Apache POI, and Quickoffice on Nokia, Palm and other devices. If you
-encounter others, please let me know.
+Applications that require <CODE>compatibility_mode()</CODE> are Apache POI, and Quickoffice on Nokia, Palm and other devices. You
+should also use <CODE>compatibility_mode()</CODE> if your Excel file will be used as an external data source by another Excel
+file.
+
+</P>
+<P>
+If you encounter other situations that require <CODE>compatibility_mode()</CODE>, please let me know.
 
 </P>
 <P>
@@ -2798,7 +2811,7 @@ See the <CODE>write_handler 1-4</CODE> programs in the <CODE>examples</CODE> dir
 <H2><A NAME="insert_image_row_col_filena">insert_image($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></H2>
 <P>
 This method can be used to insert a image into a worksheet. The image can
-be in PNG or BMP format. The <CODE>$x</CODE>, <CODE>$y</CODE>, <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> parameters are optional.
+be in PNG, JPEG or BMP format. The <CODE>$x</CODE>, <CODE>$y</CODE>, <CODE>$scale_x</CODE> and <CODE>$scale_y</CODE> parameters are optional.
 
 </P>
 <P>
@@ -6203,6 +6216,32 @@ HREF="http://www.hypersolutions.org/pages/rgbhex.html">http://www.hypersolutions
 <HR>
 <H1><A NAME="DATES_AND_TIME_IN_EXCEL">DATES AND TIME IN EXCEL</A></H1>
 <P>
+There are two important things to understand about dates and times in
+Excel:
+
+</P>
+<OL>
+<LI><A NAME="item_A_date_time_in_Excel_is_a_real_n">A date/time in Excel is a real number plus an Excel number format.</A>
+<LI><A NAME="item_Spreadsheet_WriteExcel_doesn_t_">Spreadsheet::WriteExcel doesn't automatically convert date/time strings in write() to an Excel date/time.</A>
+</OL>
+<P>
+These two points are explained in more detail below along with some
+suggestions on how to convert times and dates to the required format.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="An_Excel_date_time_is_a_number_p">An Excel date/time is a number plus a format</A></H2>
+<P>
+If you write a date string with <CODE>write()</CODE> then all you will get is a string:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;write('A1', '02/03/04'); # !! Writes a string not a date. !!
+</PRE>
+</P>
+<P>
 Dates and times in Excel are represented by real numbers, for example "Jan
 1 2001 12:30 AM&quot; is represented by the number 36892.521.
 
@@ -6213,8 +6252,9 @@ and the fractional part stores the percentage of the day.
 
 </P>
 <P>
-A date or time in Excel is like any other number. To display the number as
-a date you must apply a number format to it. Here are some examples.
+A date or time in Excel is just like any other number. To have the number
+display as a date you must apply an Excel number format to it. Here are
+some examples.
 
 </P>
 <P>
@@ -6286,11 +6326,26 @@ a date you must apply a number format to it. Here are some examples.
 </PRE>
 </P>
 <P>
-Spreadsheet::WriteExcel doesn't try to automatically convert input date
-strings into Excel's formatted date numbers due to the large number of
-possible date formats and also due to the possibility of misintepretation
-(does 02/03/04 mean Mar 2 2004, Feb 3 2004 or even Mar 4 2002!!). Instead
-it provides the <CODE>write_date_time()</CODE> worksheet method to write dates in ISO8601 date format.
+<HR>
+<H2><A NAME="Spreadsheet_WriteExcel_doesn_t_">Spreadsheet::WriteExcel doesn't automatically convert date/time strings</A></H2>
+<P>
+Spreadsheet::WriteExcel doesn't automatically convert input date strings
+into Excel's formatted date numbers due to the large number of possible
+date formats and also due to the possibility of misintepretation.
+
+</P>
+<P>
+For example, does <CODE>02/03/04</CODE> mean March 2 2004, February 3 2004 or even March 4 2002.
+
+</P>
+<P>
+Therefore, in order to handle dates you will have to convert them to
+numbers and apply an Excel format. Some methods for converting dates are
+listed in the next section.
+
+</P>
+<P>
+The most direct way is to convert your dates to the ISO8601 <CODE>yyyy-mm-ddThh:mm:ss.sss</CODE> date format and use the <CODE>write_date_time()</CODE> worksheet method:
 
 </P>
 <P>
@@ -6299,13 +6354,146 @@ it provides the <CODE>write_date_time()</CODE> worksheet method to write dates i
 </PRE>
 </P>
 <P>
-See the <CODE>write_date_time()</CODE> section of the documentation for more details. It should be generally easy
-to modify your date strings into the ISO8601 format and then use <CODE>write_date_time()</CODE> with a format. You could even use the <CODE>add_write_handler()</CODE> method to add your own automated conversion to <CODE>write()</CODE>.
+See the <CODE>write_date_time()</CODE> section of the documentation for more details.
 
 </P>
 <P>
-See also the <CODE>Spreadsheet::WriteExcel::Utility</CODE> module that is included in the distro for additional date handling
-functions and the DateTime::Format::Excel module, <A
+A general methodology for handling date strings with <CODE>write_date_time()</CODE> is:
+
+</P>
+<P>
+<PRE>
+    1. Identify incoming date/time strings with a regex.
+    2. Extract the component parts of the date/time using the same regex.
+    3. Convert the date/time to the ISO8601 format.
+    4. Write the date/time using write_date_time() and a number format.
+</PRE>
+</P>
+<P>
+Here is an example:
+
+</P>
+<P>
+<PRE>
+    #!/usr/bin/perl -w
+</PRE>
+</P>
+<P>
+<PRE>
+    use strict;
+    use Spreadsheet::WriteExcel;
+</PRE>
+</P>
+<P>
+<PRE>
+    my $workbook    = Spreadsheet::WriteExcel-&gt;new('example.xls');
+    my $worksheet   = $workbook-&gt;add_worksheet();
+</PRE>
+</P>
+<P>
+<PRE>
+    # Set the default format for dates.
+    my $date_format = $workbook-&gt;add_format(num_format =&gt; 'mmm d yyyy');
+</PRE>
+</P>
+<P>
+<PRE>
+    # Increase column width to improve visibility of data.
+    $worksheet-&gt;set_column('A:C', 20);
+</PRE>
+</P>
+<P>
+<PRE>
+    # Simulate reading from a data source.
+    my $row = 0;
+</PRE>
+</P>
+<P>
+<PRE>
+    while (&lt;DATA&gt;) {
+        chomp;
+</PRE>
+</P>
+<P>
+<PRE>
+        my $col  = 0;
+        my @data = split ' ';
+</PRE>
+</P>
+<P>
+<PRE>
+        for my $item (@data) {
+</PRE>
+</P>
+<P>
+<PRE>
+            # Match dates in the following formats: d/m/yy, d/m/yyyy
+            if ($item =~ qr[^(\d{1,2})/(\d{1,2})/(\d{4})$]) {
+</PRE>
+</P>
+<P>
+<PRE>
+                # Change to the date format required by write_date_time().
+                my $date = sprintf &quot;%4d-%02d-%02dT&quot;, $3, $2, $1;
+</PRE>
+</P>
+<P>
+<PRE>
+                $worksheet-&gt;write_date_time($row, $col++, $date, $date_format);
+            }
+            else {
+                # Just plain data
+                $worksheet-&gt;write($row, $col++, $item);
+            }
+        }
+        $row++;
+    }
+</PRE>
+</P>
+<P>
+<PRE>
+    __DATA__
+    Item    Cost    Date
+    Book    10      1/9/2007
+    Beer    4       12/9/2007
+    Bed     500     5/10/2007
+</PRE>
+</P>
+<P>
+For a slightly more advanced solution you can modify the <CODE>write()</CODE> method to handle date formats of your choice via the <CODE>add_write_handler()</CODE> method. See the <CODE>add_write_handler()</CODE> section of the docs and the write_handler3.pl and write_handler4.pl
+programs in the examples directory of the distro.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="Converting_dates_and_times_to_an">Converting dates and times to an Excel date or time</A></H2>
+<P>
+The <CODE>write_date_time()</CODE> method above is just one way of handling dates and times.
+
+</P>
+<P>
+The <A HREF="/Spreadsheet/WriteExcel/Utility.html">Spreadsheet::WriteExcel::Utility</A> module which is included in the distro has date/time handling functions:
+
+</P>
+<P>
+<PRE>
+    use Spreadsheet::WriteExcel::Utility;
+</PRE>
+</P>
+<P>
+<PRE>
+    $date           = xl_date_list(2002, 1, 1);         # 37257
+    $date           = xl_parse_date(&quot;11 July 1997&quot;);    # 35622
+    $time           = xl_parse_time('3:21:36 PM');      # 0.64
+    $date           = xl_decode_date_EU(&quot;13 May 2002&quot;); # 37389
+</PRE>
+</P>
+<P>
+Note: some of these functions require additional CPAN modules.
+
+</P>
+<P>
+For date conversions using the CPAN <CODE>DateTime</CODE> framework see <A HREF="/DateTime/Format/Excel.html">DateTime::Format::Excel</A> <A
 HREF="http://search.cpan.org/search?dist=DateTime-Format-Excel">http://search.cpan.org/search?dist=DateTime-Format-Excel</A>
 
 
@@ -7184,6 +7372,19 @@ The following example converts a tab separated file called <CODE>tab.txt</CODE> 
 </PRE>
 </P>
 <P>
+NOTE: This is a simple conversion program for illustrative purposes only.
+For converting a CSV or Tab separated or any other type of delimited text
+file to Excel I recommend the more rigorous csv2xls program that is part of
+H.Merijn Brand's Text::CSV_XS module distro.
+
+</P>
+<P>
+See the examples/csv2xls link here: <A
+HREF="http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST">http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST</A>
+
+
+</P>
+<P>
 <HR>
 <H2><A NAME="Additional_Examples">Additional Examples</A></H2>
 <P>
@@ -7887,6 +8088,36 @@ using one of the following methods:
 </P>
 <P>
 <HR>
+<H1><A NAME="Warning_about_Office_Service_Pac">Warning about Office Service Pack 3</A></H1>
+<P>
+If you have Office Service Pack 3 (SP3) installed you may see the following
+warning when you open a file created by Spreadsheet::WriteExcel:
+
+</P>
+<P>
+<PRE>
+    &quot;File Error: data may have been lost&quot;.
+</PRE>
+</P>
+<P>
+This is usually caused by multiple instances of data in a cell.
+
+</P>
+<P>
+SP3 changed Excel's default behaviour when it encounters multiple data in a
+cell so that it issues a warning when the file is opened and it displays
+the first data that was written. Prior to SP3 it didn't issue a warning and
+displayed the last data written.
+
+</P>
+<P>
+For a longer discussion and some workarounds see the following: <A
+HREF="http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/3dcea40e6620af3a">http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/3dcea40e6620af3a</A>
+
+
+</P>
+<P>
+<HR>
 <H1><A NAME="BUGS">BUGS</A></H1>
 <P>
 Formulas are formulae.
@@ -7925,6 +8156,11 @@ Gnumeric: No known issues in this release.
 
 </P>
 <P>
+Excel 2008 for Mac: Hyperlinks generate a "File Error: data may have been
+lost" warning.
+
+</P>
+<P>
 If you wish to submit a bug report run the <CODE>bug_report.pl</CODE> program in the <CODE>examples</CODE> directory of the distro.
 
 </P>
@@ -7936,7 +8172,7 @@ The roadmap is as follows:
 
 </P>
 <UL>
-<LI><A NAME="item_Add">Add JPEG support to insert_image().</A>
+<LI><A NAME="item_Add">Add named ranges.</A>
 </UL>
 <P>
 Also, here are some of the most requested features that probably won't get
@@ -8085,6 +8321,12 @@ HREF="http://oesterly.com/releases/12102000.html">http://oesterly.com/releases/1
 
 </P>
 <P>
+The csv2xls program that is part of Text::CSV_XS: <A
+HREF="http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST">http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST</A>
+
+
+</P>
+<P>
 <HR>
 <H1><A NAME="ACKNOWLEDGMENTS">ACKNOWLEDGMENTS</A></H1>
 <P>
@@ -8196,19 +8438,26 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    This, no song of an ingenue,
-    This, no ballad of innocence;
-    This, the rhyme of a lady who
-    Followed ever her natural bents.
-    This, a solo of sapience,
-    This, a chantey of sophistry,
-    This, the sum of experiments,
-    I loved them until they loved me.
+    Girl inform me
+    All my senses warn me
+    Your clever eyes could easily disguise
+    Some backwards purpose
+    It's enough to make me nervous.
+    Do you harbor sighs, or spit in my eye
 </PRE>
 </P>
 <P>
 <PRE>
-        -- Dorothy Parker
+    But your lips when we speak
+    Are the valleys and peaks of a mountain range on fire.
+    So let me walk these coals till you believe
+    I can cut the mustard well enough
+    Cause you know as soon as breathe we scrutinize
+</PRE>
+</P>
+<P>
+<PRE>
+        -- The Shins
 </PRE>
 </P>
 <P>

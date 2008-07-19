@@ -1,12 +1,21 @@
 #!/usr/bin/perl -w
 
-######################################################################
+###############################################################################
 #
 # Example of how to use the WriteExcel module
 #
 # The following converts a tab separated file into an Excel file
 #
 # Usage: tab2xls.pl tabfile.txt newfile.xls
+#
+#
+# NOTE: This is only a simple conversion utility for illustrative purposes.
+# For converting a CSV or Tab separated or any other type of delimited
+# text file to Excel I recommend the more rigorous csv2xls program that is
+# part of H.Merijn Brand's Text::CSV_XS module distro.
+#
+# See the examples/csv2xls link here:
+#     http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

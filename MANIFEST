@@ -36,6 +36,7 @@ t/24_txo.t
 t/26_autofilter.t
 t/27_autofilter.t
 t/28_autofilter.t
+t/29_process_jpg.t
 
 doc/index.html
 doc/WriteExcel.html

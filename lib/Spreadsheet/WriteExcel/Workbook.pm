@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Chart;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.20';
+$VERSION = '2.22';
 
 ###############################################################################
 #
@@ -1187,7 +1187,7 @@ sub _process_images {
 
 
     foreach my $sheet (@{$self->{_worksheets}}) {
-        next unless ref $sheet eq "Spreadsheet::WriteExcel::Worksheet";
+        next unless $sheet->isa('Spreadsheet::WriteExcel::Worksheet');
         next unless $sheet->_prepare_images();
 
         my $num_images      = 0;
@@ -1236,9 +1236,20 @@ sub _process_images {
                 # Process the image and extract dimensions.
                 my ($type, $width, $height);
 
+                # Test for PNGs...
                 if    (unpack('x A3', $data) eq 'PNG') {
                     ($type, $width, $height) = $self->_process_png($data);
                 }
+                # Test for JFIF and Exif JPEGs...
+                elsif ( (unpack('n', $data) == 0xFFD8) &&
+                            ( (unpack('x6 A4', $data) eq 'JFIF') ||
+                              (unpack('x6 A4', $data) eq 'Exif')
+                            )
+                      )
+                {
+                    ($type, $width, $height) = $self->_process_jpg($data, $filename);
+                }
+                # Test for BMPs...
                 elsif (unpack('A2',   $data) eq 'BM') {
                     ($type, $width, $height) = $self->_process_bmp($data,
                                                                    $filename);
@@ -1409,6 +1420,49 @@ sub _process_bmp {
 
     if ($compression != 0) {
         croak "$filename: compression not supported in bitmap image.";
+    }
+
+    return ($type, $width, $height);
+}
+
+
+###############################################################################
+#
+# _process_jpg()
+#
+# Extract width and height information from a JPEG file.
+#
+sub _process_jpg {
+
+    my $self     = shift;
+    my $data     = $_[0];
+    my $filename = $_[1];
+    my $type     = 5; # Excel Blip type (MSOBLIPTYPE).
+    my $width;
+    my $height;
+
+    my $offset = 2;
+    my $data_length = length $data;
+
+    # Search through the image data to find the 0xFFC0 marker. The height and
+    # width are contained in the data for that sub element.
+    while ($offset < $data_length) {
+
+        my $marker  = unpack "n", substr $data, $offset,    2;
+        my $length  = unpack "n", substr $data, $offset +2, 2;
+
+        if ($marker == 0xFFC0) {
+            $height = unpack "n", substr $data, $offset +5, 2;
+            $width  = unpack "n", substr $data, $offset +7, 2;
+            last;
+        }
+
+        $offset = $offset + $length + 2;
+        last if $marker == 0xFFDA;
+    }
+
+    if (not defined $height) {
+        croak "$filename: no size data found in image.\n";
     }
 
     return ($type, $width, $height);
@@ -2447,7 +2501,10 @@ sub _calculate_shared_string_sizes {
 #
 # See the comments in _calculate_shared_string_sizes() for more information.
 #
-# TODO document EXTSST
+# We also use this routine to record the offsets required by the EXTSST table.
+# In order to do this we first identify the first string in an EXTSST bucket
+# and then store its global and local offset within the SST table. The offset
+# occurs wherever the start of the bucket string is written out via append().
 #
 sub _store_shared_strings {
 
@@ -2483,15 +2540,15 @@ sub _store_shared_strings {
     }
 
 
-    # TODO
+    # Initialise variables used to track EXTSST bucket offsets.
     my $extsst_str_num  = -1;
     my $sst_block_start = $self->{_datasize};
+
 
     # Write the SST block header information
     my $header      = pack("vv", $record, $length);
     my $data        = pack("VV", $self->{_str_total}, $self->{_str_unique});
     $self->_append($header, $data);
-
 
 
     # Iterate through the strings and write them out
@@ -2500,12 +2557,11 @@ sub _store_shared_strings {
         my $string_length = length $string;
         my $encoding      = unpack "xx C", $string;
         my $split_string  = 0;
-        my $bucket_string = 0;
+        my $bucket_string = 0; # Used to track EXTSST bucket offsets.
 
 
-        $extsst_str_num++;
-
-        if ($extsst_str_num % $self->{_extsst_bucket_size} == 0) {
+        # Check if the string is at the start of a EXTSST bucket.
+        if (++$extsst_str_num % $self->{_extsst_bucket_size} == 0) {
             $bucket_string = 1;
         }
 
@@ -2519,6 +2575,7 @@ sub _store_shared_strings {
         # We can write the string if it doesn't cross a CONTINUE boundary
         if ($block_length < $continue_limit) {
 
+            # Store location of EXTSST bucket string.
             if ($bucket_string) {
                 my $global_offset   = $self->{_datasize};
                 my $local_offset    = $self->{_datasize} - $sst_block_start;
@@ -2577,6 +2634,7 @@ sub _store_shared_strings {
                 # Write as much as possible of the string in the current block
                 my $tmp = substr $string, 0, $space_remaining;
 
+                # Store location of EXTSST bucket string.
                 if ($bucket_string) {
                     my $global_offset   = $self->{_datasize};
                     my $local_offset    = $self->{_datasize} - $sst_block_start;
@@ -2613,7 +2671,7 @@ sub _store_shared_strings {
 
             # Write the CONTINUE block header
             if (@block_sizes) {
-                $sst_block_start= $self->{_datasize};
+                $sst_block_start= $self->{_datasize}; # Reset EXTSST offset.
 
                 $record         = 0x003C;
                 $length         = shift @block_sizes;
@@ -2629,6 +2687,8 @@ sub _store_shared_strings {
             # one or more CONTINUE blocks
             #
             if ($block_length < $continue_limit) {
+
+                # Store location of EXTSST bucket string.
                 if ($bucket_string) {
                     my $global_offset   = $self->{_datasize};
                     my $local_offset    = $self->{_datasize} - $sst_block_start;
@@ -2653,7 +2713,11 @@ sub _store_shared_strings {
 #
 # _calculate_extsst_size
 #
-# TODO
+# The number of buckets used in the EXTSST is between 0 and 128. The number of
+# strings per bucket (bucket size) has a minimum value of 8 and a theoretical
+# maximum of 2^16. For "number of strings" < 1024 there is a constant bucket
+# size of 8. The following algorithm generates the same size/bucket ratio
+# as Excel.
 #
 sub _calculate_extsst_size {
 
@@ -2668,11 +2732,7 @@ sub _calculate_extsst_size {
         $bucket_size = 8;
     }
     else {
-        $bucket_size = int($unique_strings / 128);
-
-        if ($unique_strings / 128) {
-            $bucket_size++
-        }
+        $bucket_size = 1 + int($unique_strings / 128);
     }
 
     $buckets = int(($unique_strings + $bucket_size -1)  / $bucket_size);
@@ -2690,7 +2750,7 @@ sub _calculate_extsst_size {
 #
 # _store_extsst
 #
-# TODO
+# Write EXTSST table using the offsets calculated in _store_shared_strings().
 #
 sub _store_extsst {
 
@@ -2698,9 +2758,6 @@ sub _store_extsst {
 
     my @offsets     = @{$self->{_extsst_offsets}};
     my $bucket_size = $self->{_extsst_bucket_size};
-
-    # TODO temp check.
-    warn "Critical EXTSST error" if @offsets != $self->{_extsst_buckets};
 
     my $record      = 0x00FF;             # Record identifier
     my $length      = 2 + 8 * @offsets;   # Bytes to follow
@@ -2992,6 +3049,7 @@ sub _store_mso_blip {
     my $checksum2   = $_[4];
     my $instance;
 
+    $instance = 0x046A if $image_type == 5; # JPG
     $instance = 0x06E0 if $image_type == 6; # PNG
     $instance = 0x07A9 if $image_type == 7; # BMP
 

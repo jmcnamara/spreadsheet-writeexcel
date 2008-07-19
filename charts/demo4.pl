@@ -24,6 +24,9 @@ my $worksheet = $workbook->add_worksheet();
 # Add the chart extracted using the chartex utility
 $worksheet->embed_chart('G2', 'demo401.bin', 3, 3, 1.08, 1.21);
 
+# Link the chart to the worksheet data using a dummy formula.
+$worksheet->store_formula('=Sheet1!A1');
+
 
 # Add some extra formats to cover formats used in the charts.
 my $chart_font_1 = $workbook->add_format(font_only => 1);
