@@ -1,6 +1,12 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-2.22 July 19 2008 - Minor Beta
+
+2.23 August 10 2008 - Major
+
+    + Added Excel data validation with examples and test suite.
+
+
+2.22 July 19 2008 - Minor
 
     + Added JPEG support.
 

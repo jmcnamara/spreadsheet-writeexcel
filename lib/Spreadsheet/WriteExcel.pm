@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.22'; # Oh, Inverted World.
+$VERSION = '2.23'; # The Bay Swim.
 
 
 
@@ -63,7 +63,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.22 of Spreadsheet::WriteExcel, released July 19, 2008.
+This document refers to version 2.23 of Spreadsheet::WriteExcel, released August 10, 2008.
 
 
 
@@ -336,7 +336,7 @@ An Excel file is comprised of binary records that describe properties of a sprea
 
 Spreadsheet::WriteExcel takes advantage of this fact to omit some records in order to minimise the amount of data stored in memory and to simplify and speed up the writing of files. However, some third party applications that read Excel files often expect certain records to be present. In "compatibility mode" Spreadsheet::WriteExcel writes these records and tries to be as close to an Excel generated file as possible.
 
-Applications that require C<compatibility_mode()> are Apache POI, and Quickoffice on Nokia, Palm and other devices. You should also use C<compatibility_mode()> if your Excel file will be used as an external data source by another Excel file.
+Applications that require C<compatibility_mode()> are Apache POI, Apple Numbers, and Quickoffice on Nokia, Palm and other devices. You should also use C<compatibility_mode()> if your Excel file will be used as an external data source by another Excel file.
 
 If you encounter other situations that require C<compatibility_mode()>, please let me know.
 
@@ -1558,6 +1558,32 @@ The easiest way to calculate the required scaling is to create a test chart work
 See also the example programs in the C<charts> directory of the distro.
 
 Note: you must call C<set_row()> or C<set_column()> before C<embed_chart()> if you wish to change the default dimensions of any of the rows or columns that the chart occupies. The height of a row can also change if you use a font that is larger than the default. This in turn will affect the scaling of your chart. To avoid this you should explicitly set the height of the row using C<set_row()> if it contains a font size that will change the row height.
+
+
+
+
+=head2 data_validation()
+
+The C<data_validation()> method is used to construct an Excel data validation or to limit the user input to a dropdown list of values.
+
+
+    $worksheet->data_validation('B3',
+        {
+            validate => 'integer',
+            criteria => '>',
+            value    => 100,
+        });
+
+    $worksheet->data_validation('B5:B9',
+        {
+            validate => 'list',
+            value    => ['open', 'high', 'close'],
+        });
+
+This method contains a lot of parameters and is described in detail in a separate section L<DATA VALIDATION IN EXCEL>.
+
+
+See also the C<data_validate.pl> program in the examples directory of the distro
 
 
 
@@ -3749,6 +3775,412 @@ Some additional outline properties can be set via the C<outline_settings()> work
 
 
 
+=head1 DATA VALIDATION IN EXCEL
+
+Data validation is a feature of Excel which allows you to restrict the data that a users enters in a cell and to display help and warning messages. It also allows you to restrict input to values in a drop down list.
+
+A typical use case might be to restrict data in a cell to integer values in a certain range, to provide a help message to indicate the required value and to issue a warning if the input data doesn't meet the stated criteria. In Spreadsheet::WriteExcel we could do that as follows:
+
+    $worksheet->data_validation('B3',
+        {
+            validate        => 'integer',
+            criteria        => 'between',
+            minimum         => 1,
+            maximum         => 100,
+            input_title     => 'Input an integer:',
+            input_message   => 'Between 1 and 100',
+            error_message   => 'Sorry, try again.',
+        });
+
+The above example would look like this in Excel: L<http://homepage.eircom.net/~jmcnamara/perl/data_validation.jpg>.
+
+=begin html
+
+<center>
+<img src="http://homepage.eircom.net/~jmcnamara/perl/data_validation.jpg" alt="The output from the above example">
+</center>
+
+=end html
+
+For more information on data validation see the following Microsoft support article "Description and examples of data validation in Excel": L<http://support.microsoft.com/kb/211485>.
+
+The following sections describe how to use the C<data_validation()> method and its various options.
+
+
+=head2 data_validation($row, $col, { parameter => 'value', ... })
+
+The C<data_validation()> method is used to construct an Excel data validation.
+
+It can be applied to a single cell or a range of cells. You can pass 3 parameters such as  C<($row, $col, {...})> or 5 parameters such as C<($first_row, $first_col, $last_row, $last_col, {...})>. You can also use C<A1> style notation. For example:
+
+    $worksheet->data_validation(0, 0,       {...});
+    $worksheet->data_validation(0, 0, 4, 1, {...});
+
+    # Which are the same as:
+
+    $worksheet->data_validation('A1',       {...});
+    $worksheet->data_validation('A1:B5',    {...});
+
+See also the note about L<Cell notation> for more information.
+
+
+The last parameter in C<data_validation()> must be a hash ref containing the parameters that describe the type and style of the data validation. The allowable parameters are:
+
+    validate
+    criteria
+    value | minimum | source
+    maximum
+    ignore_blank
+    dropdown
+
+    input_title
+    input_message
+    show_input
+
+    error_title
+    error_message
+    error_type
+    show_error
+
+These parameters are explained in the following sections. Most of the parameters are optional, however, you will generally require the three main options C<validate>, C<criteria> and C<value>.
+
+    $worksheet->data_validation('B3',
+        {
+            validate => 'integer',
+            criteria => '>',
+            value    => 100,
+        });
+
+The C<data_validation> method returns:
+
+     0 for success.
+    -1 for insufficient number of arguments.
+    -2 for row or column out of bounds.
+    -3 for incorrect parameter or value.
+
+
+=head2 validate
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<validate> parameter is used to set the type of data that you wish to validate. It is always required and it has no default value. Allowable values are:
+
+    any
+    integer
+    decimal
+    list
+    date
+    time
+    length
+    custom
+
+=over
+
+=item * B<any> is used to specify that the type of data is unrestricted. This is the same as not applying a data validation. It is only provided for completeness and isn't used very often in the context of Spreadsheet::WriteExcel.
+
+=item * B<integer> restricts the cell to integer values. Excel refers to this as 'whole number'.
+
+    validate => 'integer',
+    criteria => '>',
+    value    => 100,
+
+=item * B<decimal> restricts the cell to decimal values.
+
+    validate => 'decimal',
+    criteria => '>',
+    value    => 38.6,
+
+=item * B<list> restricts the cell to a set of user specified values. These can be passed in an array ref or as a cell range (named ranges aren't currently supported):
+
+    validate => 'list',
+    value    => ['open', 'high', 'close'],
+    # Or like this:
+    value    => 'B1:B3',
+
+Excel requires that range references are only to cells on the same worksheet.
+
+=item * B<date> restricts the cell to date values. Dates in Excel are expressed as integer values but you can also pass an ISO860 style string as used in C<write_date_time()>. See also L<DATES AND TIME IN EXCEL> for more information about working with Excel's dates.
+
+    validate => 'date',
+    criteria => '>',
+    value    => 39653, # 24 July 2008
+    # Or like this:
+    value    => '2008-07-24T',
+
+=item * B<time> restricts the cell to time values. Times in Excel are expressed as decimal values but you can also pass an ISO860 style string as used in C<write_date_time()>. See also L<DATES AND TIME IN EXCEL> for more information about working with Excel's times.
+
+    validate => 'time',
+    criteria => '>',
+    value    => 0.5, # Noon
+    # Or like this:
+    value    => 'T12:00:00',
+
+=item * B<length> restricts the cell data based on an integer string length. Excel refers to this as 'Text length'.
+
+    validate => 'length',
+    criteria => '>',
+    value    => 10,
+
+=item * B<custom> restricts the cell based on an external Excel formula that returns a C<TRUE/FALSE> value.
+
+    validate => 'custom',
+    value    => '=IF(A10>B10,TRUE,FALSE)',
+
+=back
+
+
+=head2 criteria
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<criteria> parameter is used to set the criteria by which the data in the cell is validated. It is almost always required except for the C<list> and C<custom> validate options. It has no default value. Allowable values are:
+
+    'between'
+    'not between'
+    'equal to'                  |  '=='  |  '='
+    'not equal to'              |  '!='  |  '<>'
+    'greater than'              |  '>'
+    'less than'                 |  '<'
+    'greater than or equal to'  |  '>='
+    'less than or equal to'     |  '<='
+
+You can either use Excel's textual description strings, in the first column above, or the more common operator alternatives. The following are equivalent:
+
+    validate => 'integer',
+    criteria => 'greater than',
+    value    => 100,
+
+    validate => 'integer',
+    criteria => '>',
+    value    => 100,
+
+The C<list> and C<custom> validate options don't require a C<criteria>. If you specify one it will be ignored.
+
+    validate => 'list',
+    value    => ['open', 'high', 'close'],
+
+    validate => 'custom',
+    value    => '=IF(A10>B10,TRUE,FALSE)',
+
+
+=head2 value | minimum | source
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<value> parameter is used to set the limiting value to which the C<criteria> is applied. It is always required and it has no default value. You can also use the synonyms C<minimum> or C<source> to make the validation a little clearer and closer to Excel's description of the parameter:
+
+    # Use 'value'
+    validate => 'integer',
+    criteria => '>',
+    value    => 100,
+
+    # Use 'minimum'
+    validate => 'integer',
+    criteria => 'between',
+    minimum  => 1,
+    maximum  => 100,
+
+    # Use 'source'
+    validate => 'list',
+    source   => 'B1:B3',
+
+
+=head2 maximum
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<maximum> parameter is used to set the upper limiting value when the C<criteria> is either C<'between'> or C<'not between'>:
+
+    validate => 'integer',
+    criteria => 'between',
+    minimum  => 1,
+    maximum  => 100,
+
+
+=head2 ignore_blank
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<ignore_blank> parameter is used to toggle on and off the 'Ignore blank' option in the Excel data validation dialog. When the option is on the data validation is not applied to blank data in the cell. It is on by default.
+
+    ignore_blank => 0,  # Turn the option off
+
+
+=head2 dropdown
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<dropdown> parameter is used to toggle on and off the 'In-cell dropdown' option in the Excel data validation dialog. When the option is on a dropdown list will be shown for C<list> validations. It is on by default.
+
+    dropdown => 0,      # Turn the option off
+
+
+=head2 input_title
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<input_title> parameter is used to set the title of the input message that is displayed when a cell is entered. It has no default value and is only displayed if the input message is displayed. See the C<input_message> parameter below.
+
+    input_title   => 'This is the input title',
+
+The maximum title length is 32 characters. UTF8 strings are handled automatically in perl 5.8 and later.
+
+
+=head2 input_message
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<input_message> parameter is used to set the input message that is displayed when a cell is entered. It has no default value.
+
+    validate      => 'integer',
+    criteria      => 'between',
+    minimum       => 1,
+    maximum       => 100,
+    input_title   => 'Enter the applied discount:',
+    input_message => 'between 1 and 100',
+
+The message can be split over several lines using newlines, C<"\n"> in double quoted strings.
+
+    input_message => "This is\na test.",
+
+The maximum message length is 255 characters. UTF8 strings are handled automatically in perl 5.8 and later.
+
+
+=head2 show_input
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<show_input> parameter is used to toggle on and off the 'Show input message when cell is selected' option in the Excel data validation dialog. When the option is off an input message is not displayed even if it has been set using C<input_message>. It is on by default.
+
+    show_input => 0,      # Turn the option off
+
+
+=head2 error_title
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<error_title> parameter is used to set the title of the error message that is displayed when the data validation criteria is not met. The default error title is 'Microsoft Excel'.
+
+    error_title   => 'Input value is not valid',
+
+The maximum title length is 32 characters. UTF8 strings are handled automatically in perl 5.8 and later.
+
+
+=head2 error_message
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<error_message> parameter is used to set the error message that is displayed when a cell is entered. The default error message is "The value you entered is not valid.\nA user has restricted values that can be entered into the cell.".
+
+    validate      => 'integer',
+    criteria      => 'between',
+    minimum       => 1,
+    maximum       => 100,
+    error_title   => 'Input value is not valid',
+    error_message => 'It should be an integer between 1 and 100',
+
+The message can be split over several lines using newlines, C<"\n"> in double quoted strings.
+
+    input_message => "This is\na test.",
+
+The maximum message length is 255 characters. UTF8 strings are handled automatically in perl 5.8 and later.
+
+
+=head2 error_type
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<error_type> parameter is used to specify the type of error dialog that is displayed. There are 3 options:
+
+    'stop'
+    'warning'
+    'information'
+
+The default is C<'stop'>.
+
+
+=head2 show_error
+
+This parameter is passed in a hash ref to C<data_validation()>.
+
+The C<show_error> parameter is used to toggle on and off the 'Show error alert after invalid data is entered' option in the Excel data validation dialog. When the option is off an error message is not displayed even if it has been set using C<error_message>. It is on by default.
+
+    show_error => 0,      # Turn the option off
+
+=head2 Examples
+
+Example 1. Limiting input to an integer greater than a fixed value.
+
+    $worksheet->data_validation('A1',
+        {
+            validate        => 'integer',
+            criteria        => '>',
+            value           => 0,
+        });
+
+Example 2. Limiting input to an integer greater than a fixed value where the value is referenced from a cell.
+
+    $worksheet->data_validation('A2',
+        {
+            validate        => 'integer',
+            criteria        => '>',
+            value           => '=E3',
+        });
+
+Example 3. Limiting input to a decimal in a fixed range.
+
+    $worksheet->data_validation('A3',
+        {
+            validate        => 'decimal',
+            criteria        => 'between',
+            minimum         => 0.1,
+            maximum         => 0.5,
+        });
+
+Example 4. Limiting input to a value in a dropdown list.
+
+    $worksheet->data_validation('A4',
+        {
+            validate        => 'list',
+            source          => ['open', 'high', 'close'],
+        });
+
+Example 5. Limiting input to a value in a dropdown list where the list is specified as a cell range.
+
+    $worksheet->data_validation('A5',
+        {
+            validate        => 'list',
+            source          => '=E4:G4',
+        });
+
+Example 6. Limiting input to a date in a fixed range.
+
+    $worksheet->data_validation('A6',
+        {
+            validate        => 'date',
+            criteria        => 'between',
+            minimum         => '2008-01-01T',
+            maximum         => '2008-12-12T',
+        });
+
+Example 7. Displaying a message when the cell is selected.
+
+    $worksheet->data_validation('A7',
+        {
+            validate      => 'integer',
+            criteria      => 'between',
+            minimum       => 1,
+            maximum       => 100,
+            input_title   => 'Enter an integer:',
+            input_message => 'between 1 and 100',
+        });
+
+See also the C<data_validate.pl> program in the examples directory of the distro.
+
+=back
+
+
+
 =head1 FORMULAS AND FUNCTIONS IN EXCEL
 
 
@@ -4247,6 +4679,7 @@ different features and options of the module.
     comments1.pl            Add comments to worksheet cells.
     comments2.pl            Add comments with advanced options.
     copyformat.pl           Example of copying a cell format.
+    data_validate.pl        An example of data validation and dropdown lists.
     diag_border.pl          A simple example of diagonal cell borders.
     easter_egg.pl           Expose the Excel97 flight simulator. A must see.
     filehandle.pl           Examples of working with filehandles.
@@ -4361,7 +4794,7 @@ Note, these aren't strict requirements. Spreadsheet::WriteExcel will work withou
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.21/INSTALL
+http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.23/INSTALL
 
 
 
@@ -4564,7 +4997,7 @@ If you wish to view Excel files on a Windows platform which doesn't have Excel i
 
 An Excel file is a binary file within a binary file. It contains several interlinked checksums and changing even one byte can cause it to become corrupted.
 
-As such you cannot simply append or update an Excel file. The only way to achieve this is to read the entire file into memory, make the required changes or additions and write the file out again.
+As such you cannot simply append or update an Excel file. The only way to achieve this is to read the entire file into memory, make the required changes or additions and then write the file out again.
 
 You can read and rewrite an Excel file using the Spreadsheet::ParseExcel::SaveParser module which is a wrapper around Spreadsheet::ParseExcel and Spreadsheet::WriteExcel. It is part of the Spreadsheet::ParseExcel package: http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
 
@@ -4801,20 +5234,14 @@ Either the Perl Artistic Licence http://dev.perl.org/licenses/artistic.html or t
 
 John McNamara jmcnamara@cpan.org
 
-    Girl inform me
-    All my senses warn me
-    Your clever eyes could easily disguise
-    Some backwards purpose
-    It's enough to make me nervous.
-    Do you harbor sighs, or spit in my eye
+    So the man who was drowning, drownded
+    And the man with the disease past away.
+    But apart from that,
+    And a fire in my flat,
+    It's been a very nice day.
 
-    But your lips when we speak
-    Are the valleys and peaks of a mountain range on fire.
-    So let me walk these coals till you believe
-    I can cut the mustard well enough
-    Cause you know as soon as breathe we scrutinize
+        -- Spike Milligan
 
-        -- The Shins
 
 
 

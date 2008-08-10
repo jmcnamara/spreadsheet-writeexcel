@@ -57,7 +57,7 @@ METHODOLOGY
     12. Add new data to the data ranges defined in the chart using the standard Spreadsheet::WriteExcel interface.
 
 EXAMPLE
-    This following if a short example which uses line chart to
+    This following is a short example which uses line chart to
     display some X-Y data:
 
         #!/usr/bin/perl -w

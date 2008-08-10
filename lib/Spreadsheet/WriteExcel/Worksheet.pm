@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Formula;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.22';
+$VERSION = '2.23';
 
 ###############################################################################
 #
@@ -166,6 +166,8 @@ sub new {
     $self->{_writing_url}         = 0;
 
     $self->{_db_indices}          = [];
+
+    $self->{_validations}         = [];
 
     bless $self, $class;
     $self->_initialize();
@@ -358,6 +360,8 @@ sub _close {
     $self->_store_zoom();
     $self->_store_panes(@{$self->{_panes}}) if @{$self->{_panes}};
     $self->_store_selection(@{$self->{_selection}});
+    $self->_store_validation_count();
+    $self->_store_validations();
     $self->_store_tab_color();
     $self->_store_eof();
 
@@ -3284,7 +3288,7 @@ sub set_row {
     return unless defined $row;  # Ensure at least $row is specified.
 
     # Check that row and col are valid and store max and min values
-    return -2 if $self->_check_dimensions($row, 0, 1);
+    return -2 if $self->_check_dimensions($row, 0, 0, 1);
 
     # Check for a format object
     if (ref $format) {
@@ -3384,21 +3388,23 @@ sub _write_row_default {
 
 ###############################################################################
 #
-# _check_dimensions($row, $col)
+# _check_dimensions($row, $col, $ignore_row, $ignore_col)
 #
 # Check that $row and $col are valid and store max and min values for use in
 # DIMENSIONS record. See, _store_dimensions().
 #
-# The $ignore_col flag is used to indicate that we wish to change the row
-# dimensions without affecting the col dimensions. This happens when we set
-# a row via set_row().
+# The $ignore_row/$ignore_col flags is used to indicate that we wish to
+# perform the dimension check without storing the value.
+#
+# The ignore flags are use by set_row() and data_validate.
 #
 sub _check_dimensions {
 
     my $self        = shift;
     my $row         = $_[0];
     my $col         = $_[1];
-    my $ignore_col  = $_[2];
+    my $ignore_row  = $_[2];
+    my $ignore_col  = $_[3];
 
 
     return -2 if not defined $row;
@@ -3408,15 +3414,17 @@ sub _check_dimensions {
     return -2 if $col >= $self->{_xls_colmax};
 
 
-    if (not defined $self->{_dim_rowmin} or $row < $self->{_dim_rowmin}) {
-        $self->{_dim_rowmin} = $row;
+    if (not $ignore_row) {
+
+        if (not defined $self->{_dim_rowmin} or $row < $self->{_dim_rowmin}) {
+            $self->{_dim_rowmin} = $row;
+        }
+
+        if (not defined $self->{_dim_rowmax} or $row > $self->{_dim_rowmax}) {
+            $self->{_dim_rowmax} = $row;
+        }
     }
 
-    if (not defined $self->{_dim_rowmax} or $row > $self->{_dim_rowmax}) {
-        $self->{_dim_rowmax} = $row;
-    }
-
-    # Ignore for set_row()
     if (not $ignore_col) {
 
         if (not defined $self->{_dim_colmin} or $col < $self->{_dim_colmin}) {
@@ -7009,6 +7017,540 @@ sub _comment_params {
            [@vertices]
           );
 }
+
+
+
+#
+# DATA VALIDATION
+#
+
+###############################################################################
+#
+# data_validation($row, $col, {...})
+#
+# This method handles the interface to Excel data validation.
+# Somewhat ironically the this requires a lot of validation code since the
+# interface is flexible and covers a several types of data validation.
+#
+# We allow data validation to be called on one cell or a range of cells. The
+# hashref contains the validation parameters and must be the last param:
+#    data_validation($row, $col, {...})
+#    data_validation($first_row, $first_col, $last_row, $last_col, {...})
+#
+# Returns  0 : normal termination
+#         -1 : insufficient number of arguments
+#         -2 : row or column out of range
+#         -3 : incorrect parameter.
+#
+sub data_validation {
+
+    my $self = shift;
+
+    # Check for a cell reference in A1 notation and substitute row and column
+    if ($_[0] =~ /^\D/) {
+        @_ = $self->_substitute_cellref(@_);
+    }
+
+    # Check for a valid number of args.
+    if (@_ != 5 && @_ != 3) { return -1 }
+
+    # The final hashref contains the validation parameters.
+    my $param = pop;
+
+    # Make the last row/col the same as the first if not defined.
+    my ($row1, $col1, $row2, $col2) = @_;
+    if (!defined $row2) {
+        $row2 = $row1;
+        $col2 = $col1;
+    }
+
+    # Check that row and col are valid without storing the values.
+    return -2 if $self->_check_dimensions($row1, $col1, 1, 1);
+    return -2 if $self->_check_dimensions($row2, $col2, 1, 1);
+
+
+    # Check that the last parameter is a hash list.
+    if (ref $param ne 'HASH') {
+        carp "Last parameter '$param' in data_validation() must be a hash ref";
+        return -3;
+    }
+
+    # List of valid input parameters.
+    my %valid_parameter = (
+                              validate          => 1,
+                              criteria          => 1,
+                              value             => 1,
+                              source            => 1,
+                              minimum           => 1,
+                              maximum           => 1,
+                              ignore_blank      => 1,
+                              dropdown          => 1,
+                              show_input        => 1,
+                              input_title       => 1,
+                              input_message     => 1,
+                              show_error        => 1,
+                              error_title       => 1,
+                              error_message     => 1,
+                              error_type        => 1,
+                              other_cells       => 1,
+                          );
+
+    # Check for valid input parameters.
+    for my $param_key (keys %$param) {
+        if (not exists $valid_parameter{$param_key}) {
+            carp "Unknown parameter '$param_key' in data_validation()";
+            return -3;
+        }
+    }
+
+    # Map alternative parameter names 'source' or 'minimum' to 'value'.
+    $param->{value} = $param->{source}  if defined $param->{source};
+    $param->{value} = $param->{minimum} if defined $param->{minimum};
+
+    # 'validate' is a required paramter.
+    if (not exists $param->{validate}) {
+        carp "Parameter 'validate' is required in data_validation()";
+        return -3;
+    }
+
+
+    # List of  valid validation types.
+    my %valid_type = (
+                              'any'             => 0,
+                              'any value'       => 0,
+                              'whole number'    => 1,
+                              'whole'           => 1,
+                              'integer'         => 1,
+                              'decimal'         => 2,
+                              'list'            => 3,
+                              'date'            => 4,
+                              'time'            => 5,
+                              'text length'     => 6,
+                              'length'          => 6,
+                              'custom'          => 7,
+                      );
+
+
+    # Check for valid validation types.
+    if (not exists $valid_type{lc($param->{validate})}) {
+        carp "Unknown validation type '$param->{validate}' for parameter " .
+             "'validate' in data_validation()";
+        return -3;
+    }
+    else {
+        $param->{validate} = $valid_type{lc($param->{validate})};
+    }
+
+
+    # No action is requied for validation type 'any'.
+    # TODO: we should perhaps store 'any' for message only validations.
+    return 0 if $param->{validate} == 0;
+
+
+    # The list and custom validations don't have a criteria so we use a default
+    # of 'between'.
+    if ($param->{validate} == 3 || $param->{validate} == 7) {
+        $param->{criteria}  = 'between';
+        $param->{maximum}   = undef;
+    }
+
+    # 'criteria' is a required parameter.
+    if (not exists $param->{criteria}) {
+        carp "Parameter 'criteria' is required in data_validation()";
+        return -3;
+    }
+
+
+    # List of valid criteria types.
+    my %criteria_type = (
+                              'between'                     => 0,
+                              'not between'                 => 1,
+                              'equal to'                    => 2,
+                              '='                           => 2,
+                              '=='                          => 2,
+                              'not equal to'                => 3,
+                              '!='                          => 3,
+                              '<>'                          => 3,
+                              'greater than'                => 4,
+                              '>'                           => 4,
+                              'less than'                   => 5,
+                              '<'                           => 5,
+                              'greater than or equal to'    => 6,
+                              '>='                          => 6,
+                              'less than or equal to'       => 7,
+                              '<='                          => 7,
+                      );
+
+    # Check for valid criteria types.
+    if (not exists $criteria_type{lc($param->{criteria})}) {
+        carp "Unknown criteria type '$param->{criteria}' for parameter " .
+             "'criteria' in data_validation()";
+        return -3;
+    }
+    else {
+        $param->{criteria} = $criteria_type{lc($param->{criteria})};
+    }
+
+
+    # 'Between' and 'Not between' criterias require 2 values.
+    if ($param->{criteria} == 0 || $param->{criteria} == 1) {
+        if (not exists $param->{maximum}) {
+            carp "Parameter 'maximum' is required in data_validation() " .
+                 "when using 'between' or 'not between' criteria";
+            return -3;
+        }
+    }
+    else {
+        $param->{maximum} = undef;
+    }
+
+
+
+    # List of valid error dialog types.
+    my %error_type = (
+                              'stop'        => 0,
+                              'warning'     => 1,
+                              'information' => 2,
+                     );
+
+    # Check for valid error dialog types.
+    if (not exists $param->{error_type}) {
+        $param->{error_type} = 0;
+    }
+    elsif (not exists $error_type{lc($param->{error_type})}) {
+        carp "Unknown criteria type '$param->{error_type}' for parameter " .
+             "'error_type' in data_validation()";
+        return -3;
+    }
+    else {
+        $param->{error_type} = $error_type{lc($param->{error_type})};
+    }
+
+
+    # Convert date/times value sif required.
+    if ($param->{validate} == 4 || $param->{validate} == 5) {
+        if ($param->{value} =~ /T/) {
+            my $date_time = $self->convert_date_time($param->{value});
+
+            if (!defined $date_time) {
+                carp "Invalid date/time value '$param->{value}' " .
+                     "in data_validation()";
+                return -3;
+            }
+            else {
+                $param->{value} = $date_time;
+            }
+        }
+        if (defined $param->{maximum} && $param->{maximum} =~ /T/) {
+            my $date_time = $self->convert_date_time($param->{maximum});
+
+            if (!defined $date_time) {
+                carp "Invalid date/time value '$param->{maximum}' " .
+                     "in data_validation()";
+                return -3;
+            }
+            else {
+                $param->{maximum} = $date_time;
+            }
+        }
+    }
+
+
+    # Set some defaults if they haven't been defined by the user.
+    $param->{ignore_blank}  = 1 if !defined $param->{ignore_blank};
+    $param->{dropdown}      = 1 if !defined $param->{dropdown};
+    $param->{show_input}    = 1 if !defined $param->{show_input};
+    $param->{show_error}    = 1 if !defined $param->{show_error};
+
+
+    # These are the cells to which the validation is applied.
+    $param->{cells} = [[$row1, $col1, $row2, $col2]];
+
+    # A (for now) undocumented parameter to pass additional cell ranges.
+    if (exists $param->{other_cells}) {
+
+        push @{$param->{cells}}, @{$param->{other_cells}};
+    }
+
+    # Store the validation information until we close the worksheet.
+    push @{$self->{_validations}}, $param;
+}
+
+
+###############################################################################
+#
+# _store_validation_count()
+#
+# Store the count of the DV records to follow.
+#
+# Note, this could be wrapped into _store_dv() but we may require separate
+# handling of the object id at a later stage.
+#
+sub _store_validation_count {
+
+    my $self = shift;
+
+    my $dv_count = @{$self->{_validations}};
+    my $obj_id   = -1;
+
+    return unless $dv_count;
+
+    $self->_store_dval($obj_id , $dv_count);
+}
+
+
+###############################################################################
+#
+# _store_validations()
+#
+# Store the data_validation records.
+#
+sub _store_validations {
+
+    my $self = shift;
+
+    return unless scalar @{$self->{_validations}};
+
+    for my $param (@{$self->{_validations}}) {
+        $self->_store_dv(   $param->{cells},
+                            $param->{validate},
+                            $param->{criteria},
+                            $param->{value},
+                            $param->{maximum},
+                            $param->{input_title},
+                            $param->{input_message},
+                            $param->{error_title},
+                            $param->{error_message},
+                            $param->{error_type},
+                            $param->{ignore_blank},
+                            $param->{dropdown},
+                            $param->{show_input},
+                            $param->{show_error},
+                            );
+    }
+}
+
+
+###############################################################################
+#
+# _store_dval()
+#
+# Store the DV record which contains the number of and information common to
+# all DV structures.
+#
+sub _store_dval {
+
+    my $self        = shift;
+
+    my $record      = 0x01B2;       # Record identifier
+    my $length      = 0x0012;       # Bytes to follow
+
+    my $obj_id      = $_[0];        # Object ID number.
+    my $dv_count    = $_[1];        # Count of DV structs to follow.
+
+    my $flags       = 0x0004;       # Option flags.
+    my $x_coord     = 0x00000000;   # X coord of input box.
+    my $y_coord     = 0x00000000;   # Y coord of input box.
+
+
+    # Pack the record.
+    my $header = pack('vv', $record, $length);
+    my $data   = pack('vVVVV', $flags, $x_coord, $y_coord, $obj_id, $dv_count);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _store_dv()
+#
+# Store the DV record that specifies the data validation criteria and options
+# for a range of cells..
+#
+sub _store_dv {
+
+    my $self            = shift;
+
+    my $record          = 0x01BE;       # Record identifier
+    my $length          = 0x0000;       # Bytes to follow
+
+    my $flags           = 0x00000000;   # DV option flags.
+
+    my $cells           = $_[0];        # Aref of cells to which DV applies.
+    my $validation_type = $_[1];        # Type of data validation.
+    my $criteria_type   = $_[2];        # Validation criteria.
+    my $formula_1       = $_[3];        # Value/Source/Minimum formula.
+    my $formula_2       = $_[4];        # Maximum formula.
+    my $input_title     = $_[5];        # Title of input message.
+    my $input_message   = $_[6];        # Text of input message.
+    my $error_title     = $_[7];        # Title of error message.
+    my $error_message   = $_[8];        # Text of input message.
+    my $error_type      = $_[9];        # Error dialog type.
+    my $ignore_blank    = $_[10];       # Ignore blank cells.
+    my $dropdown        = $_[11];       # Display dropdown with list.
+    my $input_box       = $_[12];       # Display input box.
+    my $error_box       = $_[13];       # Display error box.
+    my $ime_mode        = 0;            # IME input mode for far east fonts.
+    my $str_lookup      = 0;            # See below.
+
+    # Set the string lookup flag for 'list' validations with a string array.
+    if ($validation_type == 3 && ref $formula_1 eq 'ARRAY')  {
+        $str_lookup = 1;
+    }
+
+    # The dropdown flag is stored as a negated value.
+    my $no_dropdown = not $dropdown;
+
+    # Set the required flags.
+    $flags |= $validation_type;
+    $flags |= $error_type       << 4;
+    $flags |= $str_lookup       << 7;
+    $flags |= $ignore_blank     << 8;
+    $flags |= $no_dropdown      << 9;
+    $flags |= $ime_mode         << 10;
+    $flags |= $input_box        << 18;
+    $flags |= $error_box        << 19;
+    $flags |= $criteria_type    << 20;
+
+    # Pack the validation formulas.
+    $formula_1 = $self->_pack_dv_formula($formula_1);
+    $formula_2 = $self->_pack_dv_formula($formula_2);
+
+    # Pack the input and error dialog strings.
+    $input_title   = $self->_pack_dv_string($input_title,   32 );
+    $error_title   = $self->_pack_dv_string($error_title,   32 );
+    $input_message = $self->_pack_dv_string($input_message, 255);
+    $error_message = $self->_pack_dv_string($error_message, 255);
+
+    # Pack the DV cell data.
+    my $dv_count = scalar @$cells;
+    my $dv_data  = pack 'v', $dv_count;
+    for my $range (@$cells) {
+        $dv_data .= pack 'vvvv', $range->[0],
+                                 $range->[2],
+                                 $range->[1],
+                                 $range->[3];
+    }
+
+    # Pack the record.
+    my $data   = pack 'V', $flags;
+       $data  .= $input_title;
+       $data  .= $error_title;
+       $data  .= $input_message;
+       $data  .= $error_message;
+       $data  .= $formula_1;
+       $data  .= $formula_2;
+       $data  .= $dv_data;
+
+    my $header = pack('vv', $record, length $data);
+
+    $self->_append($header, $data);
+}
+
+
+###############################################################################
+#
+# _pack_dv_string()
+#
+# Pack the strings used in the input and error dialog captions and messages.
+# Captions are limited to 32 characters. Messages are limited to 255 chars.
+#
+sub _pack_dv_string {
+
+    my $self        = shift;
+
+    my $string      = $_[0];
+    my $max_length  = $_[1];
+
+    my $str_length  = 0;
+    my $encoding    = 0;
+
+    # The default empty string is "\0".
+    if (!defined $string || $string eq '') {
+        $string = "\0";
+    }
+
+    # Excel limits DV captions to 32 chars and messages to 255.
+    if (length $string > $max_length) {
+        $string = substr($string, 0, $max_length);
+    }
+
+    $str_length = length $string;
+
+    # Handle utf8 strings in perl 5.8.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($string)) {
+            $string = Encode::encode("UTF-16LE", $string);
+            $encoding = 1;
+        }
+    }
+
+    return pack('vC', $str_length, $encoding) . $string;
+}
+
+
+###############################################################################
+#
+# _pack_dv_formula()
+#
+# Pack the formula used in the DV record. This is the same as an cell formula
+# with some additional header information. Note, DV formulas in Excel use
+# relative addressing (R1C1 and ptgXxxN) however we use the Formula.pm's
+# default absoulute addressing (A1 and ptgXxx).
+#
+sub _pack_dv_formula {
+
+    my $self        = shift;
+
+    my $formula     = $_[0];
+    my $encoding    = 0;
+    my $length      = 0;
+    my $unused      = 0x0000;
+    my @tokens;
+
+    # Return a default structure for unused formulas.
+    if (!defined $formula || $formula eq '') {
+        return pack('vv', 0, $unused);
+    }
+
+    # Pack a list array ref as a null separated string.
+    if (ref $formula eq 'ARRAY') {
+        $formula   = join "\0", @$formula;
+        $formula   = qq("$formula");
+    }
+
+    # Strip the = sign at the beginning of the formula string
+    $formula    =~ s(^=)();
+
+    # Parse the formula using the parser in Formula.pm
+    my $parser  = $self->{_parser};
+
+    # In order to raise formula errors from the point of view of the calling
+    # program we use an eval block and re-raise the error from here.
+    #
+    eval { @tokens = $parser->parse_formula($formula) };
+
+    if ($@) {
+        $@ =~ s/\n$//;  # Strip the \n used in the Formula.pm die()
+        croak $@;       # Re-raise the error
+    }
+    else {
+        # TODO test for non valid ptgs such as Sheet2!A1
+    }
+
+    # Force 2d ranges to be a reference class.
+    s/_range2d/_range2dR/ for @tokens;
+
+    # Parse the tokens into a formula string.
+    $formula = $parser->parse_tokens(@tokens);
+
+
+    return pack('vv', length $formula, $unused) . $formula;
+}
+
 
 
 

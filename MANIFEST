@@ -37,6 +37,10 @@ t/26_autofilter.t
 t/27_autofilter.t
 t/28_autofilter.t
 t/29_process_jpg.t
+t/30_validation_dval.t
+t/31_validation_dv_strings.t
+t/32_validation_dv_formula.t
+t/33_validation_dv.t
 
 doc/index.html
 doc/WriteExcel.html
@@ -75,6 +79,7 @@ examples/comments2.pl
 examples/convertA1.pl
 examples/copyformat.pl
 examples/csv2xls.pl
+examples/data_validate.pl
 examples/date_time.pl
 examples/datecalc1.pl
 examples/datecalc2.pl

@@ -81,6 +81,7 @@
 		<LI><A HREF="#add_write_handler_re_code_ref">add_write_handler($re, $code_ref)</A></LI>
 		<LI><A HREF="#insert_image_row_col_filena">insert_image($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
 		<LI><A HREF="#embed_chart_row_col_filenam">embed_chart($row, $col, $filename, $x, $y, $scale_x, $scale_y)</A></LI>
+		<LI><A HREF="#data_validation_">data_validation()</A></LI>
 		<LI><A HREF="#get_name_">get_name()</A></LI>
 		<LI><A HREF="#activate_">activate()</A></LI>
 		<LI><A HREF="#select_">select()</A></LI>
@@ -238,8 +239,8 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 <HR>
 <H1><A NAME="VERSION">VERSION</A></H1>
 <P>
-This document refers to version 2.22 of Spreadsheet::WriteExcel, released
-July 19, 2008.
+This document refers to version 2.23 of Spreadsheet::WriteExcel, released
+August 10, 2008.
 
 </P>
 <P>
@@ -738,8 +739,8 @@ to be as close to an Excel generated file as possible.
 
 </P>
 <P>
-Applications that require <CODE>compatibility_mode()</CODE> are Apache POI, and Quickoffice on Nokia, Palm and other devices. You
-should also use <CODE>compatibility_mode()</CODE> if your Excel file will be used as an external data source by another Excel
+Applications that require <CODE>compatibility_mode()</CODE> are Apache POI, Apple Numbers, and Quickoffice on Nokia, Palm and other
+devices. You should also use <CODE>compatibility_mode()</CODE> if your Excel file will be used as an external data source by another Excel
 file.
 
 </P>
@@ -2945,6 +2946,42 @@ that the chart occupies. The height of a row can also change if you use a
 font that is larger than the default. This in turn will affect the scaling
 of your chart. To avoid this you should explicitly set the height of the
 row using <CODE>set_row()</CODE> if it contains a font size that will change the row height.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="data_validation_">data_validation()</A></H2>
+<P>
+The <CODE>data_validation()</CODE> method is used to construct an Excel data validation or to limit the user
+input to a dropdown list of values.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('B3',
+        {
+            validate =&gt; 'integer',
+            criteria =&gt; '&gt;',
+            value    =&gt; 100,
+        });
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('B5:B9',
+        {
+            validate =&gt; 'list',
+            value    =&gt; ['open', 'high', 'close'],
+        });
+</PRE>
+</P>
+<P>
+This method contains a lot of parameters and is described in detail in a
+separate section <A HREF="#DATA_VALIDATION_IN_EXCEL">DATA VALIDATION IN EXCEL</A>.
+
+</P>
+<P>
+See also the <CODE>data_validate.pl</CODE> program in the examples directory of the distro
 
 </P>
 <P>
@@ -6627,6 +6664,679 @@ Some additional outline properties can be set via the <CODE>outline_settings()</
 </P>
 <P>
 <HR>
+<H1><A NAME="DATA_VALIDATION_IN_EXCEL">DATA VALIDATION IN EXCEL</A></H1>
+<P>
+Data validation is a feature of Excel which allows you to restrict the data
+that a users enters in a cell and to display help and warning messages. It
+also allows you to restrict input to values in a drop down list.
+
+</P>
+<P>
+A typical use case might be to restrict data in a cell to integer values in
+a certain range, to provide a help message to indicate the required value
+and to issue a warning if the input data doesn't meet the stated criteria.
+In Spreadsheet::WriteExcel we could do that as follows:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('B3',
+        {
+            validate        =&gt; 'integer',
+            criteria        =&gt; 'between',
+            minimum         =&gt; 1,
+            maximum         =&gt; 100,
+            input_title     =&gt; 'Input an integer:',
+            input_message   =&gt; 'Between 1 and 100',
+            error_message   =&gt; 'Sorry, try again.',
+        });
+</PRE>
+</P>
+<P>
+The above example would look like this in Excel: <EM>http:</EM>.
+
+</P>
+<P>
+<center> <img
+src="http://homepage.eircom.net/~jmcnamara/perl/data_validation.jpg"
+alt="The output from the above example"> </center>
+
+</P>
+<P>
+For more information on data validation see the following Microsoft support
+article "Description and examples of data validation in Excel": <EM>http:</EM>.
+
+</P>
+<P>
+The following sections describe how to use the <CODE>data_validation()</CODE> method and its various options.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="data_validation_row_col_pa">data_validation($row, $col, { parameter =&gt; 'value', ... })</A></H2>
+<P>
+The <CODE>data_validation()</CODE> method is used to construct an Excel data validation.
+
+</P>
+<P>
+It can be applied to a single cell or a range of cells. You can pass 3
+parameters such as  <CODE>($row, $col, {...})</CODE> or 5 parameters such as <CODE>($first_row, $first_col, $last_row, $last_col, {...})</CODE>. You can also use <CODE>A1</CODE> style notation. For example:
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation(0, 0,       {...});
+    $worksheet-&gt;data_validation(0, 0, 4, 1, {...});
+</PRE>
+</P>
+<P>
+<PRE>
+    # Which are the same as:
+</PRE>
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('A1',       {...});
+    $worksheet-&gt;data_validation('A1:B5',    {...});
+</PRE>
+</P>
+<P>
+See also the note about <A HREF="#Cell_notation">Cell notation</A> for more information.
+
+</P>
+<P>
+The last parameter in <CODE>data_validation()</CODE> must be a hash ref containing the parameters that describe the type and
+style of the data validation. The allowable parameters are:
+
+</P>
+<P>
+<PRE>
+    validate
+    criteria
+    value | minimum | source
+    maximum
+    ignore_blank
+    dropdown
+</PRE>
+</P>
+<P>
+<PRE>
+    input_title
+    input_message
+    show_input
+</PRE>
+</P>
+<P>
+<PRE>
+    error_title
+    error_message
+    error_type
+    show_error
+</PRE>
+</P>
+<P>
+These parameters are explained in the following sections. Most of the
+parameters are optional, however, you will generally require the three main
+options <CODE>validate</CODE>, <CODE>criteria</CODE> and <CODE>value</CODE>.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('B3',
+        {
+            validate =&gt; 'integer',
+            criteria =&gt; '&gt;',
+            value    =&gt; 100,
+        });
+</PRE>
+</P>
+<P>
+The <CODE>data_validation</CODE> method returns:
+
+</P>
+<P>
+<PRE>
+     0 for success.
+    -1 for insufficient number of arguments.
+    -2 for row or column out of bounds.
+    -3 for incorrect parameter or value.
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="validate">validate</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>validate</CODE> parameter is used to set the type of data that you wish to validate. It is
+always required and it has no default value. Allowable values are:
+
+</P>
+<P>
+<PRE>
+    any
+    integer
+    decimal
+    list
+    date
+    time
+    length
+    custom
+</PRE>
+</P>
+<UL>
+<LI><A NAME="item_any">any is used to specify that the type of data is unrestricted. This is the same as not applying a data validation. It is only provided for completeness and isn't used very often in the context of Spreadsheet::WriteExcel.</A>
+<LI><A NAME="item_integer">integer restricts the cell to integer values. Excel refers to this as 'whole number'.</A>
+<P>
+<PRE>
+    validate =&gt; 'integer',
+    criteria =&gt; '&gt;',
+    value    =&gt; 100,
+</PRE>
+</P>
+<LI><A NAME="item_decimal">decimal restricts the cell to decimal values.</A>
+<P>
+<PRE>
+    validate =&gt; 'decimal',
+    criteria =&gt; '&gt;',
+    value    =&gt; 38.6,
+</PRE>
+</P>
+<LI><A NAME="item_list">list restricts the cell to a set of user specified values. These can be passed in an array ref or as a cell range (named ranges aren't currently supported):</A>
+<P>
+<PRE>
+    validate =&gt; 'list',
+    value    =&gt; ['open', 'high', 'close'],
+    # Or like this:
+    value    =&gt; 'B1:B3',
+</PRE>
+</P>
+<P>
+Excel requires that range references are only to cells on the same
+worksheet.
+
+</P>
+<LI><A NAME="item_date">date restricts the cell to date values. Dates in Excel are expressed as integer values but you can also pass an ISO860 style string as used in write_date_time(). See also DATES AND TIME IN EXCEL for more information about working with Excel's dates.</A>
+<P>
+<PRE>
+    validate =&gt; 'date',
+    criteria =&gt; '&gt;',
+    value    =&gt; 39653, # 24 July 2008
+    # Or like this:
+    value    =&gt; '2008-07-24T',
+</PRE>
+</P>
+<LI><A NAME="item_time">time restricts the cell to time values. Times in Excel are expressed as decimal values but you can also pass an ISO860 style string as used in write_date_time(). See also DATES AND TIME IN EXCEL for more information about working with Excel's times.</A>
+<P>
+<PRE>
+    validate =&gt; 'time',
+    criteria =&gt; '&gt;',
+    value    =&gt; 0.5, # Noon
+    # Or like this:
+    value    =&gt; 'T12:00:00',
+</PRE>
+</P>
+<LI><A NAME="item_length">length restricts the cell data based on an integer string length. Excel refers to this as 'Text length'.</A>
+<P>
+<PRE>
+    validate =&gt; 'length',
+    criteria =&gt; '&gt;',
+    value    =&gt; 10,
+</PRE>
+</P>
+<LI><A NAME="item_custom">custom restricts the cell based on an external Excel formula that returns a TRUE/FALSE value.</A>
+<P>
+<PRE>
+    validate =&gt; 'custom',
+    value    =&gt; '=IF(A10&gt;B10,TRUE,FALSE)',
+</PRE>
+</P>
+</UL>
+<P>
+<HR>
+<H2><A NAME="criteria">criteria</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>criteria</CODE> parameter is used to set the criteria by which the data in the cell is
+validated. It is almost always required except for the <CODE>list</CODE> and <CODE>custom</CODE> validate options. It has no default value. Allowable values are:
+
+</P>
+<P>
+<PRE>
+    'between'
+    'not between'
+    'equal to'                  |  '=='  |  '='
+    'not equal to'              |  '!='  |  '&lt;&gt;'
+    'greater than'              |  '&gt;'
+    'less than'                 |  '&lt;'
+    'greater than or equal to'  |  '&gt;='
+    'less than or equal to'     |  '&lt;='
+</PRE>
+</P>
+<P>
+You can either use Excel's textual description strings, in the first column
+above, or the more common operator alternatives. The following are
+equivalent:
+
+</P>
+<P>
+<PRE>
+    validate =&gt; 'integer',
+    criteria =&gt; 'greater than',
+    value    =&gt; 100,
+</PRE>
+</P>
+<P>
+<PRE>
+    validate =&gt; 'integer',
+    criteria =&gt; '&gt;',
+    value    =&gt; 100,
+</PRE>
+</P>
+<P>
+The <CODE>list</CODE> and <CODE>custom</CODE> validate options don't require a <CODE>criteria</CODE>. If you specify one it will be ignored.
+
+</P>
+<P>
+<PRE>
+    validate =&gt; 'list',
+    value    =&gt; ['open', 'high', 'close'],
+</PRE>
+</P>
+<P>
+<PRE>
+    validate =&gt; 'custom',
+    value    =&gt; '=IF(A10&gt;B10,TRUE,FALSE)',
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="value_minimum_source">value | minimum | source</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>value</CODE> parameter is used to set the limiting value to which the <CODE>criteria</CODE> is applied. It is always required and it has no default value. You can also
+use the synonyms <CODE>minimum</CODE> or <CODE>source</CODE> to make the validation a little clearer and closer to Excel's description
+of the parameter:
+
+</P>
+<P>
+<PRE>
+    # Use 'value'
+    validate =&gt; 'integer',
+    criteria =&gt; '&gt;',
+    value    =&gt; 100,
+</PRE>
+</P>
+<P>
+<PRE>
+    # Use 'minimum'
+    validate =&gt; 'integer',
+    criteria =&gt; 'between',
+    minimum  =&gt; 1,
+    maximum  =&gt; 100,
+</PRE>
+</P>
+<P>
+<PRE>
+    # Use 'source'
+    validate =&gt; 'list',
+    source   =&gt; 'B1:B3',
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="maximum">maximum</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>maximum</CODE> parameter is used to set the upper limiting value when the <CODE>criteria</CODE> is either <CODE>'between'</CODE> or <CODE>'not between'</CODE>:
+
+</P>
+<P>
+<PRE>
+    validate =&gt; 'integer',
+    criteria =&gt; 'between',
+    minimum  =&gt; 1,
+    maximum  =&gt; 100,
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="ignore_blank">ignore_blank</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>ignore_blank</CODE> parameter is used to toggle on and off the 'Ignore blank' option in the
+Excel data validation dialog. When the option is on the data validation is
+not applied to blank data in the cell. It is on by default.
+
+</P>
+<P>
+<PRE>
+    ignore_blank =&gt; 0,  # Turn the option off
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="dropdown">dropdown</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>dropdown</CODE> parameter is used to toggle on and off the 'In-cell dropdown' option in the
+Excel data validation dialog. When the option is on a dropdown list will be
+shown for <CODE>list</CODE> validations. It is on by default.
+
+</P>
+<P>
+<PRE>
+    dropdown =&gt; 0,      # Turn the option off
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="input_title">input_title</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>input_title</CODE> parameter is used to set the title of the input message that is displayed
+when a cell is entered. It has no default value and is only displayed if
+the input message is displayed. See the <CODE>input_message</CODE> parameter below.
+
+</P>
+<P>
+<PRE>
+    input_title   =&gt; 'This is the input title',
+</PRE>
+</P>
+<P>
+The maximum title length is 32 characters. UTF8 strings are handled
+automatically in perl 5.8 and later.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="input_message">input_message</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>input_message</CODE> parameter is used to set the input message that is displayed when a cell is
+entered. It has no default value.
+
+</P>
+<P>
+<PRE>
+    validate      =&gt; 'integer',
+    criteria      =&gt; 'between',
+    minimum       =&gt; 1,
+    maximum       =&gt; 100,
+    input_title   =&gt; 'Enter the applied discount:',
+    input_message =&gt; 'between 1 and 100',
+</PRE>
+</P>
+<P>
+The message can be split over several lines using newlines, <CODE>&quot;\n&quot;</CODE> in double quoted strings.
+
+</P>
+<P>
+<PRE>
+    input_message =&gt; &quot;This is\na test.&quot;,
+</PRE>
+</P>
+<P>
+The maximum message length is 255 characters. UTF8 strings are handled
+automatically in perl 5.8 and later.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="show_input">show_input</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>show_input</CODE> parameter is used to toggle on and off the 'Show input message when cell is
+selected' option in the Excel data validation dialog. When the option is
+off an input message is not displayed even if it has been set using <CODE>input_message</CODE>. It is on by default.
+
+</P>
+<P>
+<PRE>
+    show_input =&gt; 0,      # Turn the option off
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="error_title">error_title</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>error_title</CODE> parameter is used to set the title of the error message that is displayed
+when the data validation criteria is not met. The default error title is
+'Microsoft Excel'.
+
+</P>
+<P>
+<PRE>
+    error_title   =&gt; 'Input value is not valid',
+</PRE>
+</P>
+<P>
+The maximum title length is 32 characters. UTF8 strings are handled
+automatically in perl 5.8 and later.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="error_message">error_message</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>error_message</CODE> parameter is used to set the error message that is displayed when a cell is
+entered. The default error message is "The value you entered is not
+valid.\nA user has restricted values that can be entered into the cell.".
+
+</P>
+<P>
+<PRE>
+    validate      =&gt; 'integer',
+    criteria      =&gt; 'between',
+    minimum       =&gt; 1,
+    maximum       =&gt; 100,
+    error_title   =&gt; 'Input value is not valid',
+    error_message =&gt; 'It should be an integer between 1 and 100',
+</PRE>
+</P>
+<P>
+The message can be split over several lines using newlines, <CODE>&quot;\n&quot;</CODE> in double quoted strings.
+
+</P>
+<P>
+<PRE>
+    input_message =&gt; &quot;This is\na test.&quot;,
+</PRE>
+</P>
+<P>
+The maximum message length is 255 characters. UTF8 strings are handled
+automatically in perl 5.8 and later.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="error_type">error_type</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>error_type</CODE> parameter is used to specify the type of error dialog that is displayed.
+There are 3 options:
+
+</P>
+<P>
+<PRE>
+    'stop'
+    'warning'
+    'information'
+</PRE>
+</P>
+<P>
+The default is <CODE>'stop'</CODE>.
+
+</P>
+<P>
+<HR>
+<H2><A NAME="show_error">show_error</A></H2>
+<P>
+This parameter is passed in a hash ref to <CODE>data_validation()</CODE>.
+
+</P>
+<P>
+The <CODE>show_error</CODE> parameter is used to toggle on and off the 'Show error alert after invalid
+data is entered' option in the Excel data validation dialog. When the
+option is off an error message is not displayed even if it has been set
+using <CODE>error_message</CODE>. It is on by default.
+
+</P>
+<P>
+<PRE>
+    show_error =&gt; 0,      # Turn the option off
+</PRE>
+</P>
+<P>
+<HR>
+<H2><A NAME="Examples">Examples</A></H2>
+<P>
+Example 1. Limiting input to an integer greater than a fixed value.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('A1',
+        {
+            validate        =&gt; 'integer',
+            criteria        =&gt; '&gt;',
+            value           =&gt; 0,
+        });
+</PRE>
+</P>
+<P>
+Example 2. Limiting input to an integer greater than a fixed value where
+the value is referenced from a cell.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('A2',
+        {
+            validate        =&gt; 'integer',
+            criteria        =&gt; '&gt;',
+            value           =&gt; '=E3',
+        });
+</PRE>
+</P>
+<P>
+Example 3. Limiting input to a decimal in a fixed range.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('A3',
+        {
+            validate        =&gt; 'decimal',
+            criteria        =&gt; 'between',
+            minimum         =&gt; 0.1,
+            maximum         =&gt; 0.5,
+        });
+</PRE>
+</P>
+<P>
+Example 4. Limiting input to a value in a dropdown list.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('A4',
+        {
+            validate        =&gt; 'list',
+            source          =&gt; ['open', 'high', 'close'],
+        });
+</PRE>
+</P>
+<P>
+Example 5. Limiting input to a value in a dropdown list where the list is
+specified as a cell range.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('A5',
+        {
+            validate        =&gt; 'list',
+            source          =&gt; '=E4:G4',
+        });
+</PRE>
+</P>
+<P>
+Example 6. Limiting input to a date in a fixed range.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('A6',
+        {
+            validate        =&gt; 'date',
+            criteria        =&gt; 'between',
+            minimum         =&gt; '2008-01-01T',
+            maximum         =&gt; '2008-12-12T',
+        });
+</PRE>
+</P>
+<P>
+Example 7. Displaying a message when the cell is selected.
+
+</P>
+<P>
+<PRE>
+    $worksheet-&gt;data_validation('A7',
+        {
+            validate      =&gt; 'integer',
+            criteria      =&gt; 'between',
+            minimum       =&gt; 1,
+            maximum       =&gt; 100,
+            input_title   =&gt; 'Enter an integer:',
+            input_message =&gt; 'between 1 and 100',
+        });
+</PRE>
+</P>
+<P>
+See also the <CODE>data_validate.pl</CODE> program in the examples directory of the distro.
+
+</P>
+<P>
+<HR>
 <H1><A NAME="FORMULAS_AND_FUNCTIONS_IN_EXCEL">FORMULAS AND FUNCTIONS IN EXCEL</A></H1>
 <P>
 <HR>
@@ -7423,6 +8133,7 @@ features and options of the module.
     comments1.pl            Add comments to worksheet cells.
     comments2.pl            Add comments with advanced options.
     copyformat.pl           Example of copying a cell format.
+    data_validate.pl        An example of data validation and dropdown lists.
     diag_border.pl          A simple example of diagonal cell borders.
     easter_egg.pl           Expose the Excel97 flight simulator. A must see.
     filehandle.pl           Examples of working with filehandles.
@@ -7569,7 +8280,7 @@ See the INSTALL or install.html docs that come with the distribution or:
 </P>
 <P>
 <A
-HREF="http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.21/INSTALL">http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.21/INSTALL</A>
+HREF="http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.23/INSTALL">http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.23/INSTALL</A>
 
 
 </P>
@@ -7939,7 +8650,7 @@ corrupted.
 <P>
 As such you cannot simply append or update an Excel file. The only way to
 achieve this is to read the entire file into memory, make the required
-changes or additions and write the file out again.
+changes or additions and then write the file out again.
 
 </P>
 <P>
@@ -8438,26 +9149,16 @@ John McNamara <A HREF="mailto:jmcnamara@cpan.org">jmcnamara@cpan.org</A>
 </P>
 <P>
 <PRE>
-    Girl inform me
-    All my senses warn me
-    Your clever eyes could easily disguise
-    Some backwards purpose
-    It's enough to make me nervous.
-    Do you harbor sighs, or spit in my eye
+    So the man who was drowning, drownded
+    And the man with the disease past away.
+    But apart from that,
+    And a fire in my flat,
+    It's been a very nice day.
 </PRE>
 </P>
 <P>
 <PRE>
-    But your lips when we speak
-    Are the valleys and peaks of a mountain range on fire.
-    So let me walk these coals till you believe
-    I can cut the mustard well enough
-    Cause you know as soon as breathe we scrutinize
-</PRE>
-</P>
-<P>
-<PRE>
-        -- The Shins
+        -- Spike Milligan
 </PRE>
 </P>
 <P>

@@ -64,7 +64,7 @@ If you do not supply enough additional formats then you may see the following er
 
 =head1 EXAMPLE
 
-This following if a short example which uses line chart to display some X-Y data:
+This following is a short example which uses line chart to display some X-Y data:
 
     #!/usr/bin/perl -w
 

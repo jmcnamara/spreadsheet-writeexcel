@@ -23,6 +23,7 @@ colors.pl               Demo of the colour palette and named colours.
 comments1.pl            Add comments to worksheet cells.
 comments2.pl            Add comments with advanced options.
 copyformat.pl           Example of copying a cell format.
+data_validate.pl        An example of data validation and dropdown lists.
 diag_border.pl          A simple example of diagonal cell borders.
 easter_egg.pl           Expose the Excel97 flight simulator. A must see.
 filehandle.pl           Examples of working with filehandles.
