@@ -14,7 +14,6 @@ use strict;
 
 use Spreadsheet::WriteExcel;
 use Test::More tests => 18;
-#use Test::More 'no_plan';
 
 
 ###############################################################################

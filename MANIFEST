@@ -13,6 +13,7 @@ lib/Spreadsheet/WriteExcel/Chart.pm
 lib/Spreadsheet/WriteExcel/Format.pm
 lib/Spreadsheet/WriteExcel/Formula.pm
 lib/Spreadsheet/WriteExcel/OLEwriter.pm
+lib/Spreadsheet/WriteExcel/Properties.pm
 lib/Spreadsheet/WriteExcel/Utility.pm
 lib/Spreadsheet/WriteExcel/Workbook.pm
 lib/Spreadsheet/WriteExcel/WorkbookBig.pm
@@ -41,6 +42,9 @@ t/30_validation_dval.t
 t/31_validation_dv_strings.t
 t/32_validation_dv_formula.t
 t/33_validation_dv.t
+t/40_property_types.t
+t/41_properties.t
+t/42_set_properties.t
 
 doc/index.html
 doc/WriteExcel.html
@@ -108,6 +112,7 @@ examples/mod_perl2.pl
 examples/outline.pl
 examples/outline_collapsed.pl
 examples/panes.pl
+examples/properties.pl
 examples/protection.pl
 examples/regions.pl
 examples/repeat.pl

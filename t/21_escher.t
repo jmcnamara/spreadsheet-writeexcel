@@ -15,7 +15,7 @@ use strict;
 
 use Spreadsheet::WriteExcel;
 use Test::More tests => 42;
-#use Test::More 'no_plan';
+
 
 my @tests = (
                 [   'DggContainer',                 # Caption

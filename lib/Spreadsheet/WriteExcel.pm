@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.23'; # The Bay Swim.
+$VERSION = '2.24'; # La piccola alla scuola.
 
 
 
@@ -37,6 +37,7 @@ $VERSION = '2.23'; # The Bay Swim.
 #       Spreadsheet::WriteExcel::Worksheet
 #       Spreadsheet::WriteExcel::Format
 #       Spreadsheet::WriteExcel::Formula
+#       Spreadsheet::WriteExcel::Properties
 #
 sub new {
 
@@ -63,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.23 of Spreadsheet::WriteExcel, released August 10, 2008.
+This document refers to version 2.24 of Spreadsheet::WriteExcel, released September 4, 2008.
 
 
 
@@ -141,11 +142,13 @@ Those of you who read the instructions first and assemble the furniture afterwar
 The Spreadsheet::WriteExcel module provides an object oriented interface to a new Excel workbook. The following methods are available through a new workbook.
 
     new()
-    close()
-    set_tempdir()
     add_worksheet()
-    add_chart_ext()
     add_format()
+    add_chart_ext()
+    close()
+    compatibility_mode()
+    set_properties()
+    set_tempdir()
     set_custom_color()
     sheets()
     set_1904()
@@ -237,7 +240,7 @@ For example here is a way to write an Excel file to a scalar with C<perl 5.8>:
 
 See also the C<write_to_scalar.pl> and C<filehandle.pl> programs in the C<examples> directory of the distro.
 
-B<Note about the requirement for> C<binmode()>: An Excel file is comprised of binary data. Therefore, if you are using a filehandle you should ensure that you C<binmode()> it prior to passing it to C<new()>.You should do this regardless of whether you are on a Windows platform or not. This applies especially to users of perl 5.8 on systems where C<UTF-8> is likely to be in operation such as RedHat Linux 9. If your program, either intentionally or not, writes C<UTF-8> data to a filehandle that is passed to C<new()> it will corrupt the Excel file that is created.
+B<Note about the requirement for> C<binmode()>. An Excel file is comprised of binary data. Therefore, if you are using a filehandle you should ensure that you C<binmode()> it prior to passing it to C<new()>.You should do this regardless of whether you are on a Windows platform or not. This applies especially to users of perl 5.8 on systems where C<UTF-8> is likely to be in operation such as RedHat Linux 9. If your program, either intentionally or not, writes C<UTF-8> data to a filehandle that is passed to C<new()> it will corrupt the Excel file that is created.
 
 You don't have to worry about C<binmode()> if you are using filenames instead of filehandles. Spreadsheet::WriteExcel performs the C<binmode()> internally when it converts the filename to a filehandle. For more information about C<binmode()> see C<perlfunc> and C<perlopentut> in the main Perl documentation.
 
@@ -340,10 +343,70 @@ Applications that require C<compatibility_mode()> are Apache POI, Apple Numbers,
 
 If you encounter other situations that require C<compatibility_mode()>, please let me know.
 
-It should be noted that C<compatibility_mode()> requires additional data to be stored in memory and additonal processing. This incurs a memory and speed penalty and may not be suitable for very large files (>20MB).
+It should be noted that C<compatibility_mode()> requires additional data to be stored in memory and additional processing. This incurs a memory and speed penalty and may not be suitable for very large files (>20MB).
 
 You must call C<compatibility_mode()> before calling C<add_worksheet()>.
 
+
+
+
+=head2 set_properties()
+
+The C<set_properties> method can be used to set the document properties of the Excel file created by C<Spreadsheet::WriteExcel>. These properties are visible when you use the C<< File->Properties >> menu option in Excel and are also available to external applications that read or index windows files.
+
+The properties should be passed as a hash of values as follows:
+
+    $workbook->set_properties(
+        title    => 'This is an example spreadsheet',
+        author   => 'John McNamara',
+        comments => 'Created with Perl and Spreadsheet::WriteExcel',
+    );
+
+The properties that can be set are:
+
+    title
+    subject
+    author
+    manager
+    company
+    category
+    keywords
+    comments
+
+User defined properties are not supported due to effort required.
+
+In perl 5.8+ you can also pass UTF-8 strings as properties. See L<UNICODE IN EXCEL>.
+
+    my $smiley = chr 0x263A;
+
+    $workbook->set_properties(
+        subject => "Happy now? $smiley",
+    );
+
+With older versions of perl you can use a module to convert a non-ASCII string to a binary representation of UTF-8 and then pass an additional C<utf8> flag to C<set_properties()>:
+
+    my $smiley = pack 'H*', 'E298BA';
+
+    $workbook->set_properties(
+        subject => "Happy now? $smiley",
+        utf8    => 1,
+    );
+
+Usually Spreadsheet::WriteExcel allows you to use UTF-16 with pre 5.8 versions of perl. However, document properties don't support UTF-16 for these type of strings.
+
+In order to promote the usefulness of Perl and the Spreadsheet::WriteExcel module consider adding a comment such as the following when using document properties:
+
+    $workbook->set_properties(
+        ...,
+        comments => 'Created with Perl and Spreadsheet::WriteExcel',
+        ...,
+    );
+
+This feature requires that the C<OLE::Storage_Lite> module is installed (which is usually the case for a standard Spreadsheet::WriteExcel installation). However, this also means that the resulting OLE document may B<possibly> be buggy for files less than 7MB since it hasn't been as rigorously tested in that domain. As a result of this C<set_properties> is currently incompatible with Gnumeric for files less than 7MB. This is being investigated. If you encounter any problems with this features let me know.
+
+For convenience it is possible to pass either a hash or hash ref of arguments to this method.
+
+See also the C<properties.pl> program in the examples directory of the distro.
 
 
 
@@ -520,6 +583,7 @@ The following methods are available through a new worksheet:
     add_write_handler()
     insert_image()
     embed_chart()
+    data_validation()
     get_name()
     activate()
     select()
@@ -538,7 +602,7 @@ The following methods are available through a new worksheet:
     hide_zero()
     set_tab_color()
     autofilter()
-    filter_column()
+
 
 
 
@@ -1901,7 +1965,7 @@ You cannot use A1 notation with this method.
 See also the C<freeze_panes()> method and the C<panes.pl> program in the C<examples> directory of the distribution.
 
 
-Note: This C<split_panes()> method was called C<thaw_panes()> in older versions. The older name is still available for backwards compatiblity.
+Note: This C<split_panes()> method was called C<thaw_panes()> in older versions. The older name is still available for backwards compatibility.
 
 
 
@@ -2652,10 +2716,10 @@ By comparison the properties can be set directly by passing a hash of properties
 
     my $format = $workbook->add_format(bold => 1, color => 'red');
 
-or after the Format has been constructed by means of the C<set_properties()> method as follows:
+or after the Format has been constructed by means of the C<set_format_properties()> method as follows:
 
     my $format = $workbook->add_format();
-    $format->set_properties(bold => 1, color => 'red');
+    $format->set_format_properties(bold => 1, color => 'red');
 
 You can also store the properties in one or more named hashes and pass them to the required method:
 
@@ -2676,9 +2740,9 @@ You can also store the properties in one or more named hashes and pass them to t
     my $format2 = $workbook->add_format(%font, %shading); # Font and shading
 
 
-The provision of two ways of setting properties might lead you to wonder which is the best way. The answer depends on the amount of formatting that will be required in your program. Initially, Spreadsheet::WriteExcel only allowed individual Format properties to be set via the appropriate method. While this was sufficient for most circumstances it proved very cumbersome in programs that required a large amount of formatting. In addition the mechanism for reusing properties between Format objects was complicated.
+The provision of two ways of setting properties might lead you to wonder which is the best way. The method mechanism may be better is you prefer setting properties via method calls (which the author did when they were code was first written) otherwise passing properties to the constructor has proved to be a little more flexible and self documenting in practice. An additional advantage of working with property hashes is that it allows you to share formatting between workbook objects as shown in the example above.
 
-As a result the Perl/Tk style of adding properties was added to, hopefully, facilitate developers who need to define a lot of formatting. In fact the Tk style of defining properties is also supported:
+The Perl/Tk style of adding properties is also supported:
 
     my %font    = (
                     -font      => 'Arial',
@@ -2686,14 +2750,6 @@ As a result the Perl/Tk style of adding properties was added to, hopefully, faci
                     -color     => 'blue',
                     -bold      => 1,
                   );
-
-An additional advantage of working with hashes of properties is that it allows you to share formatting between workbook objects
-
-You can also create a format "on the fly" and pass it directly to a write method as follows:
-
-    $worksheet->write('A1', "Title", $workbook->add_format(bold => 1));
-
-This corresponds to an "anonymous" format in the Perl sense of anonymous data or subs.
 
 
 
@@ -2743,7 +2799,6 @@ The following Format methods are available:
     set_locked()
     set_hidden()
     set_align()
-    set_align()
     set_rotation()
     set_text_wrap()
     set_text_justlast()
@@ -2765,30 +2820,19 @@ The following Format methods are available:
     set_right_color()
 
 
-The above methods can also be applied directly as properties. For example C<$worksheet-E<gt>set_bold()> is equivalent to C<set_properties(bold =E<gt> 1)>.
+The above methods can also be applied directly as properties. For example C<< $format->set_bold() >> is equivalent to C<< $workbook->add_format(bold => 1) >>.
 
 
-=head2 set_properties(%properties)
+=head2 set_format_properties(%properties)
 
-The properties of an existing Format object can be set by means of C<set_properties()>:
+The properties of an existing Format object can be also be set by means of C<set_format_properties()>:
 
     my $format = $workbook->add_format();
-    $format->set_properties(bold => 1, color => 'red');
+    $format->set_format_properties(bold => 1, color => 'red');
 
-You can also store the properties in one or more named hashes and pass them to the C<set_properties()> method:
+However, this method is here mainly for legacy reasons. It is preferable to set the properties in the format constructor:
 
-    my %font    = (
-                    font  => 'Arial',
-                    size  => 12,
-                    color => 'blue',
-                    bold  => 1,
-                  );
-
-    my $format = $workbook->set_properties(%font);
-
-This method can be used as an alternative to setting the properties with C<add_format()> or the specific format methods that are detailed in the following sections.
-
-
+    my $format = $workbook->add_format(bold => 1, color => 'red');
 
 
 =head2 set_font($fontname)
@@ -3606,7 +3650,7 @@ A date or time in Excel is just like any other number. To have the number displa
 
 =head2 Spreadsheet::WriteExcel doesn't automatically convert date/time strings
 
-Spreadsheet::WriteExcel doesn't automatically convert input date strings into Excel's formatted date numbers due to the large number of possible date formats and also due to the possibility of misintepretation.
+Spreadsheet::WriteExcel doesn't automatically convert input date strings into Excel's formatted date numbers due to the large number of possible date formats and also due to the possibility of misinterpretation.
 
 For example, does C<02/03/04> mean March 2 2004, February 3 2004 or even March 4 2002.
 
@@ -4177,7 +4221,6 @@ Example 7. Displaying a message when the cell is selected.
 
 See also the C<data_validate.pl> program in the examples directory of the distro.
 
-=back
 
 
 
@@ -4701,6 +4744,7 @@ different features and options of the module.
     outline.pl              An example of outlines and grouping.
     outline_collapsed.pl    Examples of collapsed outlines and grouping.
     panes.pl                An examples of how to create panes.
+    properties.pl           Add document properties to a workbook.
     protection.pl           Example of cell locking and formula hiding.
     repeat.pl               Example of writing repeated formulas.
     right_to_left.pl        Change default sheet direction to right to left.
@@ -4724,7 +4768,7 @@ different features and options of the module.
     =======
     unicode_utf16.pl        Simple example of using Unicode UTF16 strings.
     unicode_utf16_japan.pl  Write Japanese Unicode strings using UTF-16.
-    unicode_cyrillic.pl     Write Russian cyrillic strings using UTF-8.
+    unicode_cyrillic.pl     Write Russian Cyrillic strings using UTF-8.
     unicode_list.pl         List the chars in a Unicode font.
     unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
     unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.
@@ -4794,7 +4838,7 @@ Note, these aren't strict requirements. Spreadsheet::WriteExcel will work withou
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.23/INSTALL
+http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.24/INSTALL
 
 
 
@@ -5098,7 +5142,7 @@ Formulas are formulae.
 
 XML and C<UTF-8> data on perl 5.6 can cause Excel files created by Spreadsheet::WriteExcel to become corrupt. See L<Warning about XML::Parser and perl 5.6> for further details.
 
-The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range.It is a fatal error to use a merged format in a non-merged cell. The current workaround is to use separate formats for merged and non-merged cell. This restriction will be removed in a future release.
+The format object that is used with a C<merge_range()> method call is marked internally as being associated with a merged range. It is a fatal error to use a merged format in a non-merged cell. The current workaround is to use separate formats for merged and non-merged cell. This restriction will be removed in a future release.
 
 Nested formulas sometimes aren't parsed correctly and give a result of "#VALUE". If you come across a formula that parses like this, let me know.
 
@@ -5234,13 +5278,27 @@ Either the Perl Artistic Licence http://dev.perl.org/licenses/artistic.html or t
 
 John McNamara jmcnamara@cpan.org
 
-    So the man who was drowning, drownded
-    And the man with the disease past away.
-    But apart from that,
-    And a fire in my flat,
-    It's been a very nice day.
 
-        -- Spike Milligan
+    I don't want to get over you
+
+    I guess I could take a sleeping pill
+    And sleep at will
+    And not have to go through
+    What I go through
+
+    I guess I should take Prozac, right?
+    And just smile all night
+    At somebody new
+
+    Somebody not too bright
+    But sweet and kind
+    Who would try to get you off my mind
+    I could leave this agony behind
+    Which is just what I'd do
+    If I wanted to
+    But I don't want to get over you
+
+        -- Stephin Merritt
 
 
 

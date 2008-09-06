@@ -840,7 +840,6 @@ sub xl_date_1904 {
 
 
 
-=cut
 
 =head1 REQUIREMENTS
 

@@ -44,6 +44,7 @@ mod_perl1.pl            A simple mod_perl 1 program.
 mod_perl2.pl            A simple mod_perl 2 program.
 outline.pl              An example of outlines and grouping.
 panes.pl                An examples of how to create panes.
+properties.pl           Add document properties to a workbook.
 protection.pl           Example of cell locking and formula hiding.
 repeat.pl               Example of writing repeated formulas.
 right_to_left.pl        Change default sheet direction to right to left.
@@ -67,7 +68,7 @@ Unicode
 =======
 unicode_utf16.pl        Simple example of using Unicode UTF16 strings.
 unicode_utf16_japan.pl  Write Japanese Unicode strings using UTF-16.
-unicode_cyrillic.pl     Write Russian cyrillic strings using UTF-8.
+unicode_cyrillic.pl     Write Russian Cyrillic strings using UTF-8.
 unicode_list.pl         List the chars in a Unicode font.
 unicode_2022_jp.pl      Japanese: ISO-2022-JP to utf8 in perl 5.8.
 unicode_8859_11.pl      Thai:     ISO-8859_11 to utf8 in perl 5.8.

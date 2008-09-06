@@ -101,7 +101,7 @@ sub new {
     bless  $self, $class;
 
     # Set properties passed to Workbook::add_format()
-    $self->set_properties(@_) if @_;
+    $self->set_format_properties(@_) if @_;
 
     return $self;
 }
@@ -562,8 +562,8 @@ sub set_align {
 #
 # set_valign()
 #
-# Set vertical cell alignment. This is required by the set_properties() method
-# to differentiate between the vertical and horizontal properties.
+# Set vertical cell alignment. This is required by the set_format_properties()
+# method to differentiate between the vertical and horizontal properties.
 #
 sub set_valign {
 
@@ -695,11 +695,11 @@ sub set_rotation {
 
 ###############################################################################
 #
-# set_properties()
+# set_format_properties()
 #
 # Convert hashes of properties to method calls.
 #
-sub set_properties {
+sub set_format_properties {
 
     my $self = shift;
 
@@ -715,6 +715,11 @@ sub set_properties {
         $sub->($self, $value);
    }
 }
+
+# Renamed rarely used set_properties() to set_format_properties() to avoid
+# confusion with Workbook method of the same name. The following acts as an
+# alias for any code that uses the old name.
+*set_properties = *set_format_properties;
 
 
 ###############################################################################

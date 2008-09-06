@@ -20,6 +20,7 @@ use Spreadsheet::WriteExcel::OLEwriter;
 use Spreadsheet::WriteExcel::Worksheet;
 use Spreadsheet::WriteExcel::Format;
 use Spreadsheet::WriteExcel::Chart;
+use Spreadsheet::WriteExcel::Properties ':property_sets';
 
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
@@ -80,6 +81,9 @@ sub new {
 
     $self->{_hideobj}               = 0;
     $self->{_compatibility}         = 0;
+
+    $self->{_add_doc_properties}    = 0;
+    $self->{_localtime}             = [localtime()];
 
     bless $self, $class;
 
@@ -856,9 +860,156 @@ sub set_codepage {
     my $self        = shift;
 
     my $codepage    = $_[0] || 1;
-    $codepage   = 0x04E4 if $codepage == 1;
-    $codepage   = 0x8000 if $codepage == 2;
+       $codepage    = 0x04E4 if $codepage == 1;
+       $codepage    = 0x8000 if $codepage == 2;
+
     $self->{_codepage} = $codepage;
+}
+
+
+###############################################################################
+#
+# set_properties()
+#
+# Set the document properties such as Title, Author etc. These are written to
+# property sets in the OLE container.
+#
+sub set_properties {
+
+    my $self    = shift;
+    my %param;
+
+    # Ignore if no args were passed.
+    return -1 unless @_;
+
+
+    # Allow the parameters to be passed as a hash or hash ref.
+    if (ref $_[0] eq 'HASH') {
+        %param = %{$_[0]};
+    }
+    else {
+        %param = @_;
+    }
+
+
+    # List of valid input parameters.
+    my %properties = (
+                          codepage      => [0x0001, 'VT_I2'      ],
+                          title         => [0x0002, 'VT_LPSTR'   ],
+                          subject       => [0x0003, 'VT_LPSTR'   ],
+                          author        => [0x0004, 'VT_LPSTR'   ],
+                          keywords      => [0x0005, 'VT_LPSTR'   ],
+                          comments      => [0x0006, 'VT_LPSTR'   ],
+                          last_author   => [0x0008, 'VT_LPSTR'   ],
+                          created       => [0x000C, 'VT_FILETIME'],
+                          category      => [0x0002, 'VT_LPSTR'   ],
+                          manager       => [0x000E, 'VT_LPSTR'   ],
+                          company       => [0x000F, 'VT_LPSTR'   ],
+                          utf8          => 1,
+                      );
+
+    # Check for valid input parameters.
+    for my $parameter (keys %param) {
+        if (not exists $properties{$parameter}) {
+            carp "Unknown parameter '$parameter' in set_properties()";
+            return -1;
+        }
+    }
+
+
+    # Set the creation time unless specified by the user.
+    if (!exists $param{created}){
+        $param{created} = $self->{_localtime};
+    }
+
+
+    #
+    # Create the SummaryInformation property set.
+    #
+
+    # Get the codepage of the strings in the property set.
+    my @strings      = qw(title subject author keywords comments last_author);
+    $param{codepage} = $self->_get_property_set_codepage(\%param,
+                                                         \@strings);
+
+    # Create an array of property set values.
+    my @property_sets;
+
+    for my $property (qw(codepage title    subject     author
+                         keywords comments last_author created))
+    {
+        if (exists $param{$property} && defined $param{$property}) {
+            push @property_sets, [
+                                    $properties{$property}->[0],
+                                    $properties{$property}->[1],
+                                    $param{$property}
+                                 ];
+        }
+    }
+
+    # Pack the property sets.
+    $self->{summary} = create_summary_property_set(\@property_sets);
+
+
+    #
+    # Create the DocSummaryInformation property set.
+    #
+
+    # Get the codepage of the strings in the property set.
+    @strings         = qw(category manager company);
+    $param{codepage} = $self->_get_property_set_codepage(\%param,
+                                                         \@strings);
+
+    # Create an array of property set values.
+    @property_sets = ();
+
+    for my $property (qw(codepage category manager company))
+    {
+        if (exists $param{$property} && defined $param{$property}) {
+            push @property_sets, [
+                                    $properties{$property}->[0],
+                                    $properties{$property}->[1],
+                                    $param{$property}
+                                 ];
+        }
+    }
+
+    # Pack the property sets.
+    $self->{doc_summary} = create_doc_summary_property_set(\@property_sets);
+
+    # Set a flag for when the files is written.
+    $self->{_add_doc_properties} = 1;
+}
+
+
+###############################################################################
+#
+# _get_property_set_codepage()
+#
+# Get the character codepage used by the strings in a property set. If one of
+# the strings used is utf8 then the codepage is marked as utf8. Otherwise
+# Latin 1 is used (although in our case this is limited to 7bit ASCII).
+#
+sub _get_property_set_codepage {
+
+    my $self        = shift;
+
+    my $params      = $_[0];
+    my $strings     = $_[1];
+
+    # Allow for manually marked utf8 strings.
+    return 0xFDE9 if defined $params->{utf8};
+
+    # Check for utf8 strings in perl 5.8.
+    if ($] >= 5.008) {
+        require Encode;
+        for my $string (@{$strings }) {
+            next unless exists $params->{$string};
+            return 0xFDE9 if Encode::is_utf8($params->{$string});
+        }
+    }
+
+    return 0x04E4; # Default codepage, Latin 1.
 }
 
 
@@ -948,7 +1099,7 @@ sub _store_OLE_file {
     my $self    = shift;
     my $maxsize = 7_087_104;
 
-    if ($self->{_biffsize} <= $maxsize) {
+    if (!$self->{_add_doc_properties} && $self->{_biffsize} <= $maxsize) {
         # Write the OLE file using OLEwriter if data <= 7MB
         my $OLE  = Spreadsheet::WriteExcel::OLEwriter->new($self->{_fh_out});
 
@@ -982,25 +1133,50 @@ sub _store_OLE_file {
             # Protect print() from -l on the command line.
             local $\ = undef;
 
-            my $stream  = pack 'v*', unpack 'C*', 'Workbook';
-            my $OLE     = OLE::Storage_Lite::PPS::File->newFile($stream);
+            my @streams;
+
+            # Create the Workbook stream.
+            my $stream   = pack 'v*', unpack 'C*', 'Workbook';
+            my $workbook = OLE::Storage_Lite::PPS::File->newFile($stream);
 
             while (my $tmp = $self->get_data()) {
-                $OLE->append($tmp);
+                $workbook->append($tmp);
             }
 
             foreach my $worksheet (@{$self->{_worksheets}}) {
                 while (my $tmp = $worksheet->get_data()) {
-                    $OLE->append($tmp);
+                    $workbook->append($tmp);
                 }
             }
 
-            my @ltime = localtime();
-            splice(@ltime, 6);
-            my $date = OLE::Storage_Lite::PPS::Root->new(\@ltime,
-                                                         \@ltime,
-                                                         [$OLE]);
-            $date->save($self->{_filename});
+            push @streams, $workbook;
+
+
+            # Create the properties streams, if any.
+            if ($self->{_add_doc_properties}) {
+                my $stream;
+                my $summary;
+
+                $stream  = pack 'v*', unpack 'C*', "\5SummaryInformation";
+                $summary = $self->{summary};
+                $summary = OLE::Storage_Lite::PPS::File->new($stream, $summary);
+                push @streams, $summary;
+
+                $stream  = pack 'v*', unpack 'C*', "\5DocumentSummaryInformation";
+                $summary = $self->{doc_summary};
+                $summary = OLE::Storage_Lite::PPS::File->new($stream, $summary);
+                push @streams, $summary;
+            }
+
+            # Create the OLE root document and add the substreams.
+            my @localtime = @{ $self->{_localtime} };
+            splice(@localtime, 6);
+
+            my $ole_root = OLE::Storage_Lite::PPS::Root->new(\@localtime,
+                                                             \@localtime,
+                                                             \@streams);
+            $ole_root->save($self->{_filename});
+
 
             # Close the filehandle if it was created internally.
             return CORE::close($self->{_fh_out}) if $self->{_internal_fh};
@@ -2190,7 +2366,7 @@ sub _store_codepage {
 #
 # Stores the COUNTRY biff record.
 #
-# TODO: Add setter method for the country codes when/if required.
+# Will add setter method for the country codes when/if required.
 #
 sub _store_country {
 
