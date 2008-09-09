@@ -24,7 +24,7 @@ use Time::Local 'timelocal';
 
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA        = qw(Exporter);
-$VERSION    = '0.01';
+$VERSION    = '0.02';
 
 # Set up the exports.
 my @all_functions = qw(
@@ -261,8 +261,20 @@ sub _pack_VT_LPSTR {
     }
     elsif ($codepage == 0xFDE9) {
         # UTF-8
-        $byte_string = pack 'C*', unpack 'C*', $string;
-        $length      = length $byte_string;
+        if ( $] > 5.008 ) {
+            require Encode;
+            if (Encode::is_utf8($string)) {
+                $byte_string = Encode::encode_utf8($string);
+            }
+            else {
+                $byte_string = $string;
+            }
+        }
+        else {
+            $byte_string = $string;
+        }
+
+        $length = length $byte_string;
     }
     else {
         croak "Unknown codepage: $codepage\n";

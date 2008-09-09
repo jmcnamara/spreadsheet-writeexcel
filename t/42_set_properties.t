@@ -15,6 +15,7 @@ use Carp;
 
 use Spreadsheet::WriteExcel;
 use Spreadsheet::WriteExcel::Properties ':testing';
+use Time::Local 'timegm';
 use Test::More tests => 17;
 
 
@@ -335,7 +336,9 @@ is($result, $target, $caption);
 
 # Wed Aug 20 00:20:13 2008
 # $sec,$min,$hour,$mday,$mon,$year
-$filetime   = [13, 20, 0, 20, 7, 108];
+# We normalise the time using timegm() so that the tests don't fail due to
+# different timezones.
+$filetime   = [localtime(timegm(13, 20, 23, 19, 7, 108))];
 
 $workbook->set_properties(
                             title       => 'Title',
@@ -378,7 +381,9 @@ is($result, $target, $caption);
 
 # Wed Aug 20 00:20:13 2008
 # $sec,$min,$hour,$mday,$mon,$year
-$workbook->{_localtime}  = [13, 20, 0, 20, 7, 108];
+# We normalise the time using timegm() so that the tests don't fail due to
+# different timezones.
+$workbook->{_localtime}  = [localtime(timegm(13, 20, 23, 19, 7, 108))];
 
 $workbook->set_properties(
                             title       => 'Title',
@@ -420,7 +425,9 @@ is($result, $target, $caption);
 
 # Wed Aug 20 00:20:13 2008
 # $sec,$min,$hour,$mday,$mon,$year
-$filetime   = [13, 20, 0, 20, 7, 108];
+# We normalise the time using timegm() so that the tests don't fail due to
+# different timezones.
+$filetime   = [localtime(timegm(13, 20, 23, 19, 7, 108))];
 
 $workbook->set_properties({
                             title       => 'Title',
@@ -485,13 +492,11 @@ $result     = unpack_record( $workbook->{summary} );
 is($result, $target, $caption);
 }
 
+
 ###############################################################################
 #
 # Test 15. Manual UTF-8 string used..
 #
-TODO: {
-
-local $TODO = 'Fails on 5.8.0 but not 5.8.8. Need to investigate.';
 
 my $smiley_manual = pack 'H*', 'E298BA';
 
@@ -516,7 +521,6 @@ $target     = join " ",  qw(
 
 $result     = unpack_record( $workbook->{summary} );
 is($result, $target, $caption);
-}
 
 
 ###############################################################################

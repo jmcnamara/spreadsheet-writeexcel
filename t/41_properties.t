@@ -14,6 +14,7 @@ use strict;
 use Carp;
 
 use Spreadsheet::WriteExcel::Properties ':testing';
+use Time::Local 'timegm';
 use Test::More tests => 8;
 
 
@@ -236,7 +237,9 @@ is($result, $target, $caption);
 
 # Wed Aug 20 00:20:13 2008
 # $sec,$min,$hour,$mday,$mon,$year
-$filetime   = [13, 20, 0, 20, 7, 108];
+# We normalise the time using timegm() so that the tests don't fail due to
+# different timezones.
+$filetime   = [localtime(timegm(13, 20, 23, 19, 7, 108))];
 
 @properties =  (
                 [0x0001, 'VT_I2',       0x04E4    ],

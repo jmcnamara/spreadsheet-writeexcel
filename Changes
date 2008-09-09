@@ -1,5 +1,11 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.25 September 9 - Minor
+
+    + Fix for set_properties() bug due to 5.10/5.8 UTF-8 differences.
+    + Fix for failing tests due to localtime() issues.
+
+
 2.24 September 6 - Minor
 
     + Added set_properties() method to set document properties.
