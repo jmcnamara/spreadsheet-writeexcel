@@ -578,7 +578,7 @@ $range   = 'A3';
 
 $caption = sprintf " \t_store_mso_client_anchor(%s). Dimensions changed.", $range;
 @data    = $worksheet->_substitute_cellref($range);
-@data    = $worksheet->_comment_params(@data, 'Test', width => 385, height => 149);
+@data    = $worksheet->_comment_params(@data, 'Test', width => 384, height => 148);
 @data    = @{$data[-1]};
 $target  = join ' ', qw(
                         00 00 10 F0 12 00 00 00 03 00

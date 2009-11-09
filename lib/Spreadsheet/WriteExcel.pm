@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.25'; # La piccola alla scuola un'altra settimana.
+$VERSION = '2.25.07'; # La piccola alla scuola un'altra settimana.
 
 
 
@@ -64,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.25 of Spreadsheet::WriteExcel, released September 9, 2008.
+This document refers to version 2.25.07 of Spreadsheet::WriteExcel, released January 10, 2009.
 
 
 
@@ -148,6 +148,7 @@ The Spreadsheet::WriteExcel module provides an object oriented interface to a ne
     close()
     compatibility_mode()
     set_properties()
+    define_name()
     set_tempdir()
     set_custom_color()
     sheets()
@@ -407,6 +408,20 @@ This feature requires that the C<OLE::Storage_Lite> module is installed (which i
 For convenience it is possible to pass either a hash or hash ref of arguments to this method.
 
 See also the C<properties.pl> program in the examples directory of the distro.
+
+
+
+=head2 define_name()
+
+This method is used to defined a name that can be used to represent a value, a single cell or a range of cells in a workbook.
+
+    $workbook->define_name('Exchange_rate', '=0.96');
+    $workbook->define_name('Sales',         '=Sheet1!$G$1:$H$10');
+    $workbook->define_name('Sheet2!Sales',  '=Sheet2!$G$1:$G$10');
+
+
+TODO: This a beta feature. More docs and examples will be added.
+
 
 
 

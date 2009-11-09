@@ -58,6 +58,7 @@ sub new {
                     _ext_sheets     => {},
                     _ext_refs       => {},
                     _ext_ref_count  => 0,
+                    _ext_names      => {},
                  };
 
     bless $self, $class;
@@ -136,6 +137,7 @@ sub _init_parser {
                         | ref2d
                         | ref3d
                         | function
+                        | name
                         | '(' expr ')'  { [$item[2], 'ptgParen'] }
 
         # Match a string.
@@ -182,6 +184,10 @@ sub _init_parser {
                         { ['_class', $item[1], $item[3], '_func', $item[1]] }
                         | /[A-Z0-9À-Ü_.]+/ '(' list ')'
                         { ['_class', $item[1], $item[3], '_func', $item[1]] }
+
+        # Match a defined name.
+        name:           /[A-Za-z_]\w+/
+                        { ['_name', $item[1]] }
 
         # Boolean values.
         true:           'TRUE'  { [ 'ptgBool', 1 ] }
@@ -330,6 +336,14 @@ sub parse_tokens {
             $class      = 1 if $modifier eq 'V';
             $token      = shift @_;
             $parse_str .= $self->_convert_range3d($token, $class);
+        }
+        elsif ($token =~ /^_name/) {
+            ($modifier  = $token) =~ s/_name//;
+            $class      = $class[-1];
+            $class      = 0 if $modifier eq 'R';
+            $class      = 1 if $modifier eq 'V';
+            $token = shift @_;
+            $parse_str .= $self->_convert_name($token, $class);
         }
         elsif ($token eq '_func') {
             $token = shift @_;
@@ -795,25 +809,10 @@ sub set_ext_sheets {
     my $worksheet   = shift;
     my $index       = shift;
 
-    #my $ref         = "$index:$index";
-
     # The _ext_sheets hash is used to translate between worksheet names
     # and their index
     $self->{_ext_sheets}->{$worksheet} = $index;
 
-
-    # 2D sheet refs such as '=Sheet1:Sheet2!A1' can only be added after all
-    # worksheets have been added.
-    #return 0 if $index < $self->{_ext_ref_count}; TODO
-
-
-    # The _ext_refs hash is used to correlate the external references used in
-    # formulas with the index stored in the Workbook EXTERNSHEET record.
-    #$self->{_ext_refs}->{$ref} = $index;
-    #$self->{_ext_ref_count}++;
-
-    # No errors
-    #return 1;
 }
 
 
@@ -821,26 +820,14 @@ sub set_ext_sheets {
 #
 # get_ext_sheets()
 #
-# This semi-public method is used to update the hash of sheet names. It is
-# updated by the add_worksheet() method of the Workbook class.
-#
-# TODO
+# This semi-public method is used to get the worksheet references that were
+# used in formulas for inclusion in the EXTERNSHEET Workbook record.
 #
 sub get_ext_sheets {
 
     my $self  = shift;
 
-    # TODO
-    my %refs = %{$self->{_ext_refs}};
-    return %refs;
-
-    #my @refs = sort {$refs{$a} <=> $refs{$b}} keys %refs;
-
-    #foreach my $ref (@refs) {
-    #    $ref = [split /:/, $ref];
-    #}
-
-    #return @refs;
+    return %{$self->{_ext_refs}};
 }
 
 
@@ -848,7 +835,7 @@ sub get_ext_sheets {
 #
 # get_ext_ref_count()
 #
-# TODO This semi-public method is used to update the hash of sheet names. It is
+# This semi-public method is used to update the hash of sheet names. It is
 # updated by the add_worksheet() method of the Workbook class.
 #
 sub get_ext_ref_count {
@@ -856,6 +843,43 @@ sub get_ext_ref_count {
     my $self  = shift;
 
     return $self->{_ext_ref_count};
+}
+
+
+###############################################################################
+#
+# _get_name_index()
+#
+# Look up the index that corresponds to an external defined name. The hash of
+# defined names is updated by the define_name() method in the Workbook class.
+#
+sub _get_name_index {
+
+    my $self        = shift;
+    my $name        = shift;
+
+    if (not exists $self->{_ext_names}->{$name}) {
+        die "Unknown defined name $name in formula\n";
+    }
+    else {
+        return $self->{_ext_names}->{$name};
+    }
+}
+
+
+###############################################################################
+#
+# set_ext_name()
+#
+# This semi-public method is used to update the hash of defined names.
+#
+sub set_ext_name {
+
+    my $self        = shift;
+    my $name        = shift;
+    my $index       = shift;
+
+    $self->{_ext_names}->{$name} = $index;
 }
 
 
@@ -892,6 +916,38 @@ sub _convert_function {
     if ($args == -1) {
         return pack "CCv", $ptg{ptgFuncVarV}, $num_args, $functions{$token}[0];
     }
+}
+
+
+###############################################################################
+#
+# _convert_name()
+#
+# Convert a symbolic name into a name reference.
+#
+sub _convert_name {
+
+    my $self     = shift;
+    my $name     = shift;
+    my $class    = shift;
+
+    my $ptgName;
+
+    my $name_index = $self->_get_name_index($name);
+
+    # The ptg value depends on the class of the ptg.
+    if    ($class == 0) {
+        $ptgName = $ptg{ptgName};
+    }
+    elsif ($class == 1) {
+        $ptgName = $ptg{ptgNameV};
+    }
+    elsif ($class == 2) {
+        $ptgName = $ptg{ptgNameA};
+    }
+
+
+    return pack 'CV', $ptgName, $name_index;
 }
 
 

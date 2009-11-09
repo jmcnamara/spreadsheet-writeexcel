@@ -1,12 +1,51 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-2.25 September 9 - Minor
 
-    + Fix for set_properties() bug due to 5.10/5.8 UTF-8 differences.
-    + Fix for failing tests due to localtime() issues.
+2.25.07 January 10 2009 - Beta Minor
+
+    ! Fix for UTF8 strings passed to write_url().
+      Reported by Jon Schutz.
+      http://rt.cpan.org/Public/Bug/Display.html?id=41048
+
+2.25.06 September 26 2008 - Beta Minor
+
+    + Minor fix for defined names work in formulas.
+
+2.25.05 September 24 2008 - Beta Minor
+
+    + Defined names work in formulas.
+
+2.25.04 September 23 2008 - Beta Minor
+
+    + Initial beta release with defined names.
+
+2.25.03 September 22 2008 - Beta Minor
+
+    ! Fixed bug where file size wasn't found for progressive JPEGs.
+      Reported by Yamashita Junji and Bruce Anderson II.
+
+2.25.02 September 19 2008 - Beta Minor
+
+    + Added set_country() method.
+
+2.25.01 September 9 2008 - Beta Minor
+
+    ! Fix for fuzzy images issue reported by Todd Eigenschink.
+
+    + Added 25_position_object.t tests to cover above issue.
+
+    ! Fixed very minor issue with unitialised value for top
+      border colour in formats. Reported by Franz Fasching.
 
 
-2.24 September 6 - Minor
+2.25 September 9 2008 - Minor
+
+    ! Fix for set_properties() bug due to 5.10/5.8 UTF-8 differences.
+
+    ! Fix for failing tests due to localtime() issues.
+
+
+2.24 September 6 2008 - Minor
 
     + Added set_properties() method to set document properties.
       Added test suite and example.

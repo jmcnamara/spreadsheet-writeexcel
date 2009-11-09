@@ -153,8 +153,11 @@ sub new {
 
     $self->{_object_ids}          = [];
     $self->{_images}              = {};
+    $self->{_images_array}        = [];
     $self->{_charts}              = {};
+    $self->{_charts_array}        = [];
     $self->{_comments}            = {};
+    $self->{_comments_array}      = [];
     $self->{_comments_author}     = '';
     $self->{_comments_author_enc} = 0;
     $self->{_comments_visible}    = 0;
@@ -2435,7 +2438,7 @@ sub _get_formula_string {
 # Pre-parse a formula. This is used in conjunction with repeat_formula()
 # to repetitively rewrite a formula without re-parsing it.
 #
-sub store_formula{
+sub store_formula {
 
     my $self    = shift;
     my $formula = $_[0];      # The formula text string
@@ -2704,9 +2707,26 @@ sub _write_url_web {
     # Pack the option flags
     my $options     = pack("V", 0x03);
 
-    # Convert URL to a null terminated wchar string
-    $url            = join("\0", split('', $url));
-    $url            = $url . "\0\0\0";
+
+    # URL encoding.
+    my $encoding    = 0;
+
+    # Convert an Utf8 URL type and to a null terminated wchar string.
+    if ($] >= 5.008) {
+        require Encode;
+
+        if (Encode::is_utf8($url)) {
+            $url      = Encode::encode("UTF-16LE", $url);
+            $url     .= "\0\0"; # URL is null terminated.
+            $encoding = 1;
+        }
+    }
+
+    # Convert an Ascii URL type and to a null terminated wchar string.
+    if ($encoding == 0) {
+        $url       .= "\0";
+        $url        = pack 'v*', unpack 'c*', $url;
+    }
 
 
     # Pack the length of the URL
@@ -4968,8 +4988,8 @@ sub _position_object {
     $col_end    = $col_start;
     $row_end    = $row_start;
 
-    $width      = $width  + $x1 -1;
-    $height     = $height + $y1 -1;
+    $width      = $width  + $x1;
+    $height     = $height + $y1;
 
 
     # Subtract the underlying cell widths to find the end cell of the image
@@ -6852,11 +6872,14 @@ sub _store_note {
 #
 sub _comment_params {
 
-    my $self    = shift;
+    my $self            = shift;
 
-    my $row     = shift;
-    my $col     = shift;
-    my $string  = shift;
+    my $row             = shift;
+    my $col             = shift;
+    my $string          = shift;
+
+    my $default_width   = 128;
+    my $default_height  = 74;
 
     my %params  = (
                     author          => '',
@@ -6867,8 +6890,8 @@ sub _comment_params {
                     start_col       => undef,
                     start_row       => undef,
                     visible         => undef,
-                    width           => 129,
-                    height          => 75,
+                    width           => $default_width,
+                    height          => $default_height,
                     x_offset        => undef,
                     x_scale         => 1,
                     y_offset        => undef,
@@ -6882,8 +6905,8 @@ sub _comment_params {
 
 
     # Ensure that a width and height have been set.
-    $params{width}  = 129 if not $params{width};
-    $params{height} = 75  if not $params{height};
+    $params{width}  = $default_width  if not $params{width};
+    $params{height} = $default_height if not $params{height};
 
 
     # Check that utf16 strings have an even number of bytes.
@@ -6983,16 +7006,13 @@ sub _comment_params {
     }
 
 
-    # Scale the size of the comment box if required. We scale the width and
-    # height using the relationship d2 =(d1 -1)*s +1, where d is dimension
-    # and s is scale. This gives values that match Excel's behaviour.
-    #
+    # Scale the size of the comment box if required.
     if ($params{x_scale}) {
-        $params{width}  = (($params{width}  -1) * $params{x_scale}) +1;
+        $params{width}  = $params{width}  * $params{x_scale};
     }
 
     if ($params{y_scale}) {
-        $params{height} = (($params{height} -1) * $params{y_scale}) +1;
+        $params{height} = $params{height} * $params{y_scale};
     }
 
 
@@ -7540,9 +7560,9 @@ sub _pack_dv_formula {
     else {
         # TODO test for non valid ptgs such as Sheet2!A1
     }
-
     # Force 2d ranges to be a reference class.
     s/_range2d/_range2dR/ for @tokens;
+    s/_name/_nameR/       for @tokens;
 
     # Parse the tokens into a formula string.
     $formula = $parser->parse_tokens(@tokens);
@@ -7579,7 +7599,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVIII, John McNamara.
+ï¿½ MM-MMVIII, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

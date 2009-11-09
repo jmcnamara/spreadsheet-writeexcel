@@ -1,7 +1,7 @@
 # http://module-build.sourceforge.net/META-spec.html
 #XXXXXXX This is a prototype!!!  It will change in the future!!! XXXXX#
 name:         Spreadsheet-WriteExcel
-version:      2.25
+version:      2.25.07
 version_from: lib/Spreadsheet/WriteExcel.pm
 installdirs:  site
 requires:

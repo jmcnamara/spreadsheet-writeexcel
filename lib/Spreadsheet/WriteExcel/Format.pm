@@ -304,7 +304,7 @@ sub get_xf {
     $border2       |= $self->{_diag_type}     << 14;
 
 
-    $border3       |= $self->{_top_color};
+    $border3        = $self->{_top_color};
     $border3       |= $self->{_bottom_color}  << 7;
     $border3       |= $self->{_diag_color}    << 14;
     $border3       |= $self->{_diag_border}   << 21;
