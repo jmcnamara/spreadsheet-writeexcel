@@ -17,4 +17,5 @@ WriteMakefile(
                        },
     'dist'          => { COMPRESS => 'gzip --best', SUFFIX => 'gz' },
     'EXE_FILES'     => ['bin/chartex'],
+    'LICENSE'       => 'perl',
 );
