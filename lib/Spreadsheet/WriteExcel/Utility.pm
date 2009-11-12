@@ -4,7 +4,7 @@ package Spreadsheet::WriteExcel::Utility;
 #
 # Utility - Helper functions for Spreadsheet::WriteExcel.
 #
-# Copyright 2000-2008, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2009, John McNamara, jmcnamara@cpan.org
 #
 #
 
@@ -47,7 +47,7 @@ my @dates       = qw(
                         dates   => \@dates
                     );
 
-$VERSION        = '2.20';
+$VERSION        = '2.26';
 
 
 
@@ -868,7 +868,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVIII, John McNamara.
+© MM-MMIX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

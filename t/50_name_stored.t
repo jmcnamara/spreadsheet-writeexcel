@@ -11,8 +11,8 @@
 use strict;
 
 use Spreadsheet::WriteExcel;
-#use Test::More tests => 12;
-use Test::More 'no_plan';
+use Test::More tests => 8;
+#use Test::More 'no_plan';
 
 
 ###############################################################################

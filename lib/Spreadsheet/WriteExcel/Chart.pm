@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Chart;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2008, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2009, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::BIFFwriter;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.22';
+$VERSION = '2.26';
 
 ###############################################################################
 #
@@ -286,7 +286,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVIII, John McNamara.
+© MM-MMIX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

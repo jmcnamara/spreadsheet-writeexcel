@@ -50,6 +50,9 @@ t/50_name_stored.t
 t/51_name_print_area.t
 t/52_name_print_titles.t
 t/53_name_autofilter.t
+t/90_pod.t
+t/91_minimumversion.t
+t/92_meta.t
 
 doc/index.html
 doc/WriteExcel.html

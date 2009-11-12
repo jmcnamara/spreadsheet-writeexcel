@@ -7,7 +7,7 @@ package Spreadsheet::WriteExcel::Properties;
 #
 # Used in conjunction with Spreadsheet::WriteExcel
 #
-# Copyright 2000-2008, John McNamara.
+# Copyright 2000-2009, John McNamara.
 #
 # Documentation after __END__
 #
@@ -21,10 +21,10 @@ use Time::Local 'timelocal';
 
 
 
-
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA        = qw(Exporter);
-$VERSION    = '0.02';
+
+$VERSION    = '2.26';
 
 # Set up the exports.
 my @all_functions = qw(
@@ -347,6 +347,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMVIII, John McNamara.
+© MM-MMIX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
