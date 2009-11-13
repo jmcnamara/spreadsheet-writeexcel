@@ -64,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.25.07 of Spreadsheet::WriteExcel, released January 10, 2009.
+This document refers to version 2.26 of Spreadsheet::WriteExcel, released November 13, 2009.
 
 
 
@@ -422,7 +422,7 @@ This method is used to defined a name that can be used to represent a value, a s
 
 See the defined_name.pl program in the examples dir of the distro.
 
-Note This currently a beta feature. More documentation and examples will be added.
+Note: This currently a beta feature. More documentation and examples will be added.
 
 
 
