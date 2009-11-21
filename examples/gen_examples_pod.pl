@@ -85,6 +85,7 @@ sub print_header {
     print "# Documentation after __END__\n";
     print "#\n\n";
 
+    print "use strict;\n";
     print "use vars qw(\$VERSION);\n";
     print "\$VERSION = '$version';\n\n";
 
