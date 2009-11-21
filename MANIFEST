@@ -10,6 +10,7 @@ lib/Spreadsheet/WriteExcel.pm
 lib/Spreadsheet/WriteExcel/BIFFwriter.pm
 lib/Spreadsheet/WriteExcel/Big.pm
 lib/Spreadsheet/WriteExcel/Chart.pm
+lib/Spreadsheet/WriteExcel/Examples.pm
 lib/Spreadsheet/WriteExcel/Format.pm
 lib/Spreadsheet/WriteExcel/Formula.pm
 lib/Spreadsheet/WriteExcel/OLEwriter.pm
@@ -103,6 +104,7 @@ examples/filehandle.pl
 examples/formats.pl
 examples/formula_result.pl
 examples/function_locale.pl
+examples/gen_examples_pod.pl
 examples/headers.pl
 examples/hide_sheet.pl
 examples/hyperlink1.pl
