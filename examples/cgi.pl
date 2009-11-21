@@ -25,7 +25,7 @@ my $filename ="cgitest.xls";
 print "Content-type: application/vnd.ms-excel\n";
 # The Content-Disposition will generate a prompt to save the file. If you want
 # to stream the file to the browser, comment out the following line.
-Print "Content-Disposition: attachment; filename=$filename\n";
+print "Content-Disposition: attachment; filename=$filename\n";
 print "\n";
 
 # Create a new workbook and add a worksheet. The special Perl filehandle - will
