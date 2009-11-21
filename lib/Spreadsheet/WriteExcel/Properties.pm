@@ -24,7 +24,7 @@ use Time::Local 'timelocal';
 use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 @ISA        = qw(Exporter);
 
-$VERSION    = '2.26';
+$VERSION    = '2.27';
 
 # Set up the exports.
 my @all_functions = qw(
