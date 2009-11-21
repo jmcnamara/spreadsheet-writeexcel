@@ -33,5 +33,6 @@ sub MY::postamble {
       . "\tperl examples/gen_examples_pod.pl examples "
       . "> lib/Spreadsheet/WriteExcel/Examples.pm\n"
       . "\tpod2cpanhtml lib/Spreadsheet/WriteExcel.pm "
+      . qq{ | perl -ne 'print unless /\\s+under Perl v[\\d.]+\\s/' }
       . "> doc/WriteExcel.html";
 }
