@@ -18,7 +18,7 @@ my $worksheet2 = $workbook->add_worksheet();
 my $worksheet3 = $workbook->add_worksheet();
 my $worksheet4 = $workbook->add_worksheet();
 
-# Worsheet1 will have the default tab colour.
+# Worksheet1 will have the default tab colour.
 $worksheet2->set_tab_color('red');
 $worksheet3->set_tab_color('green');
 $worksheet4->set_tab_color(0x35); # Orange

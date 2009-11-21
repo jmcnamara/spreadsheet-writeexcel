@@ -7,7 +7,7 @@
 #
 # The following example shows how to add a handler for a 7 digit ID number.
 # It adds an additional constraint to the write_handler1.pl in that it only
-# filters data if it isn't in the third column.
+# filters data that isn't in the third column.
 #
 #
 # reverse('©'), September 2004, John McNamara, jmcnamara@cpan.org

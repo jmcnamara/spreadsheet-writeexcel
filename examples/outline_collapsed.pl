@@ -3,9 +3,10 @@
 ###############################################################################
 #
 # Example of how use Spreadsheet::WriteExcel to generate Excel outlines and
-# grouping. These example focus mainly on collapsed outlines. See also the
-# outlines.pl example program.
+# grouping.
 #
+# These example focus mainly on collapsed outlines. See also the
+# outlines.pl example program for more general examples.
 #
 # reverse('©'), March 2008, John McNamara, jmcnamara@cpan.org
 #

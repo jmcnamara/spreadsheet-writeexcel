@@ -3,9 +3,10 @@
 #######################################################################
 #
 # Example of how to write Spreadsheet::WriteExcel formulas with a user
-# specified result. This is generally only required when writing a
-# spreadsheet for an application other than Excel where the formula
-# isn't evaluated.
+# specified result.
+#
+# This is generally only required when writing a spreadsheet for an
+# application other than Excel where the formula isn't evaluated.
 #
 # reverse('©'), August 2005, John McNamara, jmcnamara@cpan.org
 #

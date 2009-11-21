@@ -1,9 +1,9 @@
 #!/usr/bin/perl -w
 
-#######################################################################
+###############################################################################
 #
-# Example of how to use the WriteExcel module to write text and numbers
-# to an Excel binary file.
+# A simple example of how to use the Spreadsheet::WriteExcel module to write
+# some  text and numbers to an Excel binary file.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
@@ -37,3 +37,5 @@ $worksheet->write(8, 0,  '=IF(A5>3,"Yes", "No")');
 
 # Write a hyperlink
 $worksheet->write(10, 0, 'http://www.perl.com/');
+
+__END__

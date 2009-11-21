@@ -2,8 +2,8 @@
 
 ###############################################################################
 #
-# Example of how to use the WriteExcel module to write a basic multiple
-# worksheet Excel file.
+# An example of how to use the Spreadsheet:WriteExcel module to write a basic
+# Excel workbook with multiple worksheets.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

@@ -1,18 +1,15 @@
 #!/usr/bin/perl -w
 
 
+######################################################################
 #
 # NOTE: An easier way of writing dates and times is to use the newer
 #       write_date_time() Worksheet method. See the date_time.pl example.
 #
-
-
 ######################################################################
 #
 # Demonstration of writing date/time cells to Excel spreadsheets,
 # using UNIX/Perl time as source of date/time.
-#
-# Copyright 2000, Andrew Benham, adsb@bigfoot.com
 #
 ######################################################################
 #
@@ -23,7 +20,9 @@
 # In these systems, a floating point number represents the number of days
 # (and fractional parts of the day) since a start point. The floating point
 # number is referred to as a 'serial'.
+#
 # The two systems ('1900' and '1904') use different starting points:
+#
 #  '1900'; '1.00' is 1 Jan 1900 BUT 1900 is erroneously regarded as
 #          a leap year - see:
 #            http://support.microsoft.com/support/kb/articles/Q181/3/70.asp
@@ -41,6 +40,10 @@
 # regard 1900 as a leap year, and thus its serials do not agree with
 # the 1900 serials of Excel for dates before 1 Mar 1900.
 #
+
+# Copyright 2000, Andrew Benham, adsb@bigfoot.com
+#
+
 ######################################################################
 #
 # Calculation description

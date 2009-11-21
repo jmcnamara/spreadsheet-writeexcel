@@ -4,9 +4,10 @@
 #
 # Simple example of merging cells using the Spreadsheet::WriteExcel module.
 #
-# This merges three cells using the "Centre Across Selection" alignment.
-# This was the Excel 5 method of achieving a merge. Use the merge_range()
-# worksheet method instead. See merge3.pl - merge6.pl.
+# This example merges three cells using the "Centre Across Selection"
+# alignment which was the Excel 5 method of achieving a merge. For a more
+# modern approach use the merge_range() worksheet method instead.
+# See the merge3.pl - merge6.pl programs.
 #
 # reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
 #

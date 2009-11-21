@@ -8,9 +8,9 @@
 # If you wish to run this program and follow the hyperlinks you should create
 # the following directory structure:
 #
-# C:\ -- Temp --+-- Europe
-#               |
-#               \-- Asia
+#     C:\ -- Temp --+-- Europe
+#                   |
+#                   \-- Asia
 #
 #
 # See also hyperlink1.pl for web URL examples.

@@ -2,8 +2,10 @@
 
 ###############################################################################
 #
-# This example demonstrates writing cell comments. A cell comment is indicated
-# in Excel by a small red triangle in the upper right-hand corner of the cell.
+# This example demonstrates writing cell comments.
+#
+# A cell comment is indicated in Excel by a small red triangle in the upper
+# right-hand corner of the cell.
 #
 # Each of the worksheets demonstrates different features of cell comments.
 #
@@ -378,3 +380,4 @@ $comment   = 'Hello.';
 $worksheet8->write        ('C6', $cell_text, $text_wrap);
 $worksheet8->write_comment('C6', $comment);
 
+__END__

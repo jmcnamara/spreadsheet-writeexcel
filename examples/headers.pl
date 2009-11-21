@@ -7,29 +7,30 @@
 #
 # The control characters used in the header/footer strings are:
 #
-#   Control             Category            Description
-#   =======             ========            ===========
-#   &L                  Justification       Left
-#   &C                                      Center
-#   &R                                      Right
+#     Control             Category            Description
+#     =======             ========            ===========
+#     &L                  Justification       Left
+#     &C                                      Center
+#     &R                                      Right
 #
-#   &P                  Information         Page number
-#   &N                                      Total number of pages
-#   &D                                      Date
-#   &T                                      Time
-#   &F                                      File name
-#   &A                                      Worksheet name
+#     &P                  Information         Page number
+#     &N                                      Total number of pages
+#     &D                                      Date
+#     &T                                      Time
+#     &F                                      File name
+#     &A                                      Worksheet name
 #
-#   &fontsize           Font                Font size
-#   &"font,style"                           Font name and style
-#   &U                                      Single underline
-#   &E                                      Double underline
-#   &S                                      Strikethrough
-#   &X                                      Superscript
-#   &Y                                      Subscript
+#     &fontsize           Font                Font size
+#     &"font,style"                           Font name and style
+#     &U                                      Single underline
+#     &E                                      Double underline
+#     &S                                      Strikethrough
+#     &X                                      Superscript
+#     &Y                                      Subscript
 #
-#   &&                  Miscellaneous       Literal ampersand &
+#     &&                  Miscellaneous       Literal ampersand &
 #
+# See the main Spreadsheet::WriteExcel documentation for more information.
 #
 # reverse('©'), March 2002, John McNamara, jmcnamara@cpan.org
 #

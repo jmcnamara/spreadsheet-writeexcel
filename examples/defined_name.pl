@@ -4,6 +4,9 @@
 #
 # Example of how to create defined names in a Spreadsheet::WriteExcel file.
 #
+# This method is used to defined a name that can be used to represent a value,
+# a single cell or a range of cells in a workbook.
+#
 # reverse('©'), September 2008, John McNamara, jmcnamara@cpan.org
 #
 

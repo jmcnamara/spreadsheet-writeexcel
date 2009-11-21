@@ -5,7 +5,7 @@
 # Simple utility to convert the example programs listed in the README file into
 # a Pod doc for easier access via CPAN.
 #
-# reverse('©'), March 2009, John McNamara, jmcnamara@cpan.org
+# reverse('©'), November 2009, John McNamara, jmcnamara@cpan.org
 #
 
 use 5.008;
@@ -71,13 +71,19 @@ sub print_header {
 
     print '#' x 79, "\n";
     print "#\n";
-    print "# A documentation only module of the Spreadsheet::WriteExcel\n";
-    print "# examples generated automatically via the pod_gen.pl program in\n";
-    print "# the examples directory.\n";
+    print "# Examples -  Spreadsheet::WriteExcel examples.\n";
     print "#\n";
+
+    print "# A documentation only module showing the examples that are\n";
+    print "# included in the Spreadsheet::WriteExcel distribution. This\n";
+    print "# file was generated automatically via the gen_examples_pod.pl\n";
+    print "# program that is also included in the examples directory.\n";
+    print "#\n";
+
     print "# Copyright 2000-2009, John McNamara, jmcnamara\@cpan.org\n";
     print "#\n";
-    print "# Documentation after __END__\n\n";
+    print "# Documentation after __END__\n";
+    print "#\n\n";
 
     print "use vars qw(\$VERSION);\n";
     print "\$VERSION = '$version';\n\n";
@@ -94,9 +100,12 @@ sub print_header {
 
     print "=head1 DESCRIPTION\n\n";
 
-    print "This document contains all of the sample programs that are ";
-    print "included in the examples directory of the standard ";
-    print "L<Spreadsheet::WriteExcel>  distribution.\n\n";
+    print "This is a documentation only module showing the examples that are\n";
+    print "included in the L<Spreadsheet::WriteExcel> distribution.\n\n";
+    print "This file was auto-generated via the gen_examples_pod.pl\n";
+    print "program which is shown below.\n";
+    print "\n";
+
 }
 
 ###############################################################################
@@ -109,10 +118,11 @@ sub print_header {
 sub print_index {
 
     my @examples = @_;
+    my $count    = scalar @examples;
 
     print "=head1 Example programs\n\n";
 
-    print "The following is a list of the example programs that are ";
+    print "The following is a list of the $count example programs that are ";
     print "included in the Spreadsheet::WriteExcel distribution.\n\n";
 
     print "=over\n\n";

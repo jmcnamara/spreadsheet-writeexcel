@@ -2075,7 +2075,7 @@ See the C<tab_colors.pl> program in the examples directory of the distro.
 
 =head2 autofilter($first_row, $first_col, $last_row, $last_col)
 
-This method allows an autofilter to be added to a worksheet. An autofilter is a way of adding drop down lists to the headers of a 2D range of worksheet data. This is turn allow users to filter the data based on simple criteria so that some data is highlighted and some is hidden.
+This method allows an autofilter to be added to a worksheet. An autofilter is a way of adding drop down lists to the headers of a 2D range of worksheet data. This is turn allow users to filter the data based on simple criteria so that some data is shown and some is hidden.
 
 To add an autofilter to a worksheet:
 
@@ -4168,7 +4168,7 @@ The C<show_error> parameter is used to toggle on and off the 'Show error alert a
 
     show_error => 0,      # Turn the option off
 
-=head2 Examples
+=head2 Data Validation Examples
 
 Example 1. Limiting input to an integer greater than a fixed value.
 
@@ -4447,7 +4447,7 @@ It should be noted however that the overall speed of direct formula parsing will
 
 =head1 EXAMPLES
 
-
+See L<Spreadsheet::WriteExcel::Examples> for a full list of examples.
 
 
 =head2 Example 1
@@ -4712,21 +4712,20 @@ See the examples/csv2xls link here: http://search.cpan.org/~hmbrand/Text-CSV_XS/
 
 =head2 Additional Examples
 
-If you performed a normal installation the following examples files should have been copied to your C<~site/Spreadsheet/WriteExcel/examples> directory:
-
 The following is a description of the example files that are provided
-with Spreadsheet::WriteExcel. They are intended to demonstrate the
+in the standard Spreadsheet::WriteExcel distribution. They demonstrate the
 different features and options of the module.
-
+See L<Spreadsheet::WriteExcel::Examples> for more details.
 
     Getting started
     ===============
-    bug_report.pl           A template for submitting bug reports.
-    a_simple.pl             An example of some of the basic features.
-    demo.pl                 Creates a demo of some of the features.
-    formats.pl              Creates a demo of the available formatting.
-    regions.pl              Demonstrates multiple worksheets.
+    a_simple.pl             A get started example with some basic features.
+    demo.pl                 A demo of some of the available features.
+    regions.pl              A simple example of multiple worksheets.
     stats.pl                Basic formulas and functions.
+    formats.pl              All the available formatting on several worksheets.
+    bug_report.pl           A template for submitting bug reports.
+
 
     Advanced
     ========
@@ -4734,22 +4733,23 @@ different features and options of the module.
     autofit.pl              Simulate Excel's autofit for column widths.
     bigfile.pl              Write past the 7MB limit with OLE::Storage_Lite.
     cgi.pl                  A simple CGI program.
-    chess.pl                An example of formatting using properties.
-    colors.pl               Demo of the colour palette and named colours.
+    chess.pl                An example of reusing formatting via properties.
+    colors.pl               A demo of the colour palette and named colours.
     comments1.pl            Add comments to worksheet cells.
     comments2.pl            Add comments with advanced options.
     copyformat.pl           Example of copying a cell format.
     data_validate.pl        An example of data validation and dropdown lists.
+    date_time.pl            Write dates and times with write_date_time().
     defined_name.pl         Example of how to create defined names.
     diag_border.pl          A simple example of diagonal cell borders.
-    easter_egg.pl           Expose the Excel97 flight simulator. A must see.
+    easter_egg.pl           Expose the Excel97 flight simulator.
     filehandle.pl           Examples of working with filehandles.
     formula_result.pl       Formulas with user specified results.
     headers.pl              Examples of worksheet headers and footers.
     hide_sheet.pl           Simple example of hiding a worksheet.
     hyperlink1.pl           Shows how to create web hyperlinks.
     hyperlink2.pl           Examples of internal and external hyperlinks.
-    images.pl               Adding bitmap images to worksheets.
+    images.pl               Adding images to worksheets.
     indent.pl               An example of cell indentation.
     merge1.pl               A simple example of cell merging.
     merge2.pl               A simple example of cell merging with formatting.
@@ -4760,7 +4760,7 @@ different features and options of the module.
     mod_perl1.pl            A simple mod_perl 1 program.
     mod_perl2.pl            A simple mod_perl 2 program.
     outline.pl              An example of outlines and grouping.
-    outline_collapsed.pl    Examples of collapsed outlines and grouping.
+    outline_collapsed.pl    An example of collapsed outlines.
     panes.pl                An examples of how to create panes.
     properties.pl           Add document properties to a workbook.
     protection.pl           Example of cell locking and formula hiding.
@@ -4802,10 +4802,10 @@ different features and options of the module.
     Utility
     =======
     csv2xls.pl              Program to convert a CSV file to an Excel file.
+    tab2xls.pl              Program to convert a tab separated file to xls.
     datecalc1.pl            Convert Unix/Perl time to Excel time.
     datecalc2.pl            Calculate an Excel date using Date::Calc.
     lecxe.pl                Convert Excel to WriteExcel using Win32::OLE.
-    tab2xls.pl              Program to convert a tab separated file to xls.
 
 
     Developer
@@ -4813,6 +4813,7 @@ different features and options of the module.
     convertA1.pl            Helper functions for dealing with A1 notation.
     function_locale.pl      Add non-English function names to Formula.pm.
     writeA1.pl              Example of how to extend the module.
+    gen_examples_pod.pl     Generate the S::WE::Examples.pm doc.
 
 
 
@@ -4856,7 +4857,7 @@ Note, these aren't strict requirements. Spreadsheet::WriteExcel will work withou
 
 See the INSTALL or install.html docs that come with the distribution or:
 
-http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.24/INSTALL
+http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.26/INSTALL
 
 
 

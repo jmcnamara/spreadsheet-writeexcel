@@ -1,8 +1,12 @@
 #!/usr/bin/perl -w
 
-#######################################################################
+###############################################################################
 #
-# Example of how to create autofilters with Spreadsheet::WriteExcel.
+# An example of how to create autofilters with Spreadsheet::WriteExcel.
+#
+# An autofilter is a way of adding drop down lists to the headers of a 2D range
+# of worksheet data. This is turn allow users to filter the data based on
+# simple criteria so that some data is shown and some is hidden.
 #
 # reverse('©'), September 2007, John McNamara, jmcnamara@cpan.org
 #

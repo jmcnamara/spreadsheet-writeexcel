@@ -79,8 +79,8 @@ for my $date_format (@date_formats) {
 }
 
 
-# The following is an example of an invalid date. It is written as a string instead
-# of a number. This is also Excel's default behaviour.
+# The following is an example of an invalid date. It is written as a string
+# instead of a number. This is also Excel's default behaviour.
 #
 $row += 2;
 $worksheet->write_date_time($row, 0, '2004-13-01T12:30:45.123');

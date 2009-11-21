@@ -2,9 +2,8 @@
 
 ##############################################################################
 #
-# A simple formatting example using Spreadsheet::WriteExcel.
-#
-# This program demonstrates the diagonal border cell format.
+# A simple formatting example that demonstrates how to add a diagonal cell
+# border with Spreadsheet::WriteExcel
 #
 # reverse('©'), May 2004, John McNamara, jmcnamara@cpan.org
 #

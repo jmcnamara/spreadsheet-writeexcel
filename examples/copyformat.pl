@@ -2,7 +2,10 @@
 
 ###############################################################################
 #
-# Example of how to use the format copying method with Spreadsheet::WriteExcel #
+# Example of how to use the format copying method with Spreadsheet::WriteExcel.
+#
+# This feature isn't required very often.
+#
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
 

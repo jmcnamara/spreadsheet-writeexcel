@@ -2,7 +2,8 @@
 
 ###############################################################################
 #
-# Example of using Spreadsheet::WriteExcel to write to alternative filehandles.
+# Example of using Spreadsheet::WriteExcel to write Excel files to
+# different filehandles.
 #
 # reverse('©'), April 2003, John McNamara, jmcnamara@cpan.org
 #

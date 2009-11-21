@@ -8,13 +8,15 @@
 # Setting format properties via hashes of values is useful when you have
 # to deal with a large number of similar formats. Consider for example a
 # chess board pattern with black squares, white unformatted squares and
-# a border. This relatively simple example requires 14 separate Format
+# a border.
+#
+# This relatively simple example requires 14 separate Format
 # objects although there are only 5 different properties: black
 # background, top border, bottom border, left border and right border.
+#
 # Using property hashes it is possible to define these 5 sets of
 # properties and then add them together to create the 14 Format
 # configurations.
-#
 #
 # reverse('©'), July 2001, John McNamara, jmcnamara@cpan.org
 #

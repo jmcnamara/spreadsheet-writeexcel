@@ -7,8 +7,6 @@
 # NOTE: An easier way of writing dates and times is to use the newer
 #       write_date_time() Worksheet method. See the date_time.pl example.
 #
-# These functions have been superceded by Spreadsheet::WriteExcel::Utility.
-#
 # reverse('©'), June 2001, John McNamara, jmcnamara@cpan.org
 #
 

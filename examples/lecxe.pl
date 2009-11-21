@@ -1,10 +1,15 @@
 #!/usr/bin/perl -w
+
+#
+# Utility program to convert an Excel file into a Spreadsheet::WriteExcel
+# program using Win32::OLE
+#
+
 #
 # lecxe program
 # by t0mas@netlords.net
 #
-# Version
-# 0.01a    Initial release (alpha)
+# Version  0.01a    Initial release (alpha)
 
 
 # Modules

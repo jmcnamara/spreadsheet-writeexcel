@@ -2,8 +2,8 @@
 
 ###############################################################################
 #
-# This is a simple example of how to use functions with the
-# Spreadsheet::WriteExcel module.
+# A simple example of how to use functions with the Spreadsheet::WriteExcel
+# module.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
@@ -67,3 +67,4 @@ $worksheet->write(9,  1, '=STDEV(B2:I2)');
 $worksheet->write(10, 0, 'Kurtosis', $format);
 $worksheet->write(10, 1, '=KURT(B2:I2)');
 
+__END__

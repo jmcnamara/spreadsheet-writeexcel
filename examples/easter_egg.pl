@@ -3,7 +3,7 @@
 ###############################################################################
 #
 # This uses the Win32::OLE module to expose the Flight Simulator easter egg
-# in Excel 97 SR2. A must see.
+# in Excel 97 SR2.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

@@ -5,9 +5,10 @@
 # Example of formatting using the Spreadsheet::WriteExcel module
 #
 # This example shows how to wrap text in a cell. There are two alternatives,
-# vertical justification and text wrap. With vertical justification the text
-# is wrapped automatically to fit the column width. With text wrap you must
-# specify a newline with an embedded \n.
+# vertical justification and text wrap.
+#
+# With vertical justification the text is wrapped automatically to fit the
+# column width. With text wrap you must specify a newline with an embedded \n.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

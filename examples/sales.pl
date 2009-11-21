@@ -2,8 +2,8 @@
 
 ###############################################################################
 #
-# Example of fictional sales sheet to demonstrate several different features.
-# Also uses functions from the Spreadsheet::WriteExcel::Utility module.
+# Example of a sales worksheet to demonstrate several different features.
+# Also uses functions from the L<Spreadsheet::WriteExcel::Utility> module.
 #
 # reverse('©'), October 2001, John McNamara, jmcnamara@cpan.org
 #
@@ -60,7 +60,7 @@ foreach my $line (<DATA>) {
     chomp $line;
     next if $line eq '';
     # Simple-minded processing of CSV data. Refer to the Text::CSV_XS
-    # and Text::xSV modules for a more complete CVS handling.
+    # and Text::xSV modules for a more complete CSV handling.
     my @items = split /,/, $line;
     push @sales, \@items;
 }

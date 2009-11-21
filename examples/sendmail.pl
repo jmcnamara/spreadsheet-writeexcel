@@ -5,7 +5,9 @@
 # Example of how to use Mail::Sender to send a Spreadsheet::WriteExcel Excel
 # file as an attachment.
 #
-# See the Mail::Sender module for further details.
+# The main thing is to ensure that you close() the Worbook before you send it.
+#
+# See the L<Mail::Sender> module for further details.
 #
 # reverse('©'), August 2002, John McNamara, jmcnamara@cpan.org
 #

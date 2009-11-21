@@ -2,9 +2,10 @@
 
 #######################################################################
 #
-# Demo of some of the features of Spreadsheet::WriteExcel.
-# Used to create the project screenshot for Freshmeat.
+# A simple demo of some of the features of Spreadsheet::WriteExcel.
 #
+# This program is used to create the project screenshot for Freshmeat:
+# L<http://freshmeat.net/projects/writeexcel/>
 #
 # reverse('©'), October 2001, John McNamara, jmcnamara@cpan.org
 #
@@ -112,4 +113,4 @@ $worksheet->insert_image('B10', 'republic.png', 16, 8);
 $worksheet->write('A18', "Page/printer setup");
 $worksheet->write('A19', "Multiple worksheets");
 
-
+__END__

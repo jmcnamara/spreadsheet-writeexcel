@@ -1,8 +1,12 @@
 #!/usr/bin/perl -w
 
-######################################################################
+###############################################################################
 #
-# Examples of formatting using the Spreadsheet::WriteExcel module
+# Examples of formatting using the Spreadsheet::WriteExcel module.
+#
+# This program demonstrates almost all possible formatting options. It is worth
+# running this program and viewing the output Excel file if you are interested
+# in the various formatting possibilities.
 #
 # reverse('©'), September 2002, John McNamara, jmcnamara@cpan.org
 #
@@ -261,7 +265,7 @@ sub fonts {
     push @fonts, [ 12, 'Times New Roman' ];
     push @fonts, [ 12, 'Symbol' ];
     push @fonts, [ 12, 'Wingdings' ];
-    push @fonts, [ 12, 'A font that doesnt exist' ];
+    push @fonts, [ 12, 'A font that doesn\'t exist' ];
 
     my $i;
     foreach my $font (@fonts){
@@ -479,3 +483,4 @@ sub misc {
     $worksheet->write(13, 2, 'Shadow (Macintosh only)',  $format07);
 }
 
+__END__

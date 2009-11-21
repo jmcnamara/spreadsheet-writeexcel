@@ -1,9 +1,12 @@
 #!/usr/bin/perl -w
 
-######################################################################
+################################################################################
 #
-# Demonstrates Spreadsheet::WriteExcel's named colors and the Excel
-# color palette.
+# Demonstrates Spreadsheet::WriteExcel's named colors and the Excel color
+# palette.
+#
+# The set_custom_color() Worksheet method can be used to override one of the
+# built-in palette values with a more suitable colour. See the main docs.
 #
 # reverse('©'), March 2002, John McNamara, jmcnamara@cpan.org
 #
@@ -99,4 +102,6 @@ for my $i (8..63) {
 
     }
 }
+
+__END__
 

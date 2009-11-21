@@ -5,6 +5,10 @@
 # Example of how to add data validation and dropdown lists to a
 # Spreadsheet::WriteExcel file.
 #
+# Data validation is a feature of Excel which allows you to restrict the data
+# that a users enters in a cell and to display help and warning messages. It
+# also allows you to restrict input to values in a drop down list.
+#
 # reverse('©'), August 2008, John McNamara, jmcnamara@cpan.org
 #
 

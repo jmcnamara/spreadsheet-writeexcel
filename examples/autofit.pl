@@ -2,8 +2,7 @@
 
 ##############################################################################
 #
-# Simuluate Excel's autofit for colums widths.
-#
+# Simulate Excel's autofit for column widths.
 #
 # Excel provides a function called Autofit (Format->Columns->Autofit) that
 # adjusts column widths to match the length of the longest string in a column.
@@ -20,8 +19,8 @@
 #
 # The main problem with trying to simulate Autofit lies in defining a
 # relationship between a string length and its width in a arbitrary font and
-# size. We use two aproaches below. The first is a simple direct relationship
-# obtrained by trial and error. The second is a slightly more sophisticated
+# size. We use two approaches below. The first is a simple direct relationship
+# obtained by trial and error. The second is a slightly more sophisticated
 # method using an external module. For more complicated applications you will
 # probably have to work out your own methods.
 #
@@ -57,10 +56,10 @@ autofit_columns($worksheet);
 
 
 ###############################################################################
-###############################################################################
 #
 # Functions used for Autofit.
 #
+###############################################################################
 
 ###############################################################################
 #
@@ -148,8 +147,8 @@ __END__
 # "require"-ing it and you could make the Font object global to avoid repeated
 # initialisation.
 #
-# Note also that the $pixel_width to $cell_width is specific to arial. For
-# other fonts you should calculate appropriate relationships. A future verison
+# Note also that the $pixel_width to $cell_width is specific to Arial. For
+# other fonts you should calculate appropriate relationships. A future version
 # of S::WE will provide a way of specifying column widths in pixels instead of
 # cell units in order to simplify this conversion.
 #

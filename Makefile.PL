@@ -19,3 +19,8 @@ WriteMakefile(
     'EXE_FILES'     => ['bin/chartex'],
     'LICENSE'       => 'perl',
 );
+
+sub MY::postamble {
+    "mydocs:\n" .
+    "\tperl examples/gen_examples_pod.pl examples\n";
+}

@@ -6,7 +6,12 @@
 # file to a browser in a CGI program.
 #
 # On Windows the hash-bang line should be something like:
-# #!C:\Perl\bin\perl.exe
+#
+#     #!C:\Perl\bin\perl.exe
+#
+# The "Content-Disposition" line will cause a prompt to be generated to save
+# the file. If you want to stream the file to the browser instead, comment out
+# that line as shown below.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #
@@ -20,7 +25,7 @@ my $filename ="cgitest.xls";
 print "Content-type: application/vnd.ms-excel\n";
 # The Content-Disposition will generate a prompt to save the file. If you want
 # to stream the file to the browser, comment out the following line.
-print "Content-Disposition: attachment; filename=$filename\n";
+Print "Content-Disposition: attachment; filename=$filename\n";
 print "\n";
 
 # Create a new workbook and add a worksheet. The special Perl filehandle - will
@@ -43,3 +48,5 @@ $format->set_color('blue');
 
 # Write to the workbook
 $worksheet->write(0, 0, "Hi Excel!", $format);
+
+__END__

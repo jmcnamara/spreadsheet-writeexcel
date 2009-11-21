@@ -17,7 +17,7 @@
 # part of H.Merijn Brand's Text::CSV_XS module distro.
 #
 # See the examples/csv2xls link here:
-#     http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST
+#     L<http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST>
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

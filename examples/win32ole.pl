@@ -3,7 +3,7 @@
 ###############################################################################
 #
 # This is a simple example of how to create an Excel file using the
-# Win32::OLE module.
+# Win32::OLE module for the sake of comparison.
 #
 # reverse('©'), March 2001, John McNamara, jmcnamara@cpan.org
 #

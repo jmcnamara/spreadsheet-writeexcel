@@ -7,28 +7,27 @@
 # content-disposition/types it will prompt the user to save
 # the file, or open it at this location.
 #
-# This script is a modification of the example cgi.pm script bundled
-# with Spreadsheet::WriteExcel.
-#
-# Jun 2004, Matisse Enzer, matisse@matisse.net  (mod_perl 2 version)
-# Apr 2001, Thomas Sullivan, webmaster@860.org
-# Feb 2001, John McNamara, jmcnamara@cpan.org
+# This script is a modification of the Spreadsheet::WriteExcel cgi.pl example.
 #
 # Change the name of this file to MP2Test.pm.
-# Change the package location to where-ever you locate this package.
-# Below, I have this located in the WriteExcel directory.
+# Change the package location to where ever you locate this package.
+# In the example below it is located in the WriteExcel directory.
 #
 # Your httpd.conf entry for this module, should you choose to use it
 # as a stand alone app, should look similar to the following:
 #
-# PerlModule Spreadsheet::WriteExcel::MP2Test
-# <Location /spreadsheet-test>
-#    SetHandler perl-script
-#    PerlResponseHandler Spreadsheet::WriteExcel::MP2Test
-# </Location>
+#     PerlModule Spreadsheet::WriteExcel::MP2Test
+#     <Location /spreadsheet-test>
+#        SetHandler perl-script
+#        PerlResponseHandler Spreadsheet::WriteExcel::MP2Test
+#     </Location>
 #
-# PerlResponseHandler and the package line below have to match.
-# I promise.
+# The PerlResponseHandler above and the package name below *have* to match.
+
+# Jun 2004, Matisse Enzer, matisse@matisse.net  (mod_perl 2 version)
+# Apr 2001, Thomas Sullivan, webmaster@860.org
+# Feb 2001, John McNamara, jmcnamara@cpan.org
+
 package Spreadsheet::WriteExcel::MP2Test;
 
 ##########################################
