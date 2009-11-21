@@ -840,9 +840,9 @@ The following is a simple example showing how to write some Unicode strings in C
 
     $worksheet->write_utf16be_string('A7', $utf16);
 
-You can convert ASCII encodings to the required C<UTF-16BE> format using one of the many Unicode modules on CPAN. For example C<Unicode::Map> and C<Unicode::String>: http://search.cpan.org/author/MSCHWARTZ/Unicode-Map/Map.pm and http://search.cpan.org/author/GAAS/Unicode-String/String.pm
+You can convert ASCII encodings to the required C<UTF-16BE> format using one of the many Unicode modules on CPAN. For example C<Unicode::Map> and C<Unicode::String>: L<http://search.cpan.org/author/MSCHWARTZ/Unicode-Map/Map.pm> and L<http://search.cpan.org/author/GAAS/Unicode-String/String.pm>.
 
-For a full list of the Perl Unicode modules see: http://search.cpan.org/search?query=unicode&mode=all
+For a full list of the Perl Unicode modules see: L<http://search.cpan.org/search?query=unicode&mode=all>.
 
 C<UTF-16BE> is the format most often returned by C<Perl> modules that generate C<UTF-16>. To write C<UTF-16> strings in little-endian format use the C<write_utf16be_string_le()> method below.
 
@@ -3081,7 +3081,7 @@ The colour format should have one of the following values:
 
 Alternatively you can specify the colour based on a colour index as follows: C<[Color n]>, where n is a standard Excel colour index - 7. See the 'Standard colors' worksheet created by formats.pl.
 
-For more information refer to the documentation on formatting in the C<doc> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx
+For more information refer to the documentation on formatting in the C<doc> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or L<http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx>.
 
 You should ensure that the format string is valid in Excel prior to using it in WriteExcel.
 
@@ -3597,11 +3597,11 @@ A comparison of the colour components in the Excel 5 and Excel 97+ colour palett
 
 You may also find the following links helpful:
 
-A detailed look at Excel's colour palette: http://www.mvps.org/dmcritchie/excel/colors.htm
+A detailed look at Excel's colour palette: L<http://www.mvps.org/dmcritchie/excel/colors.htm>
 
-A decimal RGB chart: http://www.hypersolutions.org/pages/rgbdec.html
+A decimal RGB chart: L<http://www.hypersolutions.org/pages/rgbdec.html>.
 
-A hex RGB chart: : http://www.hypersolutions.org/pages/rgbhex.html
+A hex RGB chart: : L<http://www.hypersolutions.org/pages/rgbhex.html>.
 
 
 
@@ -3753,7 +3753,7 @@ The L<Spreadsheet::WriteExcel::Utility> module which is included in the distro h
 
 Note: some of these functions require additional CPAN modules.
 
-For date conversions using the CPAN C<DateTime> framework see L<DateTime::Format::Excel> http://search.cpan.org/search?dist=DateTime-Format-Excel
+For date conversions using the CPAN C<DateTime> framework see L<DateTime::Format::Excel> L<http://search.cpan.org/search?dist=DateTime-Format-Excel>.
 
 
 
@@ -4395,7 +4395,7 @@ The following table lists all of the core functions supported by Excel 5 and Spr
 
 You can also modify the module to support function names in the following languages: German, French, Spanish, Portuguese, Dutch, Finnish, Italian and Swedish. See the C<function_locale.pl> program in the C<examples> directory of the distro.
 
-For a general introduction to Excel's formulas and an explanation of the syntax of the function refer to the Excel help files or the following: http://office.microsoft.com/en-us/assistance/CH062528031033.aspx
+For a general introduction to Excel's formulas and an explanation of the syntax of the function refer to the Excel help files or the following: L<http://office.microsoft.com/en-us/assistance/CH062528031033.aspx>.
 
 If your formula doesn't work in Spreadsheet::WriteExcel try the following:
 
@@ -4705,7 +4705,7 @@ The following example converts a tab separated file called C<tab.txt> into an Ex
 
 NOTE: This is a simple conversion program for illustrative purposes only. For converting a CSV or Tab separated or any other type of delimited text file to Excel I recommend the more rigorous csv2xls program that is part of H.Merijn Brand's Text::CSV_XS module distro.
 
-See the examples/csv2xls link here: http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST
+See the examples/csv2xls link here: L<http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST>.
 
 
 
@@ -4830,14 +4830,14 @@ The following limits are imposed by Excel:
     Maximum chars in a header/footer     254
 
 
-The minimum file size is 6K due to the OLE overhead. The maximum file size is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by installing Takanori Kawai's OLE::Storage_Lite module http://search.cpan.org/search?dist=OLE-Storage_Lite see the C<bigfile.pl> example in the C<examples> directory of the distro.
+The minimum file size is 6K due to the OLE overhead. The maximum file size is approximately 7MB (7087104 bytes) of BIFF data. This can be extended by installing Takanori Kawai's OLE::Storage_Lite module L<http://search.cpan.org/search?dist=OLE-Storage_Lite> see the C<bigfile.pl> example in the C<examples> directory of the distro.
 
 
 
 
 =head1 DOWNLOADING
 
-The latest version of this module is always available at: http://search.cpan.org/search?dist=Spreadsheet-WriteExcel/
+The latest version of this module is always available at: L<http://search.cpan.org/search?dist=Spreadsheet-WriteExcel/>.
 
 
 
@@ -4855,9 +4855,7 @@ Note, these aren't strict requirements. Spreadsheet::WriteExcel will work withou
 
 =head1 INSTALLATION
 
-See the INSTALL or install.html docs that come with the distribution or:
-
-http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.26/INSTALL
+See the INSTALL or install.html docs that come with the distribution or: L<http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.26/INSTALL>.
 
 
 
@@ -4872,7 +4870,7 @@ should give (or in reverse order):
 
     0x8d 0x97 0x6e 0x12 0x83 0xc0 0xf3 0x3f
 
-In general, if you don't know whether your system supports a 64 bit IEEE float or not, it probably does. If your system doesn't, WriteExcel will C<croak()> with the message given in the L<DIAGNOSTICS> section. You can check which platforms the module has been tested on at the CPAN testers site: http://testers.cpan.org/search?request=dist&dist=Spreadsheet-WriteExcel
+In general, if you don't know whether your system supports a 64 bit IEEE float or not, it probably does. If your system doesn't, WriteExcel will C<croak()> with the message given in the L<DIAGNOSTICS> section. You can check which platforms the module has been tested on at the CPAN testers site: L<http://testers.cpan.org/search?request=dist&dist=Spreadsheet-WriteExcel>.
 
 
 
@@ -4901,7 +4899,7 @@ The current OLE implementation only supports a maximum BIFF file of this size. T
 
 =item Can't locate Parse/RecDescent.pm in @INC ...
 
-Spreadsheet::WriteExcel requires the Parse::RecDescent module. Download it from CPAN: http://search.cpan.org/search?dist=Parse-RecDescent
+Spreadsheet::WriteExcel requires the Parse::RecDescent module. Download it from CPAN: L<http://search.cpan.org/search?dist=Parse-RecDescent>
 
 =item Couldn't parse formula ...
 
@@ -4927,17 +4925,17 @@ This error generally means that the Excel file has been corrupted. There are two
 
 The following is some general information about the Excel binary format for anyone who may be interested.
 
-Excel data is stored in the "Binary Interchange File Format" (BIFF) file format. Details of this format are given in "Excel 97-2007 Binary File Format Specification" http://www.microsoft.com/interop/docs/OfficeBinaryFormats.mspx
+Excel data is stored in the "Binary Interchange File Format" (BIFF) file format. Details of this format are given in "Excel 97-2007 Binary File Format Specification" L<http://www.microsoft.com/interop/docs/OfficeBinaryFormats.mspx>.
 
-Daniel Rentz of OpenOffice.org has also written a detailed description of the Excel workbook records, see http://sc.openoffice.org/excelfileformat.pdf
+Daniel Rentz of OpenOffice.org has also written a detailed description of the Excel workbook records, see L<http://sc.openoffice.org/excelfileformat.pdf>.
 
-Charles Wybble has collected together additional information about the Excel file format. See "The Chicago Project" at http://chicago.sourceforge.net/devel/
+Charles Wybble has collected together additional information about the Excel file format. See "The Chicago Project" at L<http://chicago.sourceforge.net/devel/>.
 
 The BIFF data is stored along with other data in an OLE Compound File. This is a structured storage which acts like a file system within a file. A Compound File is comprised of storages and streams which, to follow the file system analogy, are like directories and files.
 
-The OLE format is explained in the "Windows Compound Binary File Format Specification" http://www.microsoft.com/interop/docs/supportingtechnologies.mspx
+The OLE format is explained in the "Windows Compound Binary File Format Specification" L<http://www.microsoft.com/interop/docs/supportingtechnologies.mspx>
 
-The Digital Imaging Group have also detailed the OLE format in the JPEG2000 specification: see Appendix A of http://www.i3a.org/pdf/wg1n1017.pdf
+The Digital Imaging Group have also detailed the OLE format in the JPEG2000 specification: see Appendix A of L<http://www.i3a.org/pdf/wg1n1017.pdf>.
 
 Please note that the provision of this information does not constitute an invitation to start hacking at the BIFF or OLE file formats. There are more interesting ways to waste your time. ;-)
 
@@ -4952,7 +4950,7 @@ Depending on your requirements, background and general sensibilities you may pre
 
 =item * Win32::OLE module and office automation
 
-This requires a Windows platform and an installed copy of Excel. This is the most powerful and complete method for interfacing with Excel. See http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/faq/Windows/ActivePerl-Winfaq12.html and http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/site/lib/Win32/OLE.html If your main platform is UNIX but you have the resources to set up a separate Win32/MSOffice server, you can convert office documents to text, postscript or PDF using Win32::OLE. For a demonstration of how to do this using Perl see Docserver: http://search.cpan.org/search?mode=module&query=docserver
+This requires a Windows platform and an installed copy of Excel. This is the most powerful and complete method for interfacing with Excel. See L<http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/faq/Windows/ActivePerl-Winfaq12.html> and L<http://www.activestate.com/ASPN/Reference/Products/ActivePerl-5.6/site/lib/Win32/OLE.html>. If your main platform is UNIX but you have the resources to set up a separate Win32/MSOffice server, you can convert office documents to text, postscript or PDF using Win32::OLE. For a demonstration of how to do this using Perl see Docserver: L<http://search.cpan.org/search?mode=module&query=docserver>.
 
 =item * CSV, comma separated variables or text
 
@@ -4964,27 +4962,27 @@ Excel files contain an internal index table that allows them to act like a datab
 
 =item * DBD::Excel
 
-You can also access Spreadsheet::WriteExcel using the standard DBI interface via Takanori Kawai's DBD::Excel module http://search.cpan.org/dist/DBD-Excel
+You can also access Spreadsheet::WriteExcel using the standard DBI interface via Takanori Kawai's DBD::Excel module L<http://search.cpan.org/dist/DBD-Excel>
 
 =item * Spreadsheet::WriteExcelXML
 
-This module allows you to create an Excel XML file using the same interface as Spreadsheet::WriteExcel. See: http://search.cpan.org/dist/Spreadsheet-WriteExcelXML
+This module allows you to create an Excel XML file using the same interface as Spreadsheet::WriteExcel. See: L<http://search.cpan.org/dist/Spreadsheet-WriteExcelXML>
 
 =item * Excel::Template
 
-This module allows you to create an Excel file from an XML template in a manner similar to HTML::Template. See http://search.cpan.org/dist/Excel-Template/
+This module allows you to create an Excel file from an XML template in a manner similar to HTML::Template. See L<http://search.cpan.org/dist/Excel-Template/>.
 
 =item * Spreadsheet::WriteExcel::FromXML
 
-This module allows you to turn a simple XML file into an Excel file using Spreadsheet::WriteExcel as a back-end. The format of the XML file is defined by a supplied DTD: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML
+This module allows you to turn a simple XML file into an Excel file using Spreadsheet::WriteExcel as a back-end. The format of the XML file is defined by a supplied DTD: L<http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML>.
 
 =item * Spreadsheet::WriteExcel::Simple
 
-This provides an easier interface to Spreadsheet::WriteExcel: http://search.cpan.org/dist/Spreadsheet-WriteExcel-Simple
+This provides an easier interface to Spreadsheet::WriteExcel: L<http://search.cpan.org/dist/Spreadsheet-WriteExcel-Simple>.
 
 =item * Spreadsheet::WriteExcel::FromDB
 
-This is a useful module for creating Excel files directly from a DB table: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB
+This is a useful module for creating Excel files directly from a DB table: L<http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB>.
 
 =item * HTML tables
 
@@ -4992,11 +4990,11 @@ This is an easy way of adding formatting via a text based format.
 
 =item * XML or HTML
 
-The Excel XML and HTML file specification are available from http://msdn.microsoft.com/library/officedev/ofxml2k/ofxml2k.htm
+The Excel XML and HTML file specification are available from L<http://msdn.microsoft.com/library/officedev/ofxml2k/ofxml2k.htm>.
 
 =back
 
-For other Perl-Excel modules try the following search: http://search.cpan.org/search?mode=module&query=excel
+For other Perl-Excel modules try the following search: L<http://search.cpan.org/search?mode=module&query=excel>.
 
 
 
@@ -5009,20 +5007,20 @@ To read data from Excel files try:
 
 =item * Spreadsheet::ParseExcel
 
-This uses the OLE::Storage-Lite module to extract data from an Excel file. http://search.cpan.org/dist/Spreadsheet-ParseExcel
+This uses the OLE::Storage-Lite module to extract data from an Excel file. L<http://search.cpan.org/dist/Spreadsheet-ParseExcel>.
 
 =item * Spreadsheet::ParseExcel_XLHTML
 
-This module uses Spreadsheet::ParseExcel's interface but uses xlHtml (see below) to do the conversion: http://search.cpan.org/dist/Spreadsheet-ParseExcel_XLHTML
+This module uses Spreadsheet::ParseExcel's interface but uses xlHtml (see below) to do the conversion: L<http://search.cpan.org/dist/Spreadsheet-ParseExcel_XLHTML>
 Spreadsheet::ParseExcel_XLHTML
 
 =item * xlHtml
 
-This is an open source "Excel to HTML Converter" C/C++ project at http://chicago.sourceforge.net/xlhtml/
+This is an open source "Excel to HTML Converter" C/C++ project at L<http://chicago.sourceforge.net/xlhtml/>.
 
 =item * DBD::Excel (reading)
 
-You can also access Spreadsheet::ParseExcel using the standard DBI interface via  Takanori Kawai's DBD::Excel module http://search.cpan.org/dist/DBD-Excel
+You can also access Spreadsheet::ParseExcel using the standard DBI interface via  Takanori Kawai's DBD::Excel module L<http://search.cpan.org/dist/DBD-Excel>.
 
 =item * Win32::OLE module and office automation (reading)
 
@@ -5030,7 +5028,7 @@ See, the section L<WRITING EXCEL FILES>.
 
 =item * HTML tables (reading)
 
-If the files are saved from Excel in a HTML format the data can be accessed using HTML::TableExtract http://search.cpan.org/dist/HTML-TableExtract
+If the files are saved from Excel in a HTML format the data can be accessed using HTML::TableExtract L<http://search.cpan.org/dist/HTML-TableExtract>.
 
 =item * DBI with DBD::ADO or DBD::ODBC.
 
@@ -5038,20 +5036,20 @@ See, the section L<WRITING EXCEL FILES>.
 
 =item * XML::Excel
 
-Converts Excel files to XML using Spreadsheet::ParseExcel http://search.cpan.org/dist/XML-Excel.
+Converts Excel files to XML using Spreadsheet::ParseExcel L<http://search.cpan.org/dist/XML-Excel>.
 
 =item * OLE::Storage, aka LAOLA
 
-This is a Perl interface to OLE file formats. In particular, the distro contains an Excel to HTML converter called Herbert, http://user.cs.tu-berlin.de/~schwartz/pmh/ This has been superseded by the Spreadsheet::ParseExcel module.
+This is a Perl interface to OLE file formats. In particular, the distro contains an Excel to HTML converter called Herbert, L<http://user.cs.tu-berlin.de/~schwartz/pmh/>. This has been superseded by the Spreadsheet::ParseExcel module.
 
 =back
 
 
-For other Perl-Excel modules try the following search: http://search.cpan.org/search?mode=module&query=excel
+For other Perl-Excel modules try the following search: L<http://search.cpan.org/search?mode=module&query=excel>.
 
-If you wish to view Excel files on a UNIX/Linux platform check out the excellent Gnumeric spreadsheet application at http://www.gnome.org/projects/gnumeric/ or OpenOffice.org at http://www.openoffice.org/
+If you wish to view Excel files on a UNIX/Linux platform check out the excellent Gnumeric spreadsheet application at L<http://www.gnome.org/projects/gnumeric/> or OpenOffice.org at L<http://www.openoffice.org/>.
 
-If you wish to view Excel files on a Windows platform which doesn't have Excel installed you can use the free Microsoft Excel Viewer http://office.microsoft.com/downloads/2000/xlviewer.aspx
+If you wish to view Excel files on a Windows platform which doesn't have Excel installed you can use the free Microsoft Excel Viewer L<http://office.microsoft.com/downloads/2000/xlviewer.aspx>.
 
 
 
@@ -5062,7 +5060,7 @@ An Excel file is a binary file within a binary file. It contains several interli
 
 As such you cannot simply append or update an Excel file. The only way to achieve this is to read the entire file into memory, make the required changes or additions and then write the file out again.
 
-You can read and rewrite an Excel file using the Spreadsheet::ParseExcel::SaveParser module which is a wrapper around Spreadsheet::ParseExcel and Spreadsheet::WriteExcel. It is part of the Spreadsheet::ParseExcel package: http://search.cpan.org/search?dist=Spreadsheet-ParseExcel
+You can read and rewrite an Excel file using the Spreadsheet::ParseExcel::SaveParser module which is a wrapper around Spreadsheet::ParseExcel and Spreadsheet::WriteExcel. It is part of the Spreadsheet::ParseExcel package: L<http://search.cpan.org/search?dist=Spreadsheet-ParseExcel>.
 
 However, you can only rewrite the features that Spreadsheet::WriteExcel supports so macros, graphs and some other features in the original Excel file will be lost. Also, formulas aren't rewritten, only the result of a formula is written.
 
@@ -5150,7 +5148,7 @@ This is usually caused by multiple instances of data in a cell.
 
 SP3 changed Excel's default behaviour when it encounters multiple data in a cell so that it issues a warning when the file is opened and it displays the first data that was written. Prior to SP3 it didn't issue a warning and displayed the last data written.
 
-For a longer discussion and some workarounds see the following: http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/3dcea40e6620af3a
+For a longer discussion and some workarounds see the following: L<http://groups.google.com/group/spreadsheet-writeexcel/browse_thread/thread/3dcea40e6620af3a>.
 
 
 
@@ -5171,8 +5169,6 @@ OpenOffice.org: No known issues in this release.
 
 Gnumeric: No known issues in this release.
 
-Excel 2008 for Mac: Hyperlinks generate a "File Error: data may have been lost" warning.
-
 If you wish to submit a bug report run the C<bug_report.pl> program in the C<examples> directory of the distro.
 
 
@@ -5184,7 +5180,7 @@ The roadmap is as follows:
 
 =over 4
 
-=item * Add named ranges.
+=item * Enhance named ranges.
 
 =back
 
@@ -5206,46 +5202,71 @@ If there is some feature of an Excel file that you really, really need then you 
 
 
 
+=head1 REPOSITORY
+
+The Spreadsheet::WriteExcel source code in host on github: L<http://github.com/jmcnamara/spreadsheet-writeexcel>.
+
+
+
+
 =head1 MAILING LIST
 
-There is a Google group for discussing and asking questions about Spreadsheet::WriteExcel. This is a good place to search to see if your question has been asked before:  http://groups-beta.google.com/group/spreadsheet-writeexcel/
+There is a Google group for discussing and asking questions about Spreadsheet::WriteExcel. This is a good place to search to see if your question has been asked before:  L<http://groups.google.com/group/spreadsheet-writeexcel>.
+
+=begin html
+
+<center>
+<table style="background-color: #fff; padding: 5px;" cellspacing=0>
+  <tr><td>
+  <img src="http://groups.google.com/intl/en/images/logos/groups_logo_sm.gif"
+         height=30 width=140 alt="Google Groups">
+  </td></tr>
+  <tr><td>
+  <a href="http://groups.google.com/group/spreadsheet-writeexcel">Spreadsheet::WriteExcel</a>
+  </td></tr>
+</table>
+</center>
+
+=end html
+
+
 
 Alternatively you can keep up to date with future releases by subscribing at:
-http://freshmeat.net/projects/writeexcel/
+L<http://freshmeat.net/projects/writeexcel/>.
 
 
 
 
 =head1 DONATIONS
 
-If you'd care to donate to the Spreadsheet::WriteExcel project, you can do so via PayPal: http://tinyurl.com/7ayes
+If you'd care to donate to the Spreadsheet::WriteExcel project, you can do so via PayPal: L<http://tinyurl.com/7ayes>.
 
 
 
 
 =head1 SEE ALSO
 
-Spreadsheet::ParseExcel: http://search.cpan.org/dist/Spreadsheet-ParseExcel
+Spreadsheet::ParseExcel: L<http://search.cpan.org/dist/Spreadsheet-ParseExcel>.
 
-Spreadsheet-WriteExcel-FromXML: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML
+Spreadsheet-WriteExcel-FromXML: L<http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromXML>.
 
-Spreadsheet::WriteExcel::FromDB: http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB
+Spreadsheet::WriteExcel::FromDB: L<http://search.cpan.org/dist/Spreadsheet-WriteExcel-FromDB>.
 
-Excel::Template: http://search.cpan.org/~rkinyon/Excel-Template/
+Excel::Template: L<http://search.cpan.org/~rkinyon/Excel-Template/>.
 
-DateTime::Format::Excel: http://search.cpan.org/dist/DateTime-Format-Excel
+DateTime::Format::Excel: L<http://search.cpan.org/dist/DateTime-Format-Excel>.
 
-"Reading and writing Excel files with Perl" by Teodor Zlatanov, at IBM developerWorks: http://www-106.ibm.com/developerworks/library/l-pexcel/
+"Reading and writing Excel files with Perl" by Teodor Zlatanov, at IBM developerWorks: L<http://www-106.ibm.com/developerworks/library/l-pexcel/>.
 
-"Excel-Dateien mit Perl erstellen - Controller im Gluck" by Peter Dintelmann and Christian Kirsch in the German Unix/web journal iX: http://www.heise.de/ix/artikel/2001/06/175/
+"Excel-Dateien mit Perl erstellen - Controller im Gluck" by Peter Dintelmann and Christian Kirsch in the German Unix/web journal iX: L<http://www.heise.de/ix/artikel/2001/06/175/>.
 
-Spreadsheet::WriteExcel documentation in Japanese by Takanori Kawai. http://member.nifty.ne.jp/hippo2000/perltips/Spreadsheet/WriteExcel.htm
+Spreadsheet::WriteExcel documentation in Japanese by Takanori Kawai. L<http://member.nifty.ne.jp/hippo2000/perltips/Spreadsheet/WriteExcel.htm>.
 
 Oesterly user brushes with fame:
-http://oesterly.com/releases/12102000.html
+L<http://oesterly.com/releases/12102000.html>.
 
 The csv2xls program that is part of Text::CSV_XS:
-http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST
+L<http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST>.
 
 
 
@@ -5288,7 +5309,7 @@ In no event unless required by applicable law or agreed to in writing will any c
 
 =head1 LICENSE
 
-Either the Perl Artistic Licence http://dev.perl.org/licenses/artistic.html or the GPL http://www.opensource.org/licenses/gpl-license.php
+Either the Perl Artistic Licence L<http://dev.perl.org/licenses/artistic.html> or the GPL L<http://www.opensource.org/licenses/gpl-license.php>.
 
 
 

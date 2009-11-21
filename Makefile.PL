@@ -5,22 +5,33 @@ use ExtUtils::MakeMaker;
 #
 require 5.005;
 
+my %resources = (
+    repository  => 'http://github.com/jmcnamara/spreadsheet-writeexcel',
+    MailingList => 'http://groups.google.com/group/spreadsheet-writeexcel',
+);
+
 WriteMakefile(
     'AUTHOR'        => 'John McNamara (jmcnamara@cpan.org)',
     'ABSTRACT'      => 'Write to a cross platform Excel binary file',
     'NAME'          => 'Spreadsheet::WriteExcel',
     'VERSION_FROM'  => 'lib/Spreadsheet/WriteExcel.pm',
     'NEEDS_LINKING' => 0,
-    'PREREQ_PM'     => { Parse::RecDescent => 0,
-                         File::Temp        => 0,
-                         OLE::Storage_Lite => 0.14,
-                       },
     'dist'          => { COMPRESS => 'gzip --best', SUFFIX => 'gz' },
     'EXE_FILES'     => ['bin/chartex'],
     'LICENSE'       => 'perl',
+    'META_MERGE' => { 'resources' => \%resources },
+    'PREREQ_PM'  => {
+        Parse::RecDescent => 0,
+        File::Temp        => 0,
+        OLE::Storage_Lite => 0.14,
+    },
+
 );
 
 sub MY::postamble {
-    "mydocs:\n" .
-    "\tperl examples/gen_examples_pod.pl examples\n";
+    "mydocs:\n"
+      . "\tperl examples/gen_examples_pod.pl examples "
+      . "> lib/Spreadsheet/WriteExcel/Examples.pm\n"
+      . "\tpod2cpanhtml lib/Spreadsheet/WriteExcel.pm "
+      . "> doc/WriteExcel.html";
 }
