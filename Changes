@@ -1,5 +1,10 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.28 November 22 2009 - Minor
+
+    ! Fix to NAME section in Example.pm to get CPAN to generate pod docs
+      for it. 
+
 
 2.27 November 21 2009 - Minor
 

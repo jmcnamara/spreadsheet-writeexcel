@@ -71,7 +71,7 @@ sub print_header {
 
     print '#' x 79, "\n";
     print "#\n";
-    print "# Examples -  Spreadsheet::WriteExcel examples.\n";
+    print "# Examples - Spreadsheet::WriteExcel examples.\n";
     print "#\n";
 
     print "# A documentation only module showing the examples that are\n";
@@ -97,7 +97,7 @@ sub print_header {
 
     print "=head1 NAME\n\n";
 
-    print "Spreadsheet::WriteExcel example programs.\n\n";
+    print "Examples - Spreadsheet::WriteExcel example programs.\n\n";
 
     print "=head1 DESCRIPTION\n\n";
 
