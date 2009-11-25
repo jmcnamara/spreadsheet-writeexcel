@@ -23,7 +23,7 @@ WriteMakefile(
     'PREREQ_PM'  => {
         Parse::RecDescent => 0,
         File::Temp        => 0,
-        OLE::Storage_Lite => 0.14,
+        OLE::Storage_Lite => 0.19,
     },
 
 );
