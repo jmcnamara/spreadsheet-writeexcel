@@ -105,7 +105,7 @@ Copyright (c) 2000, The Perl Journal.
 </pre>
 
 <p><FONT face="verdana" size="-2"><B>Figure 1:</B> Example file Written with Spreadsheet::WriteExcel</FONT><BR>
-<IMG src="tpj0503-0004-01.gif" width="372" height="234" border="0"></P>
+<IMG src="tpj_images/tpj0503-0004-01.gif" width="372" height="234" border="0"></P>
 
 <p>What is happening here is that we are using the Spreadsheet::WriteExcel module to create a variable that acts like an Excel workbook. We add a single worksheet to this workbook and then write some text and numbers. Figure 1 shows how the resulting file looks when opened in Excel.</p>
 
@@ -178,7 +178,7 @@ Copyright (c) 2000, The Perl Journal.
 <p>The output from this program is shown in Figure 2.</p>
 
 <p><FONT face="verdana" size="-2"><B>Figure 2:</B> A multiple worksheet example</FONT><BR>
-<IMG src="tpj0503-0004-02.gif" width="438" height="252" border="0"></P>
+<IMG src="tpj_images/tpj0503-0004-02.gif" width="438" height="252" border="0"></P>
 
 <p>You can also create a new Excel file using the special Perl filehandle -, which redirects the output to STDOUT. This is useful for CGI programs generating data with a content-type of <tt>application/vnd.ms-excel</tt>.</p>
 
@@ -265,7 +265,7 @@ Copyright (c) 2000, The Perl Journal.
 
 
 <p><FONT face="verdana" size="-2"><B>Figure 3:</B> The compound File system used to store Excel data.</FONT><BR>
-<IMG src="tpj0503-0004-03.gif" width="210" height="173" border="0"></P>
+<IMG src="tpj_images/tpj0503-0004-03.gif" width="210" height="173" border="0"></P>
 
 <p>One effect of the file system structure is that the BIFF data within the Compound Files is often fragmented, and the files occasionally contain lost blocks of data. The location of the data within a Compound File is controlled by a file allocation table (FAT).</p>
 
@@ -368,7 +368,7 @@ Everything went fine until Excel 97.
 <p>The interaction of these packages is shown as low-tech UML in Figure 4. Only the documented public methods are included.</p>
 
 <p><FONT face="verdana" size="-2"><B>Figure 4:</B> The structure of the Spreadsheet::WriteExcel module.</FONT><BR>
-<IMG src="tpj0503-0004-04.gif" width="488" height="442" border="0"></P>
+<IMG src="tpj_images/tpj0503-0004-04.gif" width="488" height="442" border="0"></P>
 
 <p>The relationships can be described as follows: WriteExcel is a Workbook. Workbook is a container for Worksheets, and it uses the OLEwriter class. Workbook and Worksheet are both derived from the abstract base class BIFFwriter.</p>
 
@@ -447,7 +447,7 @@ Everything went fine until Excel 97.
 </pre>
 
 <p><FONT face="verdana" size="-2"><B>Figure 5:</B> An example file written with Win32::OLE and Excel.</FONT><BR>
-<IMG src="tpj0503-0004-05.gif" width="427" height="242" border="0"></P>
+<IMG src="tpj_images/tpj0503-0004-05.gif" width="427" height="242" border="0"></P>
 
 <p>The result is shown in Figure 5. Without the formatting code, this program produces an Excel file which is almost identical to the one shown in Figure 1.</p>
 
