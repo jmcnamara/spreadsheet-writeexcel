@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::BIFFwriter;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter);
 
-$VERSION = '2.29';
+$VERSION = '2.30';
 
 ###############################################################################
 #

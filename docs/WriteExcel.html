@@ -224,8 +224,8 @@ name="NAME"
 name="VERSION"
 >VERSION</a></h1>
 
-<p>This document refers to version 2.29 of Spreadsheet::WriteExcel,
-released November 25,
+<p>This document refers to version 2.30 of Spreadsheet::WriteExcel,
+released November 29,
 2009.</p>
 
 <h1><a class='u' href='#___top' title='click to go to top of document'
@@ -3167,7 +3167,7 @@ name="set_num_format()"
 
 <p>Alternatively you can specify the colour based on a colour index as follows: <code>[Color n]</code>, where n is a standard Excel colour index - 7. See the &#39;Standard colors&#39; worksheet created by formats.pl.</p>
 
-<p>For more information refer to the documentation on formatting in the <code>doc</code> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or <a href="http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx" class="podlinkurl"
+<p>For more information refer to the documentation on formatting in the <code>docs</code> directory of the Spreadsheet::WriteExcel distro, the Excel on-line help or <a href="http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx" class="podlinkurl"
 >http://office.microsoft.com/en-gb/assistance/HP051995001033.aspx</a>.</p>
 
 <p>You should ensure that the format string is valid in Excel prior to using it in WriteExcel.</p>
@@ -3213,7 +3213,7 @@ name="set_num_format()"
     48      0x30    ##0.0E+0
     49      0x31    @</pre>
 
-<p>For examples of these formatting codes see the &#39;Numerical formats&#39; worksheet created by formats.pl. See also the number_formats1.html and the number_formats2.html documents in the <code>doc</code> directory of the distro.</p>
+<p>For examples of these formatting codes see the &#39;Numerical formats&#39; worksheet created by formats.pl. See also the number_formats1.html and the number_formats2.html documents in the <code>docs</code> directory of the distro.</p>
 
 <p>Note 1. Numeric formats 23 to 36 are not documented by Microsoft and may differ in international versions.</p>
 
@@ -3645,9 +3645,9 @@ name="COLOURS_IN_EXCEL"
 
     $worksheet-&#62;write_blank(&#39;A1&#39;, $format);</pre>
 
-<p>The default Excel 97 colour palette is shown in <code>palette.html</code> in the <code>doc</code> directory of the distro. You can generate an Excel version of the palette using <code>colors.pl</code> in the <code>examples</code> directory.</p>
+<p>The default Excel 97 colour palette is shown in <code>palette.html</code> in the <code>docs</code> directory of the distro. You can generate an Excel version of the palette using <code>colors.pl</code> in the <code>examples</code> directory.</p>
 
-<p>A comparison of the colour components in the Excel 5 and Excel 97+ colour palettes is shown in <code>rgb5-97.txt</code> in the <code>doc</code> directory.</p>
+<p>A comparison of the colour components in the Excel 5 and Excel 97+ colour palettes is shown in <code>rgb5-97.txt</code> in the <code>docs</code> directory.</p>
 
 <p>You may also find the following links helpful:</p>
 
@@ -4555,6 +4555,9 @@ name="Example_1"
     # Write a hyperlink
     $worksheet-&#62;write(10, 0, &#39;http://www.perl.com/&#39;);</pre>
 
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/a_simple.jpg" width="640" height="599" alt="Output from a_simple.pl" /></center></p>
+
+
 <h2><a class='u' href='#___top' title='click to go to top of document'
 name="Example_2"
 >Example 2</a></h2>
@@ -4599,6 +4602,9 @@ name="Example_2"
 
     # Set the active cell
     $south-&#62;set_selection(0, 1);</pre>
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/regions.jpg" width="640" height="599" alt="Output from regions.pl" /></center></p>
+
 
 <h2><a class='u' href='#___top' title='click to go to top of document'
 name="Example_3"
@@ -4669,6 +4675,9 @@ name="Example_3"
     $worksheet-&#62;write(3, 2, 321,      $f_volume); # 321
     $worksheet-&#62;write(3, 3, 0,        $f_change); # 0 in the font color (black)</pre>
 
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stocks.jpg" width="640" height="599" alt="Output from stocks.pl" /></center></p>
+
+
 <h2><a class='u' href='#___top' title='click to go to top of document'
 name="Example_4"
 >Example 4</a></h2>
@@ -4735,6 +4744,9 @@ name="Example_4"
 
     $worksheet-&#62;write(10, 0, &#39;Kurtosis&#39;, $format);
     $worksheet-&#62;write(10, 1, &#39;=KURT(B2:I2)&#39;);</pre>
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stats.jpg" width="640" height="599" alt="Output from stats.pl" /></center></p>
+
 
 <h2><a class='u' href='#___top' title='click to go to top of document'
 name="Example_5"
@@ -4875,8 +4887,7 @@ name="Additional_Examples"
     =========
     convertA1.pl            Helper functions for dealing with A1 notation.
     function_locale.pl      Add non-English function names to Formula.pm.
-    writeA1.pl              Example of how to extend the module.
-    gen_examples_pod.pl     Generate the S::WE::Examples.pm doc.</pre>
+    writeA1.pl              Example of how to extend the module.</pre>
 
 <h1><a class='u' href='#___top' title='click to go to top of document'
 name="LIMITATIONS"
@@ -4918,8 +4929,8 @@ name="REQUIREMENTS"
 name="INSTALLATION"
 >INSTALLATION</a></h1>
 
-<p>See the INSTALL or install.html docs that come with the distribution or: <a href="http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.29/INSTALL" class="podlinkurl"
->http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.29/INSTALL</a>.</p>
+<p>See the INSTALL or install.html docs that come with the distribution or: <a href="http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/INSTALL" class="podlinkurl"
+>http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/INSTALL</a>.</p>
 
 <h1><a class='u' href='#___top' title='click to go to top of document'
 name="PORTABILITY"

@@ -1,5 +1,11 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.30 November 25 2009 - Minor
+
+    ! Updated Pod generator to include screenshots of example programs.
+
+
+
 2.29 November 25 2009 - Minor
 
     ! Made version 0.19 of OLE::Storage_Lite a prerequisite to avoid

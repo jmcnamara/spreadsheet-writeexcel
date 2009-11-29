@@ -26,7 +26,7 @@ INSTALLATION
 
     Unzip the module as follows or use winzip:
 
-           tar -zxvf Spreadsheet-WriteExcel-0.xx.tar.gz
+           tar -zxvf Spreadsheet-WriteExcel-2.xx.tar.gz
 
     The module can be installed using the standard Perl procedure:
 
@@ -115,8 +115,6 @@ UPDATES
 
     You will then receive mailed updates when a new version is
     released.
-
-    Alternatively you can keep an eye on news://comp.lang.perl.announce
 
 ======================================================================
 AUTHOR

@@ -5,12 +5,7 @@ use ExtUtils::MakeMaker;
 #
 require 5.005;
 
-my %resources = (
-    repository  => 'http://github.com/jmcnamara/spreadsheet-writeexcel',
-    MailingList => 'http://groups.google.com/group/spreadsheet-writeexcel',
-);
-
-WriteMakefile(
+my %params = (
     'AUTHOR'        => 'John McNamara (jmcnamara@cpan.org)',
     'ABSTRACT'      => 'Write to a cross platform Excel binary file',
     'NAME'          => 'Spreadsheet::WriteExcel',
@@ -19,7 +14,6 @@ WriteMakefile(
     'dist'          => { COMPRESS => 'gzip --best', SUFFIX => 'gz' },
     'EXE_FILES'     => ['bin/chartex'],
     'LICENSE'       => 'perl',
-    'META_MERGE' => { 'resources' => \%resources },
     'PREREQ_PM'  => {
         Parse::RecDescent => 0,
         File::Temp        => 0,
@@ -28,11 +22,22 @@ WriteMakefile(
 
 );
 
+my %resources = (
+    repository  => 'http://github.com/jmcnamara/spreadsheet-writeexcel',
+    MailingList => 'http://groups.google.com/group/spreadsheet-writeexcel',
+);
+
+if ( $ExtUtils::MakeMaker::VERSION ge '6.46' ) {
+    $parms{META_MERGE} = { resources => \%resources };
+}
+
+WriteMakefile(%params);
+
 sub MY::postamble {
     "mydocs:\n"
       . "\tperl examples/gen_examples_pod.pl examples "
       . "> lib/Spreadsheet/WriteExcel/Examples.pm\n"
       . "\tpod2cpanhtml lib/Spreadsheet/WriteExcel.pm "
       . qq{ | perl -ne 'print unless /\\s+under Perl v[\\d.]+\\s/' }
-      . "> doc/WriteExcel.html";
+      . "> docs/WriteExcel.html";
 }
