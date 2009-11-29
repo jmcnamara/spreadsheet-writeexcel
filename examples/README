@@ -99,4 +99,3 @@ Developer
 convertA1.pl            Helper functions for dealing with A1 notation.
 function_locale.pl      Add non-English function names to Formula.pm.
 writeA1.pl              Example of how to extend the module.
-gen_examples_pod.pl     Generate the S::WE::Examples.pm doc.

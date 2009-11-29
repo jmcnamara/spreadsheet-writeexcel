@@ -4487,6 +4487,13 @@ The following example shows some of the basic features of Spreadsheet::WriteExce
     $worksheet->write(10, 0, 'http://www.perl.com/');
 
 
+=begin html
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/a_simple.jpg" width="640" height="599" alt="Output from a_simple.pl" /></center></p>
+
+=end html
+
+
 
 
 =head2 Example 2
@@ -4531,6 +4538,13 @@ The following is a general example which demonstrates some features of working w
 
     # Set the active cell
     $south->set_selection(0, 1);
+
+
+=begin html
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/regions.jpg" width="640" height="599" alt="Output from regions.pl" /></center></p>
+
+=end html
 
 
 
@@ -4603,6 +4617,13 @@ This example shows how to use a conditional numerical format with colours to ind
     $worksheet->write(3, 3, 0,        $f_change); # 0 in the font color (black)
 
 
+=begin html
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stocks.jpg" width="640" height="599" alt="Output from stocks.pl" /></center></p>
+
+=end html
+
+
 
 
 =head2 Example 4
@@ -4669,6 +4690,14 @@ The following is a simple example of using functions.
 
     $worksheet->write(10, 0, 'Kurtosis', $format);
     $worksheet->write(10, 1, '=KURT(B2:I2)');
+
+
+=begin html
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stats.jpg" width="640" height="599" alt="Output from stats.pl" /></center></p>
+
+=end html
+
 
 
 
@@ -4813,7 +4842,6 @@ See L<Spreadsheet::WriteExcel::Examples> for more details.
     convertA1.pl            Helper functions for dealing with A1 notation.
     function_locale.pl      Add non-English function names to Formula.pm.
     writeA1.pl              Example of how to extend the module.
-    gen_examples_pod.pl     Generate the S::WE::Examples.pm doc.
 
 
 

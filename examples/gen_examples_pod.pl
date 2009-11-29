@@ -12,6 +12,7 @@ use 5.008;
 use strict;
 use warnings;
 
+my %images;
 main();
 
 ###############################################################################
@@ -44,6 +45,8 @@ sub main {
 
     die "Didn't find example programs in $examples_dir/README\n"
       unless @examples;
+
+    read_images();
 
     print_header($version);
     print_index(@examples);
@@ -104,7 +107,7 @@ sub print_header {
     print "This is a documentation only module showing the examples that are\n";
     print "included in the L<Spreadsheet::WriteExcel> distribution.\n\n";
     print "This file was auto-generated via the gen_examples_pod.pl\n";
-    print "program which is shown below.\n";
+    print "program that is also included in the examples directory.\n";
     print "\n";
 
 }
@@ -190,6 +193,8 @@ sub print_example {
         }
     }
 
+    print_image_html($example);
+
     print $verbatim, "\n\n";
 
     print 'Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/';
@@ -222,4 +227,115 @@ sub print_footer {
 
 }
 
+###############################################################################
+#
+# read_images()
+#
+# Read the images associated with examples from the end of this file.
+#
+sub read_images {
+
+    while (<DATA>) {
+        next unless /\S/;
+        next if /^#/;
+        chomp;
+        $images{$_} = 1;
+    }
+}
+
+###############################################################################
+#
+# print_image_html()
+#
+# Print an embedded html image in the Pod doc if one exists for the example.
+#
+sub print_image_html {
+
+    my $example = shift;
+    my $image   = $example;
+
+    $image =~ s/pl$/jpg/;
+
+    return unless exists $images{$image};
+
+    my $url    = 'http://homepage.eircom.net/~jmcnamara/perl/images';
+    my $width  = 640;
+    my $height = 599;
+
+    print "=begin html\n\n";
+
+    print '<p><center>';
+    print qq{<img src="$url/$image" };
+    print qq{width="$width" };
+    print qq{height="$height" };
+    print qq{alt="Output from $example" />};
+    print qq{</center></p>\n\n};
+
+    print "=end html\n\n";
+
+    print "Source code for this example:\n\n";
+}
+
 __END__
+# Image files used in the documentation.
+a_simple.jpg
+autofilter.jpg
+autofit.jpg
+bigfile.jpg
+chess.jpg
+colors.jpg
+comments1.jpg
+comments2.jpg
+copyformat.jpg
+data_validate.jpg
+date_time.jpg
+defined_name.jpg
+demo.jpg
+diag_border.jpg
+filehandle.jpg
+formats.jpg
+formula_result.jpg
+headers.jpg
+hidden.jpg
+hyperlinks.jpg
+images.jpg
+indent.jpg
+merge1.jpg
+merge2.jpg
+merge3.jpg
+merge4.jpg
+merge5.jpg
+merge6.jpg
+outline.jpg
+outline_collapsed.jpg
+panes.jpg
+properties.jpg
+protection.jpg
+regions.jpg
+repeat.jpg
+right_to_left.jpg
+row_wrap.jpg
+sales.jpg
+stats.jpg
+stats_ext.jpg
+stocks.jpg
+tab_colors.jpg
+textwrap.jpg
+unicode_2022_jp.jpg
+unicode_8859_11.jpg
+unicode_8859_7.jpg
+unicode_big5.jpg
+unicode_cp1251.jpg
+unicode_cp1256.jpg
+unicode_cyrillic.jpg
+unicode_koi8r.jpg
+unicode_list.jpg
+unicode_polish_utf8.jpg
+unicode_shift_jis.jpg
+unicode_utf16.jpg
+unicode_utf16_japan.jpg
+write_arrays.jpg
+write_handler1.jpg
+write_handler2.jpg
+write_handler3.jpg
+write_handler4.jpg
