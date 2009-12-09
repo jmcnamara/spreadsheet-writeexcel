@@ -1,9 +1,23 @@
-use ExtUtils::MakeMaker;
+#!/usr/bin/perl -w
 
-# perl 5.005 is required for qr() support in Parse::RecDescent.
+use ExtUtils::MakeMaker;
+use strict;
+
+# perl >= 5.005 is required for qr() support in Parse::RecDescent.
 # There are also some 4 arg substr()'s in WriteExcel.
 #
 require 5.005;
+
+my %deps = (
+    'Parse::RecDescent' => 0,
+    'File::Temp'        => 0,
+    'OLE::Storage_Lite' => 0.19,
+);
+
+my %resources = (
+    repository  => 'http://github.com/jmcnamara/spreadsheet-writeexcel',
+    MailingList => 'http://groups.google.com/group/spreadsheet-writeexcel',
+);
 
 my %params = (
     'AUTHOR'        => 'John McNamara (jmcnamara@cpan.org)',
@@ -14,21 +28,11 @@ my %params = (
     'dist'          => { COMPRESS => 'gzip --best', SUFFIX => 'gz' },
     'EXE_FILES'     => ['bin/chartex'],
     'LICENSE'       => 'perl',
-    'PREREQ_PM'  => {
-        Parse::RecDescent => 0,
-        File::Temp        => 0,
-        OLE::Storage_Lite => 0.19,
-    },
-
+    'PREREQ_PM'     => \%deps,
 );
 
-my %resources = (
-    repository  => 'http://github.com/jmcnamara/spreadsheet-writeexcel',
-    MailingList => 'http://groups.google.com/group/spreadsheet-writeexcel',
-);
-
-if ( $ExtUtils::MakeMaker::VERSION ge '6.46' ) {
-    $parms{META_MERGE} = { resources => \%resources };
+if ( $ExtUtils::MakeMaker::VERSION >= 6.46 ) {
+    $params{META_MERGE} = { resources => \%resources };
 }
 
 WriteMakefile(%params);
