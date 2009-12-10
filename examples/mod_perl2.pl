@@ -1,7 +1,7 @@
 ###############################################################################
 #
 # Example of how to use the Spreadsheet::WriteExcel module to send an Excel
-# file to a browser using mod_perl 2 and Apache
+# file to a browser using mod_perl 2 and Apache.
 #
 # This module ties *XLS directly to Apache, and with the correct
 # content-disposition/types it will prompt the user to save
@@ -16,13 +16,16 @@
 # Your httpd.conf entry for this module, should you choose to use it
 # as a stand alone app, should look similar to the following:
 #
-#     PerlModule Spreadsheet::WriteExcel::MP2Test
+#     PerlModule Apache2::RequestRec
+#     PerlModule APR::Table
+#     PerlModule Apache2::RequestIO
+#
 #     <Location /spreadsheet-test>
 #        SetHandler perl-script
 #        PerlResponseHandler Spreadsheet::WriteExcel::MP2Test
 #     </Location>
 #
-# The PerlResponseHandler above and the package name below *have* to match.
+# The PerlResponseHandler must match the package name below.
 
 # Jun 2004, Matisse Enzer, matisse@matisse.net  (mod_perl 2 version)
 # Apr 2001, Thomas Sullivan, webmaster@860.org
@@ -38,7 +41,7 @@ use strict;
 ##########################################
 # Required Modules
 ##########################################
-use Apache::Const -compile => qw( :common );
+use Apache2::Const -compile => qw( :common );
 use Spreadsheet::WriteExcel;
 
 ##########################################
@@ -84,7 +87,7 @@ sub handler {
 
     # You must close the workbook for Content-disposition
     $workbook->close();
-    return Apache::OK;
+    return Apache2::Const::OK;
 }
 
 1;
