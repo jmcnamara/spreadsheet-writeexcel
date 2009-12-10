@@ -260,7 +260,7 @@ sub print_image_html {
 
     my $url    = 'http://homepage.eircom.net/~jmcnamara/perl/images';
     my $width  = 640;
-    my $height = 599;
+    my $height = 420;
 
     print "=begin html\n\n";
 
@@ -296,8 +296,8 @@ filehandle.jpg
 formats.jpg
 formula_result.jpg
 headers.jpg
-hidden.jpg
-hyperlinks.jpg
+hide_sheet.jpg
+hyperlink1.jpg
 images.jpg
 indent.jpg
 merge1.jpg
