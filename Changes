@@ -1,9 +1,15 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.31 December 10 2009 - Minor
+
+    ! Fixed resources in Makefile.PL.
+
+    ! Updated screenshots of example programs.
+
+
 2.30 November 25 2009 - Minor
 
     ! Updated Pod generator to include screenshots of example programs.
-
 
 
 2.29 November 25 2009 - Minor

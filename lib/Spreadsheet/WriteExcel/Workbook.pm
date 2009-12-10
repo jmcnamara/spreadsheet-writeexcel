@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Properties ':property_sets';
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::BIFFwriter Exporter);
 
-$VERSION = '2.30';
+$VERSION = '2.31';
 
 ###############################################################################
 #

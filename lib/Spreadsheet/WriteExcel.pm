@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.30'; # Fleet foxes.
+$VERSION = '2.31'; # Fleet foxes.
 
 
 
@@ -64,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.30 of Spreadsheet::WriteExcel, released November 29, 2009.
+This document refers to version 2.31 of Spreadsheet::WriteExcel, released December 10, 2009.
 
 
 
@@ -4489,7 +4489,7 @@ The following example shows some of the basic features of Spreadsheet::WriteExce
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/a_simple.jpg" width="640" height="599" alt="Output from a_simple.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/a_simple.jpg" width="640" height="420" alt="Output from a_simple.pl" /></center></p>
 
 =end html
 
@@ -4542,7 +4542,7 @@ The following is a general example which demonstrates some features of working w
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/regions.jpg" width="640" height="599" alt="Output from regions.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/regions.jpg" width="640" height="420" alt="Output from regions.pl" /></center></p>
 
 =end html
 
@@ -4619,7 +4619,7 @@ This example shows how to use a conditional numerical format with colours to ind
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stocks.jpg" width="640" height="599" alt="Output from stocks.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stocks.jpg" width="640" height="420" alt="Output from stocks.pl" /></center></p>
 
 =end html
 
@@ -4694,7 +4694,7 @@ The following is a simple example of using functions.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stats.jpg" width="640" height="599" alt="Output from stats.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stats.jpg" width="640" height="420" alt="Output from stats.pl" /></center></p>
 
 =end html
 
@@ -4883,7 +4883,7 @@ Note, these aren't strict requirements. Spreadsheet::WriteExcel will work withou
 
 =head1 INSTALLATION
 
-See the INSTALL or install.html docs that come with the distribution or: L<http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/INSTALL>.
+See the INSTALL or install.html docs that come with the distribution or: L<http://search.cpan.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/INSTALL>.
 
 
 

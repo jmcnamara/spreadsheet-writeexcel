@@ -16,7 +16,7 @@ package Spreadsheet::WriteExcel::Examples;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '2.30';
+$VERSION = '2.31';
 
 1;
 
@@ -211,7 +211,7 @@ some  text and numbers to an Excel binary file.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/a_simple.jpg" width="640" height="599" alt="Output from a_simple.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/a_simple.jpg" width="640" height="420" alt="Output from a_simple.pl" /></center></p>
 
 =end html
 
@@ -260,7 +260,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/a_simple.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/a_simple.pl>
 
 =head2 Example: demo.pl
 
@@ -275,7 +275,7 @@ L<http://freshmeat.net/projects/writeexcel/>
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/demo.jpg" width="640" height="599" alt="Output from demo.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/demo.jpg" width="640" height="420" alt="Output from demo.pl" /></center></p>
 
 =end html
 
@@ -399,7 +399,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/demo.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/demo.pl>
 
 =head2 Example: regions.pl
 
@@ -412,7 +412,7 @@ Excel workbook with multiple worksheets.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/regions.jpg" width="640" height="599" alt="Output from regions.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/regions.jpg" width="640" height="420" alt="Output from regions.pl" /></center></p>
 
 =end html
 
@@ -466,7 +466,7 @@ Source code for this example:
     $south->set_selection(0, 1);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/regions.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/regions.pl>
 
 =head2 Example: stats.pl
 
@@ -479,7 +479,7 @@ module.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stats.jpg" width="640" height="599" alt="Output from stats.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stats.jpg" width="640" height="420" alt="Output from stats.pl" /></center></p>
 
 =end html
 
@@ -557,7 +557,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/stats.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/stats.pl>
 
 =head2 Example: formats.pl
 
@@ -573,7 +573,7 @@ in the various formatting possibilities.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/formats.jpg" width="640" height="599" alt="Output from formats.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/formats.jpg" width="640" height="420" alt="Output from formats.pl" /></center></p>
 
 =end html
 
@@ -1067,7 +1067,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/formats.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/formats.pl>
 
 =head2 Example: bug_report.pl
 
@@ -1223,7 +1223,7 @@ Run this program and read the output from the command line.
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/bug_report.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/bug_report.pl>
 
 =head2 Example: autofilter.pl
 
@@ -1239,7 +1239,7 @@ simple criteria so that some data is shown and some is hidden.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/autofilter.jpg" width="640" height="599" alt="Output from autofilter.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/autofilter.jpg" width="640" height="420" alt="Output from autofilter.pl" /></center></p>
 
 =end html
 
@@ -1517,7 +1517,7 @@ Source code for this example:
     East      Grape     6000      February
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/autofilter.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/autofilter.pl>
 
 =head2 Example: autofit.pl
 
@@ -1549,7 +1549,7 @@ probably have to work out your own methods.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/autofit.jpg" width="640" height="599" alt="Output from autofit.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/autofit.jpg" width="640" height="420" alt="Output from autofit.pl" /></center></p>
 
 =end html
 
@@ -1737,7 +1737,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/autofit.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/autofit.pl>
 
 =head2 Example: bigfile.pl
 
@@ -1752,7 +1752,7 @@ that is requires that the OLE::Storage module is installed.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/bigfile.jpg" width="640" height="599" alt="Output from bigfile.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/bigfile.jpg" width="640" height="420" alt="Output from bigfile.pl" /></center></p>
 
 =end html
 
@@ -1789,7 +1789,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/bigfile.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/bigfile.pl>
 
 =head2 Example: cgi.pl
 
@@ -1862,7 +1862,7 @@ that line as shown below.
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/cgi.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/cgi.pl>
 
 =head2 Example: chess.pl
 
@@ -1888,7 +1888,7 @@ configurations.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/chess.jpg" width="640" height="599" alt="Output from chess.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/chess.jpg" width="640" height="420" alt="Output from chess.pl" /></center></p>
 
 =end html
 
@@ -2042,7 +2042,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/chess.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/chess.pl>
 
 =head2 Example: colors.pl
 
@@ -2058,7 +2058,7 @@ built-in palette values with a more suitable colour. See the main docs.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/colors.jpg" width="640" height="599" alt="Output from colors.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/colors.jpg" width="640" height="420" alt="Output from colors.pl" /></center></p>
 
 =end html
 
@@ -2173,7 +2173,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/colors.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/colors.pl>
 
 =head2 Example: comments1.pl
 
@@ -2190,7 +2190,7 @@ For more advanced comment options see comments2.pl.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/comments1.jpg" width="640" height="599" alt="Output from comments1.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/comments1.jpg" width="640" height="420" alt="Output from comments1.pl" /></center></p>
 
 =end html
 
@@ -2224,7 +2224,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/comments1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/comments1.pl>
 
 =head2 Example: comments2.pl
 
@@ -2241,7 +2241,7 @@ Each of the worksheets demonstrates different features of cell comments.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/comments2.jpg" width="640" height="599" alt="Output from comments2.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/comments2.jpg" width="640" height="420" alt="Output from comments2.pl" /></center></p>
 
 =end html
 
@@ -2632,7 +2632,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/comments2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/comments2.pl>
 
 =head2 Example: copyformat.pl
 
@@ -2646,7 +2646,7 @@ This feature isn't required very often.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/copyformat.jpg" width="640" height="599" alt="Output from copyformat.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/copyformat.jpg" width="640" height="420" alt="Output from copyformat.pl" /></center></p>
 
 =end html
 
@@ -2706,7 +2706,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/copyformat.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/copyformat.pl>
 
 =head2 Example: data_validate.pl
 
@@ -2723,7 +2723,7 @@ also allows you to restrict input to values in a drop down list.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/data_validate.jpg" width="640" height="599" alt="Output from data_validate.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/data_validate.jpg" width="640" height="420" alt="Output from data_validate.pl" /></center></p>
 
 =end html
 
@@ -3013,7 +3013,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/data_validate.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/data_validate.pl>
 
 =head2 Example: date_time.pl
 
@@ -3026,7 +3026,7 @@ write_date_time() Worksheet method.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/date_time.jpg" width="640" height="599" alt="Output from date_time.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/date_time.jpg" width="640" height="420" alt="Output from date_time.pl" /></center></p>
 
 =end html
 
@@ -3124,7 +3124,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/date_time.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/date_time.pl>
 
 =head2 Example: defined_name.pl
 
@@ -3139,7 +3139,7 @@ a single cell or a range of cells in a workbook.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/defined_name.jpg" width="640" height="599" alt="Output from defined_name.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/defined_name.jpg" width="640" height="420" alt="Output from defined_name.pl" /></center></p>
 
 =end html
 
@@ -3184,7 +3184,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/defined_name.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/defined_name.pl>
 
 =head2 Example: diag_border.pl
 
@@ -3197,7 +3197,7 @@ border with Spreadsheet::WriteExcel
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/diag_border.jpg" width="640" height="599" alt="Output from diag_border.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/diag_border.jpg" width="640" height="420" alt="Output from diag_border.pl" /></center></p>
 
 =end html
 
@@ -3245,7 +3245,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/diag_border.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/diag_border.pl>
 
 =head2 Example: easter_egg.pl
 
@@ -3287,7 +3287,7 @@ in Excel 97 SR2.
     $application->InputBox($message);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/easter_egg.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/easter_egg.pl>
 
 =head2 Example: filehandle.pl
 
@@ -3300,7 +3300,7 @@ different filehandles.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/filehandle.jpg" width="640" height="599" alt="Output from filehandle.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/filehandle.jpg" width="640" height="420" alt="Output from filehandle.pl" /></center></p>
 
 =end html
 
@@ -3422,7 +3422,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/filehandle.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/filehandle.pl>
 
 =head2 Example: formula_result.pl
 
@@ -3438,7 +3438,7 @@ application other than Excel where the formula isn't evaluated.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/formula_result.jpg" width="640" height="599" alt="Output from formula_result.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/formula_result.jpg" width="640" height="420" alt="Output from formula_result.pl" /></center></p>
 
 =end html
 
@@ -3475,7 +3475,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/formula_result.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/formula_result.pl>
 
 =head2 Example: headers.pl
 
@@ -3515,7 +3515,7 @@ See the main Spreadsheet::WriteExcel documentation for more information.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/headers.jpg" width="640" height="599" alt="Output from headers.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/headers.jpg" width="640" height="420" alt="Output from headers.pl" /></center></p>
 
 =end html
 
@@ -3666,7 +3666,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/headers.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/headers.pl>
 
 =head2 Example: hide_sheet.pl
 
@@ -3675,6 +3675,14 @@ Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-Wr
 Example of how to hide a worksheet with Spreadsheet::WriteExcel.
 
 
+
+=begin html
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/hide_sheet.jpg" width="640" height="420" alt="Output from hide_sheet.pl" /></center></p>
+
+=end html
+
+Source code for this example:
 
     #!/usr/bin/perl -w
     
@@ -3704,7 +3712,7 @@ Example of how to hide a worksheet with Spreadsheet::WriteExcel.
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/hide_sheet.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/hide_sheet.pl>
 
 =head2 Example: hyperlink1.pl
 
@@ -3715,6 +3723,14 @@ Example of how to use the WriteExcel module to write hyperlinks.
 See also hyperlink2.pl for worksheet URL examples.
 
 
+
+=begin html
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/hyperlink1.jpg" width="640" height="420" alt="Output from hyperlink1.pl" /></center></p>
+
+=end html
+
+Source code for this example:
 
     #!/usr/bin/perl -w
     
@@ -3758,7 +3774,7 @@ See also hyperlink2.pl for worksheet URL examples.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/hyperlink1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/hyperlink1.pl>
 
 =head2 Example: hyperlink2.pl
 
@@ -3906,7 +3922,7 @@ See also hyperlink1.pl for web URL examples.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/hyperlink2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/hyperlink2.pl>
 
 =head2 Example: images.pl
 
@@ -3919,7 +3935,7 @@ Spreadsheet::WriteExcel insert_image() method.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/images.jpg" width="640" height="599" alt="Output from images.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/images.jpg" width="640" height="420" alt="Output from images.pl" /></center></p>
 
 =end html
 
@@ -3977,7 +3993,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/images.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/images.pl>
 
 =head2 Example: indent.pl
 
@@ -3991,7 +4007,7 @@ This program demonstrates the indentation cell format.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/indent.jpg" width="640" height="599" alt="Output from indent.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/indent.jpg" width="640" height="420" alt="Output from indent.pl" /></center></p>
 
 =end html
 
@@ -4028,7 +4044,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/indent.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/indent.pl>
 
 =head2 Example: merge1.pl
 
@@ -4045,7 +4061,7 @@ See the merge3.pl - merge6.pl programs.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge1.jpg" width="640" height="599" alt="Output from merge1.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge1.jpg" width="640" height="420" alt="Output from merge1.pl" /></center></p>
 
 =end html
 
@@ -4089,7 +4105,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/merge1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/merge1.pl>
 
 =head2 Example: merge2.pl
 
@@ -4106,7 +4122,7 @@ See the merge3.pl - merge6.pl programs.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge2.jpg" width="640" height="599" alt="Output from merge2.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge2.jpg" width="640" height="420" alt="Output from merge2.pl" /></center></p>
 
 =end html
 
@@ -4159,7 +4175,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/merge2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/merge2.pl>
 
 =head2 Example: merge3.pl
 
@@ -4173,7 +4189,7 @@ format or merge_range().
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge3.jpg" width="640" height="599" alt="Output from merge3.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge3.jpg" width="640" height="420" alt="Output from merge3.pl" /></center></p>
 
 =end html
 
@@ -4246,7 +4262,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/merge3.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/merge3.pl>
 
 =head2 Example: merge4.pl
 
@@ -4259,7 +4275,7 @@ method with complex formatting.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge4.jpg" width="640" height="599" alt="Output from merge4.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge4.jpg" width="640" height="420" alt="Output from merge4.pl" /></center></p>
 
 =end html
 
@@ -4357,7 +4373,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/merge4.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/merge4.pl>
 
 =head2 Example: merge5.pl
 
@@ -4371,7 +4387,7 @@ method with complex formatting and rotation.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge5.jpg" width="640" height="599" alt="Output from merge5.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge5.jpg" width="640" height="420" alt="Output from merge5.pl" /></center></p>
 
 =end html
 
@@ -4454,7 +4470,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/merge5.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/merge5.pl>
 
 =head2 Example: merge6.pl
 
@@ -4468,7 +4484,7 @@ method with Unicode strings.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge6.jpg" width="640" height="599" alt="Output from merge6.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/merge6.jpg" width="640" height="420" alt="Output from merge6.pl" /></center></p>
 
 =end html
 
@@ -4558,7 +4574,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/merge6.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/merge6.pl>
 
 =head2 Example: mod_perl1.pl
 
@@ -4682,7 +4698,7 @@ The PerlHandler name above and the package name below *have* to match.
     1;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/mod_perl1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/mod_perl1.pl>
 
 =head2 Example: mod_perl2.pl
 
@@ -4804,7 +4820,7 @@ The PerlResponseHandler above and the package name below *have* to match.
     1;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/mod_perl2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/mod_perl2.pl>
 
 =head2 Example: outline.pl
 
@@ -4871,7 +4887,7 @@ See the main Spreadsheet::WriteExcel documentation for more information.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/outline.jpg" width="640" height="599" alt="Output from outline.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/outline.jpg" width="640" height="420" alt="Output from outline.pl" /></center></p>
 
 =end html
 
@@ -5134,7 +5150,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/outline.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/outline.pl>
 
 =head2 Example: outline_collapsed.pl
 
@@ -5150,7 +5166,7 @@ outlines.pl example program for more general examples.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/outline_collapsed.jpg" width="640" height="599" alt="Output from outline_collapsed.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/outline_collapsed.jpg" width="640" height="420" alt="Output from outline_collapsed.pl" /></center></p>
 
 =end html
 
@@ -5370,7 +5386,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/outline_collapsed.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/outline_collapsed.pl>
 
 =head2 Example: panes.pl
 
@@ -5382,7 +5398,7 @@ Example of using the WriteExcel module to create worksheet panes.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/panes.jpg" width="640" height="599" alt="Output from panes.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/panes.jpg" width="640" height="420" alt="Output from panes.pl" /></center></p>
 
 =end html
 
@@ -5522,7 +5538,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/panes.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/panes.pl>
 
 =head2 Example: properties.pl
 
@@ -5534,7 +5550,7 @@ An example of adding document properties to a Spreadsheet::WriteExcel file.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/properties.jpg" width="640" height="599" alt="Output from properties.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/properties.jpg" width="640" height="420" alt="Output from properties.pl" /></center></p>
 
 =end html
 
@@ -5575,7 +5591,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/properties.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/properties.pl>
 
 =head2 Example: protection.pl
 
@@ -5588,7 +5604,7 @@ the Spreadsheet::WriteExcel module.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/protection.jpg" width="640" height="599" alt="Output from protection.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/protection.jpg" width="640" height="420" alt="Output from protection.pl" /></center></p>
 
 =end html
 
@@ -5638,7 +5654,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/protection.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/protection.pl>
 
 =head2 Example: repeat.pl
 
@@ -5650,7 +5666,7 @@ Example of writing repeated formulas.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/repeat.jpg" width="640" height="599" alt="Output from repeat.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/repeat.jpg" width="640" height="420" alt="Output from repeat.pl" /></center></p>
 
 =end html
 
@@ -5704,7 +5720,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/repeat.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/repeat.pl>
 
 =head2 Example: right_to_left.pl
 
@@ -5718,7 +5734,7 @@ of Excel.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/right_to_left.jpg" width="640" height="599" alt="Output from right_to_left.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/right_to_left.jpg" width="640" height="420" alt="Output from right_to_left.pl" /></center></p>
 
 =end html
 
@@ -5751,7 +5767,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/right_to_left.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/right_to_left.pl>
 
 =head2 Example: row_wrap.pl
 
@@ -5775,7 +5791,7 @@ reinitialise it to point to a new worksheet when required.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/row_wrap.jpg" width="640" height="599" alt="Output from row_wrap.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/row_wrap.jpg" width="640" height="420" alt="Output from row_wrap.pl" /></center></p>
 
 =end html
 
@@ -5837,7 +5853,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/row_wrap.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/row_wrap.pl>
 
 =head2 Example: sales.pl
 
@@ -5850,7 +5866,7 @@ Also uses functions from the L<Spreadsheet::WriteExcel::Utility> module.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/sales.jpg" width="640" height="599" alt="Output from sales.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/sales.jpg" width="640" height="420" alt="Output from sales.pl" /></center></p>
 
 =end html
 
@@ -5964,7 +5980,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/sales.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/sales.pl>
 
 =head2 Example: sendmail.pl
 
@@ -6026,7 +6042,7 @@ See the L<Mail::Sender> module for further details.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/sendmail.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/sendmail.pl>
 
 =head2 Example: stats_ext.pl
 
@@ -6041,7 +6057,7 @@ other worksheets within the same workbook.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stats_ext.jpg" width="640" height="599" alt="Output from stats_ext.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stats_ext.jpg" width="640" height="420" alt="Output from stats_ext.pl" /></center></p>
 
 =end html
 
@@ -6127,7 +6143,7 @@ Source code for this example:
     $worksheet2->write('B9', 24.8, $numformat);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/stats_ext.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/stats_ext.pl>
 
 =head2 Example: stocks.pl
 
@@ -6142,7 +6158,7 @@ with colours to indicate if a share price has gone up or down.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stocks.jpg" width="640" height="599" alt="Output from stocks.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/stocks.jpg" width="640" height="420" alt="Output from stocks.pl" /></center></p>
 
 =end html
 
@@ -6227,7 +6243,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/stocks.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/stocks.pl>
 
 =head2 Example: tab_colors.pl
 
@@ -6239,7 +6255,7 @@ Example of how to set Excel worksheet tab colours.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/tab_colors.jpg" width="640" height="599" alt="Output from tab_colors.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/tab_colors.jpg" width="640" height="420" alt="Output from tab_colors.pl" /></center></p>
 
 =end html
 
@@ -6271,7 +6287,7 @@ Source code for this example:
     $worksheet4->set_tab_color(0x35); # Orange
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/tab_colors.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/tab_colors.pl>
 
 =head2 Example: textwrap.pl
 
@@ -6289,7 +6305,7 @@ column width. With text wrap you must specify a newline with an embedded \n.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/textwrap.jpg" width="640" height="599" alt="Output from textwrap.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/textwrap.jpg" width="640" height="420" alt="Output from textwrap.pl" /></center></p>
 
 =end html
 
@@ -6377,7 +6393,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/textwrap.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/textwrap.pl>
 
 =head2 Example: win32ole.pl
 
@@ -6434,7 +6450,7 @@ Win32::OLE module for the sake of comparison.
     $workbook->Close;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/win32ole.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/win32ole.pl>
 
 =head2 Example: write_arrays.pl
 
@@ -6451,7 +6467,7 @@ lists" refer to the perllol manpage.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_arrays.jpg" width="640" height="599" alt="Output from write_arrays.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_arrays.jpg" width="640" height="420" alt="Output from write_arrays.pl" /></center></p>
 
 =end html
 
@@ -6529,7 +6545,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/write_arrays.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/write_arrays.pl>
 
 =head2 Example: write_handler1.pl
 
@@ -6545,7 +6561,7 @@ The following example shows how to add a handler for a 7 digit ID number.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_handler1.jpg" width="640" height="599" alt="Output from write_handler1.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_handler1.jpg" width="640" height="420" alt="Output from write_handler1.pl" /></center></p>
 
 =end html
 
@@ -6617,7 +6633,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/write_handler1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/write_handler1.pl>
 
 =head2 Example: write_handler2.pl
 
@@ -6635,7 +6651,7 @@ filters data that isn't in the third column.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_handler2.jpg" width="640" height="599" alt="Output from write_handler2.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_handler2.jpg" width="640" height="420" alt="Output from write_handler2.pl" /></center></p>
 
 =end html
 
@@ -6714,7 +6730,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/write_handler2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/write_handler2.pl>
 
 =head2 Example: write_handler3.pl
 
@@ -6732,7 +6748,7 @@ See write_handler4.pl for a more rigorous example with error handling.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_handler3.jpg" width="640" height="599" alt="Output from write_handler3.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_handler3.jpg" width="640" height="420" alt="Output from write_handler3.pl" /></center></p>
 
 =end html
 
@@ -6804,7 +6820,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/write_handler3.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/write_handler3.pl>
 
 =head2 Example: write_handler4.pl
 
@@ -6822,7 +6838,7 @@ This is a more rigorous version of write_handler3.pl.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_handler4.jpg" width="640" height="599" alt="Output from write_handler4.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/write_handler4.jpg" width="640" height="420" alt="Output from write_handler4.pl" /></center></p>
 
 =end html
 
@@ -6930,7 +6946,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/write_handler4.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/write_handler4.pl>
 
 =head2 Example: write_to_scalar.pl
 
@@ -6992,7 +7008,7 @@ see the filehandle.pl program and IO:Scalar.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/write_to_scalar.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/write_to_scalar.pl>
 
 =head2 Example: unicode_utf16.pl
 
@@ -7007,7 +7023,7 @@ utf8 without modification.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_utf16.jpg" width="640" height="599" alt="Output from unicode_utf16.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_utf16.jpg" width="640" height="420" alt="Output from unicode_utf16.pl" /></center></p>
 
 =end html
 
@@ -7058,7 +7074,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_utf16.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_utf16.pl>
 
 =head2 Example: unicode_utf16_japan.pl
 
@@ -7077,7 +7093,7 @@ See also the unicode_2022_jp.pl and unicode_shift_jis.pl examples.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_utf16_japan.jpg" width="640" height="599" alt="Output from unicode_utf16_japan.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_utf16_japan.jpg" width="640" height="420" alt="Output from unicode_utf16_japan.pl" /></center></p>
 
 =end html
 
@@ -7134,7 +7150,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_utf16_japan.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_utf16_japan.pl>
 
 =head2 Example: unicode_cyrillic.pl
 
@@ -7147,7 +7163,7 @@ Spreadsheet::WriteExcel and perl 5.8.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_cyrillic.jpg" width="640" height="599" alt="Output from unicode_cyrillic.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_cyrillic.jpg" width="640" height="420" alt="Output from unicode_cyrillic.pl" /></center></p>
 
 =end html
 
@@ -7203,7 +7219,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_cyrillic.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_cyrillic.pl>
 
 =head2 Example: unicode_list.pl
 
@@ -7216,7 +7232,7 @@ Unicode characters in a font.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_list.jpg" width="640" height="599" alt="Output from unicode_list.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_list.jpg" width="640" height="420" alt="Output from unicode_list.pl" /></center></p>
 
 =end html
 
@@ -7273,7 +7289,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_list.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_list.pl>
 
 =head2 Example: unicode_2022_jp.pl
 
@@ -7289,7 +7305,7 @@ encoded text.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_2022_jp.jpg" width="640" height="599" alt="Output from unicode_2022_jp.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_2022_jp.jpg" width="640" height="420" alt="Output from unicode_2022_jp.pl" /></center></p>
 
 =end html
 
@@ -7342,7 +7358,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_2022_jp.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_2022_jp.pl>
 
 =head2 Example: unicode_8859_11.pl
 
@@ -7358,7 +7374,7 @@ This example generates some Thai from a file with ISO-8859-11 encoded text.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_8859_11.jpg" width="640" height="599" alt="Output from unicode_8859_11.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_8859_11.jpg" width="640" height="420" alt="Output from unicode_8859_11.pl" /></center></p>
 
 =end html
 
@@ -7411,7 +7427,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_8859_11.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_8859_11.pl>
 
 =head2 Example: unicode_8859_7.pl
 
@@ -7427,7 +7443,7 @@ This example generates some Greek from a file with ISO-8859-7 encoded text.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_8859_7.jpg" width="640" height="599" alt="Output from unicode_8859_7.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_8859_7.jpg" width="640" height="420" alt="Output from unicode_8859_7.pl" /></center></p>
 
 =end html
 
@@ -7480,7 +7496,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_8859_7.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_8859_7.pl>
 
 =head2 Example: unicode_big5.pl
 
@@ -7496,7 +7512,7 @@ This example generates some Chinese from a file with BIG5 encoded text.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_big5.jpg" width="640" height="599" alt="Output from unicode_big5.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_big5.jpg" width="640" height="420" alt="Output from unicode_big5.pl" /></center></p>
 
 =end html
 
@@ -7549,7 +7565,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_big5.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_big5.pl>
 
 =head2 Example: unicode_cp1251.pl
 
@@ -7565,7 +7581,7 @@ This example generates some Russian from a file with CP1251 encoded text.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_cp1251.jpg" width="640" height="599" alt="Output from unicode_cp1251.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_cp1251.jpg" width="640" height="420" alt="Output from unicode_cp1251.pl" /></center></p>
 
 =end html
 
@@ -7618,7 +7634,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_cp1251.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_cp1251.pl>
 
 =head2 Example: unicode_cp1256.pl
 
@@ -7634,7 +7650,7 @@ This example generates some Arabic text from a CP-1256 encoded file.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_cp1256.jpg" width="640" height="599" alt="Output from unicode_cp1256.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_cp1256.jpg" width="640" height="420" alt="Output from unicode_cp1256.pl" /></center></p>
 
 =end html
 
@@ -7687,7 +7703,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_cp1256.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_cp1256.pl>
 
 =head2 Example: unicode_koi8r.pl
 
@@ -7703,7 +7719,7 @@ This example generates some Russian from a file with KOI8-R encoded text.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_koi8r.jpg" width="640" height="599" alt="Output from unicode_koi8r.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_koi8r.jpg" width="640" height="420" alt="Output from unicode_koi8r.pl" /></center></p>
 
 =end html
 
@@ -7756,7 +7772,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_koi8r.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_koi8r.pl>
 
 =head2 Example: unicode_polish_utf8.pl
 
@@ -7772,7 +7788,7 @@ This example generates some Polish from a file with UTF8 encoded text.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_polish_utf8.jpg" width="640" height="599" alt="Output from unicode_polish_utf8.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_polish_utf8.jpg" width="640" height="420" alt="Output from unicode_polish_utf8.pl" /></center></p>
 
 =end html
 
@@ -7825,7 +7841,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_polish_utf8.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_polish_utf8.pl>
 
 =head2 Example: unicode_shift_jis.pl
 
@@ -7841,7 +7857,7 @@ encoded text.
 
 =begin html
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_shift_jis.jpg" width="640" height="599" alt="Output from unicode_shift_jis.pl" /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/unicode_shift_jis.jpg" width="640" height="420" alt="Output from unicode_shift_jis.pl" /></center></p>
 
 =end html
 
@@ -7894,7 +7910,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/unicode_shift_jis.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/unicode_shift_jis.pl>
 
 =head2 Example: csv2xls.pl
 
@@ -7984,7 +8000,7 @@ See the examples/csv2xls link here:
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/csv2xls.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/csv2xls.pl>
 
 =head2 Example: tab2xls.pl
 
@@ -8065,7 +8081,7 @@ See the examples/csv2xls link here:
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/tab2xls.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/tab2xls.pl>
 
 =head2 Example: datecalc1.pl
 
@@ -8327,7 +8343,7 @@ the 1900 serials of Excel for dates before 1 Mar 1900.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/datecalc1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/datecalc1.pl>
 
 =head2 Example: datecalc2.pl
 
@@ -8446,7 +8462,7 @@ NOTE: An easier way of writing dates and times is to use the newer
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/datecalc2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/datecalc2.pl>
 
 =head2 Example: lecxe.pl
 
@@ -8811,7 +8827,7 @@ program using Win32::OLE
     modify it under the same terms as Perl itself.
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/lecxe.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/lecxe.pl>
 
 =head2 Example: convertA1.pl
 
@@ -9045,7 +9061,7 @@ These functions have been superceded by L<Spreadsheet::WriteExcel::Utility>.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/convertA1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/convertA1.pl>
 
 =head2 Example: function_locale.pl
 
@@ -9460,7 +9476,7 @@ The shortest function name in all languages is T.
     354     -1      1          0          ROMAN                              RÖMISCH                            ROMAIN                             NUMERO.ROMANO                      ROMANO                             ROMEINS                      ROMAN                              ROMANO                             ROMERSK
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/function_locale.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/function_locale.pl>
 
 =head2 Example: writeA1.pl
 
@@ -9565,7 +9581,7 @@ code directly.
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.30/examples/writeA1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.31/examples/writeA1.pl>
 
 =head1 AUTHOR
 
