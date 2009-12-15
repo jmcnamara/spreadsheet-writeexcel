@@ -259,8 +259,6 @@ sub _initialize {
 sub _close {
 
     my $self = shift;
-    my $sheetnames = shift;
-    my $num_sheets = scalar @$sheetnames;
 
     ################################################
     # Prepend in reverse order!!

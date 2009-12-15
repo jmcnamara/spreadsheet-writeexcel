@@ -463,6 +463,42 @@ sub add_worksheet {
 
 ###############################################################################
 #
+# add_chart($name)
+#
+# Add a chart sheet.
+#
+#
+sub add_chart {
+
+    my $self     = shift;
+    my $index    = @{$self->{_worksheets}};
+
+    my ($name, $encoding) = $self->_check_sheetname($_[0], $_[1]);
+
+
+    my @init_data = (
+                         '',
+                         $name,
+                         $index,
+                         $encoding,
+                        \$self->{_activesheet},
+                        \$self->{_firstsheet},
+                         1, # External binary
+                    );
+
+    my $worksheet = Spreadsheet::WriteExcel::Chart->new(@init_data);
+    $self->{_worksheets}->[$index] = $worksheet;     # Store ref for iterator
+    $self->{_sheetnames}->[$index] = $name;          # Store EXTERNSHEET names
+
+    # TODO. Should remove this after testing.
+    $self->{_parser}->set_ext_sheets($name, $index); # Store names in Formula.pm
+
+    return $worksheet;
+}
+
+
+###############################################################################
+#
 # add_chart_ext($filename, $name)
 #
 # Add an externally created chart.
@@ -484,12 +520,16 @@ sub add_chart_ext {
                          $encoding,
                         \$self->{_activesheet},
                         \$self->{_firstsheet},
+                         1, # External binary
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Chart->new(@init_data);
     $self->{_worksheets}->[$index] = $worksheet;     # Store ref for iterator
     $self->{_sheetnames}->[$index] = $name;          # Store EXTERNSHEET names
+
+    # TODO. Should remove this after testing.
     $self->{_parser}->set_ext_sheets($name, $index); # Store names in Formula.pm
+
     return $worksheet;
 }
 
@@ -1372,7 +1412,7 @@ sub _calc_mso_sizes {
     # required by each worksheet.
     #
     foreach my $sheet (@{$self->{_worksheets}}) {
-        next unless ref $sheet eq "Spreadsheet::WriteExcel::Worksheet";
+        next unless $sheet->{_type} == 0x0000; # Ignore charts.
 
         my $num_images     = $sheet->{_num_images} || 0;
         my $image_mso_size = $sheet->{_image_mso_size} || 0;
@@ -1460,7 +1500,7 @@ sub _process_images {
 
 
     foreach my $sheet (@{$self->{_worksheets}}) {
-        next unless $sheet->isa('Spreadsheet::WriteExcel::Worksheet');
+        next unless $sheet->{_type} == 0x0000; # Ignore charts.
         next unless $sheet->_prepare_images();
 
         my $num_images      = 0;
