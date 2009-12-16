@@ -96,6 +96,71 @@ sub _close {
 }
 
 
+###############################################################################
+#
+# _store_fbi()
+#
+# Write the FBI chart BIFF record. Specifies the font information at the time
+# it was applied to the chart.
+#
+sub _store_fbi {
+
+    my $self = shift;
+
+    my $record       = 0x1060;    # Record identifier.
+    my $length       = 0x000A;    # Number of bytes to follow.
+    my $index        = $_[0];     # Font index.
+    my $height       = 0x00C8;    # Default font height in twips.
+    my $width_basis  = 0x38B8;    # Width basis, in twips.
+    my $height_basis = 0x22A1;    # Height basis, in twips.
+    my $scale_basis  = 0x0000;    # Scale by chart area or plot area.
+
+    my $header = pack 'vv', $record, $length;
+    my $data  .= pack 'v', $width_basis;
+       $data  .= pack 'v', $height_basis;
+       $data  .= pack 'v', $height;
+       $data  .= pack 'v', $scale_basis;
+       $data  .= pack 'v', $index;
+
+    $self->_append( $header, $data );
+}
+
+
+###############################################################################
+#
+# _store_chart()
+#
+# Write the CHART BIFF record. This indicates the start of the chart sub-stream
+# and contains dimensions of the chart on the display. Units are in 1/72 inch
+# and are 2 byte integer with 2 byte fraction.
+#
+sub _store_chart {
+
+    my $self = shift;
+
+    my $record = 0x1002;        # Record identifier.
+    my $length = 0x0010;        # Number of bytes to follow.
+    my $x_pos  = 0x00000000;    # X pos of top left corner.
+    my $y_pos  = 0x00000000;    # Y pos of top left corner.
+    my $dx     = 0x02DD51E0;    # X size.
+    my $dy     = 0x01C2B838;    # Y size.
+
+    my $header = pack 'vv', $record, $length;
+    my $data  .= pack 'V', $x_pos;
+       $data  .= pack 'V', $y_pos;
+       $data  .= pack 'V', $dx;
+       $data  .= pack 'V', $dy;
+
+    $self->_append( $header, $data );
+}
+
+
+
+
+
+
+
+
 1;
 
 
