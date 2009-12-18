@@ -229,9 +229,9 @@ is( $got, $expected, $caption );
 
 ###############################################################################
 #
-# Test the _store_chart_text() method.
+# Test the _store_charttext() method.
 #
-$caption = " \tChart: _store_chart_text()";
+$caption = " \tChart: _store_charttext()";
 
 $expected = join ' ', qw(
     25 10 20 00 02 02 01 00 00 00 00 00 EA FF FF FF
@@ -239,7 +239,7 @@ $expected = join ' ', qw(
     20 10 00 00
 );
 
-$got = unpack_record( $chart->_store_chart_text() );
+$got = unpack_record( $chart->_store_charttext() );
 
 is( $got, $expected, $caption );
 
@@ -304,6 +304,220 @@ $expected = join ' ', qw(
 $got = unpack_record( $chart->_store_axis( 0 ) );
 
 is( $got, $expected, $caption );
+
+###############################################################################
+#
+# Test the _store_catserrange() method.
+#
+$caption = " \tChart: _store_catserrange()";
+
+$expected = join ' ', qw(
+    20 10 08 00 01 00 01 00 01 00 01 00
+);
+
+$got = unpack_record( $chart->_store_catserrange() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_axcext() method.
+#
+$caption = " \tChart: _store_axcext()";
+
+$expected = join ' ', qw(
+    62 10 12 00 00 00 00 00 01 00 00 00 01 00 00 00
+    00 00 00 00 EF 00
+);
+
+$got = unpack_record( $chart->_store_axcext() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_tick() method.
+#
+$caption = " \tChart: _store_tick()";
+
+$expected = join ' ', qw(
+    1E 10 1E 00 02 00 03 01 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 23 00 4D 00
+    00 00
+);
+
+$got = unpack_record( $chart->_store_tick() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_valuerange() method.
+#
+$caption = " \tChart: _store_valuerange()";
+
+$expected = join ' ', qw(
+    1F 10 2A 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00 00 00 00 00 1F 01
+);
+
+$got = unpack_record( $chart->_store_valuerange() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_axislineformat() method.
+#
+$caption = " \tChart: _store_axislineformat()";
+
+$expected = join ' ', qw(
+    21 10 02 00 01 00
+);
+
+$got = unpack_record( $chart->_store_axislineformat() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_lineformat() method.
+#
+$caption = " \tChart: _store_lineformat()";
+
+$expected = join ' ', qw(
+    07 10 0C 00 00 00 00 00 00 00 FF FF 09 00 4D 00
+);
+
+$got = unpack_record( $chart->_store_lineformat() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_frame() method.
+#
+$caption = " \tChart: _store_frame()";
+
+$expected = join ' ', qw(
+    32 10 04 00 00 00 03 00
+);
+
+$got = unpack_record( $chart->_store_frame() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_areaformat() method.
+#
+$caption = " \tChart: _store_areaformat()";
+
+$expected = join ' ', qw(
+    0A 10 10 00 C0 C0 C0 00 00 00 00 00 01 00 00 00
+    16 00 4F 00
+);
+
+$got = unpack_record( $chart->_store_areaformat() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_chartformat() method.
+#
+$caption = " \tChart: _store_chartformat()";
+
+$expected = join ' ', qw(
+    14 10 14 00 00 00 00 00 00 00 00 00 00 00 00 00
+    00 00 00 00 00 00 00 00
+);
+
+$got = unpack_record( $chart->_store_chartformat() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_bar() method.
+#
+$caption = " \tChart: _store_bar()";
+
+$expected = join ' ', qw(
+    17 10 06 00 00 00 96 00 00 00
+);
+
+$got = unpack_record( $chart->_store_bar() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_legend() method.
+#
+$caption = " \tChart: _store_legend()";
+
+$expected = join ' ', qw(
+    15 10 14 00 83 0E 00 00 F9 06 00 00 0B 01 00 00
+    1C 01 00 00 03 01 1F 00
+);
+
+$got = unpack_record( $chart->_store_legend() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_pos() method.
+#
+$caption = " \tChart: _store_pos()";
+
+$expected = join ' ', qw(
+    4F 10 14 00 05 00 02 00 83 0E 00 00 F9 06 00 00
+    00 00 00 00 00 00 00 00
+);
+
+@values = ( 5, 2, 0x0E83, 0x06F9,  0, 0 );
+
+$got = unpack_record( $chart->_store_pos( @values ) );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_text() method.
+#
+$caption = " \tChart: _store_text()";
+
+$expected = join ' ', qw(
+    25 10 20 00 02 02 01 00 00 00 00 00 EA FF FF FF
+    DC FF FF FF 00 00 00 00 00 00 00 00 B1 00 4D 00
+    00 00 00 00
+);
+
+$got = unpack_record( $chart->_store_text() );
+
+is( $got, $expected, $caption );
+
+
+
+
+
+
+
 
 
 
