@@ -119,8 +119,9 @@ sub _store_3dbarshape {
     my $taper  = 0x00;      # Column taper type.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'C',  $riser;
-       $data  .= pack 'C',  $taper;
+    my $data = '';
+    $data .= pack 'C', $riser;
+    $data .= pack 'C', $taper;
 
     $self->_append( $header, $data );
 }
@@ -149,12 +150,13 @@ sub _store_ai {
     $length += $formula_length;
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'C',  $id;
-       $data  .= pack 'C',  $type;
-       $data  .= pack 'v',  $grbit;
-       $data  .= pack 'v',  $format_index;
-       $data  .= pack 'v',  $formula_length;
-       $data  .= $formula;
+    my $data = '';
+    $data .= pack 'C', $id;
+    $data .= pack 'C', $type;
+    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $format_index;
+    $data .= pack 'v', $formula_length;
+    $data .= $formula;
 
     $self->_append( $header, $data );
 }
@@ -181,12 +183,13 @@ sub _store_areaformat {
     my $indexBack = 0x004F;        # Index to Background colour.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'V',  $rgbFore;
-       $data  .= pack 'V',  $rgbBack;
-       $data  .= pack 'v',  $pattern;
-       $data  .= pack 'v',  $grbit;
-       $data  .= pack 'v',  $indexFore;
-       $data  .= pack 'v',  $indexBack;
+    my $data = '';
+    $data .= pack 'V', $rgbFore;
+    $data .= pack 'V', $rgbBack;
+    $data .= pack 'v', $pattern;
+    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $indexFore;
+    $data .= pack 'v', $indexBack;
 
     $self->_append( $header, $data );
 }
@@ -215,15 +218,16 @@ sub _store_axcext {
     my $grbit        = 0x00EF;    # Option flags.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $catMin;
-       $data  .= pack 'v',  $catMax;
-       $data  .= pack 'v',  $catMajor;
-       $data  .= pack 'v',  $unitMajor;
-       $data  .= pack 'v',  $catMinor;
-       $data  .= pack 'v',  $unitMinor;
-       $data  .= pack 'v',  $unitBase;
-       $data  .= pack 'v',  $catCrossDate;
-       $data  .= pack 'v',  $grbit;
+    my $data = '';
+    $data .= pack 'v', $catMin;
+    $data .= pack 'v', $catMax;
+    $data .= pack 'v', $catMajor;
+    $data .= pack 'v', $unitMajor;
+    $data .= pack 'v', $catMinor;
+    $data .= pack 'v', $unitMinor;
+    $data .= pack 'v', $unitBase;
+    $data .= pack 'v', $catCrossDate;
+    $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
@@ -239,12 +243,12 @@ sub _store_axesused {
 
     my $self = shift;
 
-    my $record    = 0x1046;     # Record identifier.
-    my $length    = 0x0002;     # Number of bytes to follow.
-    my $num_axes  = $_[0];      # Number of axes used.
+    my $record   = 0x1046;    # Record identifier.
+    my $length   = 0x0002;    # Number of bytes to follow.
+    my $num_axes = $_[0];     # Number of axes used.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $num_axes;
+    my $data = pack 'v', $num_axes;
 
     $self->_append( $header, $data );
 }
@@ -269,11 +273,12 @@ sub _store_axis {
     my $reserved4 = 0x00000000;    # Reserved.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $type;
-       $data  .= pack 'V',  $reserved1;
-       $data  .= pack 'V',  $reserved2;
-       $data  .= pack 'V',  $reserved3;
-       $data  .= pack 'V',  $reserved4;
+    my $data = '';
+    $data .= pack 'v', $type;
+    $data .= pack 'V', $reserved1;
+    $data .= pack 'V', $reserved2;
+    $data .= pack 'V', $reserved3;
+    $data .= pack 'V', $reserved4;
 
     $self->_append( $header, $data );
 }
@@ -294,7 +299,7 @@ sub _store_axislineformat {
     my $line_format = 0x0001;    # Axis line format.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $line_format;
+    my $data = pack 'v', $line_format;
 
     $self->_append( $header, $data );
 }
@@ -319,11 +324,12 @@ sub _store_axisparent {
     my $dy     = 0x00000DE4;    # Length of y axis.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $iax;
-       $data  .= pack 'V',  $x;
-       $data  .= pack 'V',  $y;
-       $data  .= pack 'V',  $dx;
-       $data  .= pack 'V',  $dy;
+    my $data = '';
+    $data .= pack 'v', $iax;
+    $data .= pack 'V', $x;
+    $data .= pack 'V', $y;
+    $data .= pack 'V', $dx;
+    $data .= pack 'V', $dy;
 
     $self->_append( $header, $data );
 }
@@ -346,9 +352,10 @@ sub _store_bar {
     my $grbit     = 0x0000;    # Option flags.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $pcOverlap;
-       $data  .= pack 'v',  $pcGap;
-       $data  .= pack 'v',  $grbit;
+    my $data = '';
+    $data .= pack 'v', $pcOverlap;
+    $data .= pack 'v', $pcGap;
+    $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
@@ -391,10 +398,11 @@ sub _store_catserrange {
     my $grbit    = 0x0001;    # Option flags.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $catCross;
-       $data  .= pack 'v',  $catLabel;
-       $data  .= pack 'v',  $catMark;
-       $data  .= pack 'v',  $grbit;
+    my $data = '';
+    $data .= pack 'v', $catCross;
+    $data .= pack 'v', $catLabel;
+    $data .= pack 'v', $catMark;
+    $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
@@ -420,10 +428,11 @@ sub _store_chart {
     my $dy     = 0x01C2B838;    # Y size.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'V',  $x_pos;
-       $data  .= pack 'V',  $y_pos;
-       $data  .= pack 'V',  $dx;
-       $data  .= pack 'V',  $dy;
+    my $data = '';
+    $data .= pack 'V', $x_pos;
+    $data .= pack 'V', $y_pos;
+    $data .= pack 'V', $dx;
+    $data .= pack 'V', $dy;
 
     $self->_append( $header, $data );
 }
@@ -450,12 +459,13 @@ sub _store_chartformat {
     my $icrt      = 0x0000;        # Drawing order.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'V',  $reserved1;
-       $data  .= pack 'V',  $reserved2;
-       $data  .= pack 'V',  $reserved3;
-       $data  .= pack 'V',  $reserved4;
-       $data  .= pack 'v',  $grbit;
-       $data  .= pack 'v',  $icrt;
+    my $data = '';
+    $data .= pack 'V', $reserved1;
+    $data .= pack 'V', $reserved2;
+    $data .= pack 'V', $reserved3;
+    $data .= pack 'V', $reserved4;
+    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $icrt;
 
     $self->_append( $header, $data );
 }
@@ -487,18 +497,19 @@ sub _store_charttext {
     my $rotation         = 0x0000;        # Text rotation.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'C',  $horz_align;
-       $data  .= pack 'C',  $vert_align;
-       $data  .= pack 'v',  $bg_mode;
-       $data  .= pack 'V',  $text_color_rgb;
-       $data  .= pack 'V',  $text_x;
-       $data  .= pack 'V',  $text_y;
-       $data  .= pack 'V',  $text_dx;
-       $data  .= pack 'V',  $text_dy;
-       $data  .= pack 'v',  $grbit1;
-       $data  .= pack 'v',  $text_color_index;
-       $data  .= pack 'v',  $grbit2;
-       $data  .= pack 'v',  $rotation;
+    my $data = '';
+    $data .= pack 'C', $horz_align;
+    $data .= pack 'C', $vert_align;
+    $data .= pack 'v', $bg_mode;
+    $data .= pack 'V', $text_color_rgb;
+    $data .= pack 'V', $text_x;
+    $data .= pack 'V', $text_y;
+    $data .= pack 'V', $text_dx;
+    $data .= pack 'V', $text_dy;
+    $data .= pack 'v', $grbit1;
+    $data .= pack 'v', $text_color_index;
+    $data .= pack 'v', $grbit2;
+    $data .= pack 'v', $rotation;
 
     $self->_append( $header, $data );
 }
@@ -523,10 +534,11 @@ sub _store_dataformat {
     my $grbit         = 0x0000;    # Format flags.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $point_number;
-       $data  .= pack 'v',  $series_index;
-       $data  .= pack 'v',  $series_number;
-       $data  .= pack 'v',  $grbit;
+    my $data = '';
+    $data .= pack 'v', $point_number;
+    $data .= pack 'v', $series_index;
+    $data .= pack 'v', $series_number;
+    $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
@@ -543,12 +555,13 @@ sub _store_defaulttext {
 
     my $self = shift;
 
-    my $record    = 0x1024;     # Record identifier.
-    my $length    = 0x0002;     # Number of bytes to follow.
-    my $type      = 0x0002;     # Type.
+    my $record = 0x1024;    # Record identifier.
+    my $length = 0x0002;    # Number of bytes to follow.
+    my $type   = 0x0002;    # Type.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $type;
+    my $data = '';
+    $data .= pack 'v', $type;
 
     $self->_append( $header, $data );
 }
@@ -593,11 +606,12 @@ sub _store_fbi {
     my $scale_basis  = 0x0000;    # Scale by chart area or plot area.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $width_basis;
-       $data  .= pack 'v',  $height_basis;
-       $data  .= pack 'v',  $height;
-       $data  .= pack 'v',  $scale_basis;
-       $data  .= pack 'v',  $index;
+    my $data = '';
+    $data .= pack 'v', $width_basis;
+    $data .= pack 'v', $height_basis;
+    $data .= pack 'v', $height;
+    $data .= pack 'v', $scale_basis;
+    $data .= pack 'v', $index;
 
     $self->_append( $header, $data );
 }
@@ -619,7 +633,7 @@ sub _store_fontx {
     my $index  = $_[0];     # Font index.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $index;
+    my $data = pack 'v', $index;
 
     $self->_append( $header, $data );
 }
@@ -641,8 +655,9 @@ sub _store_frame {
     my $grbit      = 0x0003;    # Option flags.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $frame_type;
-       $data  .= pack 'v',  $grbit;
+    my $data = '';
+    $data .= pack 'v', $frame_type;
+    $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
@@ -669,13 +684,14 @@ sub _store_legend {
     my $grbit    = 0x001F;        # Option flags.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'V',  $x;
-       $data  .= pack 'V',  $y;
-       $data  .= pack 'V',  $width;
-       $data  .= pack 'V',  $height;
-       $data  .= pack 'C',  $wType;
-       $data  .= pack 'C',  $wSpacing;
-       $data  .= pack 'v',  $grbit;
+    my $data = '';
+    $data .= pack 'V', $x;
+    $data .= pack 'V', $y;
+    $data .= pack 'V', $width;
+    $data .= pack 'V', $height;
+    $data .= pack 'C', $wType;
+    $data .= pack 'C', $wSpacing;
+    $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
@@ -700,11 +716,12 @@ sub _store_lineformat {
     my $index  = 0x004D;        # Index to colour of line.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'V',  $rgb;
-       $data  .= pack 'v',  $lns;
-       $data  .= pack 'v',  $we;
-       $data  .= pack 'v',  $grbit;
-       $data  .= pack 'v',  $index;
+    my $data = '';
+    $data .= pack 'V', $rgb;
+    $data .= pack 'v', $lns;
+    $data .= pack 'v', $we;
+    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $index;
 
     $self->_append( $header, $data );
 }
@@ -726,7 +743,7 @@ sub _store_plotarea {
 
     my $header = pack 'vv', $record, $length;
 
-    $self->_append( $header );
+    $self->_append($header);
 }
 
 
@@ -751,12 +768,13 @@ sub _store_pos {
     my $y2      = $_[5];     # Height.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $mdTopLt;
-       $data  .= pack 'v',  $mdBotRt;
-       $data  .= pack 'V',  $x1;
-       $data  .= pack 'V',  $y1;
-       $data  .= pack 'V',  $x2;
-       $data  .= pack 'V',  $y2;
+    my $data = '';
+    $data .= pack 'v', $mdTopLt;
+    $data .= pack 'v', $mdBotRt;
+    $data .= pack 'V', $x1;
+    $data .= pack 'V', $y1;
+    $data .= pack 'V', $x2;
+    $data .= pack 'V', $y2;
 
     $self->_append( $header, $data );
 }
@@ -782,16 +800,16 @@ sub _store_series {
     my $bubble_count   = $_[5];     # Num of bubble values.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $category_type;
-       $data  .= pack 'v',  $value_type;
-       $data  .= pack 'v',  $category_count;
-       $data  .= pack 'v',  $value_count;
-       $data  .= pack 'v',  $bubble_type;
-       $data  .= pack 'v',  $bubble_count;
+    my $data = '';
+    $data .= pack 'v', $category_type;
+    $data .= pack 'v', $value_type;
+    $data .= pack 'v', $category_count;
+    $data .= pack 'v', $value_count;
+    $data .= pack 'v', $bubble_type;
+    $data .= pack 'v', $bubble_count;
 
     $self->_append( $header, $data );
 }
-
 
 
 ###############################################################################
@@ -809,7 +827,7 @@ sub _store_sertocrt {
     my $chartgroup = 0x0000;    # Chart group index.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $chartgroup;
+    my $data = pack 'v', $chartgroup;
 
     $self->_append( $header, $data );
 }
@@ -831,8 +849,9 @@ sub _store_shtprops {
     my $empty_cells = 0x0000;    # Empty cell handling.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'v',  $grbit;
-       $data  .= pack 'v',  $empty_cells;
+    my $data = '';
+    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $empty_cells;
 
     $self->_append( $header, $data );
 }
@@ -865,18 +884,19 @@ sub _store_text {
 
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'C',  $at;
-       $data  .= pack 'C',  $vat;
-       $data  .= pack 'v',  $wBkgMode;
-       $data  .= pack 'V',  $rgbText;
-       $data  .= pack 'V',  $x;
-       $data  .= pack 'V',  $y;
-       $data  .= pack 'V',  $dx;
-       $data  .= pack 'V',  $dy;
-       $data  .= pack 'v',  $grbit;
-       $data  .= pack 'v',  $icvText;
-       $data  .= pack 'v',  $grbit2;
-       $data  .= pack 'v',  $rotation;
+    my $data = '';
+    $data .= pack 'C', $at;
+    $data .= pack 'C', $vat;
+    $data .= pack 'v', $wBkgMode;
+    $data .= pack 'V', $rgbText;
+    $data .= pack 'V', $x;
+    $data .= pack 'V', $y;
+    $data .= pack 'V', $dx;
+    $data .= pack 'V', $dy;
+    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $icvText;
+    $data .= pack 'v', $grbit2;
+    $data .= pack 'v', $rotation;
 
     $self->_append( $header, $data );
 }
@@ -907,18 +927,19 @@ sub _store_tick {
     my $reserved5 = 0x0000;        # Reserved.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'C',  $tktMajor;
-       $data  .= pack 'C',  $tktMinor;
-       $data  .= pack 'C',  $tlt;
-       $data  .= pack 'C',  $wBkgMode;
-       $data  .= pack 'V',  $rgb;
-       $data  .= pack 'V',  $reserved1;
-       $data  .= pack 'V',  $reserved2;
-       $data  .= pack 'V',  $reserved3;
-       $data  .= pack 'V',  $reserved4;
-       $data  .= pack 'v',  $grbit;
-       $data  .= pack 'v',  $index;
-       $data  .= pack 'v',  $reserved5;
+    my $data = '';
+    $data .= pack 'C', $tktMajor;
+    $data .= pack 'C', $tktMinor;
+    $data .= pack 'C', $tlt;
+    $data .= pack 'C', $wBkgMode;
+    $data .= pack 'V', $rgb;
+    $data .= pack 'V', $reserved1;
+    $data .= pack 'V', $reserved2;
+    $data .= pack 'V', $reserved3;
+    $data .= pack 'V', $reserved4;
+    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $index;
+    $data .= pack 'v', $reserved5;
 
     $self->_append( $header, $data );
 }
@@ -946,17 +967,16 @@ sub _store_valuerange {
     # TODO. Reverse doubles when they are handled.
 
     my $header = pack 'vv', $record, $length;
-    my $data   = pack 'd',  $numMin;
-       $data  .= pack 'd',  $numMax;
-       $data  .= pack 'd',  $numMajor;
-       $data  .= pack 'd',  $numMinor;
-       $data  .= pack 'd',  $numCross;
-       $data  .= pack 'v',  $grbit;
+    my $data = '';
+    $data .= pack 'd', $numMin;
+    $data .= pack 'd', $numMax;
+    $data .= pack 'd', $numMajor;
+    $data .= pack 'd', $numMinor;
+    $data .= pack 'd', $numCross;
+    $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
-
-
 
 
 1;
@@ -983,7 +1003,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-� MM-MMIX, John McNamara.
+Copyright MM-MMIX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 
