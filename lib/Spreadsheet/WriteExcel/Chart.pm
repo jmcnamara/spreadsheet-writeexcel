@@ -19,6 +19,7 @@ use FileHandle;
 use Spreadsheet::WriteExcel::Worksheet;
 
 
+
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Worksheet);
 
@@ -33,22 +34,41 @@ $VERSION = '2.31';
 sub new {
 
     my $class = shift;
-    my $self  = Spreadsheet::WriteExcel::Worksheet->new();
+    my $self  = Spreadsheet::WriteExcel::Worksheet->new( @_ );
 
-    $self->{_filename}     = $_[0];
-    $self->{_name}         = $_[1];
-    $self->{_index}        = $_[2];
-    $self->{_encoding}     = $_[3];
-    $self->{_activesheet}  = $_[4];
-    $self->{_firstsheet}   = $_[5];
-    $self->{_external_bin} = $_[6];
-    $self->{_type}         = 0x0200;
+    $self->{_type}          = 0x0200;
+    $self->{_orientation}   = 0x0;
 
     bless $self, $class;
     $self->_initialize();
     return $self;
 }
 
+
+###############################################################################
+#
+# ext()
+#
+# Constructor. Creates a Chart object from an external binary.
+#
+sub ext {
+
+    my $class = shift;
+    my $self  = Spreadsheet::WriteExcel::Worksheet->new();
+
+    $self->{_filename}      = $_[0];
+    $self->{_name}          = $_[1];
+    $self->{_index}         = $_[2];
+    $self->{_encoding}      = $_[3];
+    $self->{_activesheet}   = $_[4];
+    $self->{_firstsheet}    = $_[5];
+    $self->{_external_bin}  = $_[6];
+    $self->{_type}          = 0x0200;
+
+    bless $self, $class;
+    $self->_initialize();
+    return $self;
+}
 
 ###############################################################################
 #
@@ -93,7 +113,390 @@ sub _initialize {
 sub _close {
 
     my $self = shift;
+
+    # TODO note about prepended records.
+
+    # Prepend the sheet password
+    $self->_store_password();
+
+    # Prepend the page setup
+    $self->_store_setup();
+
+    # Prepend the bottom margin
+    $self->_store_margin_bottom();
+
+    # Prepend the top margin
+    $self->_store_margin_top();
+
+    # Prepend the right margin
+    $self->_store_margin_right();
+
+    # Prepend the left margin
+    $self->_store_margin_left();
+
+    # Prepend the page vertical centering
+    $self->_store_vcenter();
+
+    # Prepend the page horizontal centering
+    $self->_store_hcenter();
+
+    # Prepend the page footer
+    $self->_store_footer();
+
+    # Prepend the page header
+    $self->_store_header();
+
+    # Prepend the chart BOF.
+    $self->_store_bof(0x0020);
+
+
+    # Store the FBI font records.
+    $self->_store_fbi(5);
+    $self->_store_fbi(6);
+
+    # Ignore UNITS record.
+
+    # Store the Chart sub-stream.
+    $self->_store_chart_stream();
+
+    # Append the sheet dimensions
+    $self->_store_dimensions();
+
+    # TODO add SINDEX record
+
+    #$self->_store_window2();
+    $self->_store_eof();
 }
+
+#
+# TODO. This is a copy of the parent method but with prepend changed to append
+#       Will do something less cumbersome later.
+###############################################################################
+#
+# _store_dimensions()
+#
+# Writes Excel DIMENSIONS to define the area in which there is cell data.
+#
+# Notes:
+#   Excel stores the max row/col as row/col +1.
+#   Max and min values of 0 are used to indicate that no cell data.
+#   We set the undef member data to 0 since it is used by _store_table().
+#   Inserting images or charts doesn't change the DIMENSION data.
+#
+sub _store_dimensions {
+
+    my $self      = shift;
+    my $record    = 0x0200;         # Record identifier
+    my $length    = 0x000E;         # Number of bytes to follow
+    my $row_min;                    # First row
+    my $row_max;                    # Last row plus 1
+    my $col_min;                    # First column
+    my $col_max;                    # Last column plus 1
+    my $reserved  = 0x0000;         # Reserved by Excel
+
+    if (defined $self->{_dim_rowmin}) {$row_min = $self->{_dim_rowmin}    }
+    else                              {$row_min = 0                       }
+
+    if (defined $self->{_dim_rowmax}) {$row_max = $self->{_dim_rowmax} + 1}
+    else                              {$row_max = 0                       }
+
+    if (defined $self->{_dim_colmin}) {$col_min = $self->{_dim_colmin}    }
+    else                              {$col_min = 0                       }
+
+    if (defined $self->{_dim_colmax}) {$col_max = $self->{_dim_colmax} + 1}
+    else                              {$col_max = 0                       }
+
+
+    # Set member data to the new max/min value for use by _store_table().
+    $self->{_dim_rowmin} = $row_min;
+    $self->{_dim_rowmax} = $row_max;
+    $self->{_dim_colmin} = $col_min;
+    $self->{_dim_colmax} = $col_max;
+
+
+    my $header    = pack("vv",    $record, $length);
+    my $data      = pack("VVvvv", $row_min, $row_max,
+                                  $col_min, $col_max, $reserved);
+    $self->_append($header, $data);
+}
+
+###############################################################################
+#
+# _pack_series_formula()
+#
+# Pack the formula used in the DV record. This is the same as an cell formula
+# without the additional header information.
+#
+sub _pack_series_formula {
+
+    my $self        = shift;
+
+    my $formula     = $_[0];
+    my $encoding    = 0;
+    my $length      = 0;
+    my @tokens;
+
+    # Strip the = sign at the beginning of the formula string
+    $formula    =~ s(^=)();
+
+    # Parse the formula using the parser in Formula.pm
+    my $parser  = $self->{_parser};
+
+    # In order to raise formula errors from the point of view of the calling
+    # program we use an eval block and re-raise the error from here.
+    #
+    eval { @tokens = $parser->parse_formula($formula) };
+
+    if ($@) {
+        $@ =~ s/\n$//;  # Strip the \n used in the Formula.pm die()
+        croak $@;       # Re-raise the error
+    }
+    else {
+        # TODO test for non valid ptgs.
+    }
+    # Force 2d ranges to be a reference class.
+    #s/_range2d/_range2dR/ for @tokens;
+    #s/_name/_nameR/       for @tokens;
+
+    # Parse the tokens into a formula string.
+    $formula = $parser->parse_tokens(@tokens);
+
+    return $formula;
+}
+
+
+
+
+###############################################################################
+#
+# _store_chart_stream()
+#
+# Store the CHART record and it's substreams.
+#
+sub _store_chart_stream {
+
+    my $self = shift;
+
+    $self->_store_chart();
+
+    $self->_store_begin();
+    # Ignore SCL record for now.
+    $self->_store_plotgrowth();
+
+    # TODO. Need loop here over series data. Hardcoded for now.
+    $self->_store_series_stream(1, 1, 6, 6, 1, 0, 0, '=Sheet1!$B$3:$B$8');
+    $self->_store_series_stream(1, 1, 6, 6, 1, 0, 1, '=Sheet1!$C$3:$C$8');
+
+    $self->_store_shtprops();
+
+    # TODO. Need loop here over series data.
+    $self->_store_defaulttext();
+    $self->_store_text_stream();
+
+    $self->_store_defaulttext();
+    $self->_store_text_stream();
+
+    $self->_store_axesused(1);
+    $self->_store_axisparent_stream();
+    $self->_store_end();
+
+}
+
+
+###############################################################################
+#
+# _store_series_stream()
+#
+# TODO
+#
+sub _store_series_stream {
+
+    my $self = shift;
+
+    my $formula      = $self->_pack_series_formula(pop);
+    my $series_index = pop;
+
+    $self->_store_series(@_);
+
+    $self->_store_begin();
+    $self->_store_ai(0, 1, 0, '');
+    $self->_store_ai(1, 2, 0, $formula);
+    $self->_store_ai(2, 0, 0, '');
+    $self->_store_ai(3, 1, 0, '');
+    $self->_store_dataformat_stream($series_index);
+    $self->_store_sertocrt(0);
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_dataformat_stream()
+#
+# TODO
+#
+sub _store_dataformat_stream {
+
+    my $self = shift;
+
+    my $series_index = shift;
+
+    $self->_store_dataformat($series_index);
+
+    $self->_store_begin();
+    $self->_store_3dbarshape();
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_text_stream()
+#
+# TODO
+#
+sub _store_text_stream {
+
+    my $self = shift;
+
+    $self->_store_text();
+
+    $self->_store_begin();
+    $self->_store_pos(2, 2, 0, 0, 0, 0);
+    $self->_store_fontx(5);
+    $self->_store_ai(0, 1, 0, '');
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_axisparent_stream()
+#
+# TODO
+#
+sub _store_axisparent_stream {
+
+    my $self = shift;
+
+    $self->_store_axisparent(0);
+
+    $self->_store_begin();
+    $self->_store_pos(2, 2, 44, 72, 0x0E26, 0x0F0F);
+    $self->_store_axis_category_stream();
+    $self->_store_axis_values_stream();
+    $self->_store_plotarea();
+    $self->_store_frame_stream();
+    $self->_store_chartformat_stream();
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_axis_category_stream()
+#
+# TODO
+#
+sub _store_axis_category_stream {
+
+    my $self = shift;
+
+    $self->_store_axis(0);
+
+    $self->_store_begin();
+    $self->_store_catserrange();
+    $self->_store_axcext();
+    $self->_store_tick();
+    $self->_store_end();
+}
+
+
+
+###############################################################################
+#
+# _store_axis_values_stream()
+#
+# TODO
+#
+sub _store_axis_values_stream {
+
+    my $self = shift;
+
+    $self->_store_axis(1);
+
+    $self->_store_begin();
+    $self->_store_valuerange();
+    $self->_store_tick();
+    $self->_store_axislineformat();
+    $self->_store_lineformat();
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_frame_stream()
+#
+# TODO
+#
+sub _store_frame_stream {
+
+    my $self = shift;
+
+    $self->_store_frame();
+
+    $self->_store_begin();
+    $self->_store_lineformat();
+    $self->_store_areaformat();
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_chartformat_stream()
+#
+# TODO
+#
+sub _store_chartformat_stream {
+
+    my $self = shift;
+
+    $self->_store_chartformat();
+
+    $self->_store_begin();
+    $self->_store_bar();
+    # CHARTFORMATLINK is not used.
+    $self->store_legend_stream();
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# store_legend_stream()
+#
+# TODO
+#
+sub store_legend_stream {
+
+    my $self = shift;
+
+    $self->_store_legend();
+
+    $self->_store_begin();
+    $self->_store_pos(5, 2, 0xE84, 0x06FE, 0, 0);
+    $self->_store_text_stream();
+    $self->_store_end();
+}
+
+
+
+
+
+
+
 
 
 ###############################################################################
@@ -707,6 +1110,8 @@ sub _store_lineformat {
 
     my $self = shift;
 
+    # TODO colour and weight need to be parameters.
+
     my $record = 0x1007;        # Record identifier.
     my $length = 0x000C;        # Number of bytes to follow.
     my $rgb    = 0x00000000;    # Line RGB colour.
@@ -744,6 +1149,30 @@ sub _store_plotarea {
     my $header = pack 'vv', $record, $length;
 
     $self->_append($header);
+}
+
+
+###############################################################################
+#
+# _store_plotgrowth()
+#
+# Write the PLOTGROWTH chart BIFF record.
+#
+sub _store_plotgrowth {
+
+    my $self = shift;
+
+    my $record  = 0x1064;        # Record identifier.
+    my $length  = 0x0008;        # Number of bytes to follow.
+    my $dx_plot = 0x00010000;    # Horz growth for font scale.
+    my $dy_plot = 0x00010000;    # Vert growth for font scale.
+
+    my $header = pack 'vv', $record, $length;
+    my $data = '';
+    $data .= pack 'V', $dx_plot;
+    $data .= pack 'V', $dy_plot;
+
+    $self->_append( $header, $data );
 }
 
 

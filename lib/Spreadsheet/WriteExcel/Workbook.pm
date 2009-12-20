@@ -477,13 +477,19 @@ sub add_chart {
 
 
     my @init_data = (
-                         '',
                          $name,
                          $index,
                          $encoding,
                         \$self->{_activesheet},
                         \$self->{_firstsheet},
-                         1, # External binary
+                         $self->{_url_format},
+                         $self->{_parser},
+                         $self->{_tempdir},
+                        \$self->{_str_total},
+                        \$self->{_str_unique},
+                        \$self->{_str_table},
+                         $self->{_1904},
+                         $self->{_compatibility},
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Chart->new(@init_data);
@@ -523,7 +529,7 @@ sub add_chart_ext {
                          1, # External binary
                     );
 
-    my $worksheet = Spreadsheet::WriteExcel::Chart->new(@init_data);
+    my $worksheet = Spreadsheet::WriteExcel::Chart->ext(@init_data);
     $self->{_worksheets}->[$index] = $worksheet;     # Store ref for iterator
     $self->{_sheetnames}->[$index] = $name;          # Store EXTERNSHEET names
 

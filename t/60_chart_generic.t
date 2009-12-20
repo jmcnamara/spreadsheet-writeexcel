@@ -513,6 +513,20 @@ $got = unpack_record( $chart->_store_text() );
 is( $got, $expected, $caption );
 
 
+###############################################################################
+#
+# Test the _store_plotgrowth() method.
+#
+$caption = " \tChart: _store_plotgrowth()";
+
+$expected = join ' ', qw(
+    64 10 08 00 00 00 01 00 00 00 01 00
+);
+
+$got = unpack_record( $chart->_store_plotgrowth() );
+
+is( $got, $expected, $caption );
+
 
 
 
