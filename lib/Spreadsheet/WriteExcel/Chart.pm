@@ -19,7 +19,6 @@ use FileHandle;
 use Spreadsheet::WriteExcel::Worksheet;
 
 
-
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Worksheet);
 
@@ -36,8 +35,8 @@ sub new {
     my $class = shift;
     my $self  = Spreadsheet::WriteExcel::Worksheet->new( @_ );
 
-    $self->{_type}          = 0x0200;
-    $self->{_orientation}   = 0x0;
+    $self->{_type}        = 0x0200;
+    $self->{_orientation} = 0x0;
 
     bless $self, $class;
     $self->_initialize();
@@ -56,14 +55,14 @@ sub ext {
     my $class = shift;
     my $self  = Spreadsheet::WriteExcel::Worksheet->new();
 
-    $self->{_filename}      = $_[0];
-    $self->{_name}          = $_[1];
-    $self->{_index}         = $_[2];
-    $self->{_encoding}      = $_[3];
-    $self->{_activesheet}   = $_[4];
-    $self->{_firstsheet}    = $_[5];
-    $self->{_external_bin}  = $_[6];
-    $self->{_type}          = 0x0200;
+    $self->{_filename}     = $_[0];
+    $self->{_name}         = $_[1];
+    $self->{_index}        = $_[2];
+    $self->{_encoding}     = $_[3];
+    $self->{_activesheet}  = $_[4];
+    $self->{_firstsheet}   = $_[5];
+    $self->{_external_bin} = $_[6];
+    $self->{_type}         = 0x0200;
 
     bless $self, $class;
     $self->_initialize();
@@ -84,10 +83,10 @@ sub _initialize {
 
     if ( $self->{_external_bin} ) {
         my $filename   = $self->{_filename};
-        my $filehandle = FileHandle->new($filename)
+        my $filehandle = FileHandle->new( $filename )
           or die "Couldn't open $filename in add_chart_ext(): $!.\n";
 
-        binmode($filehandle);
+        binmode( $filehandle );
 
         $self->{_filehandle}    = $filehandle;
         $self->{_datasize}      = -s $filehandle;
@@ -147,12 +146,12 @@ sub _close {
     $self->_store_header();
 
     # Prepend the chart BOF.
-    $self->_store_bof(0x0020);
+    $self->_store_bof( 0x0020 );
 
 
     # Store the FBI font records.
-    $self->_store_fbi(5);
-    $self->_store_fbi(6);
+    $self->_store_fbi( 5 );
+    $self->_store_fbi( 6 );
 
     # Ignore UNITS record.
 
@@ -185,26 +184,26 @@ sub _close {
 #
 sub _store_dimensions {
 
-    my $self      = shift;
-    my $record    = 0x0200;         # Record identifier
-    my $length    = 0x000E;         # Number of bytes to follow
-    my $row_min;                    # First row
-    my $row_max;                    # Last row plus 1
-    my $col_min;                    # First column
-    my $col_max;                    # Last column plus 1
-    my $reserved  = 0x0000;         # Reserved by Excel
+    my $self   = shift;
+    my $record = 0x0200;    # Record identifier
+    my $length = 0x000E;    # Number of bytes to follow
+    my $row_min;            # First row
+    my $row_max;            # Last row plus 1
+    my $col_min;            # First column
+    my $col_max;            # Last column plus 1
+    my $reserved = 0x0000;  # Reserved by Excel
 
-    if (defined $self->{_dim_rowmin}) {$row_min = $self->{_dim_rowmin}    }
-    else                              {$row_min = 0                       }
+    if   ( defined $self->{_dim_rowmin} ) { $row_min = $self->{_dim_rowmin} }
+    else                                  { $row_min = 0 }
 
-    if (defined $self->{_dim_rowmax}) {$row_max = $self->{_dim_rowmax} + 1}
-    else                              {$row_max = 0                       }
+    if ( defined $self->{_dim_rowmax} ) { $row_max = $self->{_dim_rowmax} + 1 }
+    else                                { $row_max = 0 }
 
-    if (defined $self->{_dim_colmin}) {$col_min = $self->{_dim_colmin}    }
-    else                              {$col_min = 0                       }
+    if   ( defined $self->{_dim_colmin} ) { $col_min = $self->{_dim_colmin} }
+    else                                  { $col_min = 0 }
 
-    if (defined $self->{_dim_colmax}) {$col_max = $self->{_dim_colmax} + 1}
-    else                              {$col_max = 0                       }
+    if ( defined $self->{_dim_colmax} ) { $col_max = $self->{_dim_colmax} + 1 }
+    else                                { $col_max = 0 }
 
 
     # Set member data to the new max/min value for use by _store_table().
@@ -214,10 +213,10 @@ sub _store_dimensions {
     $self->{_dim_colmax} = $col_max;
 
 
-    my $header    = pack("vv",    $record, $length);
-    my $data      = pack("VVvvv", $row_min, $row_max,
-                                  $col_min, $col_max, $reserved);
-    $self->_append($header, $data);
+    my $header = pack( "vv", $record, $length );
+    my $data =
+      pack( "VVvvv", $row_min, $row_max, $col_min, $col_max, $reserved );
+    $self->_append( $header, $data );
 }
 
 ###############################################################################
@@ -229,42 +228,42 @@ sub _store_dimensions {
 #
 sub _pack_series_formula {
 
-    my $self        = shift;
+    my $self = shift;
 
-    my $formula     = $_[0];
-    my $encoding    = 0;
-    my $length      = 0;
+    my $formula  = $_[0];
+    my $encoding = 0;
+    my $length   = 0;
     my @tokens;
 
     # Strip the = sign at the beginning of the formula string
-    $formula    =~ s(^=)();
+    $formula =~ s(^=)();
 
     # Parse the formula using the parser in Formula.pm
-    my $parser  = $self->{_parser};
+    my $parser = $self->{_parser};
 
     # In order to raise formula errors from the point of view of the calling
     # program we use an eval block and re-raise the error from here.
     #
-    eval { @tokens = $parser->parse_formula($formula) };
+    eval { @tokens = $parser->parse_formula( $formula ) };
 
-    if ($@) {
-        $@ =~ s/\n$//;  # Strip the \n used in the Formula.pm die()
-        croak $@;       # Re-raise the error
+    if ( $@ ) {
+        $@ =~ s/\n$//;    # Strip the \n used in the Formula.pm die()
+        croak $@;         # Re-raise the error
     }
     else {
+
         # TODO test for non valid ptgs.
     }
+
     # Force 2d ranges to be a reference class.
     #s/_range2d/_range2dR/ for @tokens;
     #s/_name/_nameR/       for @tokens;
 
     # Parse the tokens into a formula string.
-    $formula = $parser->parse_tokens(@tokens);
+    $formula = $parser->parse_tokens( @tokens );
 
     return $formula;
 }
-
-
 
 
 ###############################################################################
@@ -280,12 +279,13 @@ sub _store_chart_stream {
     $self->_store_chart();
 
     $self->_store_begin();
+
     # Ignore SCL record for now.
     $self->_store_plotgrowth();
 
     # TODO. Need loop here over series data. Hardcoded for now.
-    $self->_store_series_stream(1, 1, 6, 6, 1, 0, 0, '=Sheet1!$B$3:$B$8');
-    $self->_store_series_stream(1, 1, 6, 6, 1, 0, 1, '=Sheet1!$C$3:$C$8');
+    $self->_store_series_stream( 1, 1, 6, 6, 1, 0, 0, '=Sheet1!$B$3:$B$8' );
+    $self->_store_series_stream( 1, 1, 6, 6, 1, 0, 1, '=Sheet1!$C$3:$C$8' );
 
     $self->_store_shtprops();
 
@@ -296,7 +296,7 @@ sub _store_chart_stream {
     $self->_store_defaulttext();
     $self->_store_text_stream();
 
-    $self->_store_axesused(1);
+    $self->_store_axesused( 1 );
     $self->_store_axisparent_stream();
     $self->_store_end();
 
@@ -313,18 +313,18 @@ sub _store_series_stream {
 
     my $self = shift;
 
-    my $formula      = $self->_pack_series_formula(pop);
+    my $formula      = $self->_pack_series_formula( pop );
     my $series_index = pop;
 
-    $self->_store_series(@_);
+    $self->_store_series( @_ );
 
     $self->_store_begin();
-    $self->_store_ai(0, 1, 0, '');
-    $self->_store_ai(1, 2, 0, $formula);
-    $self->_store_ai(2, 0, 0, '');
-    $self->_store_ai(3, 1, 0, '');
-    $self->_store_dataformat_stream($series_index);
-    $self->_store_sertocrt(0);
+    $self->_store_ai( 0, 1, 0, '' );
+    $self->_store_ai( 1, 2, 0, $formula );
+    $self->_store_ai( 2, 0, 0, '' );
+    $self->_store_ai( 3, 1, 0, '' );
+    $self->_store_dataformat_stream( $series_index );
+    $self->_store_sertocrt( 0 );
     $self->_store_end();
 }
 
@@ -341,7 +341,7 @@ sub _store_dataformat_stream {
 
     my $series_index = shift;
 
-    $self->_store_dataformat($series_index);
+    $self->_store_dataformat( $series_index );
 
     $self->_store_begin();
     $self->_store_3dbarshape();
@@ -362,9 +362,9 @@ sub _store_text_stream {
     $self->_store_text();
 
     $self->_store_begin();
-    $self->_store_pos(2, 2, 0, 0, 0, 0);
-    $self->_store_fontx(5);
-    $self->_store_ai(0, 1, 0, '');
+    $self->_store_pos( 2, 2, 0, 0, 0, 0 );
+    $self->_store_fontx( 5 );
+    $self->_store_ai( 0, 1, 0, '' );
     $self->_store_end();
 }
 
@@ -379,10 +379,10 @@ sub _store_axisparent_stream {
 
     my $self = shift;
 
-    $self->_store_axisparent(0);
+    $self->_store_axisparent( 0 );
 
     $self->_store_begin();
-    $self->_store_pos(2, 2, 44, 72, 0x0E26, 0x0F0F);
+    $self->_store_pos( 2, 2, 44, 72, 0x0E26, 0x0F0F );
     $self->_store_axis_category_stream();
     $self->_store_axis_values_stream();
     $self->_store_plotarea();
@@ -402,7 +402,7 @@ sub _store_axis_category_stream {
 
     my $self = shift;
 
-    $self->_store_axis(0);
+    $self->_store_axis( 0 );
 
     $self->_store_begin();
     $self->_store_catserrange();
@@ -410,7 +410,6 @@ sub _store_axis_category_stream {
     $self->_store_tick();
     $self->_store_end();
 }
-
 
 
 ###############################################################################
@@ -423,7 +422,7 @@ sub _store_axis_values_stream {
 
     my $self = shift;
 
-    $self->_store_axis(1);
+    $self->_store_axis( 1 );
 
     $self->_store_begin();
     $self->_store_valuerange();
@@ -467,6 +466,7 @@ sub _store_chartformat_stream {
 
     $self->_store_begin();
     $self->_store_bar();
+
     # CHARTFORMATLINK is not used.
     $self->store_legend_stream();
     $self->_store_end();
@@ -486,17 +486,10 @@ sub store_legend_stream {
     $self->_store_legend();
 
     $self->_store_begin();
-    $self->_store_pos(5, 2, 0xE84, 0x06FE, 0, 0);
+    $self->_store_pos( 5, 2, 0xE84, 0x06FE, 0, 0 );
     $self->_store_text_stream();
     $self->_store_end();
 }
-
-
-
-
-
-
-
 
 
 ###############################################################################
@@ -779,7 +772,7 @@ sub _store_begin {
 
     my $header = pack 'vv', $record, $length;
 
-    $self->_append($header);
+    $self->_append( $header );
 }
 
 
@@ -985,7 +978,7 @@ sub _store_end {
 
     my $header = pack 'vv', $record, $length;
 
-    $self->_append($header);
+    $self->_append( $header );
 }
 
 
@@ -1148,7 +1141,7 @@ sub _store_plotarea {
 
     my $header = pack 'vv', $record, $length;
 
-    $self->_append($header);
+    $self->_append( $header );
 }
 
 
