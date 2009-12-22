@@ -275,7 +275,7 @@ sub _get_checksum_method {
 
 ###############################################################################
 #
-# _append(), overloaded.
+# _append(), overridden.
 #
 # Store Worksheet data in memory using the base class _append() or to a
 # temporary file, the default.

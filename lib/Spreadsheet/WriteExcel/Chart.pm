@@ -64,10 +64,13 @@ sub ext {
     $self->{_external_bin} = $_[6];
     $self->{_type}         = 0x0200;
 
+    # EXT properties.
+
     bless $self, $class;
     $self->_initialize();
     return $self;
 }
+
 
 ###############################################################################
 #
@@ -104,6 +107,24 @@ sub _initialize {
 
 ###############################################################################
 #
+# _prepend(), overridden.
+#
+# The parent Worksheet class need to store some data in memory and some in
+# temporay files for efficiency. The Chart* classes don't need to do this so
+# we override _prepend() to turn it into an _append() method.
+#
+sub _prepend {
+
+    my $self = shift;
+
+    $self->{_using_tmpfile} = 0;
+
+    return $self->_append( @_ );
+}
+
+
+###############################################################################
+#
 # _close()
 #
 # Add data to the beginning of the workbook (note the reverse order)
@@ -113,41 +134,43 @@ sub _close {
 
     my $self = shift;
 
-    # TODO note about prepended records.
+    # Legacy extenal binary chart doesn't require any further processing.
+    return undef if $self->{_external_bin};
 
-    # Prepend the sheet password
-    $self->_store_password();
-
-    # Prepend the page setup
-    $self->_store_setup();
-
-    # Prepend the bottom margin
-    $self->_store_margin_bottom();
-
-    # Prepend the top margin
-    $self->_store_margin_top();
-
-    # Prepend the right margin
-    $self->_store_margin_right();
-
-    # Prepend the left margin
-    $self->_store_margin_left();
-
-    # Prepend the page vertical centering
-    $self->_store_vcenter();
-
-    # Prepend the page horizontal centering
-    $self->_store_hcenter();
-
-    # Prepend the page footer
-    $self->_store_footer();
-
-    # Prepend the page header
-    $self->_store_header();
-
-    # Prepend the chart BOF.
+    # Store the chart BOF.
     $self->_store_bof( 0x0020 );
 
+    # Store the page header
+    $self->_store_header();
+
+    # Store the page footer
+    $self->_store_footer();
+
+    # Store the page horizontal centering
+    $self->_store_hcenter();
+
+    # Store the page vertical centering
+    $self->_store_vcenter();
+
+    # Store the left margin
+    $self->_store_margin_left();
+
+    # Store the right margin
+    $self->_store_margin_right();
+
+    # Store the top margin
+    $self->_store_margin_top();
+
+    # Store the bottom margin
+    $self->_store_margin_bottom();
+
+    # Store the page setup
+    $self->_store_setup();
+
+    # Store the sheet password
+    $self->_store_password();
+
+    # Start of Chart specific records.
 
     # Store the FBI font records.
     $self->_store_fbi( 5 );
@@ -162,62 +185,27 @@ sub _close {
     $self->_store_dimensions();
 
     # TODO add SINDEX record
+    #$self->_store_tmp_records();
 
     #$self->_store_window2();
     $self->_store_eof();
 }
 
+
 #
-# TODO. This is a copy of the parent method but with prepend changed to append
-#       Will do something less cumbersome later.
-###############################################################################
+# TODO temp debug code
 #
-# _store_dimensions()
-#
-# Writes Excel DIMENSIONS to define the area in which there is cell data.
-#
-# Notes:
-#   Excel stores the max row/col as row/col +1.
-#   Max and min values of 0 are used to indicate that no cell data.
-#   We set the undef member data to 0 since it is used by _store_table().
-#   Inserting images or charts doesn't change the DIMENSION data.
-#
-sub _store_dimensions {
+sub _store_tmp_records {
 
-    my $self   = shift;
-    my $record = 0x0200;    # Record identifier
-    my $length = 0x000E;    # Number of bytes to follow
-    my $row_min;            # First row
-    my $row_max;            # Last row plus 1
-    my $col_min;            # First column
-    my $col_max;            # Last column plus 1
-    my $reserved = 0x0000;  # Reserved by Excel
+    my $self = shift;
 
-    if   ( defined $self->{_dim_rowmin} ) { $row_min = $self->{_dim_rowmin} }
-    else                                  { $row_min = 0 }
+    my $data = pack 'C*', (
 
-    if ( defined $self->{_dim_rowmax} ) { $row_max = $self->{_dim_rowmax} + 1 }
-    else                                { $row_max = 0 }
+    );
 
-    if   ( defined $self->{_dim_colmin} ) { $col_min = $self->{_dim_colmin} }
-    else                                  { $col_min = 0 }
-
-    if ( defined $self->{_dim_colmax} ) { $col_max = $self->{_dim_colmax} + 1 }
-    else                                { $col_max = 0 }
-
-
-    # Set member data to the new max/min value for use by _store_table().
-    $self->{_dim_rowmin} = $row_min;
-    $self->{_dim_rowmax} = $row_max;
-    $self->{_dim_colmin} = $col_min;
-    $self->{_dim_colmax} = $col_max;
-
-
-    my $header = pack( "vv", $record, $length );
-    my $data =
-      pack( "VVvvv", $row_min, $row_max, $col_min, $col_max, $reserved );
-    $self->_append( $header, $data );
+    $self->_append( $data );
 }
+
 
 ###############################################################################
 #
@@ -255,8 +243,9 @@ sub _pack_series_formula {
         # TODO test for non valid ptgs.
     }
 
-    # Force 2d ranges to be a reference class.
-    #s/_range2d/_range2dR/ for @tokens;
+    # Force ranges to be a reference class.
+    s/_range3d/_range3dR/ for @tokens;
+
     #s/_name/_nameR/       for @tokens;
 
     # Parse the tokens into a formula string.
@@ -307,7 +296,7 @@ sub _store_chart_stream {
 #
 # _store_series_stream()
 #
-# TODO
+# Write the SERIES chart substream.
 #
 sub _store_series_stream {
 
@@ -333,7 +322,7 @@ sub _store_series_stream {
 #
 # _store_dataformat_stream()
 #
-# TODO
+# Write the DATAFORMAT chart substream.
 #
 sub _store_dataformat_stream {
 
@@ -353,7 +342,7 @@ sub _store_dataformat_stream {
 #
 # _store_text_stream()
 #
-# TODO
+# Write the TEST chart substream.
 #
 sub _store_text_stream {
 
@@ -373,7 +362,7 @@ sub _store_text_stream {
 #
 # _store_axisparent_stream()
 #
-# TODO
+# Write the AXISPARENT chart substream.
 #
 sub _store_axisparent_stream {
 
@@ -396,7 +385,7 @@ sub _store_axisparent_stream {
 #
 # _store_axis_category_stream()
 #
-# TODO
+# Write the AXIS chart substream for the chart category.
 #
 sub _store_axis_category_stream {
 
@@ -416,7 +405,7 @@ sub _store_axis_category_stream {
 #
 # _store_axis_values_stream()
 #
-# TODO
+# Write the AXIS chart substream for the chart values.
 #
 sub _store_axis_values_stream {
 
@@ -437,7 +426,7 @@ sub _store_axis_values_stream {
 #
 # _store_frame_stream()
 #
-# TODO
+# Write the FRAME chart substream.
 #
 sub _store_frame_stream {
 
@@ -456,7 +445,7 @@ sub _store_frame_stream {
 #
 # _store_chartformat_stream()
 #
-# TODO
+# Write the CHARTFORMAT chart substream.
 #
 sub _store_chartformat_stream {
 
@@ -477,7 +466,7 @@ sub _store_chartformat_stream {
 #
 # store_legend_stream()
 #
-# TODO
+# Write the LEGEND chart substream.
 #
 sub store_legend_stream {
 
