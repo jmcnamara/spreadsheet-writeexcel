@@ -37,6 +37,7 @@ sub new {
 
     $self->{_type}        = 0x0200;
     $self->{_orientation} = 0x0;
+    $self->{_series}      = [];
 
     bless $self, $class;
     $self->_initialize();
@@ -71,6 +72,42 @@ sub ext {
     return $self;
 }
 
+###############################################################################
+#
+# Public methods.
+#
+###############################################################################
+
+
+###############################################################################
+#
+# add_series()
+#
+# Add a series and it's properties to a chart.
+#
+sub add_series {
+
+    my $self = shift;
+    my %arg  = @_;
+
+    croak "Must specify series in add_series()" if !exists $arg{series};
+
+    # Parse the series to validate it and extract salient information.
+    my @parsed_data = $self->_parse_series_formula( $arg{series} );
+
+    # Add the parsed data to the user supplied data.
+    %arg = ( @_, @parsed_data );
+
+    push @{ $self->{_series} }, \%arg;
+}
+
+
+###############################################################################
+#
+# Internal methods. The following section of methods are used for the internal
+# structuring of the Chart object and file format.
+#
+###############################################################################
 
 ###############################################################################
 #
@@ -127,8 +164,7 @@ sub _prepend {
 #
 # _close()
 #
-# Add data to the beginning of the workbook (note the reverse order)
-# and to the end of the workbook.
+# Create and store the Chart data structures.
 #
 sub _close {
 
@@ -136,6 +172,10 @@ sub _close {
 
     # Legacy extenal binary chart doesn't require any further processing.
     return undef if $self->{_external_bin};
+
+    # Ignore any data that has been written so far since it is probably
+    # from unwanted Worksheet method calls.
+    $self->{_data} = '';
 
     # Store the chart BOF.
     $self->_store_bof( 0x0020 );
@@ -209,18 +249,20 @@ sub _store_tmp_records {
 
 ###############################################################################
 #
-# _pack_series_formula()
+# _parse_series_formula()
 #
-# Pack the formula used in the DV record. This is the same as an cell formula
-# without the additional header information.
+# Parse the formula used to define a series. We also extract some range
+# information required for _store_series() and the SERIES record.
 #
-sub _pack_series_formula {
+sub _parse_series_formula {
 
     my $self = shift;
 
     my $formula  = $_[0];
     my $encoding = 0;
     my $length   = 0;
+    my $type;
+    my $range;
     my @tokens;
 
     # Strip the = sign at the beginning of the formula string
@@ -235,23 +277,26 @@ sub _pack_series_formula {
     eval { @tokens = $parser->parse_formula( $formula ) };
 
     if ( $@ ) {
-        $@ =~ s/\n$//;    # Strip the \n used in the Formula.pm die()
-        croak $@;         # Re-raise the error
-    }
-    else {
-
-        # TODO test for non valid ptgs.
+        $@ =~ s/\n$//;    # Strip the \n used in the Formula.pm die().
+        croak $@;         # Re-raise the error.
     }
 
     # Force ranges to be a reference class.
     s/_range3d/_range3dR/ for @tokens;
-
-    #s/_name/_nameR/       for @tokens;
+    s/_name/_nameR/       for @tokens;
 
     # Parse the tokens into a formula string.
     $formula = $parser->parse_tokens( @tokens );
 
-    return $formula;
+    # Extract the range from the parse formula.
+    if ( ord $formula == 0x3B ) {
+        $type = '_range3dR';
+        my ( $ptg, $ext_ref, $row_1, $row_2, $col_1, $col_2 ) = unpack 'Cv5',
+          $formula;
+        $range = [ $row_1, $row_2, $col_1, $col_2 ];
+    }
+
+    return ( _parsed => $formula, _type => $type, _range => $range );
 }
 
 
@@ -272,18 +317,25 @@ sub _store_chart_stream {
     # Ignore SCL record for now.
     $self->_store_plotgrowth();
 
-    # TODO. Need loop here over series data. Hardcoded for now.
-    $self->_store_series_stream( 1, 1, 6, 6, 1, 0, 0, '=Sheet1!$B$3:$B$8' );
-    $self->_store_series_stream( 1, 1, 6, 6, 1, 0, 1, '=Sheet1!$C$3:$C$8' );
+    # Store SERIES stream for each series.
+    my $index = 0;
+    for my $series ( @{ $self->{_series} } ) {
+        my $parsed = $series->{_parsed};
+        my @range  = @{ $series->{_range}; };
+        my $count  = 1 + $range[1] - $range[0];
+
+        $self->_store_series_stream( 1, 1, $count, $count, 1, 0, $index,
+            $parsed );
+        $index++;
+    }
 
     $self->_store_shtprops();
 
-    # TODO. Need loop here over series data.
-    $self->_store_defaulttext();
-    $self->_store_text_stream();
-
-    $self->_store_defaulttext();
-    $self->_store_text_stream();
+    # Write the TEXT stream for each series.
+    for ( @{ $self->{_series} } ) {
+        $self->_store_defaulttext();
+        $self->_store_text_stream();
+    }
 
     $self->_store_axesused( 1 );
     $self->_store_axisparent_stream();
@@ -302,7 +354,7 @@ sub _store_series_stream {
 
     my $self = shift;
 
-    my $formula      = $self->_pack_series_formula( pop );
+    my $formula      = pop;
     my $series_index = pop;
 
     $self->_store_series( @_ );

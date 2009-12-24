@@ -463,17 +463,21 @@ sub add_worksheet {
 
 ###############################################################################
 #
-# add_chart($name)
+# add_chart(%args)
 #
 # Add a chart sheet.
 #
 #
 sub add_chart {
 
-    my $self     = shift;
-    my $index    = @{$self->{_worksheets}};
+    my $self  = shift;
+    my %arg   = @_;
+    my $index = @{ $self->{_worksheets} };
 
-    my ($name, $encoding) = $self->_check_sheetname($_[0], $_[1]);
+    my ( $name, $encoding ) = $self->_check_sheetname(
+                                                      $arg{name},
+                                                      $arg{name_encoding},
+                                                     );
 
 
     my @init_data = (
