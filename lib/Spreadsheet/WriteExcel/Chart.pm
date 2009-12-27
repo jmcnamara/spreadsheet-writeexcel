@@ -102,8 +102,8 @@ sub add_series {
     my ( $name, $encoding ) =
       $self->_encode_utf16( $arg{name}, $arg{name_encoding} );
 
-    $self->{name}     = $name;
-    $self->{encoding} = $encoding;
+    $arg{name}          = $name;
+    $arg{name_encoding} = $encoding;
 
     push @{ $self->{_series} }, \%arg;
 }
@@ -277,9 +277,10 @@ sub _close {
     # Start of Chart specific records.
 
     # Store the FBI font records.
-    for my $i ( 5 .. 8 ) {
-        $self->_store_fbi( $i );
-    }
+    $self->_store_fbi( 5, 10 ); # Axis numbers.
+    $self->_store_fbi( 6, 10 ); # Series names.
+    $self->_store_fbi( 7, 12 ); # Title.
+    $self->_store_fbi( 8, 10 ); # Axes.
 
     # Ignore UNITS record.
 
@@ -1256,13 +1257,13 @@ sub _store_fbi {
 
     my $self = shift;
 
-    my $record       = 0x1060;    # Record identifier.
-    my $length       = 0x000A;    # Number of bytes to follow.
-    my $index        = $_[0];     # Font index.
-    my $height       = 0x00C8;    # Default font height in twips.
-    my $width_basis  = 0x38B8;    # Width basis, in twips.
-    my $height_basis = 0x22A1;    # Height basis, in twips.
-    my $scale_basis  = 0x0000;    # Scale by chart area or plot area.
+    my $record       = 0x1060;        # Record identifier.
+    my $length       = 0x000A;        # Number of bytes to follow.
+    my $index        = $_[0];         # Font index.
+    my $height       = $_[1] * 20;    # Default font height in twips.
+    my $width_basis  = 0x38B8;        # Width basis, in twips.
+    my $height_basis = 0x22A1;        # Height basis, in twips.
+    my $scale_basis  = 0x0000;        # Scale by chart area or plot area.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';

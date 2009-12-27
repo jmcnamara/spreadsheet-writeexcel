@@ -1806,17 +1806,55 @@ sub _store_all_fonts {
     my $font    = $format->get_font();
 
     # Fonts are 0-indexed. According to the SDK there is no index 4,
-    for (0..3){
+    for (0..3) {
         $self->_append($font);
     }
 
 
-    # Add the font for comments. This isn't connected to any XF format.
-    my $tmp    = Spreadsheet::WriteExcel::Format->new(undef,
-                                                      font => 'Tahoma',
-                                                      size => 8);
-    $font      = $tmp->get_font();
-    $self->_append($font);
+    # Add the default fonts for charts and comments. This aren't connected
+    # to XF formats. Note, the font size, and some other properties of
+    # chart fonts are set in the FBI record of the chart.
+    my $tmp_format;
+
+    # Index 5. Axis numbers.
+    $tmp_format = Spreadsheet::WriteExcel::Format->new(
+        undef,
+        font_only => 1,
+    );
+    $self->_append( $tmp_format->get_font() );
+
+    # Index 6. Series names.
+    $tmp_format = Spreadsheet::WriteExcel::Format->new(
+        undef,
+        font_only => 1,
+        bold      => 1,
+    );
+    $self->_append( $tmp_format->get_font() );
+
+    # Index 7. Title.
+    $tmp_format = Spreadsheet::WriteExcel::Format->new(
+        undef,
+        font_only => 1,
+        bold      => 1,
+    );
+    $self->_append( $tmp_format->get_font() );
+
+    # Index 8. Axes.
+    $tmp_format = Spreadsheet::WriteExcel::Format->new(
+        undef,
+        font_only => 1,
+        bold      => 1,
+    );
+    $self->_append( $tmp_format->get_font() );
+
+    # Index 9. Comments.
+    $tmp_format = Spreadsheet::WriteExcel::Format->new(
+        undef,
+        font_only => 1,
+        font      => 'Tahoma',
+        size      => 8,
+    );
+    $self->_append( $tmp_format->get_font() );
 
 
     # Iterate through the XF objects and write a FONT record if it isn't the
@@ -1824,7 +1862,7 @@ sub _store_all_fonts {
     #
     my %fonts;
     my $key;
-    my $index = 6;                  # The first user defined FONT
+    my $index = 10;                  # The first user defined FONT
 
     $key = $format->get_font_key(); # The default font for cell formats.
     $fonts{$key} = 0;               # Index of the default font

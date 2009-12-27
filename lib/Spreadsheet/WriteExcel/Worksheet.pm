@@ -6010,7 +6010,7 @@ sub _store_comments {
         my @vertices    = @{$comments[$i]->[8]};
         my $str_len     = length $str;
            $str_len    /= 2 if $encoding; # Num of chars not bytes.
-        my $formats     = [[0, 5], [$str_len, 0]];
+        my $formats     = [[0, 9], [$str_len, 0]];
 
 
         if ($i == 0 and not $num_objects) {
