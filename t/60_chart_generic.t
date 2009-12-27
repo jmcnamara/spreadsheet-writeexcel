@@ -38,7 +38,7 @@ $expected = join ' ', qw(
   60 10 0A 00 B8 38 A1 22 C8 00 00 00 05 00
 );
 
-$got = unpack_record( $chart->_store_fbi( 5 ) );
+$got = unpack_record( $chart->_store_fbi( 5, 10 ) );
 
 is( $got, $expected, $caption );
 
@@ -50,7 +50,7 @@ $expected = join ' ', qw(
   60 10 0A 00 B8 38 A1 22 C8 00 00 00 06 00
 );
 
-$got = unpack_record( $chart->_store_fbi( 6 ) );
+$got = unpack_record( $chart->_store_fbi( 6, 10 ) );
 
 is( $got, $expected, $caption );
 
