@@ -98,33 +98,12 @@ sub add_series {
     # Add the parsed data to the user supplied data.
     %arg = ( @_, @parsed_data );
 
+    # Encode the Series name.
+    my ( $name, $encoding ) =
+      $self->_encode_utf16( $arg{name}, $arg{name_encoding} );
 
-    # Encode the Series name if defined.
-    my $string   = $arg{name};
-    my $encoding = $arg{name_encoding};
-
-    if ( defined $string ) {
-
-        # Handle utf8 strings in perl 5.8.
-        if ( $] >= 5.008 ) {
-            require Encode;
-
-            if ( Encode::is_utf8( $string ) ) {
-                $string = Encode::encode( "UTF-16BE", $string );
-                $encoding = 1;
-            }
-        }
-
-        my $limit = $encoding ? 255 * 2 : 255;
-
-        if ( length $string >= $limit ) {
-            carp 'Header string must be less than 255 characters';
-            return;
-        }
-    }
-
-    $arg{name}          = $string;
-    $arg{name_encoding} = $encoding;
+    $self->{name}     = $name;
+    $self->{encoding} = $encoding;
 
     push @{ $self->{_series} }, \%arg;
 }
@@ -134,15 +113,18 @@ sub add_series {
 #
 # set_x_axis()
 #
-# TODO
+# Set the properties of the X-axis.
 #
 sub set_x_axis {
 
     my $self = shift;
     my %arg  = @_;
 
-    $self->{_x_axis_name} = $arg{name};
-    $self->{_x_axis_encoding} = $arg{name_encoding} || 0;
+    my ( $name, $encoding ) =
+      $self->_encode_utf16( $arg{name}, $arg{name_encoding} );
+
+    $self->{_x_axis_name}     = $name;
+    $self->{_x_axis_encoding} = $encoding;
 }
 
 
@@ -150,15 +132,18 @@ sub set_x_axis {
 #
 # set_y_axis()
 #
-# TODO
+# Set the properties of the Y-axis.
 #
 sub set_y_axis {
 
     my $self = shift;
     my %arg  = @_;
 
-    $self->{_y_axis_name} = $arg{name};
-    $self->{_y_axis_encoding} = $arg{name_encoding} || 0;
+    my ( $name, $encoding ) =
+      $self->_encode_utf16( $arg{name}, $arg{name_encoding} );
+
+    $self->{_y_axis_name}     = $name;
+    $self->{_y_axis_encoding} = $encoding;
 }
 
 
@@ -166,15 +151,18 @@ sub set_y_axis {
 #
 # set_title()
 #
-# TODO
+# Set the properties of the chart title.
 #
 sub set_title {
 
     my $self = shift;
     my %arg  = @_;
 
-    $self->{_title_name} = $arg{name};
-    $self->{_title_encoding} = $arg{name_encoding} || 0;
+    my ( $name, $encoding ) =
+      $self->_encode_utf16( $arg{name}, $arg{name_encoding} );
+
+    $self->{_title_name}     = $name;
+    $self->{_title_encoding} = $encoding;
 }
 
 
@@ -370,10 +358,54 @@ sub _parse_series_formula {
         $type = '_range3dR';
         my ( $ptg, $ext_ref, $row_1, $row_2, $col_1, $col_2 ) = unpack 'Cv5',
           $formula;
+        # TODO. Remove high bit on relative references.
         $range = [ $row_1, $row_2, $col_1, $col_2 ];
     }
 
     return ( _parsed => $formula, _type => $type, _range => $range );
+}
+
+###############################################################################
+#
+# _encode_utf16()
+#
+# Convert UTF8 strings used in the chart to UTF16.
+#
+sub _encode_utf16 {
+
+    my $self = shift;
+
+    my $string = shift;
+    my $encoding = shift || 0;
+
+    # Exit if the $string isn't defined, i.e., hasn't been set by user.
+    return ( undef, undef ) if !defined $string;
+
+    # Return if encoding is set, i.e., string has been manually encoded.
+    #return ( undef, undef ) if $string == 1;
+
+    # Handle utf8 strings in perl 5.8.
+    if ( $] >= 5.008 ) {
+        require Encode;
+
+        if ( Encode::is_utf8( $string ) ) {
+            $string = Encode::encode( "UTF-16BE", $string );
+            $encoding = 1;
+        }
+    }
+
+    # Chart strings are limited to 255 characters.
+    my $limit = $encoding ? 255 * 2 : 255;
+
+    if ( length $string >= $limit ) {
+
+        # truncate the string and raise a warning.
+        $string = substr $string, 0, $limit;
+        carp 'Chart strings must be less than 256 characters. '
+          . 'String truncated';
+    }
+
+    return ( $string, $encoding );
 }
 
 
