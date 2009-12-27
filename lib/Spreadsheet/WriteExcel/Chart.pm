@@ -98,7 +98,83 @@ sub add_series {
     # Add the parsed data to the user supplied data.
     %arg = ( @_, @parsed_data );
 
+
+    # Encode the Series name if defined.
+    my $string   = $arg{name};
+    my $encoding = $arg{name_encoding};
+
+    if ( defined $string ) {
+
+        # Handle utf8 strings in perl 5.8.
+        if ( $] >= 5.008 ) {
+            require Encode;
+
+            if ( Encode::is_utf8( $string ) ) {
+                $string = Encode::encode( "UTF-16BE", $string );
+                $encoding = 1;
+            }
+        }
+
+        my $limit = $encoding ? 255 * 2 : 255;
+
+        if ( length $string >= $limit ) {
+            carp 'Header string must be less than 255 characters';
+            return;
+        }
+    }
+
+    $arg{name}          = $string;
+    $arg{name_encoding} = $encoding;
+
     push @{ $self->{_series} }, \%arg;
+}
+
+
+###############################################################################
+#
+# set_x_axis()
+#
+# TODO
+#
+sub set_x_axis {
+
+    my $self = shift;
+    my %arg  = @_;
+
+    $self->{_x_axis_name} = $arg{name};
+    $self->{_x_axis_encoding} = $arg{name_encoding} || 0;
+}
+
+
+###############################################################################
+#
+# set_y_axis()
+#
+# TODO
+#
+sub set_y_axis {
+
+    my $self = shift;
+    my %arg  = @_;
+
+    $self->{_y_axis_name} = $arg{name};
+    $self->{_y_axis_encoding} = $arg{name_encoding} || 0;
+}
+
+
+###############################################################################
+#
+# set_title()
+#
+# TODO
+#
+sub set_title {
+
+    my $self = shift;
+    my %arg  = @_;
+
+    $self->{_title_name} = $arg{name};
+    $self->{_title_encoding} = $arg{name_encoding} || 0;
 }
 
 
@@ -213,8 +289,9 @@ sub _close {
     # Start of Chart specific records.
 
     # Store the FBI font records.
-    $self->_store_fbi( 5 );
-    $self->_store_fbi( 6 );
+    for my $i ( 5 .. 8 ) {
+        $self->_store_fbi( $i );
+    }
 
     # Ignore UNITS record.
 
@@ -320,25 +397,29 @@ sub _store_chart_stream {
     # Store SERIES stream for each series.
     my $index = 0;
     for my $series ( @{ $self->{_series} } ) {
-        my $parsed = $series->{_parsed};
-        my @range  = @{ $series->{_range}; };
-        my $count  = 1 + $range[1] - $range[0];
+        my $parsed   = $series->{_parsed};
+        my $name     = $series->{name};
+        my $encoding = $series->{name_encoding};
+        my @range    = @{ $series->{_range}; };
+        my $count    = 1 + $range[1] - $range[0];
 
-        $self->_store_series_stream( 1, 1, $count, $count, 1, 0, $index,
-            $parsed );
+        $self->_store_series_stream( [ 1, 1, $count, $count, 1, 0 ],
+            $index, $parsed, $name, $encoding );
         $index++;
     }
 
     $self->_store_shtprops();
 
     # Write the TEXT stream for each series.
+    my $font_index = 5;
     for ( @{ $self->{_series} } ) {
         $self->_store_defaulttext();
-        $self->_store_text_stream();
+        $self->_store_series_text_stream( $font_index++ );
     }
 
     $self->_store_axesused( 1 );
     $self->_store_axisparent_stream();
+    $self->_store_title_text_stream() if defined $self->{_title_name};
     $self->_store_end();
 
 }
@@ -354,13 +435,22 @@ sub _store_series_stream {
 
     my $self = shift;
 
-    my $formula      = pop;
-    my $series_index = pop;
+    my $range        = shift;
+    my $series_index = shift;
+    my $formula      = shift;
+    my $name         = shift;
+    my $encoding     = shift;
 
-    $self->_store_series( @_ );
+    $self->_store_series( @{$range} );
 
     $self->_store_begin();
+
+    # Store the Series name AI record.
     $self->_store_ai( 0, 1, 0, '' );
+    if ( defined $name ) {
+        $self->_store_seriestext( $name, $encoding );
+    }
+
     $self->_store_ai( 1, 2, 0, $formula );
     $self->_store_ai( 2, 0, 0, '' );
     $self->_store_ai( 3, 1, 0, '' );
@@ -392,20 +482,116 @@ sub _store_dataformat_stream {
 
 ###############################################################################
 #
-# _store_text_stream()
+# _store_series_text_stream()
 #
-# Write the TEST chart substream.
+# Write the series TEXT substream.
 #
-sub _store_text_stream {
+sub _store_series_text_stream {
 
     my $self = shift;
 
-    $self->_store_text();
+    my $font_index = shift;
+
+    $self->_store_text( 0xFFFFFF46, 0xFFFFFF06, 0, 0, 0x00B1, 0x1020 );
 
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0, 0 );
-    $self->_store_fontx( 5 );
+    $self->_store_fontx( $font_index );
     $self->_store_ai( 0, 1, 0, '' );
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_x_axis_text_stream()
+#
+# Write the X-axis TEXT substream.
+#
+sub _store_x_axis_text_stream {
+
+    my $self = shift;
+
+    $self->_store_text( 0x07E1, 0x0DFC, 0xB2, 0x9C, 0x0081, 0x0000 );
+
+    $self->_store_begin();
+    $self->_store_pos( 2, 2, 0, 0, 0x2B, 0x17 );
+    $self->_store_fontx( 8 );
+    $self->_store_ai( 0, 1, 0, '' );
+
+    $self->_store_seriestext( $self->{_x_axis_name}, $self->{_x_axis_encoding},
+    );
+
+    $self->_store_objectlink( 3 );
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_y_axis_text_stream()
+#
+# Write the Y-axis TEXT substream.
+#
+sub _store_y_axis_text_stream {
+
+    my $self = shift;
+
+    $self->_store_text( 0x002D, 0x06AA, 0x5F, 0x1CC, 0x0281, 0x00, 90 );
+
+    $self->_store_begin();
+    $self->_store_pos( 2, 2, 0, 0, 0x17, 0x44 );
+    $self->_store_fontx( 8 );
+    $self->_store_ai( 0, 1, 0, '' );
+
+    $self->_store_seriestext( $self->{_y_axis_name}, $self->{_y_axis_encoding},
+    );
+
+    $self->_store_objectlink( 2 );
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_legend_text_stream()
+#
+# Write the legend TEXT substream.
+#
+sub _store_legend_text_stream {
+
+    my $self = shift;
+
+    $self->_store_text( 0xFFFFFF46, 0xFFFFFF06, 0, 0, 0x00B1, 0x0000 );
+
+    $self->_store_begin();
+    $self->_store_pos( 2, 2, 0, 0, 0x00, 0x00 );
+    $self->_store_ai( 0, 1, 0, '' );
+
+    $self->_store_end();
+}
+
+
+###############################################################################
+#
+# _store_title_text_stream()
+#
+# Write the title TEXT substream.
+#
+sub _store_title_text_stream {
+
+    my $self = shift;
+
+    $self->_store_text( 0x06E4, 0x0051, 0x01DB, 0x00C4, 0x0081, 0x1030 );
+
+    $self->_store_begin();
+    $self->_store_pos( 2, 2, 0, 0, 0x73, 0x1D );
+    $self->_store_fontx( 7 );
+    $self->_store_ai( 0, 1, 0, '' );
+
+    $self->_store_seriestext( $self->{_title_name}, $self->{_title_encoding}, );
+
+    $self->_store_objectlink( 1 );
     $self->_store_end();
 }
 
@@ -423,9 +609,13 @@ sub _store_axisparent_stream {
     $self->_store_axisparent( 0 );
 
     $self->_store_begin();
-    $self->_store_pos( 2, 2, 44, 72, 0x0E26, 0x0F0F );
+    $self->_store_pos( 2, 2, 0x008C, 0x01AA, 0x0EEA, 0x0C52 );
     $self->_store_axis_category_stream();
     $self->_store_axis_values_stream();
+
+    $self->_store_x_axis_text_stream() if defined $self->{_x_axis_name};
+    $self->_store_y_axis_text_stream() if defined $self->{_y_axis_name};
+
     $self->_store_plotarea();
     $self->_store_frame_stream();
     $self->_store_chartformat_stream();
@@ -527,8 +717,8 @@ sub store_legend_stream {
     $self->_store_legend();
 
     $self->_store_begin();
-    $self->_store_pos( 5, 2, 0xE84, 0x06FE, 0, 0 );
-    $self->_store_text_stream();
+    $self->_store_pos( 5, 2, 0x05F9, 0x0EE9, 0, 0 );
+    $self->_store_legend_text_stream();
     $self->_store_end();
 }
 
@@ -755,10 +945,10 @@ sub _store_axisparent {
     my $record = 0x1041;        # Record identifier.
     my $length = 0x0012;        # Number of bytes to follow.
     my $iax    = $_[0];         # Axis index.
-    my $x      = 0x000000A0;    # X-coord.
-    my $y      = 0x00000099;    # Y-coord.
-    my $dx     = 0x00000DB2;    # Length of x axis.
-    my $dy     = 0x00000DE4;    # Length of y axis.
+    my $x      = 0x000000F8;    # X-coord.
+    my $y      = 0x000001F5;    # Y-coord.
+    my $dx     = 0x00000E7F;    # Length of x axis.
+    my $dy     = 0x00000B36;    # Length of y axis.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -924,13 +1114,13 @@ sub _store_charttext {
     my $vert_align       = 0x02;          # Vertical alignment.
     my $bg_mode          = 0x0001;        # Background display.
     my $text_color_rgb   = 0x00000000;    # Text RGB colour.
-    my $text_x           = 0xFFFFFFEA;    # Text x-pos.
-    my $text_y           = 0xFFFFFFDC;    # Text y-pos.
+    my $text_x           = 0xFFFFFF46;    # Text x-pos.
+    my $text_y           = 0xFFFFFF06;    # Text y-pos.
     my $text_dx          = 0x00000000;    # Width.
     my $text_dy          = 0x00000000;    # Height.
     my $grbit1           = 0x00B1;        # Options
     my $text_color_index = 0x004D;        # Auto Colour.
-    my $grbit2           = 0x1020;        # Data label placement.
+    my $grbit2           = 0x0000;        # Data label placement.
     my $rotation         = 0x0000;        # Text rotation.
 
     my $header = pack 'vv', $record, $length;
@@ -1112,13 +1302,13 @@ sub _store_legend {
 
     my $record   = 0x1015;        # Record identifier.
     my $length   = 0x0014;        # Number of bytes to follow.
-    my $x        = 0x00000E83;    # X-position.
-    my $y        = 0x000006F9;    # Y-position.
-    my $width    = 0x0000010B;    # Width.
-    my $height   = 0x0000011C;    # Height.
-    my $wType    = 0x03;          # Type.
+    my $x        = 0x000005F9;    # X-position.
+    my $y        = 0x00000EE9;    # Y-position.
+    my $width    = 0x0000047D;    # Width.
+    my $height   = 0x0000009C;    # Height.
+    my $wType    = 0x00;          # Type.
     my $wSpacing = 0x01;          # Spacing.
-    my $grbit    = 0x001F;        # Option flags.
+    my $grbit    = 0x000F;        # Option flags.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1161,6 +1351,32 @@ sub _store_lineformat {
     $data .= pack 'v', $we;
     $data .= pack 'v', $grbit;
     $data .= pack 'v', $index;
+
+    $self->_append( $header, $data );
+}
+
+
+###############################################################################
+#
+# _store_objectlink()
+#
+# Write the OBJECTLINK chart BIFF record.
+#
+sub _store_objectlink {
+
+    my $self = shift;
+
+    my $record      = 0x1027;    # Record identifier.
+    my $length      = 0x0006;    # Number of bytes to follow.
+    my $link_type   = $_[0];     # Object text link type.
+    my $link_index1 = 0x0000;    # Link index 1.
+    my $link_index2 = 0x0000;    # Link index 2.
+
+    my $header = pack 'vv', $record, $length;
+    my $data = '';
+    $data .= pack 'v', $link_type;
+    $data .= pack 'v', $link_index1;
+    $data .= pack 'v', $link_index2;
 
     $self->_append( $header, $data );
 }
@@ -1277,6 +1493,41 @@ sub _store_series {
 
 ###############################################################################
 #
+# _store_seriestext()
+#
+# Write the SERIESTEXT chart BIFF record.
+#
+sub _store_seriestext {
+
+    my $self = shift;
+
+    my $record   = 0x100D;         # Record identifier.
+    my $length   = 0x0000;         # Number of bytes to follow.
+    my $id       = 0x0000;         # Text id.
+    my $str      = $_[0];          # Text.
+    my $encoding = $_[1];          # String encoding.
+    my $cch      = length $str;    # String length.
+
+    # Character length is num of chars not num of bytes
+    $cch /= 2 if $encoding;
+
+    # Change the UTF-16 name from BE to LE
+    $str = pack 'n*', unpack 'v*', $str if $encoding;
+
+    $length = 4 + length( $str );
+
+    my $header = pack 'vv', $record, $length;
+    my $data = '';
+    $data .= pack 'v', $id;
+    $data .= pack 'C', $cch;
+    $data .= pack 'C', $encoding;
+
+    $self->_append( $header, $data, $str );
+}
+
+
+###############################################################################
+#
 # _store_sertocrt()
 #
 # Write the SERTOCRT chart BIFF record to indicate the chart group index.
@@ -1330,20 +1581,20 @@ sub _store_text {
 
     my $self = shift;
 
-    my $record   = 0x1025;        # Record identifier.
-    my $length   = 0x0020;        # Number of bytes to follow.
-    my $at       = 0x02;          # Horizontal alignment.
-    my $vat      = 0x02;          # Vertical alignment.
-    my $wBkgMode = 0x0001;        # Background display.
-    my $rgbText  = 0x00000000;    # Text RGB colour.
-    my $x        = 0xFFFFFFEA;    # Text x-pos.
-    my $y        = 0xFFFFFFDC;    # Text y-pos.
-    my $dx       = 0x00000000;    # Width.
-    my $dy       = 0x00000000;    # Height.
-    my $grbit    = 0x00B1;        # Option flags.
-    my $icvText  = 0x004D;        # Auto Colour.
-    my $grbit2   = 0x0000;        # Show legend.
-    my $rotation = 0x0000;        # Show value.
+    my $record   = 0x1025;           # Record identifier.
+    my $length   = 0x0020;           # Number of bytes to follow.
+    my $at       = 0x02;             # Horizontal alignment.
+    my $vat      = 0x02;             # Vertical alignment.
+    my $wBkgMode = 0x0001;           # Background display.
+    my $rgbText  = 0x0000;           # Text RGB colour.
+    my $x        = $_[0];            # Text x-pos.
+    my $y        = $_[1];            # Text y-pos.
+    my $dx       = $_[2];            # Width.
+    my $dy       = $_[3];            # Height.
+    my $grbit1   = $_[4];            # Option flags.
+    my $icvText  = 0x004D;           # Auto Colour.
+    my $grbit2   = $_[5];            # Show legend.
+    my $rotation = $_[6] || 0x00;    # Show value.
 
 
     my $header = pack 'vv', $record, $length;
@@ -1356,7 +1607,7 @@ sub _store_text {
     $data .= pack 'V', $y;
     $data .= pack 'V', $dx;
     $data .= pack 'V', $dy;
-    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $grbit1;
     $data .= pack 'v', $icvText;
     $data .= pack 'v', $grbit2;
     $data .= pack 'v', $rotation;
