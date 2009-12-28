@@ -55,7 +55,7 @@ sub new {
     $self->{_1904}                = $_[11];
     $self->{_compatibility}       = $_[12];
 
-    $self->{_type}                = 0x0000;
+    $self->{_sheet_type}          = 0x0000;
     $self->{_ext_sheets}          = [];
     $self->{_using_tmpfile}       = 1;
     $self->{_filehandle}          = "";

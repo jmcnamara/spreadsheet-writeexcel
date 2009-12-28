@@ -4,7 +4,7 @@
 #
 # A simple demo of a Column chart in Spreadsheet::WriteExcel.
 #
-# reverse('©'), October 2001, John McNamara, jmcnamara@cpan.org
+# reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;

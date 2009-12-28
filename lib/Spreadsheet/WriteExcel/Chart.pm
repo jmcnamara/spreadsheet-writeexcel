@@ -24,53 +24,68 @@ use vars qw($VERSION @ISA);
 
 $VERSION = '2.31';
 
+
+###############################################################################
+#
+# TODO. Add a note about the class hierarchy.
+#
+#
+#     Spreadsheet::WriteExcel::BIFFwriter
+#                     ^
+#                     |
+#     Spreadsheet::WriteExcel::Worksheet
+#                     ^
+#                     |
+#     Spreadsheet::WriteExcel::Chart
+#                     ^
+#                     |
+#     Spreadsheet::WriteExcel::Chart::* (sub-types)
+#
+
+
+###############################################################################
+#
+# factory()
+#
+# Factory method for returning chart objects based on their class type.
+#
+sub factory {
+
+    my $current_class  = shift;
+    my $chart_subclass = shift;
+
+    $chart_subclass = ucfirst lc $chart_subclass;
+
+    my $module = "Spreadsheet::WriteExcel::Chart::" . $chart_subclass;
+
+    eval "require $module";
+
+    # TODO. Need to re-raise this error from Workbook::add_chart().
+    die "Chart type $chart_subclass not supported in add_chart()\n" if $@;
+
+    return $module->new( @_ );
+}
+
+
 ###############################################################################
 #
 # new()
 #
-# Constructor. Creates a new Chart object from a Worksheet object
+# Default constructor for sub-classes.
 #
 sub new {
 
     my $class = shift;
     my $self  = Spreadsheet::WriteExcel::Worksheet->new( @_ );
 
-    $self->{_type}        = 0x0200;
+    $self->{_sheet_type}  = 0x0200;
     $self->{_orientation} = 0x0;
     $self->{_series}      = [];
 
     bless $self, $class;
-    $self->_initialize();
     return $self;
 }
 
-
-###############################################################################
-#
-# ext()
-#
-# Constructor. Creates a Chart object from an external binary.
-#
-sub ext {
-
-    my $class = shift;
-    my $self  = Spreadsheet::WriteExcel::Worksheet->new();
-
-    $self->{_filename}     = $_[0];
-    $self->{_name}         = $_[1];
-    $self->{_index}        = $_[2];
-    $self->{_encoding}     = $_[3];
-    $self->{_activesheet}  = $_[4];
-    $self->{_firstsheet}   = $_[5];
-    $self->{_external_bin} = $_[6];
-    $self->{_type}         = 0x0200;
-
-    # EXT properties.
-
-    bless $self, $class;
-    $self->_initialize();
-    return $self;
-}
 
 ###############################################################################
 #
@@ -173,46 +188,16 @@ sub set_title {
 #
 ###############################################################################
 
-###############################################################################
-#
-# _initialize()
-#
-# If we are handling the old-style external binary template then read the data
-# into memory, otherwise use the SUPER _initialize().
-#
-#
-sub _initialize {
-
-    my $self = shift;
-
-    if ( $self->{_external_bin} ) {
-        my $filename   = $self->{_filename};
-        my $filehandle = FileHandle->new( $filename )
-          or die "Couldn't open $filename in add_chart_ext(): $!.\n";
-
-        binmode( $filehandle );
-
-        $self->{_filehandle}    = $filehandle;
-        $self->{_datasize}      = -s $filehandle;
-        $self->{_using_tmpfile} = 0;
-
-        # Read the entire external chart binary into the the data buffer.
-        # This will be retrieved by _get_data() when the chart is closed().
-        read( $self->{_filehandle}, $self->{_data}, $self->{_datasize} );
-    }
-    else {
-        $self->SUPER::_initialize();
-    }
-}
-
 
 ###############################################################################
 #
 # _prepend(), overridden.
 #
-# The parent Worksheet class need to store some data in memory and some in
-# temporay files for efficiency. The Chart* classes don't need to do this so
-# we override _prepend() to turn it into an _append() method.
+# The parent Worksheet class needs to store some data in memory and some in
+# temporary files for efficiency. The Chart* classes don't need to do this
+# since they are dealing with smaller amounts of data so we override
+# _prepend() to turn it into an _append() method. This allows for a more
+# natural method calling order.
 #
 sub _prepend {
 
@@ -234,7 +219,7 @@ sub _close {
 
     my $self = shift;
 
-    # Legacy extenal binary chart doesn't require any further processing.
+    # Legacy external binary chart doesn't require any further processing.
     return undef if $self->{_external_bin};
 
     # Ignore any data that has been written so far since it is probably
@@ -277,10 +262,10 @@ sub _close {
     # Start of Chart specific records.
 
     # Store the FBI font records.
-    $self->_store_fbi( 5, 10 ); # Axis numbers.
-    $self->_store_fbi( 6, 10 ); # Series names.
-    $self->_store_fbi( 7, 12 ); # Title.
-    $self->_store_fbi( 8, 10 ); # Axes.
+    $self->_store_fbi( 5, 10 );    # Axis numbers.
+    $self->_store_fbi( 6, 10 );    # Series names.
+    $self->_store_fbi( 7, 12 );    # Title.
+    $self->_store_fbi( 8, 10 );    # Axes.
 
     # Ignore UNITS record.
 
@@ -359,6 +344,7 @@ sub _parse_series_formula {
         $type = '_range3dR';
         my ( $ptg, $ext_ref, $row_1, $row_2, $col_1, $col_2 ) = unpack 'Cv5',
           $formula;
+
         # TODO. Remove high bit on relative references.
         $range = [ $row_1, $row_2, $col_1, $col_2 ];
     }
