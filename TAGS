@@ -1,0 +1,448 @@
+
+lib/Spreadsheet/WriteExcel/BIFFwriter.pm,773
+package Spreadsheet::WriteExcel::BIFFwriter;1,0
+my $byte_order byte_order33,552
+my $BIFF_version BIFF_version34,575
+sub new Spreadsheet::WriteExcel::BIFFwriter::new43,712
+sub _set_byte_order Spreadsheet::WriteExcel::BIFFwriter::_set_byte_order68,1297
+sub _prepend Spreadsheet::WriteExcel::BIFFwriter::_prepend102,2249
+sub _append Spreadsheet::WriteExcel::BIFFwriter::_append122,2644
+sub _store_bof Spreadsheet::WriteExcel::BIFFwriter::_store_bof147,3193
+sub _store_eof Spreadsheet::WriteExcel::BIFFwriter::_store_eof178,4010
+sub _add_continue Spreadsheet::WriteExcel::BIFFwriter::_add_continue204,4748
+sub _add_mso_generic Spreadsheet::WriteExcel::BIFFwriter::_add_mso_generic248,5985
+sub _hexout Spreadsheet::WriteExcel::BIFFwriter::_hexout271,6554
+
+lib/Spreadsheet/WriteExcel/Big.pm,92
+package Spreadsheet::WriteExcel::Big;1,0
+sub new Spreadsheet::WriteExcel::Big::new40,829
+
+lib/Spreadsheet/WriteExcel/Chart/Column.pm,112
+package Spreadsheet::WriteExcel::Chart::Column;1,0
+sub new Spreadsheet::WriteExcel::Chart::Column::new32,639
+
+lib/Spreadsheet/WriteExcel/Chart/External.pm,264
+package Spreadsheet::WriteExcel::Chart::External;1,0
+sub new Spreadsheet::WriteExcel::Chart::External::new31,601
+sub _initialize Spreadsheet::WriteExcel::Chart::External::_initialize52,1120
+sub _close Spreadsheet::WriteExcel::Chart::External::_close79,1910
+
+lib/Spreadsheet/WriteExcel/Chart.pm,4724
+package Spreadsheet::WriteExcel::Chart;1,0
+sub factory Spreadsheet::WriteExcel::Chart::factory53,1172
+sub new Spreadsheet::WriteExcel::Chart::new77,1716
+sub add_series Spreadsheet::WriteExcel::Chart::add_series104,2295
+sub set_x_axis Spreadsheet::WriteExcel::Chart::set_x_axis134,3033
+sub set_y_axis Spreadsheet::WriteExcel::Chart::set_y_axis153,3410
+sub set_title Spreadsheet::WriteExcel::Chart::set_title172,3791
+sub _prepend Spreadsheet::WriteExcel::Chart::_prepend203,4761
+sub _close Spreadsheet::WriteExcel::Chart::_close219,5014
+sub _store_tmp_records Spreadsheet::WriteExcel::Chart::_store_tmp_records290,6577
+sub _parse_series_formula Spreadsheet::WriteExcel::Chart::_parse_series_formula309,6946
+sub _encode_utf16 Spreadsheet::WriteExcel::Chart::_encode_utf16362,8420
+sub _store_chart_stream Spreadsheet::WriteExcel::Chart::_store_chart_stream406,9528
+sub _store_series_stream Spreadsheet::WriteExcel::Chart::_store_series_stream454,10742
+sub _store_dataformat_stream Spreadsheet::WriteExcel::Chart::_store_dataformat_stream489,11564
+sub _store_series_text_stream Spreadsheet::WriteExcel::Chart::_store_series_text_stream509,11937
+sub _store_x_axis_text_stream Spreadsheet::WriteExcel::Chart::_store_x_axis_text_stream531,12422
+sub _store_y_axis_text_stream Spreadsheet::WriteExcel::Chart::_store_y_axis_text_stream556,12996
+sub _store_legend_text_stream Spreadsheet::WriteExcel::Chart::_store_legend_text_stream581,13573
+sub _store_title_text_stream Spreadsheet::WriteExcel::Chart::_store_title_text_stream601,13994
+sub _store_axisparent_stream Spreadsheet::WriteExcel::Chart::_store_axisparent_stream625,14569
+sub _store_axis_category_stream Spreadsheet::WriteExcel::Chart::_store_axis_category_stream652,15288
+sub _store_axis_values_stream Spreadsheet::WriteExcel::Chart::_store_axis_values_stream672,15690
+sub _store_frame_stream Spreadsheet::WriteExcel::Chart::_store_frame_stream693,16103
+sub _store_chartformat_stream Spreadsheet::WriteExcel::Chart::_store_chartformat_stream712,16458
+sub store_legend_stream Spreadsheet::WriteExcel::Chart::store_legend_stream733,16845
+sub _store_3dbarshape Spreadsheet::WriteExcel::Chart::_store_3dbarshape759,17405
+sub _store_ai Spreadsheet::WriteExcel::Chart::_store_ai783,17958
+sub _store_areaformat Spreadsheet::WriteExcel::Chart::_store_areaformat819,18954
+sub _store_axcext Spreadsheet::WriteExcel::Chart::_store_axcext851,19920
+sub _store_axesused Spreadsheet::WriteExcel::Chart::_store_axesused889,21151
+sub _store_axis Spreadsheet::WriteExcel::Chart::_store_axis910,21648
+sub _store_axislineformat Spreadsheet::WriteExcel::Chart::_store_axislineformat940,22483
+sub _store_axisparent Spreadsheet::WriteExcel::Chart::_store_axisparent961,22983
+sub _store_bar Spreadsheet::WriteExcel::Chart::_store_bar991,23796
+sub _store_begin Spreadsheet::WriteExcel::Chart::_store_begin1017,24486
+sub _store_catserrange Spreadsheet::WriteExcel::Chart::_store_catserrange1036,24870
+sub _store_chart Spreadsheet::WriteExcel::Chart::_store_chart1066,25786
+sub _store_chartformat Spreadsheet::WriteExcel::Chart::_store_chartformat1095,26583
+sub _store_charttext Spreadsheet::WriteExcel::Chart::_store_charttext1127,27496
+sub _store_dataformat Spreadsheet::WriteExcel::Chart::_store_dataformat1172,29132
+sub _store_defaulttext Spreadsheet::WriteExcel::Chart::_store_defaulttext1201,29970
+sub _store_end Spreadsheet::WriteExcel::Chart::_store_end1223,30472
+sub _store_fbi Spreadsheet::WriteExcel::Chart::_store_fbi1243,30912
+sub _store_fontx Spreadsheet::WriteExcel::Chart::_store_fontx1274,31888
+sub _store_frame Spreadsheet::WriteExcel::Chart::_store_frame1295,32342
+sub _store_legend Spreadsheet::WriteExcel::Chart::_store_legend1319,32936
+sub _store_lineformat Spreadsheet::WriteExcel::Chart::_store_lineformat1353,33890
+sub _store_objectlink Spreadsheet::WriteExcel::Chart::_store_objectlink1385,34765
+sub _store_plotarea Spreadsheet::WriteExcel::Chart::_store_plotarea1412,35523
+sub _store_plotgrowth Spreadsheet::WriteExcel::Chart::_store_plotgrowth1431,35908
+sub _store_pos Spreadsheet::WriteExcel::Chart::_store_pos1456,36568
+sub _store_series Spreadsheet::WriteExcel::Chart::_store_series1488,37399
+sub _store_seriestext Spreadsheet::WriteExcel::Chart::_store_seriestext1520,38378
+sub _store_sertocrt Spreadsheet::WriteExcel::Chart::_store_sertocrt1555,39345
+sub _store_shtprops Spreadsheet::WriteExcel::Chart::_store_shtprops1576,39832
+sub _store_text Spreadsheet::WriteExcel::Chart::_store_text1600,40414
+sub _store_tick Spreadsheet::WriteExcel::Chart::_store_tick1644,41830
+sub _store_valuerange Spreadsheet::WriteExcel::Chart::_store_valuerange1688,43281
+
+lib/Spreadsheet/WriteExcel/Examples.pm,47
+package Spreadsheet::WriteExcel::Examples;1,0
+
+lib/Spreadsheet/WriteExcel/Format.pm,1306
+package Spreadsheet::WriteExcel::Format;1,0
+sub new Spreadsheet::WriteExcel::Format::new35,553
+sub copy Spreadsheet::WriteExcel::Format::copy116,2981
+sub get_xf Spreadsheet::WriteExcel::Format::get_xf143,3691
+sub get_font Spreadsheet::WriteExcel::Format::get_font342,10472
+sub get_font_key Spreadsheet::WriteExcel::Format::get_font_key417,12681
+sub get_xf_index Spreadsheet::WriteExcel::Format::get_xf_index443,13531
+sub _get_color Spreadsheet::WriteExcel::Format::_get_color458,13923
+sub set_type Spreadsheet::WriteExcel::Format::set_type508,15378
+sub set_align Spreadsheet::WriteExcel::Format::set_align528,15694
+sub set_valign Spreadsheet::WriteExcel::Format::set_valign568,17303
+sub set_center_across Spreadsheet::WriteExcel::Format::set_center_across581,17520
+sub set_merge Spreadsheet::WriteExcel::Format::set_merge598,17906
+sub set_bold Spreadsheet::WriteExcel::Format::set_bold613,18187
+sub set_border Spreadsheet::WriteExcel::Format::set_border634,18718
+sub set_border_color Spreadsheet::WriteExcel::Format::set_border_color652,19055
+sub set_rotation Spreadsheet::WriteExcel::Format::set_rotation670,19442
+sub set_format_properties Spreadsheet::WriteExcel::Format::set_format_properties702,20217
+sub AUTOLOAD Spreadsheet::WriteExcel::Format::AUTOLOAD731,21014
+
+lib/Spreadsheet/WriteExcel/Formula.pm,2218
+package Spreadsheet::WriteExcel::Formula;1,0
+my $parser;parser33,567
+my %ptg;ptg34,580
+my %functions;functions35,590
+my $_debug _debug42,715
+sub new Spreadsheet::WriteExcel::Formula::new51,850
+sub _init_parser Spreadsheet::WriteExcel::Formula::_init_parser80,1674
+sub parse_formula Spreadsheet::WriteExcel::Formula::parse_formula211,6379
+sub parse_tokens Spreadsheet::WriteExcel::Formula::parse_tokens260,7781
+sub _reverse_treeSpreadsheet::WriteExcel::Formula::_reverse_tree387,12344
+sub _check_volatile Spreadsheet::WriteExcel::Formula::_check_volatile443,13938
+sub _convert_volatile Spreadsheet::WriteExcel::Formula::_convert_volatile468,14548
+sub _convert_bool Spreadsheet::WriteExcel::Formula::_convert_bool483,14884
+sub _convert_number Spreadsheet::WriteExcel::Formula::_convert_number498,15165
+sub _convert_string Spreadsheet::WriteExcel::Formula::_convert_string521,15697
+sub _convert_ref2d Spreadsheet::WriteExcel::Formula::_convert_ref2d555,16559
+sub _convert_ref3d Spreadsheet::WriteExcel::Formula::_convert_ref3d590,17377
+sub _convert_range2d Spreadsheet::WriteExcel::Formula::_convert_range2d630,18366
+sub _convert_range3d Spreadsheet::WriteExcel::Formula::_convert_range3d673,19537
+sub _pack_ext_ref Spreadsheet::WriteExcel::Formula::_pack_ext_ref722,20939
+sub _get_sheet_index Spreadsheet::WriteExcel::Formula::_get_sheet_index775,22367
+sub set_ext_sheets Spreadsheet::WriteExcel::Formula::set_ext_sheets806,23139
+sub get_ext_sheets Spreadsheet::WriteExcel::Formula::get_ext_sheets826,23667
+sub get_ext_ref_count Spreadsheet::WriteExcel::Formula::get_ext_ref_count841,24012
+sub _get_name_index Spreadsheet::WriteExcel::Formula::_get_name_index856,24378
+sub set_ext_name Spreadsheet::WriteExcel::Formula::set_ext_name876,24832
+sub _convert_function Spreadsheet::WriteExcel::Formula::_convert_function893,25210
+sub _convert_name Spreadsheet::WriteExcel::Formula::_convert_name928,26143
+sub _cell_to_rowcol Spreadsheet::WriteExcel::Formula::_cell_to_rowcol963,27009
+sub _cell_to_packed_rowcol Spreadsheet::WriteExcel::Formula::_cell_to_packed_rowcol1001,27898
+sub _initialize_hashes Spreadsheet::WriteExcel::Formula::_initialize_hashes1028,28606
+
+lib/Spreadsheet/WriteExcel/OLEwriter.pm,942
+package Spreadsheet::WriteExcel::OLEwriter;1,0
+sub new Spreadsheet::WriteExcel::OLEwriter::new35,591
+sub _initialize Spreadsheet::WriteExcel::OLEwriter::_initialize65,1396
+sub set_size Spreadsheet::WriteExcel::OLEwriter::set_size109,2494
+sub _calculate_sizes Spreadsheet::WriteExcel::OLEwriter::_calculate_sizes139,3118
+sub close Spreadsheet::WriteExcel::OLEwriter::close165,3845
+sub DESTROY Spreadsheet::WriteExcel::OLEwriter::DESTROY192,4539
+sub write Spreadsheet::WriteExcel::OLEwriter::write208,4791
+sub write_header Spreadsheet::WriteExcel::OLEwriter::write_header224,5073
+sub _write_big_block_depot Spreadsheet::WriteExcel::OLEwriter::_write_big_block_depot279,6848
+sub _write_property_storage Spreadsheet::WriteExcel::OLEwriter::_write_property_storage318,7817
+sub _write_pps Spreadsheet::WriteExcel::OLEwriter::_write_pps339,8393
+sub _write_padding Spreadsheet::WriteExcel::OLEwriter::_write_padding400,10369
+
+lib/Spreadsheet/WriteExcel/Properties.pm,684
+package Spreadsheet::WriteExcel::Properties;1,0
+my @all_functions all_functions30,537
+my @pps_summaries pps_summaries39,714
+sub create_summary_property_set Spreadsheet::WriteExcel::Properties::create_summary_property_set59,1288
+sub create_doc_summary_property_set Spreadsheet::WriteExcel::Properties::create_doc_summary_property_set108,3129
+sub _pack_property_data Spreadsheet::WriteExcel::Properties::_pack_property_data184,6091
+sub _pack_VT_I2 Spreadsheet::WriteExcel::Properties::_pack_VT_I2231,7396
+sub _pack_VT_LPSTR Spreadsheet::WriteExcel::Properties::_pack_VT_LPSTR249,7776
+sub _pack_VT_FILETIME Spreadsheet::WriteExcel::Properties::_pack_VT_FILETIME302,8952
+
+lib/Spreadsheet/WriteExcel/Utility.pm,1108
+package Spreadsheet::WriteExcel::Utility;1,0
+my @rowcol rowcol21,527
+my @dates dates31,823
+sub xl_rowcol_to_cell Spreadsheet::WriteExcel::Utility::xl_rowcol_to_cell199,6457
+sub xl_cell_to_rowcol Spreadsheet::WriteExcel::Utility::xl_cell_to_rowcol256,8071
+sub xl_inc_row Spreadsheet::WriteExcel::Utility::xl_inc_row312,9413
+sub xl_dec_row Spreadsheet::WriteExcel::Utility::xl_dec_row351,10440
+sub xl_inc_col Spreadsheet::WriteExcel::Utility::xl_inc_col390,11473
+sub xl_dec_col Spreadsheet::WriteExcel::Utility::xl_dec_col423,12367
+sub xl_date_list Spreadsheet::WriteExcel::Utility::xl_date_list497,16022
+sub xl_parse_time Spreadsheet::WriteExcel::Utility::xl_parse_time558,17752
+sub xl_parse_date Spreadsheet::WriteExcel::Utility::xl_parse_date621,19943
+sub xl_parse_date_init Spreadsheet::WriteExcel::Utility::xl_parse_date_init666,21435
+sub xl_decode_date_EU Spreadsheet::WriteExcel::Utility::xl_decode_date_EU710,23013
+sub xl_decode_date_US Spreadsheet::WriteExcel::Utility::xl_decode_date_US772,25101
+sub xl_date_1904 Spreadsheet::WriteExcel::Utility::xl_date_1904825,26479
+
+lib/Spreadsheet/WriteExcel/Workbook.pm,5694
+package Spreadsheet::WriteExcel::Workbook;1,0
+sub new Spreadsheet::WriteExcel::Workbook::new35,883
+sub _initialize Spreadsheet::WriteExcel::Workbook::_initialize177,6070
+sub _get_checksum_method Spreadsheet::WriteExcel::Workbook::_get_checksum_method247,8013
+sub _append Spreadsheet::WriteExcel::Workbook::_append283,8679
+sub get_data Spreadsheet::WriteExcel::Workbook::get_data315,9370
+sub close Spreadsheet::WriteExcel::Workbook::close347,10078
+sub DESTROY Spreadsheet::WriteExcel::Workbook::DESTROY365,10430
+sub sheets Spreadsheet::WriteExcel::Workbook::sheets383,10777
+sub worksheets Spreadsheet::WriteExcel::Workbook::worksheets407,11252
+sub add_worksheet Spreadsheet::WriteExcel::Workbook::add_worksheet423,11540
+sub add_chart Spreadsheet::WriteExcel::Workbook::add_chart471,13195
+sub add_chart_ext Spreadsheet::WriteExcel::Workbook::add_chart_ext514,14605
+sub _check_sheetname Spreadsheet::WriteExcel::Workbook::_check_sheetname548,15620
+sub add_format Spreadsheet::WriteExcel::Workbook::add_format667,19685
+sub compatibility_mode Spreadsheet::WriteExcel::Workbook::compatibility_mode703,20959
+sub set_1904 Spreadsheet::WriteExcel::Workbook::set_1904725,21401
+sub get_1904 Spreadsheet::WriteExcel::Workbook::get_1904748,21795
+sub set_custom_color Spreadsheet::WriteExcel::Workbook::set_custom_color762,22039
+sub set_palette_xl97 Spreadsheet::WriteExcel::Workbook::set_palette_xl97810,23187
+sub set_tempdir Spreadsheet::WriteExcel::Workbook::set_tempdir883,26897
+sub set_codepage Spreadsheet::WriteExcel::Workbook::set_codepage904,27444
+sub set_country Spreadsheet::WriteExcel::Workbook::set_country925,28023
+sub define_name Spreadsheet::WriteExcel::Workbook::define_name944,28233
+sub set_properties Spreadsheet::WriteExcel::Workbook::set_properties1018,30098
+sub _get_property_set_codepage Spreadsheet::WriteExcel::Workbook::_get_property_set_codepage1134,33975
+sub _store_workbook Spreadsheet::WriteExcel::Workbook::_store_workbook1164,34694
+sub _store_OLE_file Spreadsheet::WriteExcel::Workbook::_store_OLE_file1238,37027
+sub _calc_sheet_offsets Spreadsheet::WriteExcel::Workbook::_calc_sheet_offsets1345,40558
+sub _calc_mso_sizes Spreadsheet::WriteExcel::Workbook::_calc_mso_sizes1395,41975
+sub _process_images Spreadsheet::WriteExcel::Workbook::_process_images1495,45271
+sub _image_checksum Spreadsheet::WriteExcel::Workbook::_image_checksum1645,50607
+sub _process_png Spreadsheet::WriteExcel::Workbook::_process_png1678,51353
+sub _process_bmp Spreadsheet::WriteExcel::Workbook::_process_bmp1698,51836
+sub _process_jpg Spreadsheet::WriteExcel::Workbook::_process_jpg1752,53176
+sub _store_all_fonts Spreadsheet::WriteExcel::Workbook::_store_all_fonts1795,54295
+sub _store_all_num_formats Spreadsheet::WriteExcel::Workbook::_store_all_num_formats1896,57077
+sub _store_all_xfs Spreadsheet::WriteExcel::Workbook::_store_all_xfs1942,58415
+sub _store_all_styles Spreadsheet::WriteExcel::Workbook::_store_all_styles1959,58718
+sub _store_names Spreadsheet::WriteExcel::Workbook::_store_names1994,59531
+sub _store_window1 Spreadsheet::WriteExcel::Workbook::_store_window12125,63182
+sub _store_boundsheet Spreadsheet::WriteExcel::Workbook::_store_boundsheet2160,64463
+sub _store_style Spreadsheet::WriteExcel::Workbook::_store_style2195,65576
+sub _store_num_format Spreadsheet::WriteExcel::Workbook::_store_num_format2222,66258
+sub _store_1904 Spreadsheet::WriteExcel::Workbook::_store_19042279,67762
+sub _store_supbook Spreadsheet::WriteExcel::Workbook::_store_supbook2302,68366
+sub _store_externsheet Spreadsheet::WriteExcel::Workbook::_store_externsheet2327,69142
+sub _store_name Spreadsheet::WriteExcel::Workbook::_store_name2372,70402
+sub _store_name_short Spreadsheet::WriteExcel::Workbook::_store_name_short2434,72572
+sub _store_name_long Spreadsheet::WriteExcel::Workbook::_store_name_long2502,75350
+sub _store_palette Spreadsheet::WriteExcel::Workbook::_store_palette2580,78294
+sub _store_codepage Spreadsheet::WriteExcel::Workbook::_store_codepage2606,78973
+sub _store_country Spreadsheet::WriteExcel::Workbook::_store_country2627,79518
+sub _store_hideobj Spreadsheet::WriteExcel::Workbook::_store_hideobj2649,80119
+sub _calculate_extern_sizes Spreadsheet::WriteExcel::Workbook::_calculate_extern_sizes2677,81032
+sub _calculate_shared_string_sizes Spreadsheet::WriteExcel::Workbook::_calculate_shared_string_sizes2786,84268
+sub _store_shared_strings Spreadsheet::WriteExcel::Workbook::_store_shared_strings2958,90352
+sub _calculate_extsst_size Spreadsheet::WriteExcel::Workbook::_calculate_extsst_size3171,97685
+sub _store_extsst Spreadsheet::WriteExcel::Workbook::_store_extsst3204,98367
+sub _add_mso_drawing_group Spreadsheet::WriteExcel::Workbook::_add_mso_drawing_group3239,99182
+sub _add_mso_drawing_group_continue Spreadsheet::WriteExcel::Workbook::_add_mso_drawing_group_continue3279,100555
+sub _store_mso_dgg_container Spreadsheet::WriteExcel::Workbook::_store_mso_dgg_container3339,102190
+sub _store_mso_dgg Spreadsheet::WriteExcel::Workbook::_store_mso_dgg3360,102693
+sub _store_mso_bstore_container Spreadsheet::WriteExcel::Workbook::_store_mso_bstore_container3397,103715
+sub _store_mso_images Spreadsheet::WriteExcel::Workbook::_store_mso_images3420,104303
+sub _store_mso_blip_store_entry Spreadsheet::WriteExcel::Workbook::_store_mso_blip_store_entry3453,105375
+sub _store_mso_blip Spreadsheet::WriteExcel::Workbook::_store_mso_blip3490,106610
+sub _store_mso_opt Spreadsheet::WriteExcel::Workbook::_store_mso_opt3529,107667
+sub _store_mso_split_menu_colors Spreadsheet::WriteExcel::Workbook::_store_mso_split_menu_colors3553,108243
+
+lib/Spreadsheet/WriteExcel/WorkbookBig.pm,191
+package Spreadsheet::WriteExcel::WorkbookBig;1,0
+sub new Spreadsheet::WriteExcel::WorkbookBig::new35,783
+sub _store_OLE_file Spreadsheet::WriteExcel::WorkbookBig::_store_OLE_file54,1214
+
+lib/Spreadsheet/WriteExcel/Worksheet.pm,14717
+package Spreadsheet::WriteExcel::Worksheet;1,0
+sub new Spreadsheet::WriteExcel::Worksheet::new35,744
+sub _initialize Spreadsheet::WriteExcel::Worksheet::_initialize189,5854
+sub _close Spreadsheet::WriteExcel::Worksheet::_close259,7811
+sub _compatibility_mode Spreadsheet::WriteExcel::Worksheet::_compatibility_mode384,10732
+sub get_name Spreadsheet::WriteExcel::Worksheet::get_name403,11049
+sub get_data Spreadsheet::WriteExcel::Worksheet::get_data418,11305
+sub select Spreadsheet::WriteExcel::Worksheet::select450,12027
+sub activate Spreadsheet::WriteExcel::Worksheet::activate466,12412
+sub hide Spreadsheet::WriteExcel::Worksheet::hide482,12725
+sub set_first_sheet Spreadsheet::WriteExcel::Worksheet::set_first_sheet503,13238
+sub protect Spreadsheet::WriteExcel::Worksheet::protect519,13665
+sub set_column Spreadsheet::WriteExcel::Worksheet::set_column536,14051
+sub set_selection Spreadsheet::WriteExcel::Worksheet::set_selection591,15762
+sub freeze_panes Spreadsheet::WriteExcel::Worksheet::freeze_panes610,16165
+sub split_panes Spreadsheet::WriteExcel::Worksheet::split_panes633,16680
+sub set_portrait Spreadsheet::WriteExcel::Worksheet::set_portrait652,17063
+sub set_landscape Spreadsheet::WriteExcel::Worksheet::set_landscape666,17286
+sub set_page_view Spreadsheet::WriteExcel::Worksheet::set_page_view680,17509
+sub set_tab_color Spreadsheet::WriteExcel::Worksheet::set_tab_color694,17756
+sub set_paper Spreadsheet::WriteExcel::Worksheet::set_paper711,18113
+sub set_header Spreadsheet::WriteExcel::Worksheet::set_header725,18348
+sub set_footer Spreadsheet::WriteExcel::Worksheet::set_footer761,19169
+sub center_horizontally Spreadsheet::WriteExcel::Worksheet::center_horizontally798,19981
+sub center_vertically Spreadsheet::WriteExcel::Worksheet::center_vertically817,20290
+sub set_margins Spreadsheet::WriteExcel::Worksheet::set_margins836,20614
+sub set_margins_LR Spreadsheet::WriteExcel::Worksheet::set_margins_LR853,20969
+sub set_margins_TB Spreadsheet::WriteExcel::Worksheet::set_margins_TB868,21256
+sub set_margin_left Spreadsheet::WriteExcel::Worksheet::set_margin_left883,21515
+sub set_margin_right Spreadsheet::WriteExcel::Worksheet::set_margin_right897,21764
+sub set_margin_top Spreadsheet::WriteExcel::Worksheet::set_margin_top911,22011
+sub set_margin_bottom Spreadsheet::WriteExcel::Worksheet::set_margin_bottom925,22260
+sub repeat_rows Spreadsheet::WriteExcel::Worksheet::repeat_rows940,22611
+sub repeat_columns Spreadsheet::WriteExcel::Worksheet::repeat_columns956,23017
+sub print_area Spreadsheet::WriteExcel::Worksheet::print_area981,23728
+sub autofilter Spreadsheet::WriteExcel::Worksheet::autofilter1005,24309
+sub filter_column Spreadsheet::WriteExcel::Worksheet::filter_column1034,25061
+sub _extract_filter_tokens Spreadsheet::WriteExcel::Worksheet::_extract_filter_tokens1088,26745
+sub _parse_filter_expression Spreadsheet::WriteExcel::Worksheet::_parse_filter_expression1119,27466
+sub _parse_filter_tokens Spreadsheet::WriteExcel::Worksheet::_parse_filter_tokens1162,28712
+sub hide_gridlines Spreadsheet::WriteExcel::Worksheet::hide_gridlines1281,32033
+sub print_row_col_headers Spreadsheet::WriteExcel::Worksheet::print_row_col_headers1310,32769
+sub fit_to_pages Spreadsheet::WriteExcel::Worksheet::fit_to_pages1330,33217
+sub set_h_pagebreaks Spreadsheet::WriteExcel::Worksheet::set_h_pagebreaks1346,33546
+sub set_v_pagebreaks Spreadsheet::WriteExcel::Worksheet::set_v_pagebreaks1360,33795
+sub set_zoom Spreadsheet::WriteExcel::Worksheet::set_zoom1374,34019
+sub set_print_scale Spreadsheet::WriteExcel::Worksheet::set_print_scale1395,34460
+sub keep_leading_zeros Spreadsheet::WriteExcel::Worksheet::keep_leading_zeros1420,35091
+sub show_comments Spreadsheet::WriteExcel::Worksheet::show_comments1439,35420
+sub set_comments_author Spreadsheet::WriteExcel::Worksheet::set_comments_author1453,35685
+sub right_to_left Spreadsheet::WriteExcel::Worksheet::right_to_left1468,36044
+sub hide_zero Spreadsheet::WriteExcel::Worksheet::hide_zero1482,36275
+sub print_across Spreadsheet::WriteExcel::Worksheet::print_across1496,36527
+sub set_start_page Spreadsheet::WriteExcel::Worksheet::set_start_page1510,36762
+sub set_first_row_column Spreadsheet::WriteExcel::Worksheet::set_first_row_column1527,37148
+sub add_write_handler Spreadsheet::WriteExcel::Worksheet::add_write_handler1548,37589
+sub write Spreadsheet::WriteExcel::Worksheet::write1572,38138
+sub write_row Spreadsheet::WriteExcel::Worksheet::write_row1648,40268
+sub write_col Spreadsheet::WriteExcel::Worksheet::write_col1698,41537
+sub write_comment Spreadsheet::WriteExcel::Worksheet::write_comment1744,42600
+sub _XF Spreadsheet::WriteExcel::Worksheet::_XF1782,43517
+sub _append Spreadsheet::WriteExcel::Worksheet::_append1833,45084
+sub _substitute_cellref Spreadsheet::WriteExcel::Worksheet::_substitute_cellref1867,45872
+sub _cell_to_rowcol Spreadsheet::WriteExcel::Worksheet::_cell_to_rowcol1907,47076
+sub _sort_pagebreaks Spreadsheet::WriteExcel::Worksheet::_sort_pagebreaks1948,47997
+sub _encode_password Spreadsheet::WriteExcel::Worksheet::_encode_password1974,48655
+sub outline_settings Spreadsheet::WriteExcel::Worksheet::outline_settings2013,49537
+sub write_number Spreadsheet::WriteExcel::Worksheet::write_number2048,50527
+sub write_string Spreadsheet::WriteExcel::Worksheet::write_string2100,52249
+sub write_blank Spreadsheet::WriteExcel::Worksheet::write_blank2189,54888
+sub write_formula Spreadsheet::WriteExcel::Worksheet::write_formula2246,56631
+sub _encode_formula_result Spreadsheet::WriteExcel::Worksheet::_encode_formula_result2336,59675
+sub _get_formula_string Spreadsheet::WriteExcel::Worksheet::_get_formula_string2401,61748
+sub store_formula Spreadsheet::WriteExcel::Worksheet::store_formula2439,62788
+sub repeat_formula Spreadsheet::WriteExcel::Worksheet::repeat_formula2480,64066
+sub write_url Spreadsheet::WriteExcel::Worksheet::write_url2607,68406
+sub write_url_range Spreadsheet::WriteExcel::Worksheet::write_url_range2635,69270
+sub _write_url_web Spreadsheet::WriteExcel::Worksheet::_write_url_web2676,70510
+sub _write_url_internal Spreadsheet::WriteExcel::Worksheet::_write_url_internal2764,73161
+sub _write_url_external Spreadsheet::WriteExcel::Worksheet::_write_url_external2862,76143
+sub _write_url_external_net Spreadsheet::WriteExcel::Worksheet::_write_url_external_net2997,80599
+sub write_date_time Spreadsheet::WriteExcel::Worksheet::write_date_time3101,83832
+sub convert_date_time Spreadsheet::WriteExcel::Worksheet::convert_date_time3157,85638
+sub set_row Spreadsheet::WriteExcel::Worksheet::set_row3285,89541
+sub _write_row_default Spreadsheet::WriteExcel::Worksheet::_write_row_default3384,92839
+sub _check_dimensions Spreadsheet::WriteExcel::Worksheet::_check_dimensions3419,94223
+sub _store_dimensions Spreadsheet::WriteExcel::Worksheet::_store_dimensions3473,95621
+sub _store_window2 Spreadsheet::WriteExcel::Worksheet::_store_window23517,97245
+sub _store_page_view Spreadsheet::WriteExcel::Worksheet::_store_page_view3576,99638
+sub _store_tab_color Spreadsheet::WriteExcel::Worksheet::_store_tab_color3594,99977
+sub _store_defrow Spreadsheet::WriteExcel::Worksheet::_store_defrow3621,100635
+sub _store_defcol Spreadsheet::WriteExcel::Worksheet::_store_defcol3643,101169
+sub _store_colinfo Spreadsheet::WriteExcel::Worksheet::_store_colinfo3667,101810
+sub _store_filtermode Spreadsheet::WriteExcel::Worksheet::_store_filtermode3737,103932
+sub _store_autofilterinfo Spreadsheet::WriteExcel::Worksheet::_store_autofilterinfo3759,104455
+sub _store_selection Spreadsheet::WriteExcel::Worksheet::_store_selection3783,105109
+sub _store_externcount Spreadsheet::WriteExcel::Worksheet::_store_externcount3833,107003
+sub _store_externsheet Spreadsheet::WriteExcel::Worksheet::_store_externsheet3858,107752
+sub _store_panes Spreadsheet::WriteExcel::Worksheet::_store_panes3901,109103
+sub _store_setup Spreadsheet::WriteExcel::Worksheet::_store_setup3961,111114
+sub _store_header Spreadsheet::WriteExcel::Worksheet::_store_header4033,113933
+sub _store_footer Spreadsheet::WriteExcel::Worksheet::_store_footer4066,114890
+sub _store_hcenter Spreadsheet::WriteExcel::Worksheet::_store_hcenter4099,115862
+sub _store_vcenter Spreadsheet::WriteExcel::Worksheet::_store_vcenter4121,116388
+sub _store_margin_left Spreadsheet::WriteExcel::Worksheet::_store_margin_left4143,116902
+sub _store_margin_right Spreadsheet::WriteExcel::Worksheet::_store_margin_right4167,117484
+sub _store_margin_top Spreadsheet::WriteExcel::Worksheet::_store_margin_top4191,118063
+sub _store_margin_bottom Spreadsheet::WriteExcel::Worksheet::_store_margin_bottom4215,118646
+sub merge_cells Spreadsheet::WriteExcel::Worksheet::merge_cells4240,119357
+sub merge_range Spreadsheet::WriteExcel::Worksheet::merge_range4284,121021
+sub _store_print_headers Spreadsheet::WriteExcel::Worksheet::_store_print_headers4353,123183
+sub _store_print_gridlines Spreadsheet::WriteExcel::Worksheet::_store_print_gridlines4376,123792
+sub _store_gridset Spreadsheet::WriteExcel::Worksheet::_store_gridset4399,124397
+sub _store_guts Spreadsheet::WriteExcel::Worksheet::_store_guts4426,125190
+sub _store_wsbool Spreadsheet::WriteExcel::Worksheet::_store_wsbool4474,126539
+sub _store_hbreak Spreadsheet::WriteExcel::Worksheet::_store_hbreak4505,127502
+sub _store_vbreak Spreadsheet::WriteExcel::Worksheet::_store_vbreak4538,128337
+sub _store_protect Spreadsheet::WriteExcel::Worksheet::_store_protect4571,129204
+sub _store_obj_protect Spreadsheet::WriteExcel::Worksheet::_store_obj_protect4596,129863
+sub _store_password Spreadsheet::WriteExcel::Worksheet::_store_password4621,130489
+sub _store_table Spreadsheet::WriteExcel::Worksheet::_store_table4672,132312
+sub _store_dbcell Spreadsheet::WriteExcel::Worksheet::_store_dbcell4766,135364
+sub _store_index Spreadsheet::WriteExcel::Worksheet::_store_index4793,136073
+sub embed_chart Spreadsheet::WriteExcel::Worksheet::embed_chart4828,137034
+sub insert_image Spreadsheet::WriteExcel::Worksheet::insert_image4867,138245
+sub _position_object Spreadsheet::WriteExcel::Worksheet::_position_object4950,141157
+sub _size_col Spreadsheet::WriteExcel::Worksheet::_size_col5041,144053
+sub _size_row Spreadsheet::WriteExcel::Worksheet::_size_row5073,144883
+sub _store_zoom Spreadsheet::WriteExcel::Worksheet::_store_zoom5101,145510
+sub write_utf16be_string Spreadsheet::WriteExcel::Worksheet::write_utf16be_string5129,146338
+sub write_utf16le_string Spreadsheet::WriteExcel::Worksheet::write_utf16le_string5212,148822
+sub _store_autofilters Spreadsheet::WriteExcel::Worksheet::_store_autofilters5253,150070
+sub _store_autofilter Spreadsheet::WriteExcel::Worksheet::_store_autofilter5283,150937
+sub _pack_doper Spreadsheet::WriteExcel::Worksheet::_pack_doper5380,153588
+sub _pack_unused_doper Spreadsheet::WriteExcel::Worksheet::_pack_unused_doper5438,154951
+sub _pack_blanks_doper Spreadsheet::WriteExcel::Worksheet::_pack_blanks_doper5452,155199
+sub _pack_string_doper Spreadsheet::WriteExcel::Worksheet::_pack_string_doper5485,155896
+sub _pack_number_doper Spreadsheet::WriteExcel::Worksheet::_pack_number_doper5506,156511
+sub _prepare_images Spreadsheet::WriteExcel::Worksheet::_prepare_images5533,157067
+sub _prepare_comments Spreadsheet::WriteExcel::Worksheet::_prepare_comments5567,157802
+sub _prepare_charts Spreadsheet::WriteExcel::Worksheet::_prepare_charts5601,158553
+sub _store_images Spreadsheet::WriteExcel::Worksheet::_store_images5635,159265
+sub _store_charts Spreadsheet::WriteExcel::Worksheet::_store_charts5743,163177
+sub _store_chart_binary Spreadsheet::WriteExcel::Worksheet::_store_chart_binary5856,167268
+sub _store_filters Spreadsheet::WriteExcel::Worksheet::_store_filters5879,167764
+sub _store_comments Spreadsheet::WriteExcel::Worksheet::_store_comments5981,171285
+sub _store_mso_dg_container Spreadsheet::WriteExcel::Worksheet::_store_mso_dg_container6082,175097
+sub _store_mso_dg Spreadsheet::WriteExcel::Worksheet::_store_mso_dg6103,175541
+sub _store_mso_spgr_container Spreadsheet::WriteExcel::Worksheet::_store_mso_spgr_container6128,176113
+sub _store_mso_sp_container Spreadsheet::WriteExcel::Worksheet::_store_mso_sp_container6149,176578
+sub _store_mso_spgr Spreadsheet::WriteExcel::Worksheet::_store_mso_spgr6170,177026
+sub _store_mso_sp Spreadsheet::WriteExcel::Worksheet::_store_mso_sp6191,177479
+sub _store_mso_opt_comment Spreadsheet::WriteExcel::Worksheet::_store_mso_opt_comment6216,178031
+sub _store_mso_opt_image Spreadsheet::WriteExcel::Worksheet::_store_mso_opt_image6261,179229
+sub _store_mso_opt_chart Spreadsheet::WriteExcel::Worksheet::_store_mso_opt_chart6290,180002
+sub _store_mso_opt_filter Spreadsheet::WriteExcel::Worksheet::_store_mso_opt_filter6338,181420
+sub _store_mso_client_anchor Spreadsheet::WriteExcel::Worksheet::_store_mso_client_anchor6376,182424
+sub _store_mso_client_data Spreadsheet::WriteExcel::Worksheet::_store_mso_client_data6418,183698
+sub _store_obj_comment Spreadsheet::WriteExcel::Worksheet::_store_obj_comment6439,184138
+sub _store_obj_image Spreadsheet::WriteExcel::Worksheet::_store_obj_image6493,185762
+sub _store_obj_chart Spreadsheet::WriteExcel::Worksheet::_store_obj_chart6554,187643
+sub _store_obj_filter Spreadsheet::WriteExcel::Worksheet::_store_obj_filter6601,188998
+sub _store_mso_drawing_text_box Spreadsheet::WriteExcel::Worksheet::_store_mso_drawing_text_box6671,191219
+sub _store_mso_client_text_box Spreadsheet::WriteExcel::Worksheet::_store_mso_client_text_box6692,191741
+sub _store_txo Spreadsheet::WriteExcel::Worksheet::_store_txo6713,192187
+sub _store_txo_continue_1 Spreadsheet::WriteExcel::Worksheet::_store_txo_continue_16743,193141
+sub _store_txo_continue_2 Spreadsheet::WriteExcel::Worksheet::_store_txo_continue_26787,194482
+sub _store_note Spreadsheet::WriteExcel::Worksheet::_store_note6818,195170
+sub _comment_params Spreadsheet::WriteExcel::Worksheet::_comment_params6871,196686
+sub data_validation Spreadsheet::WriteExcel::Worksheet::data_validation7063,202876
+sub _store_validation_count Spreadsheet::WriteExcel::Worksheet::_store_validation_count7307,211593
+sub _store_validations Spreadsheet::WriteExcel::Worksheet::_store_validations7326,211941
+sub _store_dval Spreadsheet::WriteExcel::Worksheet::_store_dval7359,213021
+sub _store_dv Spreadsheet::WriteExcel::Worksheet::_store_dv7389,213875
+sub _pack_dv_string Spreadsheet::WriteExcel::Worksheet::_pack_dv_string7477,217192
+sub _pack_dv_formula Spreadsheet::WriteExcel::Worksheet::_pack_dv_formula7522,218339
+
+lib/Spreadsheet/WriteExcel.pm,82
+package Spreadsheet::WriteExcel;1,0
+sub new Spreadsheet::WriteExcel::new42,965

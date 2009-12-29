@@ -4,8 +4,9 @@ package Spreadsheet::WriteExcel::Chart::Column;
 #
 # Column - A writer class for Excel Column charts.
 #
-#
 # Used in conjunction with Spreadsheet::WriteExcel
+#
+# perltidy with options: -mbl=2 -pt=0 -nola
 #
 # Copyright 2000-2009, John McNamara, jmcnamara@cpan.org
 #

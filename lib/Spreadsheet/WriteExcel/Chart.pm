@@ -4,8 +4,9 @@ package Spreadsheet::WriteExcel::Chart;
 #
 # Chart - A writer class for Excel Charts.
 #
-#
 # Used in conjunction with Spreadsheet::WriteExcel
+#
+# perltidy with options: -mbl=2 -pt=0 -nola
 #
 # Copyright 2000-2009, John McNamara, jmcnamara@cpan.org
 #
@@ -105,13 +106,19 @@ sub add_series {
     my $self = shift;
     my %arg  = @_;
 
-    croak "Must specify series in add_series()" if !exists $arg{series};
+    croak "Must specify 'values' in add_series()" if !exists $arg{values};
 
-    # Parse the series to validate it and extract salient information.
-    my @parsed_data = $self->_parse_series_formula( $arg{series} );
+    # Parse the ranges to validate them and extract salient information.
+    my @value_data    = $self->_parse_series_formula( $arg{values} );
+    my @category_data = $self->_parse_series_formula( $arg{categories} );
+
+    # Default category count to the same as the value count if not defined.
+    if (!defined $category_data[1]) {
+        $category_data[1] = $value_data[1];
+    }
 
     # Add the parsed data to the user supplied data.
-    %arg = ( @_, @parsed_data );
+    %arg = ( @_, _values => \@value_data, _categories => \@category_data );
 
     # Encode the Series name.
     my ( $name, $encoding ) =
@@ -312,9 +319,10 @@ sub _parse_series_formula {
     my $formula  = $_[0];
     my $encoding = 0;
     my $length   = 0;
-    my $type;
-    my $range;
+    my $count;
     my @tokens;
+
+    return ( '', undef ) if !defined $formula;
 
     # Strip the = sign at the beginning of the formula string
     $formula =~ s(^=)();
@@ -341,15 +349,14 @@ sub _parse_series_formula {
 
     # Extract the range from the parse formula.
     if ( ord $formula == 0x3B ) {
-        $type = '_range3dR';
         my ( $ptg, $ext_ref, $row_1, $row_2, $col_1, $col_2 ) = unpack 'Cv5',
           $formula;
 
         # TODO. Remove high bit on relative references.
-        $range = [ $row_1, $row_2, $col_1, $col_2 ];
+        $count = $row_2 - $row_1 + 1;
     }
 
-    return ( _parsed => $formula, _type => $type, _range => $range );
+    return ( $formula, $count );
 }
 
 ###############################################################################
@@ -416,14 +423,17 @@ sub _store_chart_stream {
     # Store SERIES stream for each series.
     my $index = 0;
     for my $series ( @{ $self->{_series} } ) {
-        my $parsed   = $series->{_parsed};
-        my $name     = $series->{name};
-        my $encoding = $series->{name_encoding};
-        my @range    = @{ $series->{_range}; };
-        my $count    = 1 + $range[1] - $range[0];
 
-        $self->_store_series_stream( [ 1, 1, $count, $count, 1, 0 ],
-            $index, $parsed, $name, $encoding );
+        $self->_store_series_stream(
+            _index            => $index,
+            _value_formula    => $series->{_values}->[0],
+            _value_count      => $series->{_values}->[1],
+            _category_count   => $series->{_categories}->[1],
+            _category_formula => $series->{_categories}->[0],
+            _name             => $series->{name},
+            _name_encoding    => $series->{name_encoding},
+        );
+
         $index++;
     }
 
@@ -453,27 +463,26 @@ sub _store_chart_stream {
 sub _store_series_stream {
 
     my $self = shift;
+    my %arg  = @_;
 
-    my $range        = shift;
-    my $series_index = shift;
-    my $formula      = shift;
-    my $name         = shift;
-    my $encoding     = shift;
+    my $value_type    = length $arg{_value_formula}    ? 2 : 0;
+    my $category_type = length $arg{_category_formula} ? 2 : 0;
 
-    $self->_store_series( @{$range} );
+    $self->_store_series( $arg{_value_count}, $arg{_category_count} );
 
     $self->_store_begin();
 
     # Store the Series name AI record.
-    $self->_store_ai( 0, 1, 0, '' );
-    if ( defined $name ) {
-        $self->_store_seriestext( $name, $encoding );
+    $self->_store_ai( 0, 1, '' );
+    if ( defined $arg{_name} ) {
+        $self->_store_seriestext( $arg{_name}, $arg{_name_encoding} );
     }
 
-    $self->_store_ai( 1, 2, 0, $formula );
-    $self->_store_ai( 2, 0, 0, '' );
-    $self->_store_ai( 3, 1, 0, '' );
-    $self->_store_dataformat_stream( $series_index );
+    $self->_store_ai( 1, $value_type, $arg{_value_formula} );
+    $self->_store_ai( 2, $category_type, $arg{_category_formula} );
+    $self->_store_ai( 3, 1, '' );
+
+    $self->_store_dataformat_stream( $arg{_index} );
     $self->_store_sertocrt( 0 );
     $self->_store_end();
 }
@@ -516,7 +525,7 @@ sub _store_series_text_stream {
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0, 0 );
     $self->_store_fontx( $font_index );
-    $self->_store_ai( 0, 1, 0, '' );
+    $self->_store_ai( 0, 1, '' );
     $self->_store_end();
 }
 
@@ -536,7 +545,7 @@ sub _store_x_axis_text_stream {
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0x2B, 0x17 );
     $self->_store_fontx( 8 );
-    $self->_store_ai( 0, 1, 0, '' );
+    $self->_store_ai( 0, 1, '' );
 
     $self->_store_seriestext( $self->{_x_axis_name}, $self->{_x_axis_encoding},
     );
@@ -561,7 +570,7 @@ sub _store_y_axis_text_stream {
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0x17, 0x44 );
     $self->_store_fontx( 8 );
-    $self->_store_ai( 0, 1, 0, '' );
+    $self->_store_ai( 0, 1, '' );
 
     $self->_store_seriestext( $self->{_y_axis_name}, $self->{_y_axis_encoding},
     );
@@ -585,7 +594,7 @@ sub _store_legend_text_stream {
 
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0x00, 0x00 );
-    $self->_store_ai( 0, 1, 0, '' );
+    $self->_store_ai( 0, 1, '' );
 
     $self->_store_end();
 }
@@ -606,7 +615,7 @@ sub _store_title_text_stream {
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0x73, 0x1D );
     $self->_store_fontx( 7 );
-    $self->_store_ai( 0, 1, 0, '' );
+    $self->_store_ai( 0, 1, '' );
 
     $self->_store_seriestext( $self->{_title_name}, $self->{_title_encoding}, );
 
@@ -783,13 +792,13 @@ sub _store_ai {
 
     my $self = shift;
 
-    my $record       = 0x1051;    # Record identifier.
-    my $length       = 0x0008;    # Number of bytes to follow.
-    my $id           = $_[0];     # Link index.
-    my $type         = $_[1];     # Reference type.
-    my $format_index = $_[2];     # Num format index.
-    my $formula      = $_[3];     # Pre-parsed formula.
-    my $grbit        = 0x0000;    # Option flags.
+    my $record       = 0x1051;        # Record identifier.
+    my $length       = 0x0008;        # Number of bytes to follow.
+    my $id           = $_[0];         # Link index.
+    my $type         = $_[1];         # Reference type.
+    my $formula      = $_[2];         # Pre-parsed formula.
+    my $format_index = $_[3] || 0;    # Num format index.
+    my $grbit        = 0x0000;        # Option flags.
 
     my $formula_length = length $formula;
 
@@ -1490,12 +1499,12 @@ sub _store_series {
 
     my $record         = 0x1003;    # Record identifier.
     my $length         = 0x000C;    # Number of bytes to follow.
-    my $category_type  = $_[0];     # Type: category.
-    my $value_type     = $_[1];     # Type: value.
-    my $category_count = $_[2];     # Num of categories.
-    my $value_count    = $_[3];     # Num of values.
-    my $bubble_type    = $_[4];     # Type: bubble.
-    my $bubble_count   = $_[5];     # Num of bubble values.
+    my $category_type  = 0x0001;    # Type: category.
+    my $value_type     = 0x0001;    # Type: value.
+    my $category_count = $_[0];     # Num of categories.
+    my $value_count    = $_[1];     # Num of values.
+    my $bubble_type    = 0x0001;    # Type: bubble.
+    my $bubble_count   = 0x0000;    # Num of bubble values.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1724,11 +1733,38 @@ Chart - A writer class for Excel Charts.
 
 =head1 SYNOPSIS
 
-See the documentation for Spreadsheet::WriteExcel
+TODO.
+
+    #!/usr/bin/perl -w
+
+    use strict;
+    use Spreadsheet::WriteExcel;
+
+    my $workbook  = Spreadsheet::WriteExcel->new( 'chart_column.xls' );
+    my $worksheet = $workbook->add_worksheet();
+    my $chart     = $workbook->add_chart( name => 'Chart1', type => 'column' );
+
+    # Configure the chart.
+    $chart->add_series( series => '=Sheet1!$A$1:$A$10' );
+    $chart->add_series( series => '=Sheet1!$B$1:$B$10' );
+
+    $chart->set_x_axis( name => 'Sample (number)', );
+    $chart->set_y_axis( name => 'Weight (kg)', );
+    $chart->set_title ( name => 'Some sample test data' );
+
+    # Write the data for the chart
+    my $data = [
+        [2, 3, 6, 7, 5, 4, 8, 1, 5, 4],
+        [6, 7, 5, 2, 1, 1, 3, 5, 4, 1],
+    ];
+
+    $worksheet->write( 'A1', $data );
+
 
 =head1 DESCRIPTION
 
-This module is used in conjunction with Spreadsheet::WriteExcel.
+The Chart module is an abstract base class for ...
+
 
 =head1 AUTHOR
 

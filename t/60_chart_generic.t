@@ -81,9 +81,7 @@ $expected = join ' ', qw(
   03 10 0C 00 01 00 01 00 08 00 08 00 01 00 00 00
 );
 
-@values = ( 1, 1, 8, 8, 1, 0 );
-
-$got = unpack_record( $chart->_store_series( @values ) );
+$got = unpack_record( $chart->_store_series( 8, 8 ) );
 
 is( $got, $expected, $caption );
 
@@ -124,7 +122,7 @@ is( $got, $expected, $caption );
 #
 $caption = " \tChart: _store_ai()";
 
-@values = ( 0, 1, 0, '' );
+@values = ( 0, 1, '' );
 
 $expected = join ' ', qw(
   51 10 08 00 00 01 00 00 00 00 00 00
@@ -141,7 +139,7 @@ is( $got, $expected, $caption );
 #
 $caption = " \tChart: _store_ai()";
 
-@values = ( 1, 2, 0, pack 'H*', '3B00000000070000000000' );
+@values = ( 1, 2, pack 'H*', '3B00000000070000000000' );
 
 $expected = join ' ', qw(
   51 10 13 00 01 02 00 00 00 00 0B 00 3B 00 00 00

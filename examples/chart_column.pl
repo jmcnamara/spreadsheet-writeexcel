@@ -1,4 +1,4 @@
-#!/usr/bon/perl -w
+#!/usr/bin/perl -w
 
 #######################################################################
 #
@@ -16,12 +16,12 @@ my $chart     = $workbook->add_chart( name => 'Chart1', type => 'column' );
 
 # Configure the chart.
 $chart->add_series(
-    series        => '=Sheet1!$A$1:$A$10',
+    values        => '=Sheet1!$A$1:$A$10',
     name          => 'Batch 1',
 );
 
 $chart->add_series(
-    series        => '=Sheet1!$B$1:$B$10',
+    values        => '=Sheet1!$B$1:$B$10',
     name          => 'Batch 2',
 );
 $chart->set_x_axis( name => 'Sample (number)', );
