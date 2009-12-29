@@ -111,14 +111,20 @@ sub add_series {
     # Parse the ranges to validate them and extract salient information.
     my @value_data    = $self->_parse_series_formula( $arg{values} );
     my @category_data = $self->_parse_series_formula( $arg{categories} );
+    my $name_formula  = $self->_parse_series_formula( $arg{name_formula} );
 
     # Default category count to the same as the value count if not defined.
-    if (!defined $category_data[1]) {
+    if ( !defined $category_data[1] ) {
         $category_data[1] = $value_data[1];
     }
 
     # Add the parsed data to the user supplied data.
-    %arg = ( @_, _values => \@value_data, _categories => \@category_data );
+    %arg = (
+        @_,
+        _values       => \@value_data,
+        _categories   => \@category_data,
+        _name_formula => $name_formula
+    );
 
     # Encode the Series name.
     my ( $name, $encoding ) =
@@ -145,8 +151,11 @@ sub set_x_axis {
     my ( $name, $encoding ) =
       $self->_encode_utf16( $arg{name}, $arg{name_encoding} );
 
+    my $formula = $self->_parse_series_formula( $arg{name_formula} );
+
     $self->{_x_axis_name}     = $name;
     $self->{_x_axis_encoding} = $encoding;
+    $self->{_x_axis_formula}  = $formula;
 }
 
 
@@ -164,8 +173,11 @@ sub set_y_axis {
     my ( $name, $encoding ) =
       $self->_encode_utf16( $arg{name}, $arg{name_encoding} );
 
+    my $formula = $self->_parse_series_formula( $arg{name_formula} );
+
     $self->{_y_axis_name}     = $name;
     $self->{_y_axis_encoding} = $encoding;
+    $self->{_y_axis_formula}  = $formula;
 }
 
 
@@ -183,8 +195,11 @@ sub set_title {
     my ( $name, $encoding ) =
       $self->_encode_utf16( $arg{name}, $arg{name_encoding} );
 
+    my $formula = $self->_parse_series_formula( $arg{name_formula} );
+
     $self->{_title_name}     = $name;
     $self->{_title_encoding} = $encoding;
+    $self->{_title_formula}  = $formula;
 }
 
 
@@ -319,10 +334,10 @@ sub _parse_series_formula {
     my $formula  = $_[0];
     my $encoding = 0;
     my $length   = 0;
-    my $count;
+    my $count    = 0;
     my @tokens;
 
-    return ( '', undef ) if !defined $formula;
+    return '' if !defined $formula;
 
     # Strip the = sign at the beginning of the formula string
     $formula =~ s(^=)();
@@ -341,11 +356,17 @@ sub _parse_series_formula {
     }
 
     # Force ranges to be a reference class.
+    s/_ref3d/_ref3dR/     for @tokens;
     s/_range3d/_range3dR/ for @tokens;
     s/_name/_nameR/       for @tokens;
 
     # Parse the tokens into a formula string.
     $formula = $parser->parse_tokens( @tokens );
+
+    # Return formula for a single cell as used by title and series name.
+    if ( ord $formula == 0x3A ) {
+        return $formula;
+    }
 
     # Extract the range from the parse formula.
     if ( ord $formula == 0x3B ) {
@@ -432,6 +453,7 @@ sub _store_chart_stream {
             _category_formula => $series->{_categories}->[0],
             _name             => $series->{name},
             _name_encoding    => $series->{name_encoding},
+            _name_formula     => $series->{_name_formula},
         );
 
         $index++;
@@ -448,7 +470,11 @@ sub _store_chart_stream {
 
     $self->_store_axesused( 1 );
     $self->_store_axisparent_stream();
-    $self->_store_title_text_stream() if defined $self->{_title_name};
+
+    if ( defined $self->{_title_name} || defined $self->{_title_formula} ) {
+        $self->_store_title_text_stream();
+    }
+
     $self->_store_end();
 
 }
@@ -465,22 +491,23 @@ sub _store_series_stream {
     my $self = shift;
     my %arg  = @_;
 
-    my $value_type    = length $arg{_value_formula}    ? 2 : 0;
-    my $category_type = length $arg{_category_formula} ? 2 : 0;
+    my $name_type     = $arg{_name_formula}     ? 2 : 1;
+    my $value_type    = $arg{_value_formula}    ? 2 : 0;
+    my $category_type = $arg{_category_formula} ? 2 : 0;
 
     $self->_store_series( $arg{_value_count}, $arg{_category_count} );
 
     $self->_store_begin();
 
     # Store the Series name AI record.
-    $self->_store_ai( 0, 1, '' );
+    $self->_store_ai( 0, $name_type, $arg{_name_formula} );
     if ( defined $arg{_name} ) {
         $self->_store_seriestext( $arg{_name}, $arg{_name_encoding} );
     }
 
-    $self->_store_ai( 1, $value_type, $arg{_value_formula} );
+    $self->_store_ai( 1, $value_type,    $arg{_value_formula} );
     $self->_store_ai( 2, $category_type, $arg{_category_formula} );
-    $self->_store_ai( 3, 1, '' );
+    $self->_store_ai( 3, 1,              '' );
 
     $self->_store_dataformat_stream( $arg{_index} );
     $self->_store_sertocrt( 0 );
@@ -540,15 +567,21 @@ sub _store_x_axis_text_stream {
 
     my $self = shift;
 
+    my $formula = $self->{_x_axis_formula};
+    my $ai_type = $formula ? 2 : 1;
+
     $self->_store_text( 0x07E1, 0x0DFC, 0xB2, 0x9C, 0x0081, 0x0000 );
 
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0x2B, 0x17 );
     $self->_store_fontx( 8 );
-    $self->_store_ai( 0, 1, '' );
+    $self->_store_ai( 0, $ai_type, $formula );
 
-    $self->_store_seriestext( $self->{_x_axis_name}, $self->{_x_axis_encoding},
-    );
+    if ( defined $self->{_x_axis_name} ) {
+        $self->_store_seriestext( $self->{_x_axis_name},
+            $self->{_x_axis_encoding},
+        );
+    }
 
     $self->_store_objectlink( 3 );
     $self->_store_end();
@@ -565,15 +598,21 @@ sub _store_y_axis_text_stream {
 
     my $self = shift;
 
+    my $formula = $self->{_y_axis_formula};
+    my $ai_type = $formula ? 2 : 1;
+
     $self->_store_text( 0x002D, 0x06AA, 0x5F, 0x1CC, 0x0281, 0x00, 90 );
 
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0x17, 0x44 );
     $self->_store_fontx( 8 );
-    $self->_store_ai( 0, 1, '' );
+    $self->_store_ai( 0, $ai_type, $formula );
 
-    $self->_store_seriestext( $self->{_y_axis_name}, $self->{_y_axis_encoding},
-    );
+    if ( defined $self->{_y_axis_name} ) {
+        $self->_store_seriestext( $self->{_y_axis_name},
+            $self->{_y_axis_encoding},
+        );
+    }
 
     $self->_store_objectlink( 2 );
     $self->_store_end();
@@ -610,14 +649,21 @@ sub _store_title_text_stream {
 
     my $self = shift;
 
+    my $formula = $self->{_title_formula};
+    my $ai_type = $formula ? 2 : 1;
+
     $self->_store_text( 0x06E4, 0x0051, 0x01DB, 0x00C4, 0x0081, 0x1030 );
 
     $self->_store_begin();
     $self->_store_pos( 2, 2, 0, 0, 0x73, 0x1D );
     $self->_store_fontx( 7 );
-    $self->_store_ai( 0, 1, '' );
+    $self->_store_ai( 0, $ai_type, $formula );
 
-    $self->_store_seriestext( $self->{_title_name}, $self->{_title_encoding}, );
+    if ( defined $self->{_title_name} ) {
+        $self->_store_seriestext( $self->{_title_name},
+            $self->{_title_encoding},
+        );
+    }
 
     $self->_store_objectlink( 1 );
     $self->_store_end();
@@ -641,8 +687,13 @@ sub _store_axisparent_stream {
     $self->_store_axis_category_stream();
     $self->_store_axis_values_stream();
 
-    $self->_store_x_axis_text_stream() if defined $self->{_x_axis_name};
-    $self->_store_y_axis_text_stream() if defined $self->{_y_axis_name};
+    if ( defined $self->{_x_axis_name} || defined $self->{_x_axis_formula} ) {
+        $self->_store_x_axis_text_stream();
+    }
+
+    if ( defined $self->{_y_axis_name} || defined $self->{_y_axis_formula} ) {
+        $self->_store_y_axis_text_stream();
+    }
 
     $self->_store_plotarea();
     $self->_store_frame_stream();
