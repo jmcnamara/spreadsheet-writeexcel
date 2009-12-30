@@ -32,6 +32,7 @@
     <li class='indexItem indexItem2'><a href='#new()'>new()</a>
     <li class='indexItem indexItem2'><a href='#add_worksheet(%24sheetname%2C_%24utf_16_be)'>add_worksheet($sheetname, $utf_16_be)</a>
     <li class='indexItem indexItem2'><a href='#add_format(%25properties)'>add_format(%properties)</a>
+    <li class='indexItem indexItem2'><a href='#add_chart(_name_%3D%3E_%24name%2C_type_%3D%3E_%24type_)'>add_chart( name =&#62; $name, type =&#62; $type )</a>
     <li class='indexItem indexItem2'><a href='#add_chart_ext(%24chart_data%2C_%24chartname)'>add_chart_ext($chart_data, $chartname)</a>
     <li class='indexItem indexItem2'><a href='#close()'>close()</a>
     <li class='indexItem indexItem2'><a href='#compatibility_mode()'>compatibility_mode()</a>
@@ -306,6 +307,7 @@ name="WORKBOOK_METHODS"
 <pre>    new()
     add_worksheet()
     add_format()
+    add_chart()
     add_chart_ext()
     close()
     compatibility_mode()
@@ -442,6 +444,24 @@ name="add_format(%properties)"
 
 <p>See the <a href="#CELL_FORMATTING" class="podlinkpod"
 >&#34;CELL FORMATTING&#34;</a> section for more details about Format properties and how to set them.</p>
+
+<h2><a class='u' href='#___top' title='click to go to top of document'
+name="add_chart(_name_=&#62;_$name,_type_=&#62;_$type_)"
+>add_chart( name =&#62; $name, type =&#62; $type )</a></h2>
+
+<p>This method is use to create a new chart sheet.</p>
+
+<pre>    my $chart = $workbook-&#62;add_chart( name =&#62; &#39;Chart1&#39;, type =&#62; &#39;column&#39; );</pre>
+
+<p>Note, the chart name currently needs to be specified. It will have a default value in later versions. The available types are:</p>
+
+<pre>    column
+    bar
+    line
+    area</pre>
+
+<p>See <a href="http://search.cpan.org/perldoc?Spreadsheet%3A%3AWriteExcel%3A%3AChart" class="podlinkpod"
+>Spreadsheet::WriteExcel::Chart</a> for details on how to configure the chart object once it is created. See also the <code>chart_*.pl</code> programs in the examples directory of the distro.</p>
 
 <h2><a class='u' href='#___top' title='click to go to top of document'
 name="add_chart_ext($chart_data,_$chartname)"
@@ -5423,15 +5443,14 @@ name="AUTHOR"
 
 <p>John McNamara jmcnamara@cpan.org</p>
 
-<pre>    The door slammed loud and rose up a cloud of dust, on us.
-    Footsteps follow, down through the hollow sound, torn up.
+<pre>    Another day in June, we&#39;ll pick eleven for football
+    (Pick eleven for football)
+    We&#39;re playing for our lives the referee gives us fuck all
+    (Ref you&#39;re giving us fuck all)
+    I saw you with the corner of my eye on the sidelines
+    Your dark mascara bids me to historical deeds
 
-    And you will go to Mykonos,
-    With a vision of a gentle coast,
-    And a sun to maybe dissipate,
-    Shadows of the mess you made.
-
-        -- Robin Pecknold</pre>
+        -- Belle and Sebastian</pre>
 
 <h1><a class='u' href='#___top' title='click to go to top of document'
 name="COPYRIGHT"

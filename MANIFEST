@@ -5,11 +5,15 @@ README
 INSTALL
 META.yml
 
-
 lib/Spreadsheet/WriteExcel.pm
 lib/Spreadsheet/WriteExcel/BIFFwriter.pm
 lib/Spreadsheet/WriteExcel/Big.pm
 lib/Spreadsheet/WriteExcel/Chart.pm
+lib/Spreadsheet/WriteExcel/Chart/Area.pm
+lib/Spreadsheet/WriteExcel/Chart/Bar.pm
+lib/Spreadsheet/WriteExcel/Chart/Column.pm
+lib/Spreadsheet/WriteExcel/Chart/External.pm
+lib/Spreadsheet/WriteExcel/Chart/Line.pm
 lib/Spreadsheet/WriteExcel/Examples.pm
 lib/Spreadsheet/WriteExcel/Format.pm
 lib/Spreadsheet/WriteExcel/Formula.pm
@@ -51,6 +55,8 @@ t/50_name_stored.t
 t/51_name_print_area.t
 t/52_name_print_titles.t
 t/53_name_autofilter.t
+t/60_chart_generic.t
+t/61_chart_subclasses.t
 t/90_pod.t
 t/91_minimumversion.t
 t/92_meta.t
@@ -74,6 +80,10 @@ examples/autofit.pl
 examples/bigfile.pl
 examples/bug_report.pl
 examples/cgi.pl
+examples/chart_area.pl
+examples/chart_bar.pl
+examples/chart_column.pl
+examples/chart_line.pl
 examples/chess.pl
 examples/colors.pl
 examples/comments1.pl

@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.31'; # Fleet foxes.
+$VERSION = '2.32'; # The Life Pursuit
 
 
 
@@ -144,6 +144,7 @@ The Spreadsheet::WriteExcel module provides an object oriented interface to a ne
     new()
     add_worksheet()
     add_format()
+    add_chart()
     add_chart_ext()
     close()
     compatibility_mode()
@@ -282,6 +283,24 @@ The C<add_format()> method can be used to create new Format objects which are us
     $format2 = $workbook->add_format();       # Set properties later
 
 See the L<CELL FORMATTING> section for more details about Format properties and how to set them.
+
+
+
+
+=head2 add_chart( name => $name, type => $type )
+
+This method is use to create a new chart sheet.
+
+    my $chart = $workbook->add_chart( name => 'Chart1', type => 'column' );
+
+Note, the chart name currently needs to be specified. It will have a default value in later versions. The available types are:
+
+    column
+    bar
+    line
+    area
+
+See L<Spreadsheet::WriteExcel::Chart> for details on how to configure the chart object once it is created. See also the C<chart_*.pl> programs in the examples directory of the distro.
 
 
 
@@ -5346,16 +5365,14 @@ Either the Perl Artistic Licence L<http://dev.perl.org/licenses/artistic.html> o
 
 John McNamara jmcnamara@cpan.org
 
+    Another day in June, we'll pick eleven for football
+    (Pick eleven for football)
+    We're playing for our lives the referee gives us fuck all
+    (Ref you're giving us fuck all)
+    I saw you with the corner of my eye on the sidelines
+    Your dark mascara bids me to historical deeds
 
-    The door slammed loud and rose up a cloud of dust, on us.
-    Footsteps follow, down through the hollow sound, torn up.
-
-    And you will go to Mykonos,
-    With a vision of a gentle coast,
-    And a sun to maybe dissipate,
-    Shadows of the mess you made.
-
-        -- Robin Pecknold
+        -- Belle and Sebastian
 
 
 

@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Worksheet;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Worksheet);
 
-$VERSION = '2.31';
+$VERSION = '2.32';
 
 ###############################################################################
 #
@@ -1898,6 +1898,24 @@ Optional, can be used to link the name to a worksheet cell. See L</Chart names a
     );
 
 =back
+
+You can add more than one series to a chart. The series numbering and order in the final chart is the same as the order in which that are added.
+
+    # Add the first series.
+    $chart->add_series(
+        categories => '=Sheet1!$A$2:$A$7',
+        values     => '=Sheet1!$B$2:$B$7',
+        name       => 'Test data series 1',
+    );
+
+    # Add another series. Catogory is the same but values are different.
+    $chart->add_series(
+        categories => '=Sheet1!$A$2:$A$7',
+        values     => '=Sheet1!$C$2:$C$7',
+        name       => 'Test data series 2',
+    );
+
+
 
 =head2 set_x_axis()
 

@@ -2,7 +2,7 @@
 
 ###############################################################################
 #
-# A simple demo of a Column chart in Spreadsheet::WriteExcel.
+# A simple demo of a Bar chart in Spreadsheet::WriteExcel.
 #
 # reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
 #
@@ -10,7 +10,7 @@
 use strict;
 use Spreadsheet::WriteExcel;
 
-my $workbook  = Spreadsheet::WriteExcel->new( 'chart_column.xls' );
+my $workbook  = Spreadsheet::WriteExcel->new( 'chart_bar.xls' );
 my $worksheet = $workbook->add_worksheet();
 
 # Add data to the worksheet that the charts willrefer to.
@@ -27,7 +27,7 @@ $worksheet->write( 'A1', $data );
 #
 # Example 1. A minimal chart.
 #
-my $chart1 = $workbook->add_chart( name => 'Chart1', type => 'column' );
+my $chart1 = $workbook->add_chart( name => 'Chart1', type => 'bar' );
 
 # Add values only. Use the default categories.
 $chart1->add_series( values => '=Sheet1!$B$2:$B$7' );
@@ -38,7 +38,7 @@ $chart1->add_series( values => '=Sheet1!$B$2:$B$7' );
 # Example 2. A minimal chart with user specified categories (X axis)
 #            and a series name.
 #
-my $chart2 = $workbook->add_chart( name => 'Chart2', type => 'column' );
+my $chart2 = $workbook->add_chart( name => 'Chart2', type => 'bar' );
 
 # Configure the series.
 $chart2->add_series(
@@ -52,7 +52,7 @@ $chart2->add_series(
 #
 # Example 3. Same as previous chart but with added title and axes labels.
 #
-my $chart3 = $workbook->add_chart( name => 'Chart3', type => 'column' );
+my $chart3 = $workbook->add_chart( name => 'Chart3', type => 'bar' );
 
 # Configure the series.
 $chart3->add_series(
@@ -71,7 +71,7 @@ $chart3->set_y_axis( name => 'Sample length (cm)' );
 #
 # Example 4. Same as previous chart but with an added series
 #
-my $chart4 = $workbook->add_chart( name => 'Chart4', type => 'column' );
+my $chart4 = $workbook->add_chart( name => 'Chart4', type => 'bar' );
 
 # Configure the series.
 $chart4->add_series(

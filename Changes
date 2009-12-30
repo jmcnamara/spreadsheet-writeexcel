@@ -1,6 +1,9 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-2.32 December xx 2009 - Minor
+2.32 December 31 2009 - Major
+
+    + Added support for native charts. See Charts.pm.
+      Column, Bar, Line and Area charts supported.
 
     ! Fixed Apache2::Const vars in mod_perl2.pl example.
       Thanks to Ryan Perry.

@@ -13,8 +13,8 @@ use strict;
 
 use Spreadsheet::WriteExcel::Chart;
 
-#use Test::More tests => 12;
-use Test::More 'no_plan';
+use Test::More tests => 4;
+#use Test::More 'no_plan';
 
 
 ###############################################################################
