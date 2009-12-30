@@ -4,9 +4,7 @@ package Spreadsheet::WriteExcel::Chart;
 #
 # Chart - A writer class for Excel Charts.
 #
-# Used in conjunction with Spreadsheet::WriteExcel
-#
-# perltidy with options: -mbl=2 -pt=0 -nola
+# Used in conjunction with Spreadsheet::WriteExcel.
 #
 # Copyright 2000-2009, John McNamara, jmcnamara@cpan.org
 #
@@ -24,6 +22,17 @@ use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Worksheet);
 
 $VERSION = '2.31';
+
+###############################################################################
+#
+# Formatting information.
+#
+# perltidy with options: -mbl=2 -pt=0 -nola
+#
+# Any camel case Hungarian notation style variable names in the BIFF record
+# writing sub-routines below are for similarity with names used in the Excel
+# documentation. Otherwise lowercase underscore style names are used.
+#
 
 
 ###############################################################################
@@ -62,7 +71,7 @@ sub factory {
     eval "require $module";
 
     # TODO. Need to re-raise this error from Workbook::add_chart().
-    die "Chart type $chart_subclass not supported in add_chart()\n" if $@;
+    die "Chart type '$chart_subclass' not supported in add_chart()\n" if $@;
 
     return $module->new( @_ );
 }
@@ -241,7 +250,7 @@ sub _close {
 
     my $self = shift;
 
-    # Legacy external binary chart doesn't require any further processing.
+    # TODO
     return undef if $self->{_external_bin};
 
     # Ignore any data that has been written so far since it is probably
@@ -775,21 +784,35 @@ sub _store_chartformat_stream {
     $self->_store_chartformat();
 
     $self->_store_begin();
-    $self->_store_bar();
+
+    # Store the BIFF record that will define the chart type.
+    $self->_store_chart_type();
 
     # CHARTFORMATLINK is not used.
-    $self->store_legend_stream();
+    $self->_store_legend_stream();
     $self->_store_end();
 }
 
 
 ###############################################################################
 #
-# store_legend_stream()
+# _store_chart_type()
+#
+# This is an abstract method that is overridden by the sub-classes to define
+# the chart types such as Column, Line, Pie, etc.
+#
+sub _store_chart_type {
+
+}
+
+
+###############################################################################
+#
+# _store_legend_stream()
 #
 # Write the LEGEND chart substream.
 #
-sub store_legend_stream {
+sub _store_legend_stream {
 
     my $self = shift;
 
@@ -964,7 +987,7 @@ sub _store_axesused {
 #
 # _store_axis()
 #
-# Write the AXIS chart BIFF record tp define the axis type.
+# Write the AXIS chart BIFF record to define the axis type.
 #
 sub _store_axis {
 
@@ -1036,32 +1059,6 @@ sub _store_axisparent {
     $data .= pack 'V', $y;
     $data .= pack 'V', $dx;
     $data .= pack 'V', $dy;
-
-    $self->_append( $header, $data );
-}
-
-
-###############################################################################
-#
-# _store_bar()
-#
-# Write the BAR chart BIFF record. Defines a bar or column group.
-#
-sub _store_bar {
-
-    my $self = shift;
-
-    my $record    = 0x1017;    # Record identifier.
-    my $length    = 0x0006;    # Number of bytes to follow.
-    my $pcOverlap = 0x0000;    # Space between bars.
-    my $pcGap     = 0x0096;    # Space between cats.
-    my $grbit     = 0x0000;    # Option flags.
-
-    my $header = pack 'vv', $record, $length;
-    my $data = '';
-    $data .= pack 'v', $pcOverlap;
-    $data .= pack 'v', $pcGap;
-    $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
@@ -1148,7 +1145,7 @@ sub _store_chart {
 #
 # _store_chartformat()
 #
-# Write the CHARTFORMAT chart BIFF record. The partent records for a formatting
+# Write the CHARTFORMAT chart BIFF record. The parent record for formatting
 # of a chart group.
 #
 sub _store_chartformat {
@@ -1784,38 +1781,62 @@ Chart - A writer class for Excel Charts.
 
 =head1 SYNOPSIS
 
-TODO.
+To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
 
     #!/usr/bin/perl -w
 
     use strict;
     use Spreadsheet::WriteExcel;
 
-    my $workbook  = Spreadsheet::WriteExcel->new( 'chart_column.xls' );
+    my $workbook  = Spreadsheet::WriteExcel->new( 'chart.xls' );
     my $worksheet = $workbook->add_worksheet();
+
     my $chart     = $workbook->add_chart( name => 'Chart1', type => 'column' );
 
     # Configure the chart.
-    $chart->add_series( series => '=Sheet1!$A$1:$A$10' );
-    $chart->add_series( series => '=Sheet1!$B$1:$B$10' );
+    $chart->add_series(
+        categories => '=Sheet1!$A$2:$A$7',
+        values     => '=Sheet1!$B$2:$B$7',
+    );
 
-    $chart->set_x_axis( name => 'Sample (number)', );
-    $chart->set_y_axis( name => 'Weight (kg)', );
-    $chart->set_title ( name => 'Some sample test data' );
-
-    # Write the data for the chart
+    # Add the data to the worksheet the chart refers to.
     my $data = [
-        [2, 3, 6, 7, 5, 4, 8, 1, 5, 4],
-        [6, 7, 5, 2, 1, 1, 3, 5, 4, 1],
+        [ 'Category', 2, 3, 4, 5, 6, 7 ],
+        [ 'Value',    1, 4, 5, 2, 1, 5 ],
     ];
 
     $worksheet->write( 'A1', $data );
 
+    __END__
+
 
 =head1 DESCRIPTION
 
-The Chart module is an abstract base class for ...
+The C<Chart> module is an abstract base class for modules that implement charts for L<Spreadsheet::WriteExcel>.
 
+TODO. List of chart types and links to documentation.
+
+=head1 METHODS
+
+=head2 add_series()
+
+TODO.
+
+=head2 set_x_axis()
+
+TODO.
+
+=head2 set_y_axis()
+
+TODO.
+
+=head2 set_title()
+
+TODO.
+
+=head1 TODO
+
+TODO. List features and chart types that will be implemented in time.
 
 =head1 AUTHOR
 

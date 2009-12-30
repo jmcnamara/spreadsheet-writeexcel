@@ -1,8 +1,8 @@
-package Spreadsheet::WriteExcel::Chart::Column;
+package Spreadsheet::WriteExcel::Chart::Bar;
 
 ###############################################################################
 #
-# Column - A writer class for Excel Column charts.
+# Bar - A writer class for Excel Bar charts.
 #
 # Used in conjunction with Spreadsheet::WriteExcel::Chart.
 #
@@ -55,7 +55,7 @@ sub _store_chart_type {
     my $length    = 0x0006;    # Number of bytes to follow.
     my $pcOverlap = 0x0000;    # Space between bars.
     my $pcGap     = 0x0096;    # Space between cats.
-    my $grbit     = 0x0000;    # Option flags.
+    my $grbit     = 0x0001;    # Option flags.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -75,11 +75,11 @@ __END__
 
 =head1 NAME
 
-Column - A writer class for Excel Column charts.
+Bar - A writer class for Excel Bar charts.
 
 =head1 SYNOPSIS
 
-To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
+To create a simple Excel file with a Bar chart using Spreadsheet::WriteExcel:
 
     #!/usr/bin/perl -w
 
@@ -89,7 +89,7 @@ To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
     my $workbook  = Spreadsheet::WriteExcel->new( 'chart.xls' );
     my $worksheet = $workbook->add_worksheet();
 
-    my $chart     = $workbook->add_chart( name => 'Chart1', type => 'column' );
+    my $chart     = $workbook->add_chart( name => 'Chart1', type => 'bar' );
 
     # Configure the chart.
     $chart->add_series(
@@ -109,9 +109,9 @@ To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
 
 =head1 DESCRIPTION
 
-This module implements Column charts for L<Spreadsheet::WriteExcel>. The chart object is created via the Workbook C<add_chart()> method:
+This module implements Bar charts for L<Spreadsheet::WriteExcel>. The chart object is created via the Workbook C<add_chart()> method:
 
-    my $chart = $workbook->add_chart( name => 'Chart1', type => 'column' );
+    my $chart = $workbook->add_chart( name => 'Chart1', type => 'bar' );
 
 Once the object is created it can be configured via the following methods that are common to all chart classes:
 
@@ -122,9 +122,9 @@ Once the object is created it can be configured via the following methods that a
 
 These methods are explained in detail in L<Spreadsheet::WriteExcel::Chart>. Class specific methods or settings, if any, are explained below.
 
-=head1 Column Chart Methods
+=head1 Bar Chart Methods
 
-There aren't currently any column chart specific methods. See the TODO section of L<Spreadsheet::WriteExcel::Chart>.
+There aren't currently any bar chart specific methods. See the TODO section of L<Spreadsheet::WriteExcel::Chart>.
 
 =head1 AUTHOR
 

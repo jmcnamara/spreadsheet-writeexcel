@@ -478,7 +478,7 @@ sub add_chart {
                                                       $arg{name},
                                                       $arg{name_encoding},
                                                      );
-    my $type = 'column'; # TODO.
+    my $type = $arg{type}; # TODO. Add checks
 
     my @init_data = (
                          $name,

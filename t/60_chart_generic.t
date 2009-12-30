@@ -448,21 +448,6 @@ is( $got, $expected, $caption );
 
 ###############################################################################
 #
-# Test the _store_bar() method.
-#
-$caption = " \tChart: _store_bar()";
-
-$expected = join ' ', qw(
-  17 10 06 00 00 00 96 00 00 00
-);
-
-$got = unpack_record( $chart->_store_bar() );
-
-is( $got, $expected, $caption );
-
-
-###############################################################################
-#
 # Test the _store_legend() method.
 #
 $caption = " \tChart: _store_legend()";

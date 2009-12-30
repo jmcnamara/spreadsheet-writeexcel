@@ -1,8 +1,8 @@
-package Spreadsheet::WriteExcel::Chart::Column;
+package Spreadsheet::WriteExcel::Chart::Line;
 
 ###############################################################################
 #
-# Column - A writer class for Excel Column charts.
+# Line - A writer class for Excel Line charts.
 #
 # Used in conjunction with Spreadsheet::WriteExcel::Chart.
 #
@@ -45,23 +45,18 @@ sub new {
 #
 # Implementation of the abstract method from the specific chart class.
 #
-# Write the BAR chart BIFF record. Defines a bar or column chart type.
+# Write the LINE chart BIFF record. Defines a line chart type.
 #
 sub _store_chart_type {
 
     my $self = shift;
 
-    my $record    = 0x1017;    # Record identifier.
-    my $length    = 0x0006;    # Number of bytes to follow.
-    my $pcOverlap = 0x0000;    # Space between bars.
-    my $pcGap     = 0x0096;    # Space between cats.
-    my $grbit     = 0x0000;    # Option flags.
+    my $record = 0x1018;    # Record identifier.
+    my $length = 0x0002;    # Number of bytes to follow.
+    my $grbit  = 0x0000;    # Option flags.
 
     my $header = pack 'vv', $record, $length;
-    my $data = '';
-    $data .= pack 'v', $pcOverlap;
-    $data .= pack 'v', $pcGap;
-    $data .= pack 'v', $grbit;
+    my $data = pack 'v', $grbit;
 
     $self->_append( $header, $data );
 }
@@ -75,11 +70,11 @@ __END__
 
 =head1 NAME
 
-Column - A writer class for Excel Column charts.
+Line - A writer class for Excel Line charts.
 
 =head1 SYNOPSIS
 
-To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
+To create a simple Excel file with a Line chart using Spreadsheet::WriteExcel:
 
     #!/usr/bin/perl -w
 
@@ -89,7 +84,7 @@ To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
     my $workbook  = Spreadsheet::WriteExcel->new( 'chart.xls' );
     my $worksheet = $workbook->add_worksheet();
 
-    my $chart     = $workbook->add_chart( name => 'Chart1', type => 'column' );
+    my $chart     = $workbook->add_chart( name => 'Chart1', type => 'line' );
 
     # Configure the chart.
     $chart->add_series(
@@ -109,9 +104,9 @@ To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
 
 =head1 DESCRIPTION
 
-This module implements Column charts for L<Spreadsheet::WriteExcel>. The chart object is created via the Workbook C<add_chart()> method:
+This module implements Line charts for L<Spreadsheet::WriteExcel>. The chart object is created via the Workbook C<add_chart()> method:
 
-    my $chart = $workbook->add_chart( name => 'Chart1', type => 'column' );
+    my $chart = $workbook->add_chart( name => 'Chart1', type => 'line' );
 
 Once the object is created it can be configured via the following methods that are common to all chart classes:
 
@@ -122,9 +117,9 @@ Once the object is created it can be configured via the following methods that a
 
 These methods are explained in detail in L<Spreadsheet::WriteExcel::Chart>. Class specific methods or settings, if any, are explained below.
 
-=head1 Column Chart Methods
+=head1 Line Chart Methods
 
-There aren't currently any column chart specific methods. See the TODO section of L<Spreadsheet::WriteExcel::Chart>.
+There aren't currently any line chart specific methods. See the TODO section of L<Spreadsheet::WriteExcel::Chart>.
 
 =head1 AUTHOR
 
