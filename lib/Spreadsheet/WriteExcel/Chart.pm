@@ -37,7 +37,8 @@ $VERSION = '2.31';
 
 ###############################################################################
 #
-# TODO. Add a note about the class hierarchy.
+# The chart class hierarchy is as follows. Chart.pm acts as a factory for the
+# sub-classes.
 #
 #
 #     Spreadsheet::WriteExcel::BIFFwriter
@@ -1781,7 +1782,7 @@ Chart - A writer class for Excel Charts.
 
 =head1 SYNOPSIS
 
-To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
+To create a simple Excel file with a chart using Spreadsheet::WriteExcel:
 
     #!/usr/bin/perl -w
 
@@ -1812,31 +1813,254 @@ To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
 
 =head1 DESCRIPTION
 
-The C<Chart> module is an abstract base class for modules that implement charts for L<Spreadsheet::WriteExcel>.
+The C<Chart> module is an abstract base class for modules that implement charts in L<Spreadsheet::WriteExcel>. The information below is applicable to all of the available subclasses.
 
-TODO. List of chart types and links to documentation.
+The C<Chart> module isn't used directly, a chart object is created via the Workbook C<add_chart()> method where the chart type is specified:
 
-=head1 METHODS
+    my $chart = $workbook->add_chart( name => 'Chart1', type => 'column' );
+
+Currently the supported chart types are:
+
+=over
+
+=item * C<column>: Creates a column style (histogram) chart. See L<Spreadsheet::WriteExcel::Chart::Column>.
+
+=item * C<bar>: Creates a Bar style (transposed histogram) chart. See L<Spreadsheet::WriteExcel::Chart::Bar>.
+
+=item * C<line>: Creates a Line style chart. See L<Spreadsheet::WriteExcel::Chart::Line>.
+
+=item * C<area>: Creates an Area (filled line) style chart. See L<Spreadsheet::WriteExcel::Chart::Area>.
+
+=back
+
+More chart types will be supported in time. See the L</TODO> section.
+
+Methods that are common to all chart types are documented below.
+
+=head1 CHART METHODS
 
 =head2 add_series()
 
-TODO.
+In an Excel chart a "series" is a collection of information such as values, x-axis labels and the name that define which data is plotted. These settings are displayed when you select the C<< Chart -> Source Data... >> menu option.
+
+With a Spreadsheet::WriteExcel chart object the C<add_series()> method is used to set the properties for a series:
+
+    $chart->add_series(
+        categories    => '=Sheet1!$A$2:$A$10',
+        values        => '=Sheet1!$B$2:$B$10',
+        name          => 'Series name',
+        name_formula  => '=Sheet1!$B$1',
+    );
+
+The properties that can be set are:
+
+    values        (required)
+    categories    (optional for most chart types)
+    name          (optional)
+    name_formula  (optional)
+
+=over
+
+=item * C<values>
+
+This is the most important property of a series and must be set for every chart object. It links the chart with the worksheet data that it displays.
+
+    $chart->add_series( values => '=Sheet1!$B$2:$B$10' );
+
+Note the format that should be used for the formula. It is the same as is used in Excel. You must also add the worksheet that you are referring to before you link to it, via the workbook C<add_worksheet()> method.
+
+=item * C<categories>
+
+This sets the chart category labels. The category is more or less the same as the X-axis. In most chart types the C<categories> property is optional and the chart will just assume a sequential series from C<1 .. n>.
+
+    $chart->add_series(
+        categories    => '=Sheet1!$A$2:$A$10',
+        values        => '=Sheet1!$B$2:$B$10',
+    );
+
+=item * C<name>
+
+Set the name for the series. The name is displayed in the chart legend and in the formula bar. The name property is optional and if it isn't supplied will default to C<Series 1 .. n>.
+
+    $chart->add_series(
+        ...
+        name          => 'Series name',
+    );
+
+=item * C<name_formula>
+
+Optional, can be used to link the name to a worksheet cell. See L</Chart names and links>.
+
+    $chart->add_series(
+        ...
+        name          => 'Series name',
+        name_formula  => '=Sheet1!$B$1',
+    );
+
+=back
 
 =head2 set_x_axis()
 
-TODO.
+The C<set_x_axis()> method is used to set properties of the X axis.
+
+    $chart->set_x_axis( name => 'Sample length (m)' );
+
+The properties that can be set are:
+
+    name          (optional)
+    name_formula  (optional)
+
+=over
+
+=item * C<name>
+
+Set the name (title or caption) for the axis. The name is displayed below the X axis. This property is optional. The default is to have no axis name.
+
+    $chart->set_x_axis( name => 'Sample length (m)' );
+
+=item * C<name_formula>
+
+Optional, can be used to link the name to a worksheet cell. See L</Chart names and links>.
+
+    $chart->set_x_axis(
+        name          => 'Sample length (m)',
+        name_formula  => '=Sheet1!$A$1',
+    );
+
+=back
+
+Additional axis properties such as range, divisions and ticks will be made available in later releases. See the L</TODO> section.
+
 
 =head2 set_y_axis()
 
-TODO.
+The C<set_y_axis()> method is used to set properties of the Y axis.
+
+    $chart->set_y_axis( name => 'Sample weight (kg)' );
+
+The properties that can be set are:
+
+    name          (optional)
+    name_formula  (optional)
+
+=over
+
+=item * C<name>
+
+Set the name (title or caption) for the axis. The name is displayed to the left of the Y axis. This property is optional. The default is to have no axis name.
+
+    $chart->set_y_axis( name => 'Sample weight (kg)' );
+
+=item * C<name_formula>
+
+Optional, can be used to link the name to a worksheet cell. See L</Chart names and links>.
+
+    $chart->set_y_axis(
+        name          => 'Sample weight (kg)',
+        name_formula  => '=Sheet1!$B$1',
+    );
+
+=back
+
+Additional axis properties such as range, divisions and ticks will be made available in later releases. See the L</TODO> section.
 
 =head2 set_title()
 
-TODO.
+The C<set_title()> method is used to set properties of the chart title.
+
+    $chart->set_title( name => 'Year End Results' );
+
+The properties that can be set are:
+
+    name          (optional)
+    name_formula  (optional)
+
+=over
+
+=item * C<name>
+
+Set the name (title) for the chart. The name is displayed above the chart. This property is optional. The default is to have no chart title.
+
+    $chart->set_title( name => 'Year End Results' );
+
+=item * C<name_formula>
+
+Optional, can be used to link the name to a worksheet cell. See L</Chart names and links>.
+
+    $chart->set_title(
+        name          => 'Year End Results',
+        name_formula  => '=Sheet1!$C$1',
+    );
+
+=back
+
+
+
+=head1 Chart names and links
+
+The C<add_series())>, C<set_x_axis()>, C<set_y_axis()> and C<set_title()> methods all support a C<name> property. In general these names can be either a static string or a link to a worksheet cell. If you choose to use the C<name_formula> property to specify a link then you should also the C<name> property. This isn't strictly required by Excel but some third party applications expect it to be present.
+
+    $chart->set_title(
+        name          => 'Year End Results',
+        name_formula  => '=Sheet1!$C$1',
+    );
+
+These links should be used sparingly since they aren't commonly used in Excel charts.
+
+
+=head1 Chart names and Unicode
+
+The C<add_series())>, C<set_x_axis()>, C<set_y_axis()> and C<set_title()> methods all support a C<name> property. These names can be UTF8 strings if you are using perl 5.8+.
+
+
+    # perl 5.8+ example:
+    my $smiley = "\x{263A}";
+
+    $chart->set_title( name => "Best. Results. Ever! $smiley" );
+
+For older perls you write Unicode strings as UTF-16BE by adding a C<name_encoding> property:
+
+    # perl 5.005 example:
+    my $utf16be_name = pack 'n', 0x263A;
+
+    $chart->set_title(
+        name          => $utf16be_name,
+        name_encoding => 1,
+    );
+
+This methodology is explained in the "UNICODE IN EXCEL" section of L<Spreadsheet::WriteExcel> but is semi-deprecated. If you are using Unicode the easiest option is to just use UTF8 in perl 5.8+.
+
 
 =head1 TODO
 
-TODO. List features and chart types that will be implemented in time.
+Charts in Spreadsheet::WriteExcel are a work in progress. More chart types and features will be added in time. Please be patient. Even a small feature can take a week or more to implement, test and document.
+
+Features that are on the TODO list and will be added are:
+
+=over
+
+=item * Embedded charts in worksheets. This has the highest priority and will be added first.
+
+=item * Additional chart types. Stock, Pie and Scatter charts are next in line. Send an email if you are interested in other types and they will be added to the queue.
+
+=item * Colours and formatting options. For now you will have to make do with the default Excel colours and formats.
+
+=item * Axis controls, gridlines.
+
+=item * Embedded data in charts for third party application support.
+
+=back
+
+If you are interested in sponsoring a feature let me know.
+
+=head1 KNOWN ISSUES
+
+=over
+
+=item * Currently charts don't contain embedded data from which the charts can be rendered. Excel and most other third party applications ignore this and read the data via the links that have been specified. However, some applications may complain or not render charts correctly. The preview option in Mac OS X is an known example. This will be fixed in a later release.
+
+=back
+
 
 =head1 AUTHOR
 
