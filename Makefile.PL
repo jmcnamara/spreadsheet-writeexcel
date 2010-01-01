@@ -31,7 +31,7 @@ my %params = (
     'PREREQ_PM'     => \%deps,
 );
 
-if ( $ExtUtils::MakeMaker::VERSION >= 6.46 ) {
+if ( $ExtUtils::MakeMaker::VERSION ge '6.46' ) {
     $params{META_MERGE} = { resources => \%resources };
 }
 
