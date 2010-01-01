@@ -6,7 +6,7 @@ package Spreadsheet::WriteExcel::Chart;
 #
 # Used in conjunction with Spreadsheet::WriteExcel.
 #
-# Copyright 2000-2009, John McNamara, jmcnamara@cpan.org
+# Copyright 2000-2010, John McNamara, jmcnamara@cpan.org
 #
 # Documentation after __END__
 #
@@ -2086,7 +2086,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-Copyright MM-MMIX, John McNamara.
+Copyright MM-MMX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 
