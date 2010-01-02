@@ -311,7 +311,7 @@ This method is use to include externally generated charts in a Spreadsheet::Writ
 
     my $chart = $workbook->add_chart_ext('chart01.bin', 'Chart1');
 
-This feature is new and would be best described as experimental. Read C<charts.txt> in the charts directory of the distro for a full explanation.
+This feature is semi-deprecated in favour of the "native" charts created using C<add_chart()>. Read C<external_charts.txt> (or C<.pod>) in the external_charts directory of the distro for a full explanation.
 
 
 
@@ -1636,7 +1636,7 @@ BMP images must be 24 bit, true colour, bitmaps. In general it is best to avoid 
 
 =head2 embed_chart($row, $col, $filename, $x, $y, $scale_x, $scale_y)
 
-This method can be used to insert a chart into a worksheet. The chart must first be extracted from an existing Excel file. See the separate C<Charts> documentation.
+This method can be used to insert a chart into a worksheet. The chart must first be extracted from an existing Excel file. See the separate C<External_Charts> documentation.
 
 Here is an example:
 
@@ -1655,7 +1655,7 @@ The parameters C<$scale_x> and C<$scale_y> can be used to scale the inserted ima
 
 The easiest way to calculate the required scaling is to create a test chart worksheet with Spreadsheet::WriteExcel. Then open the file, select the chart and drag the corner to get the required size. While holding down the mouse the scale of the resized chart is shown to the left of the formula bar.
 
-See also the example programs in the C<charts> directory of the distro.
+See also the example programs in the C<external_charts> directory of the distro.
 
 Note: you must call C<set_row()> or C<set_column()> before C<embed_chart()> if you wish to change the default dimensions of any of the rows or columns that the chart occupies. The height of a row can also change if you use a font that is larger than the default. This in turn will affect the scaling of your chart. To avoid this you should explicitly set the height of the row using C<set_row()> if it contains a font size that will change the row height.
 

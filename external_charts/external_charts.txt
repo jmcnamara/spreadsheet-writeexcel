@@ -7,9 +7,16 @@ DESCRIPTION
     This document explains how to import Excel charts into a
     'Spreadsheet::WriteExcel' file.
 
-    Please note that this feature is experimental. It may not work
-    in all cases and it is best to start with a simple Excel file
-    and gradually add complexity.
+    Note: This feature is semi-deprecated. The preferred method of adding
+    charts is to use the Workbook "add_chart()" method to create a "native"
+    chart. See the Spreadsheet::WriteExcel::Chart module for more
+    information. This older method of using external charts is still
+    supported for backwards compatibility and for certain chart types or
+    features that aren't supported by the native charts.
+
+    Also note that this feature was/is experimental. It may not work in all
+    cases and it is best to start with a simple Excel file and gradually add
+    complexity.
 
 METHODOLOGY
     The general methodology is to create a chart in Excel, extract
@@ -86,7 +93,7 @@ EXAMPLE
 
     Steps 1-6. Create a workbook with a chart based on data in the
     first worksheet. Otherwise use the 'Chart1.xls' file in the
-    'charts' directory of the distro as a template.
+    'external_charts' directory of the distro as a template.
 
     Step 7. Extract the chart data:
 
@@ -137,7 +144,7 @@ EXAMPLE
         $worksheet->write_col('B1', \@squares);
 
     See also the 'demo1.pl', 'demo2.pl' and 'demo3.pl' example
-    programs in the 'charts' directory of the distro.
+    programs in the 'external_charts' directory of the distro.
 
 LINKING CHARTS AND DATA
     Excel maintains links between charts and their data using
@@ -167,14 +174,11 @@ LINKING CHARTS AND DATA
 
             $worksheet->store_formula("=Sheet3!A1");
 
-    This method is a workaround and will hopefully be made more
-    transparent in a future release.
-
 SEE ALSO
     The Spreadsheet::WriteExcel documentation.
 
     The 'demo1.pl', 'demo2.pl' and 'demo3.pl' example programs in
-    the 'charts' directory of the distro.
+    the 'external_charts' directory of the distro.
 
 BUGS
     If you wish to submit a bug report run the 'bug_report.pl'

@@ -1908,7 +1908,7 @@ You can add more than one series to a chart. The series numbering and order in t
         name       => 'Test data series 1',
     );
 
-    # Add another series. Catogory is the same but values are different.
+    # Add another series. Category is the same but values are different.
     $chart->add_series(
         categories => '=Sheet1!$A$2:$A$7',
         values     => '=Sheet1!$C$2:$C$7',

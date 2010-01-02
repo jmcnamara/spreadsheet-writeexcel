@@ -6,7 +6,9 @@ Charts and Spreadsheet::WriteExcel - A short introduction on how to include exte
 
 This document explains how to import Excel charts into a C<Spreadsheet::WriteExcel> file.
 
-Please note that this feature is experimental. It may not work in all cases and it is best to start with a simple Excel file and gradually add complexity.
+B<Note>: This feature is semi-deprecated. The preferred method of adding charts is to use the Workbook C<add_chart()> method to create a "native" chart. See the L<Spreadsheet::WriteExcel::Chart> module for more information. This older method of using external charts is still supported for backwards compatibility and for certain chart types or features that aren't supported by the native charts.
+
+Also note that this feature was/is experimental. It may not work in all cases and it is best to start with a simple Excel file and gradually add complexity.
 
 
 =head1 METHODOLOGY
@@ -92,7 +94,7 @@ This following is a short example which uses line chart to display some X-Y data
 
 This can be viewed in terms of the steps outlined above:
 
-Steps 1-6. Create a workbook with a chart based on data in the first worksheet. Otherwise use the C<Chart1.xls> file in the C<charts> directory of the distro as a template.
+Steps 1-6. Create a workbook with a chart based on data in the first worksheet. Otherwise use the C<Chart1.xls> file in the C<external_charts> directory of the distro as a template.
 
 Step 7. Extract the chart data:
 
@@ -141,7 +143,7 @@ Step 12. Add new data to the data ranges defined in the chart.
     $worksheet->write_col('A1', \@nums   );
     $worksheet->write_col('B1', \@squares);
 
-See also the C<demo1.pl>, C<demo2.pl> and C<demo3.pl> example programs in the C<charts> directory of the distro.
+See also the C<demo1.pl>, C<demo2.pl> and C<demo3.pl> example programs in the C<external_charts> directory of the distro.
 
 
 =head1 LINKING CHARTS AND DATA
@@ -166,14 +168,12 @@ When you run the C<chartex> program it will suggest the required links:
 
         $worksheet->store_formula("=Sheet3!A1");
 
-This method is a workaround and will hopefully be made more transparent in a future release.
-
 
 =head1 SEE ALSO
 
-The Spreadsheet::WriteExcel documentation.
+The L<Spreadsheet::WriteExcel> L<Spreadsheet::WriteExcel::Chart> documentation.
 
-The C<demo1.pl>, C<demo2.pl> and C<demo3.pl> example programs in the C<charts> directory of the distro.
+The C<demo1.pl>, C<demo2.pl> and C<demo3.pl> example programs in the C<external_charts> directory of the distro.
 
 
 =head1 BUGS
@@ -188,7 +188,7 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MMV, John McNamara.
+© MMV-MMX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
 

@@ -96,11 +96,16 @@ External - A writer class for Excel external charts.
 
 =head1 SYNOPSIS
 
-See the documentation for Spreadsheet::WriteExcel::Chart
+This module is used to include external charts in Spreadsheet::WriteExcel.
 
 =head1 DESCRIPTION
 
-This module is used in conjunction with Spreadsheet::WriteExcel.
+This module is used to include external charts in L<Spreadsheet::WriteExcel>. It is an internal module and isn't used directly by the end user.
+
+It is semi-deprecated in favour of using "native" charts. See L<Spreadsheet::WriteExcel::Chart>.
+
+For information on how to used external charts see the C<external_charts.txt>  (or C<.pod>) in the C<external_charts> directory of the distro.
+
 
 =head1 AUTHOR
 
