@@ -78,12 +78,13 @@ sub _store_chart_type {
 #
 # _set_embedded_config_data()
 #
-# Setup the default configuration data for an embedded chart.
+# Override some of the default configuration data for an embedded chart.
 #
 sub _set_embedded_config_data {
 
     my $self = shift;
 
+    # Set the parent configuration first.
     $self->SUPER::_set_embedded_config_data();
 
     # The axis positions are reversed for a bar chart so we change the config.

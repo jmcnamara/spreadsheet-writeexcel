@@ -257,6 +257,8 @@ sub _close {
     # from unwanted Worksheet method calls.
     $self->{_data} = '';
 
+    # TODO. Check for charts without a series?
+
     # Store the chart BOF.
     $self->_store_bof( 0x0020 );
 
