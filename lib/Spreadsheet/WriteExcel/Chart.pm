@@ -293,17 +293,10 @@ sub _close {
     # Start of Chart specific records.
 
     # Store the FBI font records.
-    #$self->_store_fbi( 5, 10, 0x38B8, 0x22A1, 0x0000 );    # Axis numbers.
-    #$self->_store_fbi( 6, 10, 0x38B8, 0x22A1, 0x0001 );    # Series names.
-    #$self->_store_fbi( 7, 12, 0x38B8, 0x22A1, 0x0000 );    # Title.
-    #$self->_store_fbi( 8, 10, 0x38B8, 0x22A1, 0x0001 );    # Axes.
-
-
-    $self->_store_fbi( 5, 10, 0x1DC4, 0x1284, 0x0000 );    # Axis numbers.
-    $self->_store_fbi( 6, 10, 0x1DC4, 0x1284, 0x0001 );    # Series names.
-    $self->_store_fbi( 7, 12, 0x1DC4, 0x1284, 0x0000 );    # Title.
-    $self->_store_fbi( 8, 10, 0x1DC4, 0x1284, 0x0001 );    # Axes.
-
+    $self->_store_fbi( @{ $self->{_config}->{_font_numbers} } );
+    $self->_store_fbi( @{ $self->{_config}->{_font_series} } );
+    $self->_store_fbi( @{ $self->{_config}->{_font_title} } );
+    $self->_store_fbi( @{ $self->{_config}->{_font_axes} } );
 
     # Ignore UNITS record.
 
@@ -1798,11 +1791,15 @@ sub _set_default_config_data {
 
     my $self = shift;
 
-    #<<< Perltidy ignore this. Formatted by hand.
+    #<<< Perltidy ignore this.
     $self->{_config} = {
         _axisparent      => [ 0, 0x00F8, 0x01F5, 0x0E7F, 0x0B36              ],
         _axisparent_pos  => [ 2, 2, 0x008C, 0x01AA, 0x0EEA, 0x0C52           ],
         _chart           => [ 0x0000, 0x0000, 0x02DD51E0, 0x01C2B838         ],
+        _font_numbers    => [ 5, 10, 0x38B8, 0x22A1, 0x0000                  ],
+        _font_series     => [ 6, 10, 0x38B8, 0x22A1, 0x0001                  ],
+        _font_title      => [ 7, 12, 0x38B8, 0x22A1, 0x0000                  ],
+        _font_axes       => [ 8, 10, 0x38B8, 0x22A1, 0x0001                  ],
         _legend          => [ 0x05F9, 0x0EE9, 0x047D, 0x9C, 0x00, 0x01, 0x0F ],
         _legend_pos      => [ 5, 2, 0x05F9, 0x0EE9, 0, 0                     ],
         _legend_text     => [ 0xFFFFFF46, 0xFFFFFF06, 0, 0, 0x00B1, 0x0000   ],
@@ -1833,11 +1830,15 @@ sub _set_embedded_config_data {
 
     $self->{_embedded} = 1;
 
-    #<<< Perltidy ignore this. Formatted by hand.
+    #<<< Perltidy ignore this.
     $self->{_config} = {
         _axisparent      => [ 0, 0x01D8, 0x031D, 0x0D79, 0x07E9              ],
         _axisparent_pos  => [ 2, 2, 0x010C, 0x0292, 0x0E46, 0x09FD           ],
         _chart           => [ 0x0000, 0x0000, 0x01847FE8, 0x00F47FE8         ],
+        _font_numbers    => [ 5, 10, 0x1DC4, 0x1284, 0x0000                  ],
+        _font_series     => [ 6, 10, 0x1DC4, 0x1284, 0x0001                  ],
+        _font_title      => [ 7, 12, 0x1DC4, 0x1284, 0x0000                  ],
+        _font_axes       => [ 8, 10, 0x1DC4, 0x1284, 0x0001                  ],
         _legend          => [ 0x044E, 0x0E4A, 0x088D, 0x0123, 0x0, 0x1, 0xF  ],
         _legend_pos      => [ 5, 2, 0x044E, 0x0E4A, 0, 0                     ],
         _legend_text     => [ 0xFFFFFFD9, 0xFFFFFFC1, 0, 0, 0x00B1, 0x0000   ],

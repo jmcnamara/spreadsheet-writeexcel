@@ -74,6 +74,26 @@ sub _store_chart_type {
     $self->_append( $header, $data );
 }
 
+###############################################################################
+#
+# _set_embedded_config_data()
+#
+# Setup the default configuration data for an embedded chart.
+#
+sub _set_embedded_config_data {
+
+    my $self = shift;
+
+    $self->SUPER::_set_embedded_config_data();
+
+    # The axis positions are reversed for a bar chart so we change the config.
+    my $c = $self->{_config};
+    $c->{_x_axis_text}     = [ 0x57,   0x5BC,  0xB5,   0x214, 0x281, 0x0, 90 ];
+    $c->{_x_axis_text_pos} = [ 2,      2,      0,      0,     0x17,  0x2A ];
+    $c->{_y_axis_text}     = [ 0x074A, 0x0C8F, 0x021F, 0x123, 0x81,  0x0000 ];
+    $c->{_y_axis_text_pos} = [ 2,      2,      0,      0,     0x45,  0x17 ];
+
+}
 
 1;
 
