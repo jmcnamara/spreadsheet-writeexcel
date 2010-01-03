@@ -168,19 +168,19 @@ examples/write_handler3.pl
 examples/write_handler4.pl
 examples/write_to_scalar.pl
 
-charts/README
-charts/chartex.pl
-charts/charts.pod
-charts/charts.txt
-charts/demo1.pl
-charts/demo2.pl
-charts/demo3.pl
-charts/demo4.pl
-charts/demo5.pl
-charts/Chart1.xls
-charts/Chart2.xls
-charts/Chart3.xls
-charts/Chart4.xls
-charts/Chart5.xls
+external_charts/README
+external_charts/chartex.pl
+external_charts/external_charts.pod
+external_charts/external_charts.txt
+external_charts/demo1.pl
+external_charts/demo2.pl
+external_charts/demo3.pl
+external_charts/demo4.pl
+external_charts/demo5.pl
+external_charts/Chart1.xls
+external_charts/Chart2.xls
+external_charts/Chart3.xls
+external_charts/Chart4.xls
+external_charts/Chart5.xls
 
 bin/chartex

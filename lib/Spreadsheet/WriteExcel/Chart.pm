@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Worksheet;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Worksheet);
 
-$VERSION = '2.32';
+$VERSION = '2.33';
 
 ###############################################################################
 #

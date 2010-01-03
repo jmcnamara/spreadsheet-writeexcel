@@ -1,5 +1,10 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.33 January 3 2010 - Major
+
+    + Added support for embedded charts. See insert_chart().
+
+
 2.32 December 31 2009 - Major
 
     + Added support for native charts. See Charts.pm.
