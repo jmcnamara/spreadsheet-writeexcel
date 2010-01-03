@@ -49,7 +49,10 @@ sub new {
     $self->{_xf_index}              = 0;
     $self->{_fileclosed}            = 0;
     $self->{_biffsize}              = 0;
-    $self->{_sheetname}             = "Sheet";
+    $self->{_sheet_name}             = 'Sheet';
+    $self->{_chart_name}             = 'Chart';
+    $self->{_sheet_count}           = 0;
+    $self->{_chart_count}           = 0;
     $self->{_url_format}            = '';
     $self->{_codepage}              = 0x04E4;
     $self->{_country}               = 1;
@@ -172,7 +175,7 @@ sub new {
 # for example due to write permissions, store the data in memory. This can be
 # slow for large files.
 #
-# TODO: Move this and other methods shared with Worksheet up into BIFFWriter.
+# TODO: Move this and other methods shared with Worksheet up into BIFFwriter.
 #
 sub _initialize {
 
@@ -476,14 +479,20 @@ sub add_chart {
     my $encoding = 0;
     my $index    = @{ $self->{_worksheets} };
 
-    $arg{embedded} ||= 0;
-
-    if ( !$arg{embedded} ) {
-        ( $name, $encoding ) =
-          $self->_check_sheetname( $arg{name}, $arg{name_encoding}, );
+    # Type must be specified so we can create the required chart instance.
+    my $type = $arg{type};
+    if ( !defined $type ) {
+        croak "Must define chart type in add_chart()";
     }
 
-    my $type = $arg{type}; # TODO. Add checks
+    # Ensure that the chart defaults to non embedded.
+    my $embedded = $arg{embedded} ||= 0;
+
+    # Check the worksheet name for non-embedded charts.
+    if ( !$embedded ) {
+        ( $name, $encoding ) =
+          $self->_check_sheetname( $arg{name}, $arg{name_encoding}, 1 );
+    }
 
     my @init_data = (
                          $name,
@@ -503,12 +512,13 @@ sub add_chart {
 
     my $chart = Spreadsheet::WriteExcel::Chart->factory( $type, @init_data );
 
-    if ( $arg{embedded} ) {
-        $chart->_set_embedded_config_data();
-    }
-    else {
+    # If the chart isn't embedded let the workbook control it.
+    if ( !$embedded ) {
         $self->{_worksheets}->[$index] = $chart;    # Store ref for iterator
         $self->{_sheetnames}->[$index] = $name;     # Store EXTERNSHEET names
+    }
+    else {
+        $chart->_set_embedded_config_data();
     }
 
     return $chart;
@@ -561,16 +571,28 @@ sub _check_sheetname {
     my $self            = shift;
     my $name            = $_[0] || "";
     my $encoding        = $_[1] || 0;
+    my $chart           = $_[2] || 0;
     my $limit           = $encoding ? 62 : 31;
     my $invalid_char    = qr([\[\]:*?/\\]);
 
-    # Supply default "Sheet" name if none has been defined.
-    my $index     = @{$self->{_worksheets}};
-    my $sheetname = $self->{_sheetname};
+    # Increment the Sheet/Chart number used for default sheet names below.
+    if ( $chart ) {
+        $self->{_chart_count}++;
+    }
+    else {
+        $self->{_sheet_count}++;
+    }
 
-    if ($name eq "" ) {
-        $name     = $sheetname . ($index+1);
+    # Supply default Sheet/Chart name if none has been defined.
+    if ( $name eq "" ) {
         $encoding = 0;
+
+        if ( $chart ) {
+            $name = $self->{_chart_name} . $self->{_chart_count};
+        }
+        else {
+            $name = $self->{_sheet_name} . $self->{_sheet_count};
+        }
     }
 
 
@@ -2374,7 +2396,7 @@ sub _store_externsheet {
 #
 #
 # Store the NAME record used for storing the print area, repeat rows, repeat
-# columns, autofilters and defned names.
+# columns, autofilters and defined names.
 #
 # TODO. This is a more generic version that will replace _store_name_short()
 #       and _store_name_long().
@@ -2406,7 +2428,7 @@ sub _store_name {
     my $help_length     = 0x00;         # Length of help topic text
     my $status_length   = 0x00;         # Length of status bar text
 
-    # Set grbit builtin flag and the hidden flag for autofilters.
+    # Set grbit built-in flag and the hidden flag for autofilters.
     if ($text_length == 1) {
         $grbit = 0x0020 if ord $name == 0x06; # Print area
         $grbit = 0x0020 if ord $name == 0x07; # Print titles

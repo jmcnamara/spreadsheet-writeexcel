@@ -84,7 +84,7 @@ To create a simple Excel file with a Area chart using Spreadsheet::WriteExcel:
     my $workbook  = Spreadsheet::WriteExcel->new( 'chart.xls' );
     my $worksheet = $workbook->add_worksheet();
 
-    my $chart     = $workbook->add_chart( name => 'Chart1', type => 'area' );
+    my $chart     = $workbook->add_chart( type => 'area' );
 
     # Configure the chart.
     $chart->add_series(
@@ -106,7 +106,7 @@ To create a simple Excel file with a Area chart using Spreadsheet::WriteExcel:
 
 This module implements Area charts for L<Spreadsheet::WriteExcel>. The chart object is created via the Workbook C<add_chart()> method:
 
-    my $chart = $workbook->add_chart( name => 'Chart1', type => 'area' );
+    my $chart = $workbook->add_chart( type => 'area' );
 
 Once the object is created it can be configured via the following methods that are common to all chart classes:
 

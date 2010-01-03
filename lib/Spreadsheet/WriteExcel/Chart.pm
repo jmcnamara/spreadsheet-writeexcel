@@ -1880,7 +1880,7 @@ To create a simple Excel file with a chart using Spreadsheet::WriteExcel:
     my $workbook  = Spreadsheet::WriteExcel->new( 'chart.xls' );
     my $worksheet = $workbook->add_worksheet();
 
-    my $chart     = $workbook->add_chart( name => 'Chart1', type => 'column' );
+    my $chart     = $workbook->add_chart( type => 'column' );
 
     # Configure the chart.
     $chart->add_series(
@@ -1905,7 +1905,7 @@ The C<Chart> module is an abstract base class for modules that implement charts 
 
 The C<Chart> module isn't used directly, a chart object is created via the Workbook C<add_chart()> method where the chart type is specified:
 
-    my $chart = $workbook->add_chart( name => 'Chart1', type => 'column' );
+    my $chart = $workbook->add_chart( type => 'column' );
 
 Currently the supported chart types are:
 
@@ -2145,8 +2145,6 @@ Features that are on the TODO list and will be added are:
 
 =over
 
-=item * Embedded charts in worksheets. This has the highest priority and will be added first.
-
 =item * Additional chart types. Stock, Pie and Scatter charts are next in line. Send an email if you are interested in other types and they will be added to the queue.
 
 =item * Colours and formatting options. For now you will have to make do with the default Excel colours and formats.
@@ -2164,6 +2162,8 @@ If you are interested in sponsoring a feature let me know.
 =over
 
 =item * Currently charts don't contain embedded data from which the charts can be rendered. Excel and most other third party applications ignore this and read the data via the links that have been specified. However, some applications may complain or not render charts correctly. The preview option in Mac OS X is an known example. This will be fixed in a later release.
+
+=item * When there are several charts with titles set in a workbook some of the titles may display at a font size of 10 instead of the default 12 until another chart with the title set is viewed.
 
 =back
 

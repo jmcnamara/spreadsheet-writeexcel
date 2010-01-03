@@ -4854,6 +4854,11 @@ sub insert_chart {
         # Check for a Chart object.
         croak "Not a Chart object in insert_chart()"
           unless $chart->isa( 'Spreadsheet::WriteExcel::Chart' );
+
+        # Check that the chart is an embedded style chart.
+        croak "Not a embedded style Chart object in insert_chart()"
+          unless $chart->{_embedded};
+
     }
     else {
 

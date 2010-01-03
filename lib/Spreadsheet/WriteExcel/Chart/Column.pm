@@ -89,7 +89,7 @@ To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
     my $workbook  = Spreadsheet::WriteExcel->new( 'chart.xls' );
     my $worksheet = $workbook->add_worksheet();
 
-    my $chart     = $workbook->add_chart( name => 'Chart1', type => 'column' );
+    my $chart     = $workbook->add_chart( type => 'column' );
 
     # Configure the chart.
     $chart->add_series(
@@ -111,7 +111,7 @@ To create a simple Excel file with a Column chart using Spreadsheet::WriteExcel:
 
 This module implements Column charts for L<Spreadsheet::WriteExcel>. The chart object is created via the Workbook C<add_chart()> method:
 
-    my $chart = $workbook->add_chart( name => 'Chart1', type => 'column' );
+    my $chart = $workbook->add_chart( type => 'column' );
 
 Once the object is created it can be configured via the following methods that are common to all chart classes:
 
