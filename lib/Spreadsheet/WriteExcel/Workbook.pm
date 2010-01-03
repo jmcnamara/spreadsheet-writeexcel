@@ -465,19 +465,24 @@ sub add_worksheet {
 #
 # add_chart(%args)
 #
-# Add a chart sheet.
+# Create a chart for embedding or as as new sheet.
 #
 #
 sub add_chart {
 
-    my $self  = shift;
-    my %arg   = @_;
-    my $index = @{ $self->{_worksheets} };
+    my $self     = shift;
+    my %arg      = @_;
+    my $name     = '';
+    my $encoding = 0;
+    my $index    = @{ $self->{_worksheets} };
 
-    my ( $name, $encoding ) = $self->_check_sheetname(
-                                                      $arg{name},
-                                                      $arg{name_encoding},
-                                                     );
+    $arg{embedded} ||= 0;
+
+    if ( !$arg{embedded} ) {
+        ( $name, $encoding ) =
+          $self->_check_sheetname( $arg{name}, $arg{name_encoding}, );
+    }
+
     my $type = $arg{type}; # TODO. Add checks
 
     my @init_data = (
@@ -496,9 +501,15 @@ sub add_chart {
                          $self->{_compatibility},
                     );
 
-    my $chart = Spreadsheet::WriteExcel::Chart->factory($type, @init_data);
-    $self->{_worksheets}->[$index] = $chart;         # Store ref for iterator
-    $self->{_sheetnames}->[$index] = $name;          # Store EXTERNSHEET names
+    my $chart = Spreadsheet::WriteExcel::Chart->factory( $type, @init_data );
+
+    if ( $arg{embedded} ) {
+        $chart->_set_embedded_config_data();
+    }
+    else {
+        $self->{_worksheets}->[$index] = $chart;    # Store ref for iterator
+        $self->{_sheetnames}->[$index] = $name;     # Store EXTERNSHEET names
+    }
 
     return $chart;
 }
@@ -1821,7 +1832,6 @@ sub _store_all_fonts {
     $tmp_format = Spreadsheet::WriteExcel::Format->new(
         undef,
         font_only => 1,
-        bold      => 1,
     );
     $self->_append( $tmp_format->get_font() );
 

@@ -618,7 +618,7 @@ The following methods are available through a new worksheet:
     show_comments()
     add_write_handler()
     insert_image()
-    embed_chart()
+    insert_chart()
     data_validation()
     get_name()
     activate()
@@ -1634,30 +1634,32 @@ BMP images must be 24 bit, true colour, bitmaps. In general it is best to avoid 
 
 
 
-=head2 embed_chart($row, $col, $filename, $x, $y, $scale_x, $scale_y)
+=head2 insert_chart($row, $col, $chart, $x, $y, $scale_x, $scale_y)
 
 This method can be used to insert a chart into a worksheet. The chart must first be extracted from an existing Excel file. See the separate C<External_Charts> documentation.
 
 Here is an example:
 
-    $worksheet->embed_chart('B2', 'sales_chart.bin');
+    $worksheet->insert_chart('B2', 'sales_chart.bin');
 
 The C<$x>, C<$y>, C<$scale_x> and C<$scale_y> parameters are optional.
 
 The parameters C<$x> and C<$y> can be used to specify an offset from the top left hand corner of the cell specified by C<$row> and C<$col>. The offset values are in pixels. See the C<insert_image> method above for more information on sizes.
 
-    $worksheet1->embed_chart('B2', 'sales_chart.bin', 3, 3);
+    $worksheet1->insert_chart('B2', 'sales_chart.bin', 3, 3);
 
 The parameters C<$scale_x> and C<$scale_y> can be used to scale the inserted image horizontally and vertically:
 
     # Scale the width by 120% and the height by 150%
-    $worksheet->embed_chart('B2', 'sales_chart.bin', 0, 0, 1.2, 1.5);
+    $worksheet->insert_chart('B2', 'sales_chart.bin', 0, 0, 1.2, 1.5);
 
 The easiest way to calculate the required scaling is to create a test chart worksheet with Spreadsheet::WriteExcel. Then open the file, select the chart and drag the corner to get the required size. While holding down the mouse the scale of the resized chart is shown to the left of the formula bar.
 
 See also the example programs in the C<external_charts> directory of the distro.
 
-Note: you must call C<set_row()> or C<set_column()> before C<embed_chart()> if you wish to change the default dimensions of any of the rows or columns that the chart occupies. The height of a row can also change if you use a font that is larger than the default. This in turn will affect the scaling of your chart. To avoid this you should explicitly set the height of the row using C<set_row()> if it contains a font size that will change the row height.
+Note: you must call C<set_row()> or C<set_column()> before C<insert_chart()> if you wish to change the default dimensions of any of the rows or columns that the chart occupies. The height of a row can also change if you use a font that is larger than the default. This in turn will affect the scaling of your chart. To avoid this you should explicitly set the height of the row using C<set_row()> if it contains a font size that will change the row height.
+
+TODO: note about embed_chart()
 
 
 

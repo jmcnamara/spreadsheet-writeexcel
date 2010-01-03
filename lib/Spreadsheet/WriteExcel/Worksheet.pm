@@ -400,6 +400,10 @@ sub _compatibility_mode {
 #
 # Retrieve the worksheet name.
 #
+# Note, there is no set_name() method because names are used in formulas and
+# converted to internal indices. Allowing the user to change sheet names
+# after they have been set in add_worksheet() is asking for trouble.
+#
 sub get_name {
 
     my $self    = shift;
@@ -569,7 +573,7 @@ sub set_column {
     # hidden columns into account. Also store the column formats.
     #
     my $width  = $data[4] ? 0 : $data[2]; # Set width to zero if col is hidden
-       $width  ||= 0;                 # Ensure width isn't undef.
+       $width  ||= 0;                     # Ensure width isn't undef.
     my $format = $data[3];
 
     my ($firstcol, $lastcol) = @data;
@@ -812,7 +816,7 @@ sub center_horizontally {
 #
 # center_vertically()
 #
-# Center the page horinzontally.
+# Center the page horizontally.
 #
 sub center_vertically {
 
@@ -4698,7 +4702,7 @@ sub _store_table {
         my $col_min = $self->{_dim_colmin};
         my $col_max = $self->{_dim_colmax};
 
-        # Write a user specifed ROW record (modified by set_row()).
+        # Write a user specified ROW record (modified by set_row()).
         if ($self->{_row_data}->{$row}) {
             # Rewrite the min and max cols for user defined row record.
             my $packed_row = $self->{_row_data}->{$row};
@@ -4821,11 +4825,13 @@ sub _store_index {
 
 ###############################################################################
 #
-# embed_chart($row, $col, $filename, $x, $y, $scale_x, $scale_y)
+# insert_chart($row, $col, $chart, $x, $y, $scale_x, $scale_y)
 #
-# Embed an extracted chart in a worksheet.
+# Insert a chart into a worksheet. The $chart argument should be a Chart
+# object or else it is assumed to be a filename of an external binary file.
+# The latter is for backwards compatibility.
 #
-sub embed_chart {
+sub insert_chart {
 
     my $self        = shift;
 
@@ -4842,8 +4848,18 @@ sub embed_chart {
     my $scale_x     = $_[5] || 1;
     my $scale_y     = $_[6] || 1;
 
-    croak "Insufficient arguments in embed_chart()" unless @_ >= 3;
-    croak "Couldn't locate $chart: $!"              unless -e $chart;
+    croak "Insufficient arguments in insert_chart()" unless @_ >= 3;
+
+    if ( ref $chart ) {
+        # Check for a Chart object.
+        croak "Not a Chart object in insert_chart()"
+          unless $chart->isa( 'Spreadsheet::WriteExcel::Chart' );
+    }
+    else {
+
+        # Assume an external bin filename.
+        croak "Couldn't locate $chart in insert_chart(): $!" unless -e $chart;
+    }
 
     $self->{_charts}->{$row}->{$col} =  [
                                            $row,
@@ -4857,6 +4873,8 @@ sub embed_chart {
 
 }
 
+# Older method name for backwards compatibility.
+*embed_chart = *insert_chart;
 
 ###############################################################################
 #
@@ -5765,7 +5783,7 @@ sub _store_charts {
     for my $i (0 .. $num_charts-1 ) {
         my $row         =   $charts[$i]->[0];
         my $col         =   $charts[$i]->[1];
-        my $name        =   $charts[$i]->[2];
+        my $chart        =   $charts[$i]->[2];
         my $x_offset    =   $charts[$i]->[3];
         my $y_offset    =   $charts[$i]->[4];
         my $scale_x     =   $charts[$i]->[5];
@@ -5831,7 +5849,7 @@ sub _store_charts {
         }
 
         $self->_store_obj_chart($num_objects+$i+1);
-        $self->_store_chart_binary($name);
+        $self->_store_chart_binary($chart);
     }
 
 
@@ -5851,21 +5869,31 @@ sub _store_charts {
 #
 # _store_chart_binary
 #
-# Add a binary chart object extracted from an Excel file.
+# Add the binary data for a chart. This could either be from a Chart object
+# or from an external binary file (for backwards compatibility).
 #
 sub _store_chart_binary {
 
-    my $self     = shift;
-    my $filename = $_[0];
+    my $self  = shift;
+    my $chart = $_[0];
     my $tmp;
 
-    my $filehandle = FileHandle->new($filename) or
-                     die "Couldn't open $filename in add_chart_ext(): $!.\n";
 
-    binmode($filehandle);
+    if ( ref $chart ) {
+        $chart->_close();
+        my $tmp = $chart->get_data();
+        $self->_append( $tmp );
+    }
+    else {
 
-    while (read($filehandle, $tmp, 4096)) {
-        $self->_append($tmp);
+        my $filehandle = FileHandle->new( $chart )
+          or die "Couldn't open $chart in insert_chart(): $!.\n";
+
+        binmode( $filehandle );
+
+        while ( read( $filehandle, $tmp, 4096 ) ) {
+            $self->_append( $tmp );
+        }
     }
 }
 
@@ -7125,7 +7153,7 @@ sub data_validation {
     $param->{value} = $param->{source}  if defined $param->{source};
     $param->{value} = $param->{minimum} if defined $param->{minimum};
 
-    # 'validate' is a required paramter.
+    # 'validate' is a required parameter.
     if (not exists $param->{validate}) {
         carp "Parameter 'validate' is required in data_validation()";
         return -3;
@@ -7160,7 +7188,7 @@ sub data_validation {
     }
 
 
-    # No action is requied for validation type 'any'.
+    # No action is required for validation type 'any'.
     # TODO: we should perhaps store 'any' for message only validations.
     return 0 if $param->{validate} == 0;
 
@@ -7210,7 +7238,7 @@ sub data_validation {
     }
 
 
-    # 'Between' and 'Not between' criterias require 2 values.
+    # 'Between' and 'Not between' criteria require 2 values.
     if ($param->{criteria} == 0 || $param->{criteria} == 1) {
         if (not exists $param->{maximum}) {
             carp "Parameter 'maximum' is required in data_validation() " .
@@ -7245,7 +7273,7 @@ sub data_validation {
     }
 
 
-    # Convert date/times value sif required.
+    # Convert date/times value if required.
     if ($param->{validate} == 4 || $param->{validate} == 5) {
         if ($param->{value} =~ /T/) {
             my $date_time = $self->convert_date_time($param->{value});
@@ -7517,7 +7545,7 @@ sub _pack_dv_string {
 # Pack the formula used in the DV record. This is the same as an cell formula
 # with some additional header information. Note, DV formulas in Excel use
 # relative addressing (R1C1 and ptgXxxN) however we use the Formula.pm's
-# default absoulute addressing (A1 and ptgXxx).
+# default absolute addressing (A1 and ptgXxx).
 #
 sub _pack_dv_formula {
 

@@ -38,7 +38,7 @@ $expected = join ' ', qw(
   60 10 0A 00 B8 38 A1 22 C8 00 00 00 05 00
 );
 
-$got = unpack_record( $chart->_store_fbi( 5, 10 ) );
+$got = unpack_record( $chart->_store_fbi( 5, 10, 0x38B8, 0x22A1, 0x0000 ) );
 
 is( $got, $expected, $caption );
 
@@ -50,7 +50,7 @@ $expected = join ' ', qw(
   60 10 0A 00 B8 38 A1 22 C8 00 00 00 06 00
 );
 
-$got = unpack_record( $chart->_store_fbi( 6, 10 ) );
+$got = unpack_record( $chart->_store_fbi( 6, 10, 0x38B8, 0x22A1, 0x0000 ) );
 
 is( $got, $expected, $caption );
 
@@ -66,7 +66,9 @@ $expected = join ' ', qw(
   38 B8 C2 01
 );
 
-$got = unpack_record( $chart->_store_chart() );
+@values = ( 0x0000, 0x0000, 0x02DD51E0, 0x01C2B838 );
+
+$got = unpack_record( $chart->_store_chart( @values ) );
 
 is( $got, $expected, $caption );
 
@@ -284,7 +286,9 @@ $expected = join ' ', qw(
   00 00 36 0B 00 00
 );
 
-$got = unpack_record( $chart->_store_axisparent( 0 ) );
+@values = ( 0, 0x00F8, 0x01F5, 0x0E7F, 0x0B36 );
+
+$got = unpack_record( $chart->_store_axisparent( @values ) );
 
 is( $got, $expected, $caption );
 
@@ -394,7 +398,9 @@ $expected = join ' ', qw(
   07 10 0C 00 00 00 00 00 00 00 FF FF 09 00 4D 00
 );
 
-$got = unpack_record( $chart->_store_lineformat() );
+@values = ( 0x00000000, 0x0000, 0xFFFF, 0x0009, 0x004D );
+
+$got = unpack_record( $chart->_store_lineformat( @values ) );
 
 is( $got, $expected, $caption );
 
@@ -409,7 +415,7 @@ $expected = join ' ', qw(
   32 10 04 00 00 00 03 00
 );
 
-$got = unpack_record( $chart->_store_frame() );
+$got = unpack_record( $chart->_store_frame( 0x00, 0x03) );
 
 is( $got, $expected, $caption );
 
@@ -425,7 +431,8 @@ $expected = join ' ', qw(
   16 00 4F 00
 );
 
-$got = unpack_record( $chart->_store_areaformat() );
+@values = ( 0x00C0C0C0, 0x00, 0x01, 0x00, 0x16, 0x4F );
+$got = unpack_record( $chart->_store_areaformat( @values ) );
 
 is( $got, $expected, $caption );
 
@@ -457,7 +464,9 @@ $expected = join ' ', qw(
   9C 00 00 00 00 01 0F 00
 );
 
-$got = unpack_record( $chart->_store_legend() );
+@values = ( 0x05F9, 0x0EE9, 0x047D, 0x009C, 0x00, 0x01, 0x000F );
+
+$got = unpack_record( $chart->_store_legend( @values ) );
 
 is( $got, $expected, $caption );
 

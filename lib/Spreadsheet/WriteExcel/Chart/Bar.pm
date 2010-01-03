@@ -35,6 +35,14 @@ sub new {
     my $self  = Spreadsheet::WriteExcel::Chart->new( @_ );
 
     bless $self, $class;
+
+    # The axis positions are reversed for a bar chart so we change the config.
+    my $c = $self->{_config};
+    $c->{_x_axis_text}     = [ 0x2D,   0x6D9,  0x5F,   0x1CC, 0x281,  0x0, 90 ];
+    $c->{_x_axis_text_pos} = [ 2,      2,      0,      0,     0x17,   0x2A ];
+    $c->{_y_axis_text}     = [ 0x078A, 0x0DFC, 0x011D, 0x9C,  0x0081, 0x0000 ];
+    $c->{_y_axis_text_pos} = [ 2,      2,      0,      0,     0x45,   0x17 ];
+
     return $self;
 }
 
@@ -64,69 +72,6 @@ sub _store_chart_type {
     $data .= pack 'v', $grbit;
 
     $self->_append( $header, $data );
-}
-
-
-###############################################################################
-#
-# _store_x_axis_text_stream()
-#
-# Write the X-axis TEXT substream. Override the parent class because the axes
-# are reversed.
-#
-sub _store_x_axis_text_stream {
-
-    my $self = shift;
-
-    my $formula = $self->{_x_axis_formula};
-    my $ai_type = $formula ? 2 : 1;
-
-    $self->_store_text( 0x002D, 0x06D9, 0x5F, 0x1CC, 0x0281, 0x00, 90 );
-
-    $self->_store_begin();
-    $self->_store_pos( 2, 2, 0, 0, 0x17, 0x2A );
-    $self->_store_fontx( 8 );
-    $self->_store_ai( 0, $ai_type, $formula );
-
-    if ( defined $self->{_x_axis_name} ) {
-        $self->_store_seriestext( $self->{_x_axis_name},
-            $self->{_x_axis_encoding},
-        );
-    }
-
-    $self->_store_objectlink( 3 );
-    $self->_store_end();
-}
-
-
-###############################################################################
-#
-# _store_y_axis_text_stream()
-#
-# Write the Y-axis TEXT substream. Override the parent class because the axes
-# are reversed.
-sub _store_y_axis_text_stream {
-
-    my $self = shift;
-
-    my $formula = $self->{_y_axis_formula};
-    my $ai_type = $formula ? 2 : 1;
-
-    $self->_store_text( 0x078A, 0x0DFC, 0x011D, 0x9C, 0x0081, 0x0000 );
-
-    $self->_store_begin();
-    $self->_store_pos( 2, 2, 0, 0, 0x45, 0x17 );
-    $self->_store_fontx( 8 );
-    $self->_store_ai( 0, $ai_type, $formula );
-
-    if ( defined $self->{_y_axis_name} ) {
-        $self->_store_seriestext( $self->{_y_axis_name},
-            $self->{_y_axis_encoding},
-        );
-    }
-
-    $self->_store_objectlink( 2 );
-    $self->_store_end();
 }
 
 

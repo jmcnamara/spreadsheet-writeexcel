@@ -92,8 +92,10 @@ sub new {
     $self->{_sheet_type}  = 0x0200;
     $self->{_orientation} = 0x0;
     $self->{_series}      = [];
+    $self->{_embedded}    = 0;
 
     bless $self, $class;
+    $self->_set_default_config_data();
     return $self;
 }
 
@@ -251,9 +253,6 @@ sub _close {
 
     my $self = shift;
 
-    # TODO
-    return undef if $self->{_external_bin};
-
     # Ignore any data that has been written so far since it is probably
     # from unwanted Worksheet method calls.
     $self->{_data} = '';
@@ -294,10 +293,17 @@ sub _close {
     # Start of Chart specific records.
 
     # Store the FBI font records.
-    $self->_store_fbi( 5, 10 );    # Axis numbers.
-    $self->_store_fbi( 6, 10 );    # Series names.
-    $self->_store_fbi( 7, 12 );    # Title.
-    $self->_store_fbi( 8, 10 );    # Axes.
+    #$self->_store_fbi( 5, 10, 0x38B8, 0x22A1, 0x0000 );    # Axis numbers.
+    #$self->_store_fbi( 6, 10, 0x38B8, 0x22A1, 0x0001 );    # Series names.
+    #$self->_store_fbi( 7, 12, 0x38B8, 0x22A1, 0x0000 );    # Title.
+    #$self->_store_fbi( 8, 10, 0x38B8, 0x22A1, 0x0001 );    # Axes.
+
+
+    $self->_store_fbi( 5, 10, 0x1DC4, 0x1284, 0x0000 );    # Axis numbers.
+    $self->_store_fbi( 6, 10, 0x1DC4, 0x1284, 0x0001 );    # Series names.
+    $self->_store_fbi( 7, 12, 0x1DC4, 0x1284, 0x0000 );    # Title.
+    $self->_store_fbi( 8, 10, 0x1DC4, 0x1284, 0x0001 );    # Axes.
+
 
     # Ignore UNITS record.
 
@@ -308,25 +314,9 @@ sub _close {
     $self->_store_dimensions();
 
     # TODO add SINDEX record
-    #$self->_store_tmp_records();
 
     #$self->_store_window2();
     $self->_store_eof();
-}
-
-
-#
-# TODO temp debug code
-#
-sub _store_tmp_records {
-
-    my $self = shift;
-
-    my $data = pack 'C*', (
-
-    );
-
-    $self->_append( $data );
 }
 
 
@@ -444,12 +434,17 @@ sub _store_chart_stream {
 
     my $self = shift;
 
-    $self->_store_chart();
+    $self->_store_chart( @{ $self->{_config}->{_chart} } );
 
     $self->_store_begin();
 
     # Ignore SCL record for now.
     $self->_store_plotgrowth();
+
+    if ( $self->{_embedded} ) {
+        $self->_store_embedded_frame_stream();
+    }
+
 
     # Store SERIES stream for each series.
     my $index = 0;
@@ -557,10 +552,10 @@ sub _store_series_text_stream {
 
     my $font_index = shift;
 
-    $self->_store_text( 0xFFFFFF46, 0xFFFFFF06, 0, 0, 0x00B1, 0x1020 );
+    $self->_store_text( @{ $self->{_config}->{_series_text} } );
 
     $self->_store_begin();
-    $self->_store_pos( 2, 2, 0, 0, 0, 0 );
+    $self->_store_pos( @{ $self->{_config}->{_series_text_pos} } );
     $self->_store_fontx( $font_index );
     $self->_store_ai( 0, 1, '' );
     $self->_store_end();
@@ -580,10 +575,10 @@ sub _store_x_axis_text_stream {
     my $formula = $self->{_x_axis_formula};
     my $ai_type = $formula ? 2 : 1;
 
-    $self->_store_text( 0x07E1, 0x0DFC, 0xB2, 0x9C, 0x0081, 0x0000 );
+    $self->_store_text( @{ $self->{_config}->{_x_axis_text} } );
 
     $self->_store_begin();
-    $self->_store_pos( 2, 2, 0, 0, 0x2B, 0x17 );
+    $self->_store_pos( @{ $self->{_config}->{_x_axis_text_pos} } );
     $self->_store_fontx( 8 );
     $self->_store_ai( 0, $ai_type, $formula );
 
@@ -611,10 +606,10 @@ sub _store_y_axis_text_stream {
     my $formula = $self->{_y_axis_formula};
     my $ai_type = $formula ? 2 : 1;
 
-    $self->_store_text( 0x002D, 0x06AA, 0x5F, 0x1CC, 0x0281, 0x00, 90 );
+    $self->_store_text( @{ $self->{_config}->{_y_axis_text} } );
 
     $self->_store_begin();
-    $self->_store_pos( 2, 2, 0, 0, 0x17, 0x44 );
+    $self->_store_pos( @{ $self->{_config}->{_y_axis_text_pos} } );
     $self->_store_fontx( 8 );
     $self->_store_ai( 0, $ai_type, $formula );
 
@@ -639,10 +634,10 @@ sub _store_legend_text_stream {
 
     my $self = shift;
 
-    $self->_store_text( 0xFFFFFF46, 0xFFFFFF06, 0, 0, 0x00B1, 0x0000 );
+    $self->_store_text( @{ $self->{_config}->{_legend_text} } );
 
     $self->_store_begin();
-    $self->_store_pos( 2, 2, 0, 0, 0x00, 0x00 );
+    $self->_store_pos( @{ $self->{_config}->{_legend_text_pos} } );
     $self->_store_ai( 0, 1, '' );
 
     $self->_store_end();
@@ -662,10 +657,10 @@ sub _store_title_text_stream {
     my $formula = $self->{_title_formula};
     my $ai_type = $formula ? 2 : 1;
 
-    $self->_store_text( 0x06E4, 0x0051, 0x01DB, 0x00C4, 0x0081, 0x1030 );
+    $self->_store_text( @{ $self->{_config}->{_title_text} } );
 
     $self->_store_begin();
-    $self->_store_pos( 2, 2, 0, 0, 0x73, 0x1D );
+    $self->_store_pos( @{ $self->{_config}->{_title_text_pos} } );
     $self->_store_fontx( 7 );
     $self->_store_ai( 0, $ai_type, $formula );
 
@@ -690,10 +685,10 @@ sub _store_axisparent_stream {
 
     my $self = shift;
 
-    $self->_store_axisparent( 0 );
+    $self->_store_axisparent( @{ $self->{_config}->{_axisparent} } );
 
     $self->_store_begin();
-    $self->_store_pos( 2, 2, 0x008C, 0x01AA, 0x0EEA, 0x0C52 );
+    $self->_store_pos( @{ $self->{_config}->{_axisparent_pos} } );
     $self->_store_axis_category_stream();
     $self->_store_axis_values_stream();
 
@@ -748,7 +743,7 @@ sub _store_axis_values_stream {
     $self->_store_valuerange();
     $self->_store_tick();
     $self->_store_axislineformat();
-    $self->_store_lineformat();
+    $self->_store_lineformat( 0x00000000, 0x0000, 0xFFFF, 0x0009, 0x004D );
     $self->_store_end();
 }
 
@@ -763,14 +758,30 @@ sub _store_frame_stream {
 
     my $self = shift;
 
-    $self->_store_frame();
-
+    $self->_store_frame( 0x00, 0x03 );
     $self->_store_begin();
-    $self->_store_lineformat();
-    $self->_store_areaformat();
+    $self->_store_lineformat( 0x00808080, 0x0000, 0x0000, 0x0000, 0x0017 );
+    $self->_store_areaformat( 0x00C0C0C0, 0x0000, 0x01, 0x00, 0x16, 0x4F );
     $self->_store_end();
 }
 
+
+###############################################################################
+#
+# _store_embedded_frame_stream()
+#
+# Write the FRAME chart substream for and embedded chart.
+#
+sub _store_embedded_frame_stream {
+
+    my $self = shift;
+
+    $self->_store_frame( 0x00, 0x02 );
+    $self->_store_begin();
+    $self->_store_lineformat( 0x00000000, 0x0000, 0x0000, 0x0009, 0x004D );
+    $self->_store_areaformat( 0x00FFFFFF, 0x0000, 0x01, 0x01, 0x4E, 0x4D );
+    $self->_store_end();
+}
 
 ###############################################################################
 #
@@ -817,10 +828,10 @@ sub _store_legend_stream {
 
     my $self = shift;
 
-    $self->_store_legend();
+    $self->_store_legend( @{ $self->{_config}->{_legend} } );
 
     $self->_store_begin();
-    $self->_store_pos( 5, 2, 0x05F9, 0x0EE9, 0, 0 );
+    $self->_store_pos( @{ $self->{_config}->{_legend_pos} } );
     $self->_store_legend_text_stream();
     $self->_store_end();
 }
@@ -903,14 +914,14 @@ sub _store_areaformat {
 
     my $self = shift;
 
-    my $record    = 0x100A;        # Record identifier.
-    my $length    = 0x0010;        # Number of bytes to follow.
-    my $rgbFore   = 0x00C0C0C0;    # Foreground RGB colour.
-    my $rgbBack   = 0x00000000;    # Background RGB colour.
-    my $pattern   = 0x0001;        # Pattern.
-    my $grbit     = 0x0000;        # Option flags.
-    my $indexFore = 0x0016;        # Index to Foreground colour.
-    my $indexBack = 0x004F;        # Index to Background colour.
+    my $record    = 0x100A;    # Record identifier.
+    my $length    = 0x0010;    # Number of bytes to follow.
+    my $rgbFore   = $_[0];     # Foreground RGB colour.
+    my $rgbBack   = $_[1];     # Background RGB colour.
+    my $pattern   = $_[2];     # Pattern.
+    my $grbit     = $_[3];     # Option flags.
+    my $indexFore = $_[4];     # Index to Foreground colour.
+    my $indexBack = $_[5];     # Index to Background colour.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1045,13 +1056,13 @@ sub _store_axisparent {
 
     my $self = shift;
 
-    my $record = 0x1041;        # Record identifier.
-    my $length = 0x0012;        # Number of bytes to follow.
-    my $iax    = $_[0];         # Axis index.
-    my $x      = 0x000000F8;    # X-coord.
-    my $y      = 0x000001F5;    # Y-coord.
-    my $dx     = 0x00000E7F;    # Length of x axis.
-    my $dy     = 0x00000B36;    # Length of y axis.
+    my $record = 0x1041;    # Record identifier.
+    my $length = 0x0012;    # Number of bytes to follow.
+    my $iax    = $_[0];     # Axis index.
+    my $x      = $_[1];     # X-coord.
+    my $y      = $_[2];     # Y-coord.
+    my $dx     = $_[3];     # Length of x axis.
+    my $dy     = $_[4];     # Length of y axis.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1124,12 +1135,12 @@ sub _store_chart {
 
     my $self = shift;
 
-    my $record = 0x1002;        # Record identifier.
-    my $length = 0x0010;        # Number of bytes to follow.
-    my $x_pos  = 0x00000000;    # X pos of top left corner.
-    my $y_pos  = 0x00000000;    # Y pos of top left corner.
-    my $dx     = 0x02DD51E0;    # X size.
-    my $dy     = 0x01C2B838;    # Y size.
+    my $record = 0x1002;    # Record identifier.
+    my $length = 0x0010;    # Number of bytes to follow.
+    my $x_pos  = $_[0];     # X pos of top left corner.
+    my $y_pos  = $_[1];     # Y pos of top left corner.
+    my $dx     = $_[2];     # X size.
+    my $dy     = $_[3];     # Y size.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1305,9 +1316,9 @@ sub _store_fbi {
     my $length       = 0x000A;        # Number of bytes to follow.
     my $index        = $_[0];         # Font index.
     my $height       = $_[1] * 20;    # Default font height in twips.
-    my $width_basis  = 0x38B8;        # Width basis, in twips.
-    my $height_basis = 0x22A1;        # Height basis, in twips.
-    my $scale_basis  = 0x0000;        # Scale by chart area or plot area.
+    my $width_basis  = $_[2];         # Width basis, in twips.
+    my $height_basis = $_[3];         # Height basis, in twips.
+    my $scale_basis  = $_[4];         # Scale by chart area or plot area.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1355,8 +1366,8 @@ sub _store_frame {
 
     my $record     = 0x1032;    # Record identifier.
     my $length     = 0x0004;    # Number of bytes to follow.
-    my $frame_type = 0x0000;    # Frame type.
-    my $grbit      = 0x0003;    # Option flags.
+    my $frame_type = $_[0];     # Frame type.
+    my $grbit      = $_[1];     # Option flags.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1377,15 +1388,15 @@ sub _store_legend {
 
     my $self = shift;
 
-    my $record   = 0x1015;        # Record identifier.
-    my $length   = 0x0014;        # Number of bytes to follow.
-    my $x        = 0x000005F9;    # X-position.
-    my $y        = 0x00000EE9;    # Y-position.
-    my $width    = 0x0000047D;    # Width.
-    my $height   = 0x0000009C;    # Height.
-    my $wType    = 0x00;          # Type.
-    my $wSpacing = 0x01;          # Spacing.
-    my $grbit    = 0x000F;        # Option flags.
+    my $record   = 0x1015;    # Record identifier.
+    my $length   = 0x0014;    # Number of bytes to follow.
+    my $x        = $_[0];     # X-position.
+    my $y        = $_[1];     # Y-position.
+    my $width    = $_[2];     # Width.
+    my $height   = $_[3];     # Height.
+    my $wType    = $_[4];     # Type.
+    my $wSpacing = $_[5];     # Spacing.
+    my $grbit    = $_[6];     # Option flags.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1411,15 +1422,13 @@ sub _store_lineformat {
 
     my $self = shift;
 
-    # TODO colour and weight need to be parameters.
-
-    my $record = 0x1007;        # Record identifier.
-    my $length = 0x000C;        # Number of bytes to follow.
-    my $rgb    = 0x00000000;    # Line RGB colour.
-    my $lns    = 0x0000;        # Line pattern.
-    my $we     = 0xFFFF;        # Line weight.
-    my $grbit  = 0x0009;        # Option flags.
-    my $index  = 0x004D;        # Index to colour of line.
+    my $record = 0x1007;    # Record identifier.
+    my $length = 0x000C;    # Number of bytes to follow.
+    my $rgb    = $_[0];     # Line RGB colour.
+    my $lns    = $_[1];     # Line pattern.
+    my $we     = $_[2];     # Line weight.
+    my $grbit  = $_[3];     # Option flags.
+    my $index  = $_[4];     # Index to colour of line.
 
     my $header = pack 'vv', $record, $length;
     my $data = '';
@@ -1639,6 +1648,8 @@ sub _store_shtprops {
     my $grbit       = 0x000E;    # Option flags.
     my $empty_cells = 0x0000;    # Empty cell handling.
 
+    $grbit = 0x000A if $self->{_embedded};
+
     my $header = pack 'vv', $record, $length;
     my $data = '';
     $data .= pack 'v', $grbit;
@@ -1768,6 +1779,80 @@ sub _store_valuerange {
 
     $self->_append( $header, $data );
 }
+
+
+###############################################################################
+#
+# Config data.
+#
+###############################################################################
+
+
+###############################################################################
+#
+# _set_default_config_data()
+#
+# Setup the default configuration data for a chart.
+#
+sub _set_default_config_data {
+
+    my $self = shift;
+
+    #<<< Perltidy ignore this. Formatted by hand.
+    $self->{_config} = {
+        _axisparent      => [ 0, 0x00F8, 0x01F5, 0x0E7F, 0x0B36              ],
+        _axisparent_pos  => [ 2, 2, 0x008C, 0x01AA, 0x0EEA, 0x0C52           ],
+        _chart           => [ 0x0000, 0x0000, 0x02DD51E0, 0x01C2B838         ],
+        _legend          => [ 0x05F9, 0x0EE9, 0x047D, 0x9C, 0x00, 0x01, 0x0F ],
+        _legend_pos      => [ 5, 2, 0x05F9, 0x0EE9, 0, 0                     ],
+        _legend_text     => [ 0xFFFFFF46, 0xFFFFFF06, 0, 0, 0x00B1, 0x0000   ],
+        _legend_text_pos => [ 2, 2, 0, 0, 0, 0                               ],
+        _series_text     => [ 0xFFFFFF46, 0xFFFFFF06, 0, 0, 0x00B1, 0x1020   ],
+        _series_text_pos => [ 2, 2, 0, 0, 0, 0                               ],
+        _title_text      => [ 0x06E4, 0x0051, 0x01DB, 0x00C4, 0x0081, 0x1030 ],
+        _title_text_pos  => [ 2, 2, 0, 0, 0x73, 0x1D                         ],
+        _x_axis_text     => [ 0x07E1, 0x0DFC, 0xB2, 0x9C, 0x0081, 0x0000     ],
+        _x_axis_text_pos => [ 2, 2, 0, 0,  0x2B,  0x17                       ],
+        _y_axis_text     => [ 0x002D, 0x06AA, 0x5F, 0x1CC, 0x0281, 0x00, 90  ],
+        _y_axis_text_pos => [ 2, 2, 0, 0, 0x17,  0x44                        ],
+    }; #>>>
+
+
+}
+
+
+###############################################################################
+#
+# _set_embedded_config_data()
+#
+# Setup the default configuration data for an embedded chart.
+#
+sub _set_embedded_config_data {
+
+    my $self = shift;
+
+    $self->{_embedded} = 1;
+
+    #<<< Perltidy ignore this. Formatted by hand.
+    $self->{_config} = {
+        _axisparent      => [ 0, 0x01D8, 0x031D, 0x0D79, 0x07E9              ],
+        _axisparent_pos  => [ 2, 2, 0x010C, 0x0292, 0x0E46, 0x09FD           ],
+        _chart           => [ 0x0000, 0x0000, 0x01847FE8, 0x00F47FE8         ],
+        _legend          => [ 0x044E, 0x0E4A, 0x088D, 0x0123, 0x0, 0x1, 0xF  ],
+        _legend_pos      => [ 5, 2, 0x044E, 0x0E4A, 0, 0                     ],
+        _legend_text     => [ 0xFFFFFFD9, 0xFFFFFFC1, 0, 0, 0x00B1, 0x0000   ],
+        _legend_text_pos => [ 2, 2, 0, 0, 0, 0                               ],
+        _series_text     => [ 0xFFFFFFD9, 0xFFFFFFC1, 0, 0, 0x00B1, 0x1020   ],
+        _series_text_pos => [ 2, 2, 0, 0, 0, 0                               ],
+        _title_text      => [ 0x060F, 0x004C, 0x038A, 0x016F, 0x0081, 0x1030 ],
+        _title_text_pos  => [ 2, 2, 0, 0, 0x73, 0x1D                         ],
+        _x_axis_text     => [ 0x07EF, 0x0C8F, 0x153, 0x123, 0x81, 0x00       ],
+        _x_axis_text_pos => [ 2, 2, 0, 0, 0x2B, 0x17                         ],
+        _y_axis_text     => [ 0x0057, 0x0564, 0xB5, 0x035D, 0x0281, 0x00, 90 ],
+        _y_axis_text_pos => [ 2, 2, 0, 0, 0x17, 0x44                         ],
+    }; #>>>
+}
+
 
 
 1;
