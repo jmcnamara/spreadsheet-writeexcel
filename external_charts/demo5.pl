@@ -41,3 +41,4 @@ my @squares = (0, 1, 4, 9, 16, 25, 36, 49, 64, 81, 100);
 $worksheet->write_col('A1', \@nums   );
 $worksheet->write_col('B1', \@squares);
 
+__END__

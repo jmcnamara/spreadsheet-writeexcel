@@ -282,6 +282,10 @@ a_simple.jpg
 autofilter.jpg
 autofit.jpg
 bigfile.jpg
+chart_area.jpg
+chart_bar.jpg
+chart_column.jpg
+chart_line.jpg
 chess.jpg
 colors.jpg
 comments1.jpg
