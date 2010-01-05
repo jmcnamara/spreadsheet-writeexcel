@@ -64,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.31 of Spreadsheet::WriteExcel, released December 10, 2009.
+This document refers to version 2.33 of Spreadsheet::WriteExcel, released January 3, 2010.
 
 
 
