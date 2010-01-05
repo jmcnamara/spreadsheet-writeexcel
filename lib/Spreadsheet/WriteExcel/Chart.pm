@@ -1955,7 +1955,7 @@ This is the most important property of a series and must be set for every chart 
 
     $chart->add_series( values => '=Sheet1!$B$2:$B$10' );
 
-Note the format that should be used for the formula. It is the same as is used in Excel. You must also add the worksheet that you are referring to before you link to it, via the workbook C<add_worksheet()> method.
+Note the format that should be used for the formula. The worksheet name must be specified (even for embedded charts) and the cell references must be "absolute" references, i.e., they must contain C<$> signs. This is the format that is required by Excel for chart references. You must also add the worksheet that you are referring to before you link to it, via the workbook C<add_worksheet()> method.
 
 =item * C<categories>
 
