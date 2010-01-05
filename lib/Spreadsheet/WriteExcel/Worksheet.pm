@@ -2571,14 +2571,11 @@ sub repeat_formula {
 
     # The STRING record if the formula evaluates to a string.
     my $string  = '';
-       $string  = $self->_encode_formula_result($value) if $is_string;
+       $string  = $self->_get_formula_string($value) if $is_string;
 
 
     # Store the data or write immediately depending on the compatibility mode.
     if ($self->{_compatibility}) {
-        my $string = '';
-           $string = $self->_get_formula_string($value) if $is_string;
-
         $self->{_table}->[$row]->[$col] = $header . $data . $formula . $string;
     }
     else {
