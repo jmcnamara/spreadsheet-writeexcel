@@ -1,5 +1,7 @@
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
 <html>
+<title>Spreadsheet::WriteExcel</title>
+
 <head>
 
 <style type="text/css">
@@ -15,6 +17,11 @@ body
     left: 20px;
     top: 10px;
     z-index: 1;
+}
+
+#inline_image
+{
+    margin-left: 40px;
 }
 
 h1 {
@@ -47,6 +54,7 @@ pre {
     color: green;
     padding: 10px;
     margin: 40px;
+    width: 620px;
     font-size: 15px;
 }
 
@@ -119,8 +127,9 @@ __END__
 <p>
 This will generate an output file that looks like this:
 </p>
-<p>
-<center><img src="./images/example.jpg" width="640" height="420" alt="Output from example" /></center>
+
+<p id="inline_image">
+<img src="./images/example.jpg" width="640" height="420" alt="Output from example" />
 </p>
 
 
