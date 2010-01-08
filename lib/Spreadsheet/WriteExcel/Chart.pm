@@ -1920,6 +1920,8 @@ Currently the supported chart types are:
 
 =item * C<area>: Creates an Area (filled line) style chart. See L<Spreadsheet::WriteExcel::Chart::Area>.
 
+=item * C<pie>: Creates an Pie style chart. See L<Spreadsheet::WriteExcel::Chart::Pie>.
+
 =back
 
 More chart types will be supported in time. See the L</TODO> section.
@@ -2194,7 +2196,7 @@ Here is a complete example that demonstrates most of the available features when
 
 <p>This will produce a chart that looks like this:</p>
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/area1.jpg" width="526" height="320" alt="Chart example." /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/area1.jpg" width="527" height="320" alt="Chart example." /></center></p>
 
 =end html
 

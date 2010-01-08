@@ -209,7 +209,7 @@ Here is a complete example that demonstrates most of the available features when
 
 <p>This will produce a chart that looks like this:</p>
 
-<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/pie1.jpg" width="526" height="320" alt="Chart example." /></center></p>
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/pie1.jpg" width="527" height="320" alt="Chart example." /></center></p>
 
 =end html
 

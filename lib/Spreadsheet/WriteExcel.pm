@@ -313,6 +313,7 @@ The available types are:
     bar
     line
     area
+    pie
 
 =item * C<name>
 
