@@ -286,6 +286,7 @@ chart_area.jpg
 chart_bar.jpg
 chart_column.jpg
 chart_line.jpg
+chart_pie.jpg
 chess.jpg
 colors.jpg
 comments1.jpg

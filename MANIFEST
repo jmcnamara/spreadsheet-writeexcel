@@ -14,6 +14,7 @@ lib/Spreadsheet/WriteExcel/Chart/Bar.pm
 lib/Spreadsheet/WriteExcel/Chart/Column.pm
 lib/Spreadsheet/WriteExcel/Chart/External.pm
 lib/Spreadsheet/WriteExcel/Chart/Line.pm
+lib/Spreadsheet/WriteExcel/Chart/Pie.pm
 lib/Spreadsheet/WriteExcel/Examples.pm
 lib/Spreadsheet/WriteExcel/Format.pm
 lib/Spreadsheet/WriteExcel/Formula.pm
@@ -64,6 +65,9 @@ t/92_meta.t
 docs/Perl_Journal_Article.html
 docs/WriteExcel.html
 docs/WriteExcel_Install.html
+docs/images/example.jpg
+docs/images/swe.png
+docs/index.html
 docs/number_formats1.html
 docs/number_formats2.html
 docs/palette.html
@@ -84,6 +88,7 @@ examples/chart_area.pl
 examples/chart_bar.pl
 examples/chart_column.pl
 examples/chart_line.pl
+examples/chart_pie.pl
 examples/chess.pl
 examples/colors.pl
 examples/comments1.pl

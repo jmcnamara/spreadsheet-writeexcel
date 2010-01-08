@@ -23,6 +23,7 @@ chart_area.pl           A demo of area style charts.
 chart_bar.pl            A demo of bar (vertical histogram) style charts.
 chart_column.pl         A demo of column (histogram) style charts.
 chart_line.pl           A demo of line style charts.
+chart_pie.pl            A demo of pie style charts.
 chess.pl                An example of reusing formatting via properties.
 colors.pl               A demo of the colour palette and named colours.
 comments1.pl            Add comments to worksheet cells.
