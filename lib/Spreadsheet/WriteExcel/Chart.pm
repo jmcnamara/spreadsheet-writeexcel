@@ -788,7 +788,8 @@ sub _store_chartformat_stream {
 
     my $self = shift;
 
-    $self->_store_chartformat();
+    # The _vary_data_color is set by classes that need it, like Pie.
+    $self->_store_chartformat( $self->{_vary_data_color} );
 
     $self->_store_begin();
 
@@ -1165,7 +1166,7 @@ sub _store_chartformat {
     my $reserved2 = 0x00000000;    # Reserved.
     my $reserved3 = 0x00000000;    # Reserved.
     my $reserved4 = 0x00000000;    # Reserved.
-    my $grbit     = 0x0000;        # Option flags.
+    my $grbit     = $_[0] || 0;    # Option flags.
     my $icrt      = 0x0000;        # Drawing order.
 
     my $header = pack 'vv', $record, $length;
@@ -2206,7 +2207,7 @@ Features that are on the TODO list and will be added are:
 
 =over
 
-=item * Additional chart types. Stock, Pie and Scatter charts are next in line. Send an email if you are interested in other types and they will be added to the queue.
+=item * Additional chart types. Stock and Scatter charts are next in line. Send an email if you are interested in other types and they will be added to the queue. Chart sub-types will be added when the main chart types are covered.
 
 =item * Colours and formatting options. For now you will have to make do with the default Excel colours and formats.
 

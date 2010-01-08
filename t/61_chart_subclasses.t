@@ -13,7 +13,7 @@ use strict;
 
 use Spreadsheet::WriteExcel::Chart;
 
-use Test::More tests => 4;
+use Test::More tests => 5;
 #use Test::More 'no_plan';
 
 
@@ -96,6 +96,23 @@ is( $got, $expected, $caption );
 
 
 ###############################################################################
+#
+# Test for overridden _store_chart_type() in ::Chart::Pie.pm.
+#
+$chart = Spreadsheet::WriteExcel::Chart->factory( 'pie' );
+
+$caption = " \tChart: Pie()";
+
+$expected = join ' ', qw(
+  19 10 06 00 00 00 00 00 02 00
+);
+
+$got = unpack_record( $chart->_store_chart_type() );
+
+is( $got, $expected, $caption );
+
+
+##############################################################################
 #
 # Utility function used by the test suite.
 #

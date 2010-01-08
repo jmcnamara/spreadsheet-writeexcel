@@ -101,11 +101,11 @@ To write a string, a formatted string, a number and a formula to the first works
 
 =head1 DESCRIPTION
 
-The Spreadsheet::WriteExcel module can be used to create a cross-platform Excel binary file. Multiple worksheets can be added to a workbook and formatting can be applied to cells. Text, numbers, formulas, hyperlinks and images can be written to the cells.
+The Spreadsheet::WriteExcel Perl module can be used to create a cross-platform Excel binary file. Multiple worksheets can be added to a workbook and formatting can be applied to cells. Text, numbers, formulas, hyperlinks, images and charts can be written to the cells.
 
-The Excel file produced by this module is compatible with 97, 2000, 2002 and 2003.
+The file produced by this module is compatible with Excel 97, 2000, 2002, 2003 and 2007.
 
-The module will work on the majority of Windows, UNIX and Macintosh platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.org.
+The module will work on the majority of Windows, UNIX and Mac platforms. Generated files are also compatible with the Linux/UNIX spreadsheet applications Gnumeric and OpenOffice.org.
 
 This module cannot be used to write to an existing Excel file (See L<MODIFYING AND REWRITING EXCEL FILES>).
 
