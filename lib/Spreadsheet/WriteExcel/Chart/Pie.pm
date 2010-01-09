@@ -167,11 +167,10 @@ Here is a complete example that demonstrates most of the available features when
     my $bold      = $workbook->add_format( bold => 1 );
 
     # Add the data to the worksheet that the charts will refer to.
-    my $headings = [ 'Number', 'Sample 1', 'Sample 2' ];
+    my $headings = [ 'Category', 'Values' ];
     my $data = [
-        [ 2, 3, 4, 5, 6, 7 ],
-        [ 1, 4, 5, 2, 1, 5 ],
-        [ 3, 6, 7, 5, 4, 3 ],
+        [ 'Apple', 'Cherry', 'Pecan' ],
+        [ 60,       30,       10     ],
     ];
 
     $worksheet->write( 'A1', $headings, $bold );
@@ -180,27 +179,19 @@ Here is a complete example that demonstrates most of the available features when
     # Create a new chart object. In this case an embedded chart.
     my $chart = $workbook->add_chart( type => 'pie', embedded => 1 );
 
-    # Configure the first series. (Sample 1)
+    # Configure the series.
     $chart->add_series(
-        name       => 'Sample 1',
-        categories => '=Sheet1!$A$2:$A$7',
-        values     => '=Sheet1!$B$2:$B$7',
+        name       => 'Pie sales data',
+        categories => '=Sheet1!$A$2:$A$4',
+        values     => '=Sheet1!$B$2:$B$4',
     );
 
-    # Configure the second series. (Sample 2)
-    $chart->add_series(
-        name       => 'Sample 2',
-        categories => '=Sheet1!$A$2:$A$7',
-        values     => '=Sheet1!$C$2:$C$7',
-    );
+    # Add a title.
+    $chart->set_title( name => 'Popular Pie Types' );
 
-    # Add a chart title and some axis labels.
-    $chart->set_title ( name => 'Results of sample analysis' );
-    $chart->set_x_axis( name => 'Test number' );
-    $chart->set_y_axis( name => 'Sample length (cm)' );
 
     # Insert the chart into the worksheet (with an offset).
-    $worksheet->insert_chart( 'D2', $chart, 25, 10 );
+    $worksheet->insert_chart( 'C2', $chart, 25, 10 );
 
     __END__
 
