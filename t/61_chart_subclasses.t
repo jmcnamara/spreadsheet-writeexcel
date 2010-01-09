@@ -13,7 +13,7 @@ use strict;
 
 use Spreadsheet::WriteExcel::Chart;
 
-use Test::More tests => 5;
+use Test::More tests => 6;
 #use Test::More 'no_plan';
 
 
@@ -105,6 +105,23 @@ $caption = " \tChart: Pie()";
 
 $expected = join ' ', qw(
   19 10 06 00 00 00 00 00 02 00
+);
+
+$got = unpack_record( $chart->_store_chart_type() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test for overridden _store_chart_type() in ::Chart::Scatter.pm.
+#
+$chart = Spreadsheet::WriteExcel::Chart->factory( 'scatter' );
+
+$caption = " \tChart: Scatter()";
+
+$expected = join ' ', qw(
+  1B 10 06 00 64 00 01 00 00 00
 );
 
 $got = unpack_record( $chart->_store_chart_type() );
