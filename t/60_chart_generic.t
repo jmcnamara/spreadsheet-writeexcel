@@ -13,7 +13,8 @@ use strict;
 
 use Spreadsheet::WriteExcel::Chart;
 
-use Test::More tests => 34;
+use Test::More tests => 37;
+
 #use Test::More 'no_plan';
 
 
@@ -163,7 +164,22 @@ $expected = join ' ', qw(
   06 10 08 00 FF FF 00 00 00 00 00 00
 );
 
-$got = unpack_record( $chart->_store_dataformat( 0 ) );
+$got = unpack_record( $chart->_store_dataformat( 0, 0, 0xFFFF ) );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_dataformat() method.
+#
+$caption = " \tChart: _store_dataformat()";
+
+$expected = join ' ', qw(
+  06 10 08 00 00 00 00 00 FD FF 00 00
+);
+
+$got = unpack_record( $chart->_store_dataformat( 0, 0xFFFD, 0 ) );
 
 is( $got, $expected, $caption );
 
@@ -415,7 +431,7 @@ $expected = join ' ', qw(
   32 10 04 00 00 00 03 00
 );
 
-$got = unpack_record( $chart->_store_frame( 0x00, 0x03) );
+$got = unpack_record( $chart->_store_frame( 0x00, 0x03 ) );
 
 is( $got, $expected, $caption );
 
@@ -569,10 +585,44 @@ is( $got, $expected, $caption );
 $caption = " \tChart: _store_objectlink()";
 
 $expected = join ' ', qw(
-    27 10 06 00 01 00 00 00 00 00
+  27 10 06 00 01 00 00 00 00 00
 );
 
 $got = unpack_record( $chart->_store_objectlink( 1 ) );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_pieformat() method.
+#
+$caption = " \tChart: _store_pieformat()";
+
+$expected = join ' ', qw(
+  0B 10 02 00 00 00
+);
+
+$got = unpack_record( $chart->_store_pieformat() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_markerformat() method.
+#
+$caption = " \tChart: _store_markerformat()";
+
+$expected = join ' ', qw(
+  09 10 14 00 00 00 00 00 00 00 00 00 02 00 01 00
+  4D 00 4D 00 3C 00 00 00
+);
+
+@values = ( 0x00, 0x00, 0x02, 0x01, 0x4D, 0x4D, 0x3C );
+
+
+$got = unpack_record( $chart->_store_markerformat( @values ) );
 
 is( $got, $expected, $caption );
 

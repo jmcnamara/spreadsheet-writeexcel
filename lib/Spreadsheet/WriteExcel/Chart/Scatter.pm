@@ -89,6 +89,29 @@ sub _store_axis_category_stream {
 }
 
 
+###############################################################################
+#
+# _store_marker_dataformat_stream(). Overridden.
+#
+# This is an implementation of the parent abstract method  to define
+# properties of markers, linetypes, pie formats and other.
+#
+sub _store_marker_dataformat_stream {
+
+    my $self = shift;
+
+    $self->_store_dataformat( 0x0000, 0xFFFD, 0x0000 );
+
+    $self->_store_begin();
+    $self->_store_3dbarshape();
+    $self->_store_lineformat( 0x00000000, 0x0005, 0xFFFF, 0x0008, 0x004D );
+    $self->_store_areaformat( 0x00FFFFFF, 0x0000, 0x01, 0x01, 0x4E, 0x4D );
+    $self->_store_pieformat();
+    $self->_store_markerformat( 0x00, 0x00, 0x02, 0x01, 0x4D, 0x4D, 0x3C );
+    $self->_store_end();
+
+}
+
 
 1;
 

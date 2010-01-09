@@ -461,11 +461,10 @@ sub _store_chart_stream {
 
     $self->_store_shtprops();
 
-    # Write the TEXT stream for each series.
-    my $font_index = 5;
-    for ( @{ $self->{_series} } ) {
+    # Write the TEXT streams.
+    for my $font_index ( 5 .. 6 ) {
         $self->_store_defaulttext();
-        $self->_store_series_text_stream( $font_index++ );
+        $self->_store_series_text_stream( $font_index );
     }
 
     $self->_store_axesused( 1 );
@@ -509,7 +508,7 @@ sub _store_series_stream {
     $self->_store_ai( 2, $category_type, $arg{_category_formula} );
     $self->_store_ai( 3, 1,              '' );
 
-    $self->_store_dataformat_stream( $arg{_index} );
+    $self->_store_dataformat_stream( $arg{_index}, $arg{_index}, 0xFFFF );
     $self->_store_sertocrt( 0 );
     $self->_store_end();
 }
@@ -527,7 +526,7 @@ sub _store_dataformat_stream {
 
     my $series_index = shift;
 
-    $self->_store_dataformat( $series_index );
+    $self->_store_dataformat( $series_index, $series_index, 0xFFFF );
 
     $self->_store_begin();
     $self->_store_3dbarshape();
@@ -798,6 +797,7 @@ sub _store_chartformat_stream {
 
     # CHARTFORMATLINK is not used.
     $self->_store_legend_stream();
+    $self->_store_marker_dataformat_stream();
     $self->_store_end();
 }
 
@@ -810,6 +810,18 @@ sub _store_chartformat_stream {
 # the chart types such as Column, Line, Pie, etc.
 #
 sub _store_chart_type {
+
+}
+
+
+###############################################################################
+#
+# _store_marker_dataformat_stream()
+#
+# This is an abstract method that is overridden by the sub-classes to define
+# properties of markers, linetypes, pie formats and other.
+#
+sub _store_marker_dataformat_stream {
 
 }
 
@@ -1239,9 +1251,9 @@ sub _store_dataformat {
 
     my $record        = 0x1006;    # Record identifier.
     my $length        = 0x0008;    # Number of bytes to follow.
-    my $point_number  = 0xFFFF;    # Point number.
     my $series_index  = $_[0];     # Series index.
-    my $series_number = $_[0];     # Series number. (Same as index).
+    my $series_number = $_[1];     # Series number. (Same as index).
+    my $point_number  = $_[2];     # Point number.
     my $grbit         = 0x0000;    # Format flags.
 
     my $header = pack 'vv', $record, $length;
@@ -1440,6 +1452,40 @@ sub _store_lineformat {
 
 ###############################################################################
 #
+# _store_markerformat()
+#
+# Write the MARKERFORMAT chart BIFF record.
+#
+sub _store_markerformat {
+
+    my $self = shift;
+
+    my $record  = 0x1009;    # Record identifier.
+    my $length  = 0x0014;    # Number of bytes to follow.
+    my $rgbFore = $_[0];     # Foreground RGB color.
+    my $rgbBack = $_[1];     # Background RGB color.
+    my $marker  = $_[2];     # Type of marker.
+    my $grbit   = $_[3];     # Format flags.
+    my $icvFore = $_[4];     # Color index marker border.
+    my $icvBack = $_[5];     # Color index marker fill.
+    my $miSize  = $_[6];     # Size of line markers.
+
+    my $header = pack 'vv', $record, $length;
+    my $data = '';
+    $data .= pack 'V', $rgbFore;
+    $data .= pack 'V', $rgbBack;
+    $data .= pack 'v', $marker;
+    $data .= pack 'v', $grbit;
+    $data .= pack 'v', $icvFore;
+    $data .= pack 'v', $icvBack;
+    $data .= pack 'V', $miSize;
+
+    $self->_append( $header, $data );
+}
+
+
+###############################################################################
+#
 # _store_objectlink()
 #
 # Write the OBJECTLINK chart BIFF record.
@@ -1459,6 +1505,28 @@ sub _store_objectlink {
     $data .= pack 'v', $link_type;
     $data .= pack 'v', $link_index1;
     $data .= pack 'v', $link_index2;
+
+    $self->_append( $header, $data );
+}
+
+
+###############################################################################
+#
+# _store_pieformat()
+#
+# Write the PIEFORMAT chart BIFF record.
+#
+sub _store_pieformat {
+
+    my $self = shift;
+
+    my $record  = 0x100B;    # Record identifier.
+    my $length  = 0x0002;    # Number of bytes to follow.
+    my $percent = 0x0000;    # Distance % from center.
+
+    my $header = pack 'vv', $record, $length;
+    my $data = '';
+    $data .= pack 'v', $percent;
 
     $self->_append( $header, $data );
 }
