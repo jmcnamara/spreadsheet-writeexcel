@@ -22,7 +22,7 @@ use Spreadsheet::WriteExcel::Chart;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Chart Exporter);
 
-$VERSION = '2.34';
+$VERSION = '2.35';
 
 ###############################################################################
 #
@@ -132,7 +132,7 @@ To create a simple Excel file with a Stock chart using Spreadsheet::WriteExcel:
     $chart->add_series( categories => '=Sheet1!$A$2:$A$6', values => '=Sheet1!$D$2:$D$6' );
     $chart->add_series( categories => '=Sheet1!$A$2:$A$6', values => '=Sheet1!$E$2:$E$6' );
 
-    # Add the data to the worksheet the chart refers to.
+    # Add the worksheet data the chart refers to.
     # ... See the full example below.
 
     __END__
@@ -175,7 +175,7 @@ Here is a complete example that demonstrates most of the available features when
     my $bold        = $workbook->add_format( bold => 1 );
     my $date_format = $workbook->add_format( num_format => 'dd/mm/yyyy' );
 
-    # Add the data to the worksheet that the charts will refer to.
+    # Add the worksheet data that the charts will refer to.
     my $headings = [ 'Date', 'Open', 'High', 'Low', 'Close' ];
     my @data = (
         [ '2009-08-23', 110.75, 113.48, 109.05, 109.40 ],

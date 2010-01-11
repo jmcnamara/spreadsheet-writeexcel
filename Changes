@@ -1,5 +1,14 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.35 January 10 2010 - Major
+
+    + Added support for Stock charts.
+
+    + Added support for Scatter charts.
+
+    + Improved Pie chart examples.
+
+
 2.34 January 8 2010 - Major
 
     + Added support for Pie charts.

@@ -15,6 +15,8 @@ lib/Spreadsheet/WriteExcel/Chart/Column.pm
 lib/Spreadsheet/WriteExcel/Chart/External.pm
 lib/Spreadsheet/WriteExcel/Chart/Line.pm
 lib/Spreadsheet/WriteExcel/Chart/Pie.pm
+lib/Spreadsheet/WriteExcel/Chart/Scatter.pm
+lib/Spreadsheet/WriteExcel/Chart/Stock.pm
 lib/Spreadsheet/WriteExcel/Examples.pm
 lib/Spreadsheet/WriteExcel/Format.pm
 lib/Spreadsheet/WriteExcel/Formula.pm
@@ -89,6 +91,8 @@ examples/chart_bar.pl
 examples/chart_column.pl
 examples/chart_line.pl
 examples/chart_pie.pl
+examples/chart_scatter.pl
+examples/chart_stock.pl
 examples/chess.pl
 examples/colors.pl
 examples/comments1.pl

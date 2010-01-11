@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.34'; # The Life Pursuit
+$VERSION = '2.35'; # The Life Pursuit
 
 
 
@@ -64,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.34 of Spreadsheet::WriteExcel, released January 8, 2010.
+This document refers to version 2.35 of Spreadsheet::WriteExcel, released January 10, 2010.
 
 
 
@@ -4840,6 +4840,8 @@ See L<Spreadsheet::WriteExcel::Examples> for more details.
     chart_column.pl         A demo of column (histogram) style charts.
     chart_line.pl           A demo of line style charts.
     chart_pie.pl            A demo of pie style charts.
+    chart_scatter.pl        A demo of scatter style charts.
+    chart_stock.pl          A demo of stock style charts.
     chess.pl                An example of reusing formatting via properties.
     colors.pl               A demo of the colour palette and named colours.
     comments1.pl            Add comments to worksheet cells.

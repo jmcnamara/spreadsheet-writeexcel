@@ -16,7 +16,7 @@ package Spreadsheet::WriteExcel::Examples;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '2.34';
+$VERSION = '2.35';
 
 1;
 
@@ -38,7 +38,7 @@ program that is also included in the examples directory.
 
 =head1 Example programs
 
-The following is a list of the 83 example programs that are included in the Spreadsheet::WriteExcel distribution.
+The following is a list of the 85 example programs that are included in the Spreadsheet::WriteExcel distribution.
 
 =over
 
@@ -71,6 +71,10 @@ The following is a list of the 83 example programs that are included in the Spre
 =item * L<Example: chart_line.pl> A demo of line style charts.
 
 =item * L<Example: chart_pie.pl> A demo of pie style charts.
+
+=item * L<Example: chart_scatter.pl> A demo of scatter style charts.
+
+=item * L<Example: chart_stock.pl> A demo of stock style charts.
 
 =item * L<Example: chess.pl> An example of reusing formatting via properties.
 
@@ -270,7 +274,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/a_simple.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/a_simple.pl>
 
 =head2 Example: demo.pl
 
@@ -409,7 +413,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/demo.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/demo.pl>
 
 =head2 Example: regions.pl
 
@@ -476,7 +480,7 @@ Source code for this example:
     $south->set_selection(0, 1);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/regions.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/regions.pl>
 
 =head2 Example: stats.pl
 
@@ -567,7 +571,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/stats.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/stats.pl>
 
 =head2 Example: formats.pl
 
@@ -1077,7 +1081,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/formats.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/formats.pl>
 
 =head2 Example: bug_report.pl
 
@@ -1233,7 +1237,7 @@ Run this program and read the output from the command line.
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/bug_report.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/bug_report.pl>
 
 =head2 Example: autofilter.pl
 
@@ -1527,7 +1531,7 @@ Source code for this example:
     East      Grape     6000      February
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/autofilter.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/autofilter.pl>
 
 =head2 Example: autofit.pl
 
@@ -1747,7 +1751,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/autofit.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/autofit.pl>
 
 =head2 Example: bigfile.pl
 
@@ -1799,7 +1803,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/bigfile.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/bigfile.pl>
 
 =head2 Example: cgi.pl
 
@@ -1872,13 +1876,13 @@ that line as shown below.
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/cgi.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/cgi.pl>
 
 =head2 Example: chart_area.pl
 
 
 
-A simple demo of a Area chart in Spreadsheet::WriteExcel.
+A simple demo of Area charts in Spreadsheet::WriteExcel.
 
 
 
@@ -1894,7 +1898,7 @@ Source code for this example:
     
     ###############################################################################
     #
-    # A simple demo of a Area chart in Spreadsheet::WriteExcel.
+    # A simple demo of Area charts in Spreadsheet::WriteExcel.
     #
     # reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
     #
@@ -1906,7 +1910,7 @@ Source code for this example:
     my $worksheet = $workbook->add_worksheet();
     my $bold      = $workbook->add_format( bold => 1 );
     
-    # Add the data to the worksheet that the charts will refer to.
+    # Add the worksheet data that the charts will refer to.
     my $headings = [ 'Category', 'Values 1', 'Values 2' ];
     my $data = [
         [ 2, 3, 4, 5, 6, 7 ],
@@ -2014,13 +2018,13 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/chart_area.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/chart_area.pl>
 
 =head2 Example: chart_bar.pl
 
 
 
-A simple demo of a Bar chart in Spreadsheet::WriteExcel.
+A simple demo of Bar charts in Spreadsheet::WriteExcel.
 
 
 
@@ -2036,7 +2040,7 @@ Source code for this example:
     
     ###############################################################################
     #
-    # A simple demo of a Bar chart in Spreadsheet::WriteExcel.
+    # A simple demo of Bar charts in Spreadsheet::WriteExcel.
     #
     # reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
     #
@@ -2048,7 +2052,7 @@ Source code for this example:
     my $worksheet = $workbook->add_worksheet();
     my $bold      = $workbook->add_format( bold => 1 );
     
-    # Add the data to the worksheet that the charts will refer to.
+    # Add the worksheet data that the charts will refer to.
     my $headings = [ 'Category', 'Values 1', 'Values 2' ];
     my $data = [
         [ 2, 3, 4, 5, 6, 7 ],
@@ -2156,13 +2160,13 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/chart_bar.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/chart_bar.pl>
 
 =head2 Example: chart_column.pl
 
 
 
-A simple demo of a Column chart in Spreadsheet::WriteExcel.
+A simple demo of Column charts in Spreadsheet::WriteExcel.
 
 
 
@@ -2178,7 +2182,7 @@ Source code for this example:
     
     ###############################################################################
     #
-    # A simple demo of a Column chart in Spreadsheet::WriteExcel.
+    # A simple demo of Column charts in Spreadsheet::WriteExcel.
     #
     # reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
     #
@@ -2190,7 +2194,7 @@ Source code for this example:
     my $worksheet = $workbook->add_worksheet();
     my $bold      = $workbook->add_format( bold => 1 );
     
-    # Add the data to the worksheet that the charts will refer to.
+    # Add the worksheet data that the charts will refer to.
     my $headings = [ 'Category', 'Values 1', 'Values 2' ];
     my $data = [
         [ 2, 3, 4, 5, 6, 7 ],
@@ -2298,13 +2302,13 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/chart_column.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/chart_column.pl>
 
 =head2 Example: chart_line.pl
 
 
 
-A simple demo of a Line chart in Spreadsheet::WriteExcel.
+A simple demo of Line charts in Spreadsheet::WriteExcel.
 
 
 
@@ -2320,7 +2324,7 @@ Source code for this example:
     
     ###############################################################################
     #
-    # A simple demo of a Line chart in Spreadsheet::WriteExcel.
+    # A simple demo of Line charts in Spreadsheet::WriteExcel.
     #
     # reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
     #
@@ -2332,7 +2336,7 @@ Source code for this example:
     my $worksheet = $workbook->add_worksheet();
     my $bold      = $workbook->add_format( bold => 1 );
     
-    # Add the data to the worksheet that the charts will refer to.
+    # Add the worksheet data that the charts will refer to.
     my $headings = [ 'Category', 'Values 1', 'Values 2' ];
     my $data = [
         [ 2, 3, 4, 5, 6, 7 ],
@@ -2440,13 +2444,13 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/chart_line.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/chart_line.pl>
 
 =head2 Example: chart_pie.pl
 
 
 
-A simple demo of a Pie chart in Spreadsheet::WriteExcel.
+A simple demo of Pie charts in Spreadsheet::WriteExcel.
 
 
 
@@ -2462,7 +2466,7 @@ Source code for this example:
     
     ###############################################################################
     #
-    # A simple demo of a Pie chart in Spreadsheet::WriteExcel.
+    # A simple demo of Pie charts in Spreadsheet::WriteExcel.
     #
     # reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
     #
@@ -2474,7 +2478,136 @@ Source code for this example:
     my $worksheet = $workbook->add_worksheet();
     my $bold      = $workbook->add_format( bold => 1 );
     
-    # Add the data to the worksheet that the charts will refer to.
+    # Add the worksheet data that the charts will refer to.
+    my $headings = [ 'Category', 'Values' ];
+    my $data = [
+        [ 'Apple', 'Cherry', 'Pecan' ],
+        [ 60,       30,       10     ],
+    ];
+    
+    $worksheet->write( 'A1', $headings, $bold );
+    $worksheet->write( 'A2', $data );
+    
+    
+    ###############################################################################
+    #
+    # Example 1. A minimal chart.
+    #
+    my $chart1 = $workbook->add_chart( type => 'pie' );
+    
+    # Add values only. Use the default categories.
+    $chart1->add_series( values => '=Sheet1!$B$2:$B$4' );
+    
+    
+    ###############################################################################
+    #
+    # Example 2. A minimal chart with user specified categories and a series name.
+    #
+    my $chart2 = $workbook->add_chart( type => 'pie' );
+    
+    # Configure the series.
+    $chart2->add_series(
+        categories => '=Sheet1!$A$2:$A$4',
+        values     => '=Sheet1!$B$2:$B$4',
+        name       => 'Pie sales data',
+    );
+    
+    
+    ###############################################################################
+    #
+    # Example 3. Same as previous chart but with an added title.
+    #
+    my $chart3 = $workbook->add_chart( type => 'pie' );
+    
+    # Configure the series.
+    $chart3->add_series(
+        categories => '=Sheet1!$A$2:$A$4',
+        values     => '=Sheet1!$B$2:$B$4',
+        name       => 'Pie sales data',
+    );
+    
+    # Add a title.
+    $chart3->set_title( name => 'Popular Pie Types' );
+    
+    
+    ###############################################################################
+    #
+    # Example 4. Same as previous chart with a user specified chart sheet name.
+    #
+    my $chart4 = $workbook->add_chart( name => 'Results Chart', type => 'pie' );
+    
+    # Configure the series.
+    $chart4->add_series(
+        categories => '=Sheet1!$A$2:$A$4',
+        values     => '=Sheet1!$B$2:$B$4',
+        name       => 'Pie sales data',
+    );
+    
+    # The other chart_*.pl examples add a second series in example 4 but additional
+    # series aren't plotted in a pie chart.
+    
+    # Add a title.
+    $chart4->set_title( name => 'Popular Pie Types' );
+    
+    
+    ###############################################################################
+    #
+    # Example 5. Same as Example 3 but as an embedded chart.
+    #
+    my $chart5 = $workbook->add_chart( type => 'pie', embedded => 1 );
+    
+    # Configure the series.
+    $chart5->add_series(
+        categories => '=Sheet1!$A$2:$A$4',
+        values     => '=Sheet1!$B$2:$B$4',
+        name       => 'Pie sales data',
+    );
+    
+    # Add a title.
+    $chart5->set_title( name => 'Popular Pie Types' );
+    
+    # Insert the chart into the main worksheet.
+    $worksheet->insert_chart( 'D2', $chart5 );
+    
+    __END__
+    
+
+
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/chart_pie.pl>
+
+=head2 Example: chart_scatter.pl
+
+
+
+A simple demo of Scatter charts in Spreadsheet::WriteExcel.
+
+
+
+=begin html
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/chart_scatter.jpg" width="640" height="420" alt="Output from chart_scatter.pl" /></center></p>
+
+=end html
+
+Source code for this example:
+
+    #!/usr/bin/perl -w
+    
+    ###############################################################################
+    #
+    # A simple demo of Scatter charts in Spreadsheet::WriteExcel.
+    #
+    # reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
+    #
+    
+    use strict;
+    use Spreadsheet::WriteExcel;
+    
+    my $workbook  = Spreadsheet::WriteExcel->new( 'chart_scatter.xls' );
+    my $worksheet = $workbook->add_worksheet();
+    my $bold      = $workbook->add_format( bold => 1 );
+    
+    # Add the worksheet data that the charts will refer to.
     my $headings = [ 'Category', 'Values 1', 'Values 2' ];
     my $data = [
         [ 2, 3, 4, 5, 6, 7 ],
@@ -2490,7 +2623,7 @@ Source code for this example:
     #
     # Example 1. A minimal chart.
     #
-    my $chart1 = $workbook->add_chart( type => 'pie' );
+    my $chart1 = $workbook->add_chart( type => 'scatter' );
     
     # Add values only. Use the default categories.
     $chart1->add_series( values => '=Sheet1!$B$2:$B$7' );
@@ -2501,7 +2634,7 @@ Source code for this example:
     # Example 2. A minimal chart with user specified categories (X axis)
     #            and a series name.
     #
-    my $chart2 = $workbook->add_chart( type => 'pie' );
+    my $chart2 = $workbook->add_chart( type => 'scatter' );
     
     # Configure the series.
     $chart2->add_series(
@@ -2513,9 +2646,9 @@ Source code for this example:
     
     ###############################################################################
     #
-    # Example 3. Same as previous chart but with added title.
+    # Example 3. Same as previous chart but with added title and axes labels.
     #
-    my $chart3 = $workbook->add_chart( type => 'pie' );
+    my $chart3 = $workbook->add_chart( type => 'scatter' );
     
     # Configure the series.
     $chart3->add_series(
@@ -2526,11 +2659,8 @@ Source code for this example:
     
     # Add some labels.
     $chart3->set_title( name => 'Results of sample analysis' );
-    
-    # Note, a Pie chart doesn't have an X or Y axis so the following methods
-    # used in the other chart_*.pl examples are ignored.
-    # $chart3->set_x_axis( name => 'Sample number' );
-    # $chart3->set_y_axis( name => 'Sample length (cm)' );
+    $chart3->set_x_axis( name => 'Sample number' );
+    $chart3->set_y_axis( name => 'Sample length (cm)' );
     
     
     ###############################################################################
@@ -2538,7 +2668,7 @@ Source code for this example:
     # Example 4. Same as previous chart but with an added series and with a
     #            user specified chart sheet name.
     #
-    my $chart4 = $workbook->add_chart( name => 'Results Chart', type => 'pie' );
+    my $chart4 = $workbook->add_chart( name => 'Results Chart', type => 'scatter' );
     
     # Configure the series.
     $chart4->add_series(
@@ -2556,13 +2686,15 @@ Source code for this example:
     
     # Add some labels.
     $chart4->set_title( name => 'Results of sample analysis' );
+    $chart4->set_x_axis( name => 'Sample number' );
+    $chart4->set_y_axis( name => 'Sample length (cm)' );
     
     
     ###############################################################################
     #
     # Example 5. Same as Example 3 but as an embedded chart.
     #
-    my $chart5 = $workbook->add_chart( type => 'pie', embedded => 1 );
+    my $chart5 = $workbook->add_chart( type => 'scatter', embedded => 1 );
     
     # Configure the series.
     $chart5->add_series(
@@ -2573,6 +2705,8 @@ Source code for this example:
     
     # Add some labels.
     $chart5->set_title( name => 'Results of sample analysis' );
+    $chart5->set_x_axis( name => 'Sample number' );
+    $chart5->set_y_axis( name => 'Sample length (cm)' );
     
     # Insert the chart into the main worksheet.
     $worksheet->insert_chart( 'E2', $chart5 );
@@ -2581,7 +2715,188 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/chart_pie.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/chart_scatter.pl>
+
+=head2 Example: chart_stock.pl
+
+
+
+A simple demo of Stock charts in Spreadsheet::WriteExcel.
+
+
+
+=begin html
+
+<p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/chart_stock.jpg" width="640" height="420" alt="Output from chart_stock.pl" /></center></p>
+
+=end html
+
+Source code for this example:
+
+    #!/usr/bin/perl -w
+    
+    ###############################################################################
+    #
+    # A simple demo of Stock charts in Spreadsheet::WriteExcel.
+    #
+    # reverse('Â©'), January 2010, John McNamara, jmcnamara@cpan.org
+    #
+    
+    
+    use strict;
+    use Spreadsheet::WriteExcel;
+    
+    my $workbook  = Spreadsheet::WriteExcel->new( 'chart_stock.xls' );
+    my $worksheet = $workbook->add_worksheet();
+    
+    
+    ###############################################################################
+    #
+    # Set up the data worksheet that the charts will refer to. We read the example
+    # data from the __DATA__ section at the end of the file. This simulates
+    # reading the data from a database or other source.
+    #
+    # The default Excel Stock chart is an Open-High-Low-Close chart. Therefore
+    # we will need data for each of those series.
+    #
+    # The layout of the __DATA__ section is similar to the layout of the worksheet.
+    #
+    
+    # Add some formats.
+    my $bold        = $workbook->add_format( bold       => 1 );
+    my $date_format = $workbook->add_format( num_format => 'dd/mm/yyyy' );
+    
+    # Increase the width of the column used for date to make it clearer.
+    $worksheet->set_column( 'A:A', 12 );
+    
+    # Read the data from the __DATA__ section at the end. In a real example this
+    # would probably be a database query.
+    my @stock_data;
+    
+    while ( <DATA> ) {
+        next unless /\S/;    # Skip blank lines.
+        next if /^#/;        # Skip comments.
+    
+        push @stock_data, [split];
+    }
+    
+    # Write the data to the worksheet.
+    my $row = 0;
+    my $col = 0;
+    
+    my $headers = shift @stock_data;
+    $worksheet->write( $row++, $col, $headers, $bold );
+    
+    for my $stock_data ( @stock_data ) {
+    
+        my @data = @$stock_data;
+        my $date = shift @data;
+    
+        $worksheet->write( $row, $col, $date, $date_format );
+        $worksheet->write( $row, $col + 1, \@data );
+    
+        $row++;
+    }
+    
+    
+    ###############################################################################
+    #
+    # Example 1. A default Open-High-Low-Close chart with series names, axes labels
+    #            and a title.
+    #
+    
+    my $chart1 = $workbook->add_chart( type => 'stock' );
+    
+    # Add a series for each of the Open-High-Low-Close columns. The categories are
+    # the dates in the first column.
+    
+    $chart1->add_series(
+        categories => '=Sheet1!$A$2:$A$10',
+        values     => '=Sheet1!$B$2:$B$10',
+        name       => 'Open',
+    );
+    
+    $chart1->add_series(
+        categories => '=Sheet1!$A$2:$A$10',
+        values     => '=Sheet1!$C$2:$C$10',
+        name       => 'High',
+    );
+    
+    $chart1->add_series(
+        categories => '=Sheet1!$A$2:$A$10',
+        values     => '=Sheet1!$D$2:$D$10',
+        name       => 'Low',
+    );
+    
+    $chart1->add_series(
+        categories => '=Sheet1!$A$2:$A$10',
+        values     => '=Sheet1!$E$2:$E$10',
+        name       => 'Close',
+    );
+    
+    # Add a chart title and axes labels.
+    $chart1->set_title( name => 'Open-High-Low-Close', );
+    $chart1->set_x_axis( name => 'Date', );
+    $chart1->set_y_axis( name => 'Share price', );
+    
+    ###############################################################################
+    #
+    # Example 2. Same as the previous as an embedded chart.
+    #
+    
+    my $chart2 = $workbook->add_chart( type => 'stock', embedded => 1 );
+    
+    # Add a series for each of the Open-High-Low-Close columns. The categories are
+    # the dates in the first column.
+    
+    $chart2->add_series(
+        categories => '=Sheet1!$A$2:$A$10',
+        values     => '=Sheet1!$B$2:$B$10',
+        name       => 'Open',
+    );
+    
+    $chart2->add_series(
+        categories => '=Sheet1!$A$2:$A$10',
+        values     => '=Sheet1!$C$2:$C$10',
+        name       => 'High',
+    );
+    
+    $chart2->add_series(
+        categories => '=Sheet1!$A$2:$A$10',
+        values     => '=Sheet1!$D$2:$D$10',
+        name       => 'Low',
+    );
+    
+    $chart2->add_series(
+        categories => '=Sheet1!$A$2:$A$10',
+        values     => '=Sheet1!$E$2:$E$10',
+        name       => 'Close',
+    );
+    
+    # Add a chart title and axes labels.
+    $chart2->set_title( name => 'Open-High-Low-Close', );
+    $chart2->set_x_axis( name => 'Date', );
+    $chart2->set_y_axis( name => 'Share price', );
+    
+    # Insert the chart into the main worksheet.
+    $worksheet->insert_chart( 'G2', $chart2 );
+    
+    
+    __DATA__
+    # Some sample stock data used for charting.
+    Date        Open    High    Low     Close
+    2009-08-19  100.00  104.06  95.96   100.34
+    2009-08-20  101.01  109.08  100.50  108.31
+    2009-08-23  110.75  113.48  109.05  109.40
+    2009-08-24  111.24  111.60  103.57  104.87
+    2009-08-25  104.96  108.00  103.88  106.00
+    2009-08-26  104.95  107.95  104.66  107.91
+    2009-08-27  108.10  108.62  105.69  106.15
+    2009-08-30  105.28  105.49  102.01  102.01
+    2009-08-31  102.30  103.71  102.16  102.37
+
+
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/chart_stock.pl>
 
 =head2 Example: chess.pl
 
@@ -2761,7 +3076,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/chess.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/chess.pl>
 
 =head2 Example: colors.pl
 
@@ -2892,7 +3207,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/colors.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/colors.pl>
 
 =head2 Example: comments1.pl
 
@@ -2943,7 +3258,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/comments1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/comments1.pl>
 
 =head2 Example: comments2.pl
 
@@ -3351,7 +3666,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/comments2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/comments2.pl>
 
 =head2 Example: copyformat.pl
 
@@ -3425,7 +3740,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/copyformat.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/copyformat.pl>
 
 =head2 Example: data_validate.pl
 
@@ -3732,7 +4047,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/data_validate.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/data_validate.pl>
 
 =head2 Example: date_time.pl
 
@@ -3843,7 +4158,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/date_time.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/date_time.pl>
 
 =head2 Example: defined_name.pl
 
@@ -3903,7 +4218,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/defined_name.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/defined_name.pl>
 
 =head2 Example: diag_border.pl
 
@@ -3964,7 +4279,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/diag_border.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/diag_border.pl>
 
 =head2 Example: easter_egg.pl
 
@@ -4006,7 +4321,7 @@ in Excel 97 SR2.
     $application->InputBox($message);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/easter_egg.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/easter_egg.pl>
 
 =head2 Example: filehandle.pl
 
@@ -4141,7 +4456,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/filehandle.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/filehandle.pl>
 
 =head2 Example: formula_result.pl
 
@@ -4194,7 +4509,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/formula_result.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/formula_result.pl>
 
 =head2 Example: headers.pl
 
@@ -4385,7 +4700,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/headers.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/headers.pl>
 
 =head2 Example: hide_sheet.pl
 
@@ -4431,7 +4746,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/hide_sheet.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/hide_sheet.pl>
 
 =head2 Example: hyperlink1.pl
 
@@ -4493,7 +4808,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/hyperlink1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/hyperlink1.pl>
 
 =head2 Example: hyperlink2.pl
 
@@ -4641,7 +4956,7 @@ See also hyperlink1.pl for web URL examples.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/hyperlink2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/hyperlink2.pl>
 
 =head2 Example: images.pl
 
@@ -4712,7 +5027,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/images.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/images.pl>
 
 =head2 Example: indent.pl
 
@@ -4763,7 +5078,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/indent.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/indent.pl>
 
 =head2 Example: merge1.pl
 
@@ -4824,7 +5139,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/merge1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/merge1.pl>
 
 =head2 Example: merge2.pl
 
@@ -4894,7 +5209,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/merge2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/merge2.pl>
 
 =head2 Example: merge3.pl
 
@@ -4981,7 +5296,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/merge3.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/merge3.pl>
 
 =head2 Example: merge4.pl
 
@@ -5092,7 +5407,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/merge4.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/merge4.pl>
 
 =head2 Example: merge5.pl
 
@@ -5189,7 +5504,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/merge5.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/merge5.pl>
 
 =head2 Example: merge6.pl
 
@@ -5293,7 +5608,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/merge6.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/merge6.pl>
 
 =head2 Example: mod_perl1.pl
 
@@ -5417,7 +5732,7 @@ The PerlHandler name above and the package name below *have* to match.
     1;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/mod_perl1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/mod_perl1.pl>
 
 =head2 Example: mod_perl2.pl
 
@@ -5545,7 +5860,7 @@ The PerlResponseHandler must match the package name below.
     1;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/mod_perl2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/mod_perl2.pl>
 
 =head2 Example: outline.pl
 
@@ -5875,7 +6190,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/outline.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/outline.pl>
 
 =head2 Example: outline_collapsed.pl
 
@@ -6111,7 +6426,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/outline_collapsed.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/outline_collapsed.pl>
 
 =head2 Example: panes.pl
 
@@ -6263,7 +6578,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/panes.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/panes.pl>
 
 =head2 Example: properties.pl
 
@@ -6316,7 +6631,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/properties.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/properties.pl>
 
 =head2 Example: protection.pl
 
@@ -6379,7 +6694,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/protection.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/protection.pl>
 
 =head2 Example: repeat.pl
 
@@ -6445,7 +6760,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/repeat.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/repeat.pl>
 
 =head2 Example: right_to_left.pl
 
@@ -6492,7 +6807,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/right_to_left.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/right_to_left.pl>
 
 =head2 Example: row_wrap.pl
 
@@ -6578,7 +6893,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/row_wrap.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/row_wrap.pl>
 
 =head2 Example: sales.pl
 
@@ -6705,7 +7020,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/sales.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/sales.pl>
 
 =head2 Example: sendmail.pl
 
@@ -6767,7 +7082,7 @@ See the L<Mail::Sender> module for further details.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/sendmail.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/sendmail.pl>
 
 =head2 Example: stats_ext.pl
 
@@ -6868,7 +7183,7 @@ Source code for this example:
     $worksheet2->write('B9', 24.8, $numformat);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/stats_ext.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/stats_ext.pl>
 
 =head2 Example: stocks.pl
 
@@ -6968,7 +7283,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/stocks.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/stocks.pl>
 
 =head2 Example: tab_colors.pl
 
@@ -7012,7 +7327,7 @@ Source code for this example:
     $worksheet4->set_tab_color(0x35); # Orange
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/tab_colors.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/tab_colors.pl>
 
 =head2 Example: textwrap.pl
 
@@ -7118,7 +7433,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/textwrap.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/textwrap.pl>
 
 =head2 Example: win32ole.pl
 
@@ -7175,7 +7490,7 @@ Win32::OLE module for the sake of comparison.
     $workbook->Close;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/win32ole.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/win32ole.pl>
 
 =head2 Example: write_arrays.pl
 
@@ -7270,7 +7585,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/write_arrays.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/write_arrays.pl>
 
 =head2 Example: write_handler1.pl
 
@@ -7358,7 +7673,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/write_handler1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/write_handler1.pl>
 
 =head2 Example: write_handler2.pl
 
@@ -7455,7 +7770,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/write_handler2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/write_handler2.pl>
 
 =head2 Example: write_handler3.pl
 
@@ -7545,7 +7860,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/write_handler3.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/write_handler3.pl>
 
 =head2 Example: write_handler4.pl
 
@@ -7671,7 +7986,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/write_handler4.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/write_handler4.pl>
 
 =head2 Example: write_to_scalar.pl
 
@@ -7733,7 +8048,7 @@ see the filehandle.pl program and IO:Scalar.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/write_to_scalar.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/write_to_scalar.pl>
 
 =head2 Example: unicode_utf16.pl
 
@@ -7799,7 +8114,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_utf16.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_utf16.pl>
 
 =head2 Example: unicode_utf16_japan.pl
 
@@ -7875,7 +8190,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_utf16_japan.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_utf16_japan.pl>
 
 =head2 Example: unicode_cyrillic.pl
 
@@ -7944,7 +8259,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_cyrillic.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_cyrillic.pl>
 
 =head2 Example: unicode_list.pl
 
@@ -8014,7 +8329,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_list.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_list.pl>
 
 =head2 Example: unicode_2022_jp.pl
 
@@ -8083,7 +8398,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_2022_jp.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_2022_jp.pl>
 
 =head2 Example: unicode_8859_11.pl
 
@@ -8152,7 +8467,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_8859_11.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_8859_11.pl>
 
 =head2 Example: unicode_8859_7.pl
 
@@ -8221,7 +8536,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_8859_7.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_8859_7.pl>
 
 =head2 Example: unicode_big5.pl
 
@@ -8290,7 +8605,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_big5.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_big5.pl>
 
 =head2 Example: unicode_cp1251.pl
 
@@ -8359,7 +8674,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_cp1251.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_cp1251.pl>
 
 =head2 Example: unicode_cp1256.pl
 
@@ -8428,7 +8743,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_cp1256.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_cp1256.pl>
 
 =head2 Example: unicode_koi8r.pl
 
@@ -8497,7 +8812,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_koi8r.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_koi8r.pl>
 
 =head2 Example: unicode_polish_utf8.pl
 
@@ -8566,7 +8881,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_polish_utf8.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_polish_utf8.pl>
 
 =head2 Example: unicode_shift_jis.pl
 
@@ -8635,7 +8950,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/unicode_shift_jis.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/unicode_shift_jis.pl>
 
 =head2 Example: csv2xls.pl
 
@@ -8725,7 +9040,7 @@ See the examples/csv2xls link here:
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/csv2xls.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/csv2xls.pl>
 
 =head2 Example: tab2xls.pl
 
@@ -8806,7 +9121,7 @@ See the examples/csv2xls link here:
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/tab2xls.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/tab2xls.pl>
 
 =head2 Example: datecalc1.pl
 
@@ -9068,7 +9383,7 @@ the 1900 serials of Excel for dates before 1 Mar 1900.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/datecalc1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/datecalc1.pl>
 
 =head2 Example: datecalc2.pl
 
@@ -9187,7 +9502,7 @@ NOTE: An easier way of writing dates and times is to use the newer
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/datecalc2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/datecalc2.pl>
 
 =head2 Example: lecxe.pl
 
@@ -9552,7 +9867,7 @@ program using Win32::OLE
     modify it under the same terms as Perl itself.
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/lecxe.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/lecxe.pl>
 
 =head2 Example: convertA1.pl
 
@@ -9786,7 +10101,7 @@ These functions have been superseded by L<Spreadsheet::WriteExcel::Utility>.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/convertA1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/convertA1.pl>
 
 =head2 Example: function_locale.pl
 
@@ -10201,7 +10516,7 @@ The shortest function name in all languages is T.
     354     -1      1          0          ROMAN                              RÖMISCH                            ROMAIN                             NUMERO.ROMANO                      ROMANO                             ROMEINS                      ROMAN                              ROMANO                             ROMERSK
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/function_locale.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/function_locale.pl>
 
 =head2 Example: writeA1.pl
 
@@ -10306,7 +10621,7 @@ code directly.
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.34/examples/writeA1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.35/examples/writeA1.pl>
 
 =head1 AUTHOR
 

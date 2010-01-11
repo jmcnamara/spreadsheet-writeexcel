@@ -2,7 +2,7 @@
 
 ###############################################################################
 #
-# A simple demo of a Column chart in Spreadsheet::WriteExcel.
+# A simple demo of Column charts in Spreadsheet::WriteExcel.
 #
 # reverse('©'), December 2009, John McNamara, jmcnamara@cpan.org
 #
@@ -14,7 +14,7 @@ my $workbook  = Spreadsheet::WriteExcel->new( 'chart_column.xls' );
 my $worksheet = $workbook->add_worksheet();
 my $bold      = $workbook->add_format( bold => 1 );
 
-# Add the data to the worksheet that the charts will refer to.
+# Add the worksheet data that the charts will refer to.
 my $headings = [ 'Category', 'Values 1', 'Values 2' ];
 my $data = [
     [ 2, 3, 4, 5, 6, 7 ],

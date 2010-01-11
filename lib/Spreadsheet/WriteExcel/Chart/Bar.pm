@@ -22,7 +22,7 @@ use Spreadsheet::WriteExcel::Chart;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Chart Exporter);
 
-$VERSION = '2.34';
+$VERSION = '2.35';
 
 ###############################################################################
 #
@@ -126,7 +126,7 @@ To create a simple Excel file with a Bar chart using Spreadsheet::WriteExcel:
         values     => '=Sheet1!$B$2:$B$7',
     );
 
-    # Add the data to the worksheet the chart refers to.
+    # Add the worksheet data the chart refers to.
     my $data = [
         [ 'Category', 2, 3, 4, 5, 6, 7 ],
         [ 'Value',    1, 4, 5, 2, 1, 5 ],
@@ -168,7 +168,7 @@ Here is a complete example that demonstrates most of the available features when
     my $worksheet = $workbook->add_worksheet();
     my $bold      = $workbook->add_format( bold => 1 );
 
-    # Add the data to the worksheet that the charts will refer to.
+    # Add the worksheet data that the charts will refer to.
     my $headings = [ 'Number', 'Sample 1', 'Sample 2' ];
     my $data = [
         [ 2, 3, 4, 5, 6, 7 ],
