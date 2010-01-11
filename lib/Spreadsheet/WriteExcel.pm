@@ -309,11 +309,13 @@ This is a required parameter. It defines the type of chart that will be created.
 
 The available types are:
 
-    column
-    bar
-    line
     area
+    bar
+    column
+    line
     pie
+    scatter
+    stock
 
 =item * C<name>
 

@@ -1196,6 +1196,27 @@ sub _store_chartformat {
 
 ###############################################################################
 #
+# _store_chartline()
+#
+# Write the CHARTLINE chart BIFF record.
+#
+sub _store_chartline {
+
+    my $self = shift;
+
+    my $record = 0x101C;    # Record identifier.
+    my $length = 0x0002;    # Number of bytes to follow.
+    my $type   = 0x0001;    # Drop/hi-lo line type.
+
+    my $header = pack 'vv', $record, $length;
+    my $data = pack 'v', $type;
+
+    $self->_append( $header, $data );
+}
+
+
+###############################################################################
+#
 # _store_charttext()
 #
 # Write the TEXT chart BIFF record.
@@ -1283,8 +1304,28 @@ sub _store_defaulttext {
     my $type   = 0x0002;    # Type.
 
     my $header = pack 'vv', $record, $length;
-    my $data = '';
-    $data .= pack 'v', $type;
+    my $data = pack 'v', $type;
+
+    $self->_append( $header, $data );
+}
+
+
+###############################################################################
+#
+# _store_dropbar()
+#
+# Write the DROPBAR chart BIFF record.
+#
+sub _store_dropbar {
+
+    my $self = shift;
+
+    my $record      = 0x103D;    # Record identifier.
+    my $length      = 0x0002;    # Number of bytes to follow.
+    my $percent_gap = 0x0096;    # Drop bar width gap (%).
+
+    my $header = pack 'vv', $record, $length;
+    my $data = pack 'v', $percent_gap;
 
     $self->_append( $header, $data );
 }
@@ -1980,19 +2021,23 @@ Currently the supported chart types are:
 
 =over
 
-=item * C<column>: Creates a column style (histogram) chart. See L<Spreadsheet::WriteExcel::Chart::Column>.
+=item * C<area>: Creates an Area (filled line) style chart. See L<Spreadsheet::WriteExcel::Chart::Area>.
 
 =item * C<bar>: Creates a Bar style (transposed histogram) chart. See L<Spreadsheet::WriteExcel::Chart::Bar>.
 
-=item * C<line>: Creates a Line style chart. See L<Spreadsheet::WriteExcel::Chart::Line>.
+=item * C<column>: Creates a column style (histogram) chart. See L<Spreadsheet::WriteExcel::Chart::Column>.
 
-=item * C<area>: Creates an Area (filled line) style chart. See L<Spreadsheet::WriteExcel::Chart::Area>.
+=item * C<line>: Creates a Line style chart. See L<Spreadsheet::WriteExcel::Chart::Line>.
 
 =item * C<pie>: Creates an Pie style chart. See L<Spreadsheet::WriteExcel::Chart::Pie>.
 
+=item * C<scatter>: Creates an Scatter style chart. See L<Spreadsheet::WriteExcel::Chart::Scatter>.
+
+=item * C<stock>: Creates an Stock style chart. See L<Spreadsheet::WriteExcel::Chart::Stock>.
+
 =back
 
-More chart types will be supported in time. See the L</TODO> section.
+More charts and sub-types will be supported in time. See the L</TODO> section.
 
 Methods that are common to all chart types are documented below.
 
@@ -2058,7 +2103,7 @@ Optional, can be used to link the name to a worksheet cell. See L</Chart names a
 
 =back
 
-You can add more than one series to a chart. The series numbering and order in the final chart is the same as the order in which that are added.
+You can add more than one series to a chart, in fact some chart types such as C<stock> require it. The series numbering and order in the final chart is the same as the order in which that are added.
 
     # Add the first series.
     $chart->add_series(
@@ -2277,13 +2322,17 @@ Features that are on the TODO list and will be added are:
 
 =over
 
-=item * Additional chart types. Stock and Scatter charts are next in line. Send an email if you are interested in other types and they will be added to the queue. Chart sub-types will be added when the main chart types are covered.
+=item *  Chart sub-types.
 
 =item * Colours and formatting options. For now you will have to make do with the default Excel colours and formats.
 
 =item * Axis controls, gridlines.
 
-=item * Embedded data in charts for third party application support.
+=item * 3D charts.
+
+=item * Embedded data in charts for third party application support. See Known Issues.
+
+=item * Additional chart types such as Bubble and Radar. Send an email if you are interested in other types and they will be added to the queue.
 
 =back
 
@@ -2296,6 +2345,8 @@ If you are interested in sponsoring a feature let me know.
 =item * Currently charts don't contain embedded data from which the charts can be rendered. Excel and most other third party applications ignore this and read the data via the links that have been specified. However, some applications may complain or not render charts correctly. The preview option in Mac OS X is an known example. This will be fixed in a later release.
 
 =item * When there are several charts with titles set in a workbook some of the titles may display at a font size of 10 instead of the default 12 until another chart with the title set is viewed.
+
+=item * Stock (and other) charts should have the X-axis dates aligned at an angle for clarity. This will be fixed at a later stage.
 
 =back
 

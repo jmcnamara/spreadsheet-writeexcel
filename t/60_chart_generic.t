@@ -13,9 +13,7 @@ use strict;
 
 use Spreadsheet::WriteExcel::Chart;
 
-use Test::More tests => 37;
-
-#use Test::More 'no_plan';
+use Test::More tests => 39;
 
 
 ###############################################################################
@@ -623,6 +621,36 @@ $expected = join ' ', qw(
 
 
 $got = unpack_record( $chart->_store_markerformat( @values ) );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_dropbar() method.
+#
+$caption = " \tChart: _store_dropbar()";
+
+$expected = join ' ', qw(
+  3D 10 02 00 96 00
+);
+
+$got = unpack_record( $chart->_store_dropbar() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_chartline() method.
+#
+$caption = " \tChart: _store_chartline()";
+
+$expected = join ' ', qw(
+  1C 10 02 00 01 00
+);
+
+$got = unpack_record( $chart->_store_chartline() );
 
 is( $got, $expected, $caption );
 

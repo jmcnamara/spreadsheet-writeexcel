@@ -13,8 +13,7 @@ use strict;
 
 use Spreadsheet::WriteExcel::Chart;
 
-use Test::More tests => 6;
-#use Test::More 'no_plan';
+use Test::More tests => 7;
 
 
 ###############################################################################
@@ -122,6 +121,23 @@ $caption = " \tChart: Scatter()";
 
 $expected = join ' ', qw(
   1B 10 06 00 64 00 01 00 00 00
+);
+
+$got = unpack_record( $chart->_store_chart_type() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test for overridden _store_chart_type() in ::Chart::Stock.pm.
+#
+$chart = Spreadsheet::WriteExcel::Chart->factory( 'stock' );
+
+$caption = " \tChart: Stock()";
+
+$expected = join ' ', qw(
+  18 10 02 00 00 00
 );
 
 $got = unpack_record( $chart->_store_chart_type() );
