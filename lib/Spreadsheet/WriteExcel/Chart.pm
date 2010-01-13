@@ -1652,6 +1652,47 @@ sub _store_pos {
 
 ###############################################################################
 #
+# _store_serauxtrend()
+#
+# Write the SERAUXTREND chart BIFF record.
+#
+sub _store_serauxtrend {
+
+    my $self = shift;
+
+    my $record     = 0x104B;    # Record identifier.
+    my $length     = 0x001C;    # Number of bytes to follow.
+    my $reg_type   = $_[0];     # Regression type.
+    my $poly_order = $_[1];     # Polynomial order.
+    my $equation   = $_[3];     # Display equation.
+    my $r_squared  = $_[4];     # Display R-squared.
+    my $intercept;              # Forced intercept.
+    my $forecast;               # Forecast forward.
+    my $backcast;               # Forecast backward.
+
+    # TODO. When supported, intercept needs to be NAN if not used.
+    # Also need to reverse doubles.
+    $intercept = pack 'H*', 'FFFFFFFF0001FFFF';
+    $forecast  = pack 'H*', '0000000000000000';
+    $backcast  = pack 'H*', '0000000000000000';
+
+
+    my $header = pack 'vv', $record, $length;
+    my $data = '';
+    $data .= pack 'C', $reg_type;
+    $data .= pack 'C', $poly_order;
+    $data .= $intercept;
+    $data .= pack 'C', $equation;
+    $data .= pack 'C', $r_squared;
+    $data .= $forecast;
+    $data .= $backcast;
+
+    $self->_append( $header, $data );
+}
+
+
+###############################################################################
+#
 # _store_series()
 #
 # Write the SERIES chart BIFF record.
@@ -1714,6 +1755,27 @@ sub _store_seriestext {
     $data .= pack 'C', $encoding;
 
     $self->_append( $header, $data, $str );
+}
+
+
+###############################################################################
+#
+# _store_serparent()
+#
+# Write the SERPARENT chart BIFF record.
+#
+sub _store_serparent {
+
+    my $self = shift;
+
+    my $record = 0x104A;    # Record identifier.
+    my $length = 0x0002;    # Number of bytes to follow.
+    my $series = $_[0];     # Series parent.
+
+    my $header = pack 'vv', $record, $length;
+    my $data = pack 'v', $series;
+
+    $self->_append( $header, $data );
 }
 
 

@@ -13,7 +13,7 @@ use strict;
 
 use Spreadsheet::WriteExcel::Chart;
 
-use Test::More tests => 39;
+use Test::More tests => 40;
 
 
 ###############################################################################
@@ -651,6 +651,39 @@ $expected = join ' ', qw(
 );
 
 $got = unpack_record( $chart->_store_chartline() );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_serparent() method.
+#
+$caption = " \tChart: _store_serparent()";
+
+$expected = join ' ', qw(
+  4A 10 02 00 01 00
+);
+
+$got = unpack_record( $chart->_store_serparent( 1 ) );
+
+is( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test the _store_serauxtrend() method
+#
+$caption = " \tChart: _store_serauxtrend()";
+
+$expected = join ' ', qw(
+  4B 10 1C 00 00 01 FF FF FF FF 00 01 FF FF 00 00
+  00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00
+);
+
+@values = ( 0x00, 0x01, 0x00, 0x00 );
+
+$got = unpack_record( $chart->_store_serauxtrend( @values ) );
 
 is( $got, $expected, $caption );
 
