@@ -95,6 +95,7 @@ sub new {
     $self->{_embedded}    = 0;
 
     bless $self, $class;
+    $self->_set_default_properties();
     $self->_set_default_config_data();
     return $self;
 }
@@ -212,6 +213,25 @@ sub set_title {
     $self->{_title_name}     = $name;
     $self->{_title_encoding} = $encoding;
     $self->{_title_formula}  = $formula;
+}
+
+
+###############################################################################
+#
+# set_legend()
+#
+# Set the properties of the chart legend.
+#
+sub set_legend {
+
+    my $self = shift;
+    my %arg  = @_;
+
+    if (defined $arg{position}) {
+        if (lc $arg{position} eq 'none') {
+            $self->{_legend}->{_visible} = 0;
+        }
+    }
 }
 
 
@@ -752,10 +772,23 @@ sub _store_frame_stream {
 
     my $self = shift;
 
+    my $plotarea = $self->{_plotarea};
+
     $self->_store_frame( 0x00, 0x03 );
     $self->_store_begin();
-    $self->_store_lineformat( 0x00808080, 0x0000, 0x0000, 0x0000, 0x0017 );
-    $self->_store_areaformat( 0x00C0C0C0, 0x0000, 0x01, 0x00, 0x16, 0x4F );
+
+    $self->_store_lineformat(
+        $plotarea->{_border_color_rgb}, $plotarea->{_border_pattern},
+        $plotarea->{_border_weight},    $plotarea->{_border_options},
+        $plotarea->{_border_color_index}
+    );
+
+    $self->_store_areaformat(
+        $plotarea->{_fg_color_rgb},   $plotarea->{_bg_color_rgb},
+        $plotarea->{_area_pattern},   $plotarea->{_area_options},
+        $plotarea->{_fg_color_index}, $plotarea->{_bg_color_index}
+    );
+
     $self->_store_end();
 }
 
@@ -795,8 +828,12 @@ sub _store_chartformat_stream {
     # Store the BIFF record that will define the chart type.
     $self->_store_chart_type();
 
-    # CHARTFORMATLINK is not used.
-    $self->_store_legend_stream();
+    # Note, the CHARTFORMATLINK record is only written by Excel.
+
+    if ( $self->{_legend}->{_visible} ) {
+        $self->_store_legend_stream();
+    }
+
     $self->_store_marker_dataformat_stream();
     $self->_store_end();
 }
@@ -1957,6 +1994,39 @@ sub _store_valuerange {
 
 ###############################################################################
 #
+# _set_default_properties()
+#
+# Setup the default properties for a chart.
+#
+sub _set_default_properties {
+
+    my $self = shift;
+
+    $self->{_legend} = {
+        _visible  => 1,
+        _position => 0,
+        _vertical => 0,
+    };
+
+    $self->{_plotarea} = {
+        _visible            => 1,
+        _fg_color_index     => 0x16,
+        _fg_color_rgb       => 0xC0C0C0,
+        _bg_color_index     => 0x4F,
+        _bg_color_rgb       => 0x000000,
+        _area_pattern       => 0x0001,
+        _area_options       => 0x0000,
+        _border_pattern     => 0x0000,
+        _border_weight      => 0x0000,
+        _border_color_index => 0x17,
+        _border_color_rgb   => 0x808080,
+        _border_options     => 0x0000,
+    };
+}
+
+
+###############################################################################
+#
 # _set_default_config_data()
 #
 # Setup the default configuration data for a chart.
@@ -2275,6 +2345,34 @@ Optional, can be used to link the name to a worksheet cell. See L</Chart names a
         name          => 'Year End Results',
         name_formula  => '=Sheet1!$C$1',
     );
+
+=back
+
+
+=head2 set_legend()
+
+The C<set_legend()> method is used to set properties of the chart legend.
+
+    $chart->set_legend( position => 'none' );
+
+The properties that can be set are:
+
+    position      (optional)
+
+=over
+
+=item * C<position>
+
+Set the position of the chart legend.
+
+    $chart->set_legend( position => 'none' );
+
+The default legend position is C<bottom>. The currently supported chart positions are:
+
+    none
+    bottom
+
+The other legend positions will be added soon.
 
 =back
 

@@ -518,6 +518,10 @@ sub add_chart {
         $self->{_sheetnames}->[$index] = $name;     # Store EXTERNSHEET names
     }
     else {
+        # Set index to 0 so that the activate() and set_first_sheet() methods
+        # point back to the first worksheet if used for embedded charts.
+        $chart->{_index} = 0;
+
         $chart->_set_embedded_config_data();
     }
 

@@ -13,7 +13,7 @@ use strict;
 
 use Spreadsheet::WriteExcel::Chart;
 
-use Test::More tests => 40;
+use Test::More tests => 41;
 
 
 ###############################################################################
