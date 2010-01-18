@@ -21,6 +21,7 @@ use vars qw($VERSION @ISA @EXPORT @EXPORT_OK %EXPORT_TAGS);
 my @rowcol      = qw(
                         xl_rowcol_to_cell
                         xl_cell_to_rowcol
+                        xl_range_formula
                         xl_inc_row
                         xl_dec_row
                         xl_inc_col
@@ -58,13 +59,6 @@ Utility - Helper functions for Spreadsheet::WriteExcel.
 
 
 
-
-=head1 VERSION
-
-This document refers to version 0.03 of Spreadsheet::WriteExcel::Utility, released March, 2002.
-
-
-
 =head1 SYNOPSIS
 
 Functions to help with some common tasks when using Spreadsheet::WriteExcel.
@@ -94,6 +88,7 @@ Row and column functions: these are used to deal with Excel's A1 representation 
 
     xl_rowcol_to_cell
     xl_cell_to_rowcol
+    xl_range_formula
     xl_inc_row
     xl_dec_row
     xl_inc_col
@@ -281,6 +276,66 @@ sub xl_cell_to_rowcol {
     $col--;
 
     return $row, $col, $row_abs, $col_abs;
+}
+
+
+
+
+###############################################################################
+###############################################################################
+
+=head2 xl_range_formula($sheetname, $row_1, $row_2, $col_1, $col_2)
+
+    Parameters: $sheetname      String
+                $row_1:         Integer
+                $row_2:         Integer
+                $col_1:         Integer
+                $col_2:         Integer
+
+    Returns:    A worksheet range formula as a string.
+
+This function converts zero based row and column cell references to an A1 style formula string:
+
+    my $str = xl_range_formula('Sheet1',   0,  9, 0, 0); # =Sheet1!$A$1:$A$10
+    my $str = xl_range_formula('Sheet2',   6, 65, 1, 1); # =Sheet2!$B$7:$B$66
+    my $str = xl_range_formula('New data', 1,  8, 2, 2); # ='New data'!$C$2:$C$9
+
+
+This is useful for setting ranges in Chart objects:
+
+
+    $chart->add_series(
+        categories    => xl_range_formula('Sheet1', 1, 9, 0, 0),
+        values        => xl_range_formula('Sheet1', 1, 9, 1, 1);,
+    );
+
+    # Which is the same as:
+
+    $chart->add_series(
+        categories    => '=Sheet1!$A$2:$A$10',
+        values        => '=Sheet1!$B$2:$B$10',
+    );
+
+
+=cut
+###############################################################################
+#
+# xl_range_formula($sheetname, $row_1, $row_2, $col_1, $col_2)
+#
+sub xl_range_formula {
+
+    my ($sheetname, $row_1, $row_2, $col_1, $col_2) = @_;
+
+    # Use Excel's conventions and quote the sheet name if it contains any
+    # non-word character or if it isn't already quoted.
+    if ($sheetname =~ /\W/ && $sheetname !~ /^'/) {
+        $sheetname = q(') . $sheetname . q(');
+    }
+
+    my $range1 = xl_rowcol_to_cell($row_1, $col_1, 1, 1);
+    my $range2 = xl_rowcol_to_cell($row_2, $col_2, 1, 1);
+
+    return '=' . $sheetname . '!' . $range1 . ':' . $range2;
 }
 
 

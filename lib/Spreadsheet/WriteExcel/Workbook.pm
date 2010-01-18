@@ -1214,8 +1214,7 @@ sub _store_workbook {
         @{$self->{_worksheets}}[0]->{_hidden}   = 0;
     }
 
-    # Calculate the number of selected worksheet tabs and call the finalization
-    # methods for each worksheet
+    # Calculate the number of selected sheet tabs and set the active sheet.
     foreach my $sheet (@{$self->{_worksheets}}) {
         $self->{_selected}++ if $sheet->{_selected};
         $sheet->{_active} = 1 if $sheet->{_index} == $self->{_activesheet};
@@ -1412,7 +1411,7 @@ sub _calc_sheet_offsets {
 
     foreach my $sheet (@{$self->{_worksheets}}) {
         $sheet->{_offset} = $offset;
-        $sheet->_close($self->{_sheetnames});
+        $sheet->_close();
         $offset += $sheet->{_datasize};
     }
 

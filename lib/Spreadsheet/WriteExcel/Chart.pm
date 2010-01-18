@@ -2203,7 +2203,7 @@ This is the most important property of a series and must be set for every chart 
 
     $chart->add_series( values => '=Sheet1!$B$2:$B$10' );
 
-Note the format that should be used for the formula. The worksheet name must be specified (even for embedded charts) and the cell references must be "absolute" references, i.e., they must contain C<$> signs. This is the format that is required by Excel for chart references. You must also add the worksheet that you are referring to before you link to it, via the workbook C<add_worksheet()> method.
+Note the format that should be used for the formula. The worksheet name must be specified (even for embedded charts) and the cell references must be "absolute" references, i.e., they must contain C<$> signs. This is the format that is required by Excel for chart references. You must also add the worksheet that you are referring to before you link to it, via the workbook C<add_worksheet()> method. See also L</Working with Cell Ranges>.
 
 =item * C<categories>
 
@@ -2472,6 +2472,43 @@ Here is a complete example that demonstrates most of the available features when
 <p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/area1.jpg" width="527" height="320" alt="Chart example." /></center></p>
 
 =end html
+
+
+=head1 Working with Cell Ranges
+
+
+In the section on C<add_series()> it was noted that the series must be defined using a range formula:
+
+    $chart->add_series( values => '=Sheet1!$B$2:$B$10' );
+
+The worksheet name must be specified (even for embedded charts) and the cell references must be "absolute" references, i.e., they must contain C<$> signs. This is the format that is required by Excel for chart references.
+
+Since it isn't very convenient to work with this type of string programmatically the L<Spreadsheet::WriteExcel::Utility> module, which is included with Spreadsheet::WriteExcel, provides a function called C<xl_range_formula()> to convert from zero based row and column cell references to an A1 style formula string.
+
+The sytax is:
+
+    xl_range_formula($sheetname, $row_1, $row_2, $col_1, $col_2)
+
+If you include it in your program, using the standard import syntax, you can use the function as follows:
+
+
+    # Include the Utility module or just the function you need.
+    use Spreadsheet::WriteExcel::Utility qw( xl_range_formula );
+    ...
+
+    # Then use it as required.
+    $chart->add_series(
+        categories    => xl_range_formula( 'Sheet1', 1, 9, 0, 0 ),
+        values        => xl_range_formula( 'Sheet1', 1, 9, 1, 1 );,
+    );
+
+    # Which is the same as:
+    $chart->add_series(
+        categories    => '=Sheet1!$A$2:$A$10',
+        values        => '=Sheet1!$B$2:$B$10',
+    );
+
+See L<Spreadsheet::WriteExcel::Utility> for more details.
 
 
 =head1 TODO

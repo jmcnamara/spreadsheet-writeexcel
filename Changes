@@ -1,5 +1,11 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.3X TODO
+
+   + Added xl_range_formula() to Spreadsheet::WriteExcel::Utility to
+     help with creating chart ranges. Added example to Chart docs.
+
+
 2.35 January 10 2010 - Major
 
     + Added support for Stock charts.
