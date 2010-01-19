@@ -2434,41 +2434,31 @@ The other legend positions will be added soon.
 =back
 
 
+=head1 WORKSHEET METHODS
 
-=head1 Chart names and links
+In Excel a chart sheet (i.e, a chart that isn't embedded) shares properties with data worksheets such as tab selection, headers, footers, margins and print properties.
 
-The C<add_series())>, C<set_x_axis()>, C<set_y_axis()> and C<set_title()> methods all support a C<name> property. In general these names can be either a static string or a link to a worksheet cell. If you choose to use the C<name_formula> property to specify a link then you should also the C<name> property. This isn't strictly required by Excel but some third party applications expect it to be present.
+In Spreadsheet::WriteExcel you can set chart sheet properties using the same methods that are used for Worksheet objects.
 
-    $chart->set_title(
-        name          => 'Year End Results',
-        name_formula  => '=Sheet1!$C$1',
-    );
+The following Worksheet methods are also available through a non-embedded Chart object:
 
-These links should be used sparingly since they aren't commonly used in Excel charts.
+    get_name()
+    activate()
+    select()
+    hide()
+    set_first_sheet()
+    protect()
+    set_zoom()
+    set_tab_color()
 
+    set_landscape()
+    set_portrait()
+    set_paper()
+    set_margins()
+    set_header()
+    set_footer()
 
-=head1 Chart names and Unicode
-
-The C<add_series())>, C<set_x_axis()>, C<set_y_axis()> and C<set_title()> methods all support a C<name> property. These names can be UTF8 strings if you are using perl 5.8+.
-
-
-    # perl 5.8+ example:
-    my $smiley = "\x{263A}";
-
-    $chart->set_title( name => "Best. Results. Ever! $smiley" );
-
-For older perls you write Unicode strings as UTF-16BE by adding a C<name_encoding> property:
-
-    # perl 5.005 example:
-    my $utf16be_name = pack 'n', 0x263A;
-
-    $chart->set_title(
-        name          => $utf16be_name,
-        name_encoding => 1,
-    );
-
-This methodology is explained in the "UNICODE IN EXCEL" section of L<Spreadsheet::WriteExcel> but is semi-deprecated. If you are using Unicode the easiest option is to just use UTF8 in perl 5.8+.
-
+See L<Spreadsheet::WriteExcel> for a detailed explanation of these methods.
 
 =head1 EXAMPLE
 
@@ -2529,6 +2519,41 @@ Here is a complete example that demonstrates most of the available features when
 <p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/area1.jpg" width="527" height="320" alt="Chart example." /></center></p>
 
 =end html
+
+
+=head1 Chart names and links
+
+The C<add_series())>, C<set_x_axis()>, C<set_y_axis()> and C<set_title()> methods all support a C<name> property. In general these names can be either a static string or a link to a worksheet cell. If you choose to use the C<name_formula> property to specify a link then you should also the C<name> property. This isn't strictly required by Excel but some third party applications expect it to be present.
+
+    $chart->set_title(
+        name          => 'Year End Results',
+        name_formula  => '=Sheet1!$C$1',
+    );
+
+These links should be used sparingly since they aren't commonly used in Excel charts.
+
+
+=head1 Chart names and Unicode
+
+The C<add_series())>, C<set_x_axis()>, C<set_y_axis()> and C<set_title()> methods all support a C<name> property. These names can be UTF8 strings if you are using perl 5.8+.
+
+
+    # perl 5.8+ example:
+    my $smiley = "\x{263A}";
+
+    $chart->set_title( name => "Best. Results. Ever! $smiley" );
+
+For older perls you write Unicode strings as UTF-16BE by adding a C<name_encoding> property:
+
+    # perl 5.005 example:
+    my $utf16be_name = pack 'n', 0x263A;
+
+    $chart->set_title(
+        name          => $utf16be_name,
+        name_encoding => 1,
+    );
+
+This methodology is explained in the "UNICODE IN EXCEL" section of L<Spreadsheet::WriteExcel> but is semi-deprecated. If you are using Unicode the easiest option is to just use UTF8 in perl 5.8+.
 
 
 =head1 Working with Cell Ranges
