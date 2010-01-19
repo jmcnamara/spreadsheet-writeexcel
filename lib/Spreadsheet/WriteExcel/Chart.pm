@@ -265,7 +265,7 @@ sub _prepend {
 
 ###############################################################################
 #
-# _close()
+# _close(), overridden.
 #
 # Create and store the Chart data structures.
 #
@@ -330,8 +330,65 @@ sub _close {
 
     # TODO add SINDEX record
 
-    #$self->_store_window2();
+    $self->_store_window2();
     $self->_store_eof();
+}
+
+
+###############################################################################
+#
+# _store_window2(), overridden.
+#
+# Write BIFF record Window2. Note, this overrides the parent Worksheet
+# record because the Chart version of the record is smaller and is used
+# mainly to indicate if the chart tab is selected or not.
+#
+sub _store_window2 {
+
+    use integer;    # Avoid << shift bug in Perl 5.6.0 on HP-UX
+
+    my $self   = shift;
+
+    my $record  = 0x023E;    # Record identifier
+    my $length  = 0x000A;    # Number of bytes to follow
+    my $grbit   = 0x0000;    # Option flags
+    my $rwTop   = 0x0000;    # Top visible row
+    my $colLeft = 0x0000;    # Leftmost visible column
+    my $rgbHdr  = 0x0000;    # Row/col heading, grid color
+
+    # The options flags that comprise $grbit
+    my $fDspFmla       = 0;                     # 0 - bit
+    my $fDspGrid       = 0;                     # 1
+    my $fDspRwCol      = 0;                     # 2
+    my $fFrozen        = 0;                     # 3
+    my $fDspZeros      = 0;                     # 4
+    my $fDefaultHdr    = 0;                     # 5
+    my $fArabic        = 0;                     # 6
+    my $fDspGuts       = 0;                     # 7
+    my $fFrozenNoSplit = 0;                     # 0 - bit
+    my $fSelected      = $self->{_selected};    # 1
+    my $fPaged         = 0;                     # 2
+    my $fBreakPreview  = 0;                     # 3
+
+    #<<< Perltidy ignore this.
+    $grbit             = $fDspFmla;
+    $grbit            |= $fDspGrid       << 1;
+    $grbit            |= $fDspRwCol      << 2;
+    $grbit            |= $fFrozen        << 3;
+    $grbit            |= $fDspZeros      << 4;
+    $grbit            |= $fDefaultHdr    << 5;
+    $grbit            |= $fArabic        << 6;
+    $grbit            |= $fDspGuts       << 7;
+    $grbit            |= $fFrozenNoSplit << 8;
+    $grbit            |= $fSelected      << 9;
+    $grbit            |= $fPaged         << 10;
+    $grbit            |= $fBreakPreview  << 11;
+    #>>>
+
+    my $header = pack( "vv", $record, $length );
+    my $data = pack( "vvvV", $grbit, $rwTop, $colLeft, $rgbHdr );
+
+    $self->_append( $header, $data );
 }
 
 
@@ -2485,7 +2542,7 @@ The worksheet name must be specified (even for embedded charts) and the cell ref
 
 Since it isn't very convenient to work with this type of string programmatically the L<Spreadsheet::WriteExcel::Utility> module, which is included with Spreadsheet::WriteExcel, provides a function called C<xl_range_formula()> to convert from zero based row and column cell references to an A1 style formula string.
 
-The sytax is:
+The syntax is:
 
     xl_range_formula($sheetname, $row_1, $row_2, $col_1, $col_2)
 
