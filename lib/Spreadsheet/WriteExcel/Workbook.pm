@@ -2029,13 +2029,12 @@ sub _store_all_styles {
 sub _store_names {
 
     my $self        = shift;
-    my $index       = 0;
+    my $index;
     my %ext_refs    = %{$self->{_ext_refs}};
 
 
     # Create the user defined names.
     for my $defined_name (@{$self->{_defined_names}}) {
-        #print $defined_name->{name}, "\n";
 
         $self->_store_name(
             $defined_name->{name},
@@ -2045,13 +2044,16 @@ sub _store_names {
         );
     }
 
+    # Sort the worksheets into alphabetical order by name. This is a
+    # requirement for some non-English language Excel patch levels.
+    my @worksheets = @{$self->{_worksheets}};
+       @worksheets = sort { $a->{_name} cmp $b->{_name} } @worksheets;
 
-    # Create the print area NAME records
-    foreach my $worksheet (@{$self->{_worksheets}}) {
-
+    # Create the autofilter NAME records
+    foreach my $worksheet (@worksheets) {
+        $index  = $worksheet->{_index};
         my $key = "$index:$index";
         my $ref = $ext_refs{$key};
-        $index++;
 
         # Write a Name record if Autofilter has been defined
         if ($worksheet->{_filter_count}) {
@@ -2066,6 +2068,13 @@ sub _store_names {
                 1, # Hidden
             );
         }
+    }
+
+    # Create the print area NAME records
+    foreach my $worksheet (@worksheets) {
+        $index  = $worksheet->{_index};
+        my $key = "$index:$index";
+        my $ref = $ext_refs{$key};
 
         # Write a Name record if the print area has been defined
         if (defined $worksheet->{_print_rowmin}) {
@@ -2079,13 +2088,11 @@ sub _store_names {
                 $worksheet->{_print_colmax}
             );
         }
-
     }
 
-    $index = 0;
-
     # Create the print title NAME records
-    foreach my $worksheet (@{$self->{_worksheets}}) {
+    foreach my $worksheet (@worksheets) {
+        $index  = $worksheet->{_index};
 
         my $rowmin = $worksheet->{_title_rowmin};
         my $rowmax = $worksheet->{_title_rowmax};
@@ -2093,7 +2100,6 @@ sub _store_names {
         my $colmax = $worksheet->{_title_colmax};
         my $key    = "$index:$index";
         my $ref    = $ext_refs{$key};
-        $index++;
 
         # Determine if row + col, row, col or nothing has been defined
         # and write the appropriate record
