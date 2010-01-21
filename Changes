@@ -1,13 +1,19 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-2.3X TODO
+2.36 January 21 2010 - Minor
 
-   + Fix for bug that gave a name confict error for repeat rows and
+   ! Fix for bug that gave a name conflict error for repeat rows and
      autofilters in some non-English versions of Excel.
      http://rt.cpan.org/Public/Bug/Display.html?id=38099
 
+   ! Fixed tab selection for Charts.
+
    + Added xl_range_formula() to Spreadsheet::WriteExcel::Utility to
      help with creating chart ranges. Added example to Chart docs.
+
+   + Added set_legend() method with initial legend formatting options.
+
+   + Documented Worksheet methods that are applicable to Charts.
 
 
 2.35 January 10 2010 - Major
@@ -88,7 +94,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
       Reported by Jon Schutz.
       http://rt.cpan.org/Public/Bug/Display.html?id=41048
 
-    ! Fixed very minor issue with unitialised value for top
+    ! Fixed very minor issue with uninitialised value for top
       border colour in formats. Reported by Franz Fasching.
 
 
@@ -293,7 +299,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
       creation on VMS.
 
     + Added optional user supplied results for formulas as a
-      workaround for uncalcuated values in some non-Excel apps.
+      workaround for uncalculated values in some non-Excel apps.
       Added formula_result.pl example of above.
 
 

@@ -24,7 +24,7 @@ use Spreadsheet::WriteExcel::Format;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.35';
+$VERSION = '2.36';
 
 ###############################################################################
 #

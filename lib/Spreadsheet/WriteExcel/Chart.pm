@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Worksheet;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Worksheet);
 
-$VERSION = '2.35';
+$VERSION = '2.36';
 
 ###############################################################################
 #
@@ -1758,8 +1758,8 @@ sub _store_serauxtrend {
     my $length     = 0x001C;    # Number of bytes to follow.
     my $reg_type   = $_[0];     # Regression type.
     my $poly_order = $_[1];     # Polynomial order.
-    my $equation   = $_[3];     # Display equation.
-    my $r_squared  = $_[4];     # Display R-squared.
+    my $equation   = $_[2];     # Display equation.
+    my $r_squared  = $_[3];     # Display R-squared.
     my $intercept;              # Forced intercept.
     my $forecast;               # Forecast forward.
     my $backcast;               # Forecast backward.
