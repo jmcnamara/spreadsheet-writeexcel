@@ -14,7 +14,7 @@ package Spreadsheet::WriteExcel::Big;
 require Exporter;
 
 use strict;
-use Spreadsheet::WriteExcel::WorkbookBig;
+use Spreadsheet::WriteExcel::Workbook;
 
 
 
@@ -22,7 +22,7 @@ use Spreadsheet::WriteExcel::WorkbookBig;
 
 
 use vars qw($VERSION @ISA);
-@ISA = qw(Spreadsheet::WriteExcel::WorkbookBig Exporter);
+@ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
 $VERSION = '2.36';
 
@@ -30,19 +30,19 @@ $VERSION = '2.36';
 #
 # new()
 #
-# Constructor. Wrapper for a Workbook object.
-# uses: Spreadsheet::WriteExcel::BIFFwriter
-#       Spreadsheet::WriteExcel::OLEwriter
-#       Spreadsheet::WriteExcel::WorkbookBig
-#       Spreadsheet::WriteExcel::Worksheet
-#       Spreadsheet::WriteExcel::Format
+# Constructor. Thin wrapper for a Workbook object.
+#
+# This module is no longer required directly and its use is deprecated. See
+# the Pod documentation below.
 #
 sub new {
 
     my $class = shift;
-    my $self  = Spreadsheet::WriteExcel::WorkbookBig->new($_[0]);
+    my $self  = Spreadsheet::WriteExcel::Workbook->new(@_);
 
-    bless  $self, $class;
+    # Check for file creation failures before re-blessing
+    bless  $self, $class if defined $self;
+
     return $self;
 }
 
@@ -62,31 +62,21 @@ Big - A class for creating Excel files > 7MB.
 
 =head1 SYNOPSIS
 
-The direct use of this module is deprecated. See below.
+Use of this module is deprecated. See below.
 
 
 =head1 DESCRIPTION
 
-The module is a sub-class of Spreadsheet::WriteExcel used for creating Excel files greater than 7MB.
+The module was a sub-class of Spreadsheet::WriteExcel used for creating Excel files greater than 7MB. However, it is no longer required and is now deprecated.
 
-Direct use of this module is deprecated. As of version 2.17 Spreadsheet::WriteExcel can create files larger than 7MB if OLE::Storage_Lite is installed.
+As of version 2.17 Spreadsheet::WriteExcel can create files larger than 7MB directly if OLE::Storage_Lite is installed.
 
-This module only exists for backwards compatibility.
-
-
-    use Spreadsheet::WriteExcel::Big;
-
-    my $workbook  = Spreadsheet::WriteExcel::Big->new("file.xls");
-    my $worksheet = $workbook->add_worksheet();
-
-    # Same as Spreadsheet::WriteExcel
-    ...
-    ...
+This module only exists for backwards compatibility. If your programs use ::Big you should convert them to use Spreadsheet::WritExcel directly.
 
 
 =head1 REQUIREMENTS
 
-OLE::Storage_Lite
+L<OLE::Storage_Lite>.
 
 
 =head1 AUTHOR

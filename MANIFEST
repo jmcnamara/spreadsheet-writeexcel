@@ -24,7 +24,6 @@ lib/Spreadsheet/WriteExcel/OLEwriter.pm
 lib/Spreadsheet/WriteExcel/Properties.pm
 lib/Spreadsheet/WriteExcel/Utility.pm
 lib/Spreadsheet/WriteExcel/Workbook.pm
-lib/Spreadsheet/WriteExcel/WorkbookBig.pm
 lib/Spreadsheet/WriteExcel/Worksheet.pm
 
 t/00_IEEE_double.t

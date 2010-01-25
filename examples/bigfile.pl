@@ -5,7 +5,7 @@
 # Example of creating a Spreadsheet::WriteExcel that is larger than the
 # default 7MB limit.
 #
-# It is exactly that same as any other Spreadsheet::WriteExcel program except
+# This is exactly that same as any other Spreadsheet::WriteExcel program except
 # that is requires that the OLE::Storage module is installed.
 #
 # reverse('©'), Jan 2007, John McNamara, jmcnamara@cpan.org
