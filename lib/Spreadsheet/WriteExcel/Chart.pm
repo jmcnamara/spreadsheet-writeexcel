@@ -237,6 +237,23 @@ sub set_legend {
 
 ###############################################################################
 #
+# set_plotarea()
+#
+# Set the properties of the chart plotarea.
+#
+sub set_plotarea {
+
+    my $self = shift;
+    my %arg  = @_;
+
+    if (defined $arg{color}) {
+       # zzzz
+    }
+}
+
+
+###############################################################################
+#
 # Internal methods. The following section of methods are used for the internal
 # structuring of the Chart object and file format.
 #
@@ -493,6 +510,97 @@ sub _encode_utf16 {
     }
 
     return ( $string, $encoding );
+}
+
+
+###############################################################################
+#
+# _get_color_indices()
+#
+# Convert the user specified colour index or string to an colour index and
+# RGB colour number.
+#
+sub _get_color_indices {
+
+    my $self  = shift;
+    my $color = shift;
+    my $index;
+    my $rgb;
+
+    return ( undef, undef ) if !defined $color;
+
+    # zzzz
+    my %colors = (
+        aqua    => 0x0F,
+        cyan    => 0x0F,
+        black   => 0x08,
+        blue    => 0x0C,
+        brown   => 0x10,
+        magenta => 0x0E,
+        fuchsia => 0x0E,
+        gray    => 0x17,
+        grey    => 0x17,
+        green   => 0x11,
+        lime    => 0x0B,
+        navy    => 0x12,
+        orange  => 0x35,
+        pink    => 0x21,
+        purple  => 0x14,
+        red     => 0x0A,
+        silver  => 0x16,
+        white   => 0x09,
+        yellow  => 0x0D,
+    );
+
+
+    # Check for the various supported colour index/name possibilities.
+    if ( exists $colors{$color} ) {
+
+        # Colour matches one of the supported colour names.
+        $index = $colors{$color};
+    }
+    elsif ( $color =~ m/\D/ ) {
+
+        # Return undef if $color is a string but not one of the supported ones.
+        return ( undef, undef );
+    }
+    elsif ( $color < 8 ) {
+
+        # Indices < 8 are Excel only. Map to the same color in user space.
+        $index = $color + 8;
+    }
+    elsif ( $color > 63 ) {
+
+        # Return undef if index is out of range.
+        return ( undef, undef );
+    }
+    else {
+
+        # We should have a valid color index in a valid range.
+        $index = $color;
+    }
+
+    $rgb = $self->_get_color_rbg( $index );
+    return ( $index, $rgb );
+}
+
+
+###############################################################################
+#
+# _get_color_rbg()
+#
+# Get the RedGreenBlue number for the colour index from the Workbook palette.
+#
+sub _get_color_rbg {
+
+    my $self  = shift;
+    my $index = shift;
+
+    # Adjust colour index from 8-63 (user range) to 0-55 (Excel range).
+    $index -= 8;
+
+    my @red_green_blue = @{ $self->{_palette}->[$index] };
+    return unpack 'V', pack 'C*', @red_green_blue;
 }
 
 

@@ -54,6 +54,7 @@ sub new {
     $self->{_str_table}           = $_[10];
     $self->{_1904}                = $_[11];
     $self->{_compatibility}       = $_[12];
+    $self->{_palette}             = $_[13];
 
     $self->{_sheet_type}          = 0x0000;
     $self->{_ext_sheets}          = [];

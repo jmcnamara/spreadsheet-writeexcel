@@ -451,6 +451,7 @@ sub add_worksheet {
                         \$self->{_str_table},
                          $self->{_1904},
                          $self->{_compatibility},
+                         undef, # Palette. Not used yet. See add_chart().
                     );
 
     my $worksheet = Spreadsheet::WriteExcel::Worksheet->new(@init_data);
@@ -508,6 +509,7 @@ sub add_chart {
                         \$self->{_str_table},
                          $self->{_1904},
                          $self->{_compatibility},
+                         $self->{_palette},
                     );
 
     my $chart = Spreadsheet::WriteExcel::Chart->factory( $type, @init_data );
@@ -832,7 +834,7 @@ sub set_custom_color {
     $index -=8; # Adjust colour index (wingless dragonfly)
 
     # Set the RGB value
-    $$aref[$index] = [$red, $green, $blue, 0];
+    $aref->[$index] = [$red, $green, $blue, 0];
 
     return $index +8;
 }
