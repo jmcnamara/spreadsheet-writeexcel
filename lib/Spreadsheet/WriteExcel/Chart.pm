@@ -248,22 +248,41 @@ sub set_plotarea {
 
     my $plotarea = $self->{_plotarea};
 
+    # Set the plotarea visiblity.
     if ( defined $arg{visible} ) {
-        $self->{_plotarea}->{_visible} = $arg{visible};
-        return;
+        $plotarea->{_visible} = $arg{visible};
     }
 
-
-
-
+    # Set the chart background colour.
     if ( defined $arg{color} ) {
         my ( $index, $rgb ) = $self->_get_color_indices( $arg{color} );
-        if ( defined $index) {
+        if ( defined $index ) {
             $plotarea->{_fg_color_index} = $index;
             $plotarea->{_fg_color_rgb}   = $rgb;
             $plotarea->{_bg_color_index} = 0x08;
             $plotarea->{_bg_color_rgb}   = 0x000000;
         }
+    }
+
+    # Set the border line colour.
+    if ( defined $arg{line_color} ) {
+        my ( $index, $rgb ) = $self->_get_color_indices( $arg{line_color} );
+        if ( defined $index ) {
+            $plotarea->{_border_color_index} = $index;
+            $plotarea->{_border_color_rgb}   = $rgb;
+        }
+    }
+
+    # Set the border line pattern.
+    if ( defined $arg{line_pattern} ) {
+        my $pattern = $self->_get_line_pattern( $arg{line_pattern} );
+        $plotarea->{_border_pattern} = $pattern;
+    }
+
+    # Set the border line weight.
+    if ( defined $arg{line_weight} ) {
+        my $weight = $self->_get_line_weight( $arg{line_weight} );
+        $plotarea->{_border_weight} = $weight;
     }
 }
 
@@ -611,6 +630,75 @@ sub _get_color_rbg {
 
     my @red_green_blue = @{ $self->{_palette}->[$index] };
     return unpack 'V', pack 'C*', @red_green_blue;
+}
+
+
+###############################################################################
+#
+# _get_line_pattern()
+#
+# Get the Excel chart index for line pattern that corresponds to the user
+# defined value.
+#
+sub _get_line_pattern {
+
+    my $self    = shift;
+    my $value   = shift;
+    my $default = 1;
+    my $pattern;
+
+    my %patterns = (
+        0 => 5,
+        1 => 0,
+        2 => 1,
+        3 => 2,
+        4 => 3,
+        5 => 4,
+        6 => 7,
+        7 => 6,
+        8 => 8,
+    );
+
+    if ( exists $patterns{$value} ) {
+        $pattern = $patterns{$value};
+    }
+    else {
+        $pattern = $default;
+    }
+
+    return $pattern;
+}
+
+
+###############################################################################
+#
+# _get_line_weight()
+#
+# Get the Excel chart index for line weight that corresponds to the user
+# defined value.
+#
+sub _get_line_weight {
+
+    my $self    = shift;
+    my $value   = shift;
+    my $default = 0;
+    my $weight;
+
+    my %weights = (
+        1 => -1,
+        2 => 0,
+        3 => 1,
+        4 => 2,
+    );
+
+    if ( exists $weights{$value} ) {
+        $weight = $weights{$value};
+    }
+    else {
+        $weight = $default;
+    }
+
+    return $weight;
 }
 
 
