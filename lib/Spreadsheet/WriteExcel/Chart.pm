@@ -246,8 +246,24 @@ sub set_plotarea {
     my $self = shift;
     my %arg  = @_;
 
-    if (defined $arg{color}) {
-       # zzzz
+    my $plotarea = $self->{_plotarea};
+
+    if ( defined $arg{visible} ) {
+        $self->{_plotarea}->{_visible} = $arg{visible};
+        return;
+    }
+
+
+
+
+    if ( defined $arg{color} ) {
+        my ( $index, $rgb ) = $self->_get_color_indices( $arg{color} );
+        if ( defined $index) {
+            $plotarea->{_fg_color_index} = $index;
+            $plotarea->{_fg_color_rgb}   = $rgb;
+            $plotarea->{_bg_color_index} = 0x08;
+            $plotarea->{_bg_color_rgb}   = 0x000000;
+        }
     }
 }
 
@@ -529,7 +545,6 @@ sub _get_color_indices {
 
     return ( undef, undef ) if !defined $color;
 
-    # zzzz
     my %colors = (
         aqua    => 0x0F,
         cyan    => 0x0F,
@@ -564,12 +579,7 @@ sub _get_color_indices {
         # Return undef if $color is a string but not one of the supported ones.
         return ( undef, undef );
     }
-    elsif ( $color < 8 ) {
-
-        # Indices < 8 are Excel only. Map to the same color in user space.
-        $index = $color + 8;
-    }
-    elsif ( $color > 63 ) {
+    elsif ( $color < 8 || $color > 63 ) {
 
         # Return undef if index is out of range.
         return ( undef, undef );
@@ -879,8 +889,11 @@ sub _store_axisparent_stream {
         $self->_store_y_axis_text_stream();
     }
 
-    $self->_store_plotarea();
-    $self->_store_frame_stream();
+    if ( $self->{_plotarea}->{_visible} ) {
+        $self->_store_plotarea();
+        $self->_store_frame_stream();
+    }
+
     $self->_store_chartformat_stream();
     $self->_store_end();
 }
