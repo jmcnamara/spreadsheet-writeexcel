@@ -380,9 +380,12 @@ sub _close {
     # Append the sheet dimensions
     $self->_store_dimensions();
 
-    # TODO add SINDEX record
+    # TODO add SINDEX and NUMBER records.
 
-    $self->_store_window2();
+    if ( !$self->{_embedded} ) {
+        $self->_store_window2();
+    }
+
     $self->_store_eof();
 }
 

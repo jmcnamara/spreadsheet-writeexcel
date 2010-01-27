@@ -2,6 +2,9 @@ Revision history for Perl module Spreadsheet::WriteExcel.
 
 2.37 TODO January XX 2010 - Minor
 
+    ! Fixed bug where embedded charts gave "Data may be lost"
+      warning. Reported by Andreas Strobitzer. 
+
     ! Fixed issue where set_properties() didn't work with ::Big.
       Marked ::Big as deprecated in the docs in favour of using
       Spreadsheet::WriteExcel directly. Removed WorkbookBig.pm.
