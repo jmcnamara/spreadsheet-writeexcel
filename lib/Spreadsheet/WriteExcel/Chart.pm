@@ -2643,6 +2643,44 @@ The other legend positions will be added soon.
 =back
 
 
+=head2 set_plotarea()
+
+The C<set_plotarea()> method is used to set properties of the plot area  of a chart. In Excel the plot area is the, generally rectangular, area between the axes on which the chart series are plotted.
+
+The properties that can be set are:
+
+    visible       (optional)
+    color         (optional)
+    line_color    (optional)
+    line_pattern  (optional)
+    line_weight   (optional)
+
+=over
+
+=item * C<visible>
+
+TODO.
+
+=item * C<color>
+
+TODO.
+
+=item * C<line_color>
+
+TODO.
+
+=item * C<line_pattern>
+
+TODO.
+
+=item * C<line_weight>
+
+TODO.
+
+=back
+
+
+
 =head1 WORKSHEET METHODS
 
 In Excel a chart sheet (i.e, a chart that isn't embedded) shares properties with data worksheets such as tab selection, headers, footers, margins and print properties.
