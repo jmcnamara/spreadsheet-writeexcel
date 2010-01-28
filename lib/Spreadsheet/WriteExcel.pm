@@ -3663,18 +3663,8 @@ If the default palette does not provide a required colour you can override one o
 
     $worksheet->write_blank('A1', $format);
 
-The default Excel 97 colour palette is shown in C<palette.html> in the C<docs> directory  of the distro. You can generate an Excel version of the palette using C<colors.pl> in the C<examples> directory.
+The default Excel colour palette is shown in C<palette.html> in the C<docs> directory  of the distro. You can generate an Excel version of the palette using C<colors.pl> in the C<examples> directory.
 
-A comparison of the colour components in the Excel 5 and Excel 97+ colour palettes is shown in C<rgb5-97.txt> in the C<docs> directory.
-
-
-You may also find the following links helpful:
-
-A detailed look at Excel's colour palette: L<http://www.mvps.org/dmcritchie/excel/colors.htm>
-
-A decimal RGB chart: L<http://www.hypersolutions.org/pages/rgbdec.html>.
-
-A hex RGB chart: : L<http://www.hypersolutions.org/pages/rgbhex.html>.
 
 
 

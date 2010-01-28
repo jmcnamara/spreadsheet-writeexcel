@@ -248,7 +248,7 @@ sub set_plotarea {
 
     my $plotarea = $self->{_plotarea};
 
-    # Set the plotarea visiblity.
+    # Set the plotarea visibility.
     if ( defined $arg{visible} ) {
         $plotarea->{_visible} = $arg{visible};
     }
@@ -646,20 +646,29 @@ sub _get_color_rbg {
 sub _get_line_pattern {
 
     my $self    = shift;
-    my $value   = shift;
-    my $default = 1;
+    my $value   = lc shift;
+    my $default = 0;
     my $pattern;
 
     my %patterns = (
-        0 => 5,
-        1 => 0,
-        2 => 1,
-        3 => 2,
-        4 => 3,
-        5 => 4,
-        6 => 7,
-        7 => 6,
-        8 => 8,
+        0              => 5,
+        1              => 0,
+        2              => 1,
+        3              => 2,
+        4              => 3,
+        5              => 4,
+        6              => 7,
+        7              => 6,
+        8              => 8,
+        'solid'        => 0,
+        'dash'         => 1,
+        'dot'          => 2,
+        'dash-dot'     => 3,
+        'dash-dot-dot' => 4,
+        'none'         => 5,
+        'dark-gray'    => 6,
+        'medium-gray'  => 7,
+        'light-gray'   => 8,
     );
 
     if ( exists $patterns{$value} ) {
@@ -683,15 +692,19 @@ sub _get_line_pattern {
 sub _get_line_weight {
 
     my $self    = shift;
-    my $value   = shift;
+    my $value   = lc shift;
     my $default = 0;
     my $weight;
 
     my %weights = (
-        1 => -1,
-        2 => 0,
-        3 => 1,
-        4 => 2,
+        1          => -1,
+        2          => 0,
+        3          => 1,
+        4          => 2,
+        'hairline' => -1,
+        'narrow'   => 0,
+        'medium'   => 1,
+        'wide'     => 2,
     );
 
     if ( exists $weights{$value} ) {
@@ -2648,7 +2661,7 @@ The other legend positions will be added soon.
 
 =head2 set_plotarea()
 
-The C<set_plotarea()> method is used to set properties of the plot area  of a chart. In Excel the plot area is the, generally rectangular, area between the axes on which the chart series are plotted.
+The C<set_plotarea()> method is used to set properties of the plot area  of a chart. In Excel the plot area is the area between the axes on which the chart series are plotted.
 
 The properties that can be set are:
 
@@ -2662,23 +2675,41 @@ The properties that can be set are:
 
 =item * C<visible>
 
-TODO.
+Set the visibility of the plot area. The default is 1 for visible. Set to 0 to hide the plot area and have the same colour as the background chart area:
+
+    $chart->set_plotarea( visible => 0 );
 
 =item * C<color>
 
-TODO.
+Set the colour of the plot area:
+
+    $chart->set_plotarea( color => 'white' );
+
+The Excel default plot area color is 'silver', index 23. See L</Chart object colours>.
 
 =item * C<line_color>
 
-TODO.
+Set the colour of the plot area border line:
+
+    $chart->set_plotarea( line_color => 'black' );
+
+The Excel default border line colour is 'gray', index 22. See L</Chart object colours>.
 
 =item * C<line_pattern>
 
-TODO.
+Set the pattern of the of the plot area border line:
+
+    $chart->set_plotarea( line_pattern => 'dash' );
+
+The Excel default pattern is 'solid', index 1. See L</Chart line patterns>.
 
 =item * C<line_weight>
 
-TODO.
+Set the weight of the of the plot area border line:
+
+    $chart->set_plotarea( line_weight => 'hairline' );
+
+The Excel default weight is 'narrow', index 2. See L</Chart line weights>.
 
 =back
 
@@ -2769,6 +2800,67 @@ Here is a complete example that demonstrates most of the available features when
 <p><center><img src="http://homepage.eircom.net/~jmcnamara/perl/images/area1.jpg" width="527" height="320" alt="Chart example." /></center></p>
 
 =end html
+
+
+=head1 Chart object colours
+
+Many of the chart objects supported by Spreadsheet::WriteExcl allow the default colours to be changed. Excel provides a palette of 56 colours and in Spreadsheet::WriteExcel these colours are accessed via their palette index in the range 8..63.
+
+The most commonly used colours can be accessed by name or index.
+
+    black   =>   8,    green    =>  17,    navy     =>  18,
+    white   =>   9,    orange   =>  53,    pink     =>  33,
+    red     =>  10,    gray     =>  23,    purple   =>  20,
+    blue    =>  12,    lime     =>  11,    silver   =>  22,
+    yellow  =>  13,    cyan     =>  15,
+    brown   =>  16,    magenta  =>  14,
+
+For example the following are equivalent.
+
+    $chart->set_plotarea( color => 10    );
+    $chart->set_plotarea( color => 'red' );
+
+The colour palette is shown in L<palette.html> in the C<docs> directory  of the distro. An Excel version of the palette can be generated using C<colors.pl> in the C<examples> directory.
+
+User defined colours can be set using the C<set_custom_color()> workbook method. This and other aspects of using colours are discussed in the "Colours in Excel" section of the main Spreadsheet::WriteExcel documentation: L<http://search.cpan.org/dist/Spreadsheet-WriteExcel/lib/Spreadsheet/WriteExcel.pm#COLOURS_IN_EXCEL>.
+
+=head1 Chart line patterns
+
+Chart lines patterns can be set using either an index or a name:
+
+    $chart->set_plotarea( weight => 2      );
+    $chart->set_plotarea( weight => 'dash' );
+
+Chart lines have 9 possible patterns are follows:
+
+    'none'         => 0,
+    'solid'        => 1,
+    'dash'         => 2,
+    'dot'          => 3,
+    'dash-dot'     => 4,
+    'dash-dot-dot' => 5,
+    'medium-gray'  => 6,
+    'dark-gray'    => 7,
+    'light-gray'   => 8,
+
+The patterns 1-8 are shown in order in the drop down dialog boxes in Excel. The default pattern is 'solid', index 1.
+
+
+=head1 Chart line weights
+
+Chart lines weights can be set using either an index or a name:
+
+    $chart->set_plotarea( weight => 1          );
+    $chart->set_plotarea( weight => 'hairline' );
+
+Chart lines have 4 possible weights are follows:
+
+    'hairline' => 1,
+    'narrow'   => 2,
+    'medium'   => 3,
+    'wide'     => 4,
+
+The weights 1-4 are shown in order in the drop down dialog boxes in Excel. The default weight is 'narrow', index 2.
 
 
 =head1 Chart names and links

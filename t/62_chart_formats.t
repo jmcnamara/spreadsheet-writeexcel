@@ -13,7 +13,7 @@ use strict;
 
 use Spreadsheet::WriteExcel;
 
-use Test::More tests => 18;
+use Test::More tests => 20;
 #use Test::More 'no_plan';
 
 
@@ -24,7 +24,7 @@ use Test::More tests => 18;
 my $test_file = 'temp_test_file.xls';
 my $workbook  = Spreadsheet::WriteExcel->new( $test_file );
 my $chart     = $workbook->add_chart( type => 'column' );
-my @values;
+my %values;
 my $color;
 my $got;
 my $got_index;
@@ -183,16 +183,30 @@ is( $got_rgb,   $expected_rgb,   $caption2 );
 
 ###############################################################################
 #
-# Test. Line patterns
+# Test. Line patterns with indices.
 #
 $caption = " \tChart: \$pattern = _get_line_pattern()";
 
-@values   = ( 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, undef );
-$expected = [ 5, 0, 1, 2, 3, 4, 7, 6, 8, 1, 1     ];
+%values = (
+    0     => 5,
+    1     => 0,
+    2     => 1,
+    3     => 2,
+    4     => 3,
+    5     => 4,
+    6     => 7,
+    7     => 6,
+    8     => 8,
+    9     => 0,
+    undef => 0
+);
+
+$expected = [];
 $got      = [];
 
-for my $pattern ( @values ) {
-    push @$got, $chart->_get_line_pattern( $pattern );
+while ( my ( $user, $excel ) = each %values ) {
+    push @$got,      $chart->_get_line_pattern( $user );
+    push @$expected, $excel;
 }
 
 is_deeply( $got, $expected, $caption );
@@ -200,20 +214,86 @@ is_deeply( $got, $expected, $caption );
 
 ###############################################################################
 #
-# Test. Line weights
+# Test. Line patterns with names.
 #
-$caption = " \tChart: \$weight  = _get_line_weight()";
+$caption = " \tChart: \$pattern = _get_line_pattern()";
 
-@values   = ( 0,  1, 2, 3, 4, 5, undef );
-$expected = [ 0, -1, 0, 1, 2, 0, 0     ];
+%values = (
+    'solid'        => 0,
+    'dash'         => 1,
+    'dot'          => 2,
+    'dash-dot'     => 3,
+    'dash-dot-dot' => 4,
+    'none'         => 5,
+    'dark-gray'    => 6,
+    'medium-gray'  => 7,
+    'light-gray'   => 8,
+    'DASH'         => 1,
+    'fictional'    => 0
+);
+
+$expected = [];
 $got      = [];
 
-for my $weight ( @values ) {
-    push @$got, $chart->_get_line_weight( $weight );
+while ( my ( $user, $excel ) = each %values ) {
+    push @$got,      $chart->_get_line_pattern( $user );
+    push @$expected, $excel;
 }
 
 is_deeply( $got, $expected, $caption );
 
+
+###############################################################################
+#
+# Test. Line weights with indices.
+#
+$caption = " \tChart: \$weight  = _get_line_weight()";
+
+%values = (
+    1     => -1,
+    2     => 0,
+    3     => 1,
+    4     => 2,
+    5     => 0,
+    0     => 0,
+    undef => 0
+);
+
+$expected = [];
+$got      = [];
+
+while ( my ( $user, $excel ) = each %values ) {
+    push @$got,      $chart->_get_line_weight( $user );
+    push @$expected, $excel;
+}
+
+is_deeply( $got, $expected, $caption );
+
+
+###############################################################################
+#
+# Test. Line weights with names.
+#
+$caption = " \tChart: \$weight  = _get_line_weight()";
+
+%values = (
+    'hairline'  => -1,
+    'narrow'    => 0,
+    'medium'    => 1,
+    'wide'      => 2,
+    'WIDE'      => 2,
+    'Fictional' => 0,
+);
+
+$expected = [];
+$got      = [];
+
+while ( my ( $user, $excel ) = each %values ) {
+    push @$got,      $chart->_get_line_weight( $user );
+    push @$expected, $excel;
+}
+
+is_deeply( $got, $expected, $caption );
 
 
 ###############################################################################
