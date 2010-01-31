@@ -227,8 +227,8 @@ sub set_legend {
     my $self = shift;
     my %arg  = @_;
 
-    if (defined $arg{position}) {
-        if (lc $arg{position} eq 'none') {
+    if ( defined $arg{position} ) {
+        if ( lc $arg{position} eq 'none' ) {
             $self->{_legend}->{_visible} = 0;
         }
     }
@@ -246,21 +246,21 @@ sub set_plotarea {
     my $self = shift;
     my %arg  = @_;
 
-    my $plotarea = $self->{_plotarea};
+    my $area = $self->{_plotarea};
 
     # Set the plotarea visibility.
     if ( defined $arg{visible} ) {
-        $plotarea->{_visible} = $arg{visible};
+        $area->{_visible} = $arg{visible};
     }
 
     # Set the chart background colour.
     if ( defined $arg{color} ) {
         my ( $index, $rgb ) = $self->_get_color_indices( $arg{color} );
         if ( defined $index ) {
-            $plotarea->{_fg_color_index} = $index;
-            $plotarea->{_fg_color_rgb}   = $rgb;
-            $plotarea->{_bg_color_index} = 0x08;
-            $plotarea->{_bg_color_rgb}   = 0x000000;
+            $area->{_fg_color_index} = $index;
+            $area->{_fg_color_rgb}   = $rgb;
+            $area->{_bg_color_index} = 0x08;
+            $area->{_bg_color_rgb}   = 0x000000;
         }
     }
 
@@ -268,21 +268,80 @@ sub set_plotarea {
     if ( defined $arg{line_color} ) {
         my ( $index, $rgb ) = $self->_get_color_indices( $arg{line_color} );
         if ( defined $index ) {
-            $plotarea->{_border_color_index} = $index;
-            $plotarea->{_border_color_rgb}   = $rgb;
+            $area->{_line_color_index} = $index;
+            $area->{_line_color_rgb}   = $rgb;
         }
     }
 
     # Set the border line pattern.
     if ( defined $arg{line_pattern} ) {
         my $pattern = $self->_get_line_pattern( $arg{line_pattern} );
-        $plotarea->{_border_pattern} = $pattern;
+        $area->{_line_pattern} = $pattern;
     }
 
     # Set the border line weight.
     if ( defined $arg{line_weight} ) {
         my $weight = $self->_get_line_weight( $arg{line_weight} );
-        $plotarea->{_border_weight} = $weight;
+        $area->{_line_weight} = $weight;
+    }
+}
+
+
+###############################################################################
+#
+# set_chartarea()
+#
+# Set the properties of the chart chartarea.
+#
+sub set_chartarea {
+
+    my $self = shift;
+    my %arg  = @_;
+
+    my $area = $self->{_chartarea};
+
+    # Set the chart background colour.
+    if ( defined $arg{color} ) {
+        my ( $index, $rgb ) = $self->_get_color_indices( $arg{color} );
+        if ( defined $index ) {
+            $area->{_fg_color_index} = $index;
+            $area->{_fg_color_rgb}   = $rgb;
+            $area->{_bg_color_index} = 0x08;
+            $area->{_bg_color_rgb}   = 0x000000;
+            $area->{_area_pattern}   = 1;
+            $area->{_visible}        = 1;
+        }
+    }
+
+    # Set the border line colour.
+    if ( defined $arg{line_color} ) {
+        my ( $index, $rgb ) = $self->_get_color_indices( $arg{line_color} );
+        if ( defined $index ) {
+            $area->{_line_color_index} = $index;
+            $area->{_line_color_rgb}   = $rgb;
+            $area->{_line_pattern}     = 0x00;
+            $area->{_line_options}     = 0x0000;
+            $area->{_visible}          = 1;
+        }
+    }
+
+    # Set the border line pattern.
+    if ( defined $arg{line_pattern} ) {
+        my $pattern = $self->_get_line_pattern( $arg{line_pattern} );
+        $area->{_line_pattern}     = $pattern;
+        $area->{_line_options}     = 0x0000;
+        $area->{_line_color_index} = 0x4F if !defined $arg{line_color};
+        $area->{_visible}          = 1;
+    }
+
+    # Set the border line weight.
+    if ( defined $arg{line_weight} ) {
+        my $weight = $self->_get_line_weight( $arg{line_weight} );
+        $area->{_line_weight}      = $weight;
+        $area->{_line_options}     = 0x0000;
+        $area->{_line_pattern}     = 0x00 if !defined $arg{line_pattern} ;
+        $area->{_line_color_index} = 0x4F if !defined $arg{line_color};
+        $area->{_visible}          = 1;
     }
 }
 
@@ -402,7 +461,7 @@ sub _store_window2 {
 
     use integer;    # Avoid << shift bug in Perl 5.6.0 on HP-UX
 
-    my $self   = shift;
+    my $self = shift;
 
     my $record  = 0x023E;    # Record identifier
     my $length  = 0x000A;    # Number of bytes to follow
@@ -735,10 +794,9 @@ sub _store_chart_stream {
     # Ignore SCL record for now.
     $self->_store_plotgrowth();
 
-    if ( $self->{_embedded} ) {
-        $self->_store_embedded_frame_stream();
+    if ( $self->{_chartarea}->{_visible} ) {
+        $self->_store_chartarea_frame_stream();
     }
-
 
     # Store SERIES stream for each series.
     my $index = 0;
@@ -995,7 +1053,7 @@ sub _store_axisparent_stream {
 
     if ( $self->{_plotarea}->{_visible} ) {
         $self->_store_plotarea();
-        $self->_store_frame_stream();
+        $self->_store_plotarea_frame_stream();
     }
 
     $self->_store_chartformat_stream();
@@ -1046,29 +1104,29 @@ sub _store_axis_values_stream {
 
 ###############################################################################
 #
-# _store_frame_stream()
+# _store_plotarea_frame_stream()
 #
-# Write the FRAME chart substream.
+# Write the FRAME chart substream for the plotarea.
 #
-sub _store_frame_stream {
+sub _store_plotarea_frame_stream {
 
     my $self = shift;
 
-    my $plotarea = $self->{_plotarea};
+    my $area = $self->{_plotarea};
 
     $self->_store_frame( 0x00, 0x03 );
     $self->_store_begin();
 
     $self->_store_lineformat(
-        $plotarea->{_border_color_rgb}, $plotarea->{_border_pattern},
-        $plotarea->{_border_weight},    $plotarea->{_border_options},
-        $plotarea->{_border_color_index}
+        $area->{_line_color_rgb}, $area->{_line_pattern},
+        $area->{_line_weight},    $area->{_line_options},
+        $area->{_line_color_index}
     );
 
     $self->_store_areaformat(
-        $plotarea->{_fg_color_rgb},   $plotarea->{_bg_color_rgb},
-        $plotarea->{_area_pattern},   $plotarea->{_area_options},
-        $plotarea->{_fg_color_index}, $plotarea->{_bg_color_index}
+        $area->{_fg_color_rgb},   $area->{_bg_color_rgb},
+        $area->{_area_pattern},   $area->{_area_options},
+        $area->{_fg_color_index}, $area->{_bg_color_index}
     );
 
     $self->_store_end();
@@ -1077,18 +1135,31 @@ sub _store_frame_stream {
 
 ###############################################################################
 #
-# _store_embedded_frame_stream()
+# _store_chartarea_frame_stream()
 #
-# Write the FRAME chart substream for and embedded chart.
+# Write the FRAME chart substream for the chartarea.
 #
-sub _store_embedded_frame_stream {
+sub _store_chartarea_frame_stream {
 
     my $self = shift;
 
+    my $area = $self->{_chartarea};
+
     $self->_store_frame( 0x00, 0x02 );
     $self->_store_begin();
-    $self->_store_lineformat( 0x00000000, 0x0000, 0x0000, 0x0009, 0x004D );
-    $self->_store_areaformat( 0x00FFFFFF, 0x0000, 0x01, 0x01, 0x4E, 0x4D );
+
+    $self->_store_lineformat(
+        $area->{_line_color_rgb}, $area->{_line_pattern},
+        $area->{_line_weight},    $area->{_line_options},
+        $area->{_line_color_index}
+    );
+
+    $self->_store_areaformat(
+        $area->{_fg_color_rgb},   $area->{_bg_color_rgb},
+        $area->{_area_pattern},   $area->{_area_options},
+        $area->{_fg_color_index}, $area->{_bg_color_index}
+    );
+
     $self->_store_end();
 }
 
@@ -2290,19 +2361,34 @@ sub _set_default_properties {
         _vertical => 0,
     };
 
+    $self->{_chartarea} = {
+        _visible          => 0,
+        _fg_color_index   => 0x4E,
+        _fg_color_rgb     => 0xFFFFFF,
+        _bg_color_index   => 0x4D,
+        _bg_color_rgb     => 0x000000,
+        _area_pattern     => 0x0000,
+        _area_options     => 0x0000,
+        _line_pattern     => 0x0005,
+        _line_weight      => 0xFFFF,
+        _line_color_index => 0x4D,
+        _line_color_rgb   => 0x000000,
+        _line_options     => 0x0008,
+    };
+
     $self->{_plotarea} = {
-        _visible            => 1,
-        _fg_color_index     => 0x16,
-        _fg_color_rgb       => 0xC0C0C0,
-        _bg_color_index     => 0x4F,
-        _bg_color_rgb       => 0x000000,
-        _area_pattern       => 0x0001,
-        _area_options       => 0x0000,
-        _border_pattern     => 0x0000,
-        _border_weight      => 0x0000,
-        _border_color_index => 0x17,
-        _border_color_rgb   => 0x808080,
-        _border_options     => 0x0000,
+        _visible          => 1,
+        _fg_color_index   => 0x16,
+        _fg_color_rgb     => 0xC0C0C0,
+        _bg_color_index   => 0x4F,
+        _bg_color_rgb     => 0x000000,
+        _area_pattern     => 0x0001,
+        _area_options     => 0x0000,
+        _line_pattern     => 0x0000,
+        _line_weight      => 0x0000,
+        _line_color_index => 0x17,
+        _line_color_rgb   => 0x808080,
+        _line_options     => 0x0000,
     };
 }
 
@@ -2355,6 +2441,7 @@ sub _set_embedded_config_data {
     my $self = shift;
 
     $self->{_embedded} = 1;
+    $self->{_chartarea}->{_visible} = 1;
 
     #<<< Perltidy ignore this.
     $self->{_config} = {
@@ -2659,9 +2746,57 @@ The other legend positions will be added soon.
 =back
 
 
+=head2 set_chartarea()
+
+The C<set_chartarea()> method is used to set properties of the chart area of a chart. In Excel the chart area is the area behind the axes.
+
+The properties that can be set are:
+
+    color         (optional)
+    line_color    (optional)
+    line_pattern  (optional)
+    line_weight   (optional)
+
+=over
+
+=item * C<color>
+
+Set the colour of the chart area:
+
+    $chart->set_chartarea( color => 'yellow' );
+
+The Excel default chart area color is 'white', index 9. See L</Chart object colours>.
+
+=item * C<line_color>
+
+Set the colour of the chart area border line:
+
+    $chart->set_chartarea( line_color => 'gray' );
+
+The Excel default border line colour is 'black', index 9. See L</Chart object colours>.
+
+=item * C<line_pattern>
+
+Set the pattern of the of the chart area border line:
+
+    $chart->set_chartarea( line_pattern => 'dash' );
+
+The Excel default pattern is 'none', index 0. See L</Chart line patterns>.
+
+=item * C<line_weight>
+
+Set the weight of the of the chart area border line:
+
+    $chart->set_chartarea( line_weight => 'hairline' );
+
+The Excel default weight is 'narrow', index 2. See L</Chart line weights>.
+
+=back
+
+
 =head2 set_plotarea()
 
-The C<set_plotarea()> method is used to set properties of the plot area  of a chart. In Excel the plot area is the area between the axes on which the chart series are plotted.
+The C<set_plotarea()> method is used to set properties of the plot area of a chart. In Excel the plot area is the area between the axes on which the chart series are plotted.
 
 The properties that can be set are:
 
@@ -2743,7 +2878,7 @@ See L<Spreadsheet::WriteExcel> for a detailed explanation of these methods.
 
 =head1 EXAMPLE
 
-Here is a complete example that demonstrates most of the available features when creating a chart.
+Here is a complete example that demonstrates some of the available features when creating a chart.
 
     #!/usr/bin/perl -w
 
