@@ -245,6 +245,7 @@ sub set_plotarea {
 
     my $self = shift;
     my %arg  = @_;
+    return unless keys %arg;
 
     my $area = $self->{_plotarea};
 
@@ -262,6 +263,11 @@ sub set_plotarea {
             $area->{_bg_color_index} = 0x08;
             $area->{_bg_color_rgb}   = 0x000000;
         }
+    }
+    else {
+
+        # TODO. could move this out of if statement.
+        $area->{_bg_color_index} = 0x08;
     }
 
     # Set the border line colour.
@@ -297,8 +303,13 @@ sub set_chartarea {
 
     my $self = shift;
     my %arg  = @_;
+    return unless keys %arg;
 
     my $area = $self->{_chartarea};
+
+    # Embedded automatic line weight has a different default value.
+    $area->{_line_weight} = 0xFFFF if $self->{_embedded};
+
 
     # Set the chart background colour.
     if ( defined $arg{color} ) {
@@ -309,6 +320,7 @@ sub set_chartarea {
             $area->{_bg_color_index} = 0x08;
             $area->{_bg_color_rgb}   = 0x000000;
             $area->{_area_pattern}   = 1;
+            $area->{_area_options}   = 0x0000 if $self->{_embedded};
             $area->{_visible}        = 1;
         }
     }
@@ -339,7 +351,7 @@ sub set_chartarea {
         my $weight = $self->_get_line_weight( $arg{line_weight} );
         $area->{_line_weight}      = $weight;
         $area->{_line_options}     = 0x0000;
-        $area->{_line_pattern}     = 0x00 if !defined $arg{line_pattern} ;
+        $area->{_line_pattern}     = 0x00 if !defined $arg{line_pattern};
         $area->{_line_color_index} = 0x4F if !defined $arg{line_color};
         $area->{_visible}          = 1;
     }
@@ -2441,7 +2453,22 @@ sub _set_embedded_config_data {
     my $self = shift;
 
     $self->{_embedded} = 1;
-    $self->{_chartarea}->{_visible} = 1;
+
+    $self->{_chartarea} = {
+        _visible          => 1,
+        _fg_color_index   => 0x4E,
+        _fg_color_rgb     => 0xFFFFFF,
+        _bg_color_index   => 0x4D,
+        _bg_color_rgb     => 0x000000,
+        _area_pattern     => 0x0001,
+        _area_options     => 0x0001,
+        _line_pattern     => 0x0000,
+        _line_weight      => 0x0000,
+        _line_color_index => 0x4D,
+        _line_color_rgb   => 0x000000,
+        _line_options     => 0x0009,
+    };
+
 
     #<<< Perltidy ignore this.
     $self->{_config} = {
