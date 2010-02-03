@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Worksheet;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Worksheet);
 
-$VERSION = '2.36';
+$VERSION = '2.37';
 
 ###############################################################################
 #
@@ -252,7 +252,11 @@ sub set_plotarea {
     # Set the plotarea visibility.
     if ( defined $arg{visible} ) {
         $area->{_visible} = $arg{visible};
+        return if !$area->{_visible};
     }
+
+    # TODO. could move this out of if statement.
+    $area->{_bg_color_index} = 0x08;
 
     # Set the chart background colour.
     if ( defined $arg{color} ) {
@@ -263,11 +267,6 @@ sub set_plotarea {
             $area->{_bg_color_index} = 0x08;
             $area->{_bg_color_rgb}   = 0x000000;
         }
-    }
-    else {
-
-        # TODO. could move this out of if statement.
-        $area->{_bg_color_index} = 0x08;
     }
 
     # Set the border line colour.
@@ -2586,48 +2585,23 @@ With a Spreadsheet::WriteExcel chart object the C<add_series()> method is used t
 
 The properties that can be set are:
 
-    values        (required)
-    categories    (optional for most chart types)
-    name          (optional)
-    name_formula  (optional)
-
 =over
 
 =item * C<values>
 
-This is the most important property of a series and must be set for every chart object. It links the chart with the worksheet data that it displays.
-
-    $chart->add_series( values => '=Sheet1!$B$2:$B$10' );
-
-Note the format that should be used for the formula. The worksheet name must be specified (even for embedded charts) and the cell references must be "absolute" references, i.e., they must contain C<$> signs. This is the format that is required by Excel for chart references. You must also add the worksheet that you are referring to before you link to it, via the workbook C<add_worksheet()> method. See also L</Working with Cell Ranges>.
+This is the most important property of a series and must be set for every chart object. It links the chart with the worksheet data that it displays. Note the format that should be used for the formula. See L</Working with Cell Ranges>.
 
 =item * C<categories>
 
 This sets the chart category labels. The category is more or less the same as the X-axis. In most chart types the C<categories> property is optional and the chart will just assume a sequential series from C<1 .. n>.
 
-    $chart->add_series(
-        categories    => '=Sheet1!$A$2:$A$10',
-        values        => '=Sheet1!$B$2:$B$10',
-    );
-
 =item * C<name>
 
 Set the name for the series. The name is displayed in the chart legend and in the formula bar. The name property is optional and if it isn't supplied will default to C<Series 1 .. n>.
 
-    $chart->add_series(
-        ...
-        name          => 'Series name',
-    );
-
 =item * C<name_formula>
 
 Optional, can be used to link the name to a worksheet cell. See L</Chart names and links>.
-
-    $chart->add_series(
-        ...
-        name          => 'Series name',
-        name_formula  => '=Sheet1!$B$1',
-    );
 
 =back
 
@@ -2657,25 +2631,15 @@ The C<set_x_axis()> method is used to set properties of the X axis.
 
 The properties that can be set are:
 
-    name          (optional)
-    name_formula  (optional)
-
 =over
 
 =item * C<name>
 
 Set the name (title or caption) for the axis. The name is displayed below the X axis. This property is optional. The default is to have no axis name.
 
-    $chart->set_x_axis( name => 'Sample length (m)' );
-
 =item * C<name_formula>
 
 Optional, can be used to link the name to a worksheet cell. See L</Chart names and links>.
-
-    $chart->set_x_axis(
-        name          => 'Sample length (m)',
-        name_formula  => '=Sheet1!$A$1',
-    );
 
 =back
 
@@ -2690,25 +2654,15 @@ The C<set_y_axis()> method is used to set properties of the Y axis.
 
 The properties that can be set are:
 
-    name          (optional)
-    name_formula  (optional)
-
 =over
 
 =item * C<name>
 
 Set the name (title or caption) for the axis. The name is displayed to the left of the Y axis. This property is optional. The default is to have no axis name.
 
-    $chart->set_y_axis( name => 'Sample weight (kg)' );
-
 =item * C<name_formula>
 
 Optional, can be used to link the name to a worksheet cell. See L</Chart names and links>.
-
-    $chart->set_y_axis(
-        name          => 'Sample weight (kg)',
-        name_formula  => '=Sheet1!$B$1',
-    );
 
 =back
 
@@ -2722,25 +2676,15 @@ The C<set_title()> method is used to set properties of the chart title.
 
 The properties that can be set are:
 
-    name          (optional)
-    name_formula  (optional)
-
 =over
 
 =item * C<name>
 
 Set the name (title) for the chart. The name is displayed above the chart. This property is optional. The default is to have no chart title.
 
-    $chart->set_title( name => 'Year End Results' );
-
 =item * C<name_formula>
 
 Optional, can be used to link the name to a worksheet cell. See L</Chart names and links>.
-
-    $chart->set_title(
-        name          => 'Year End Results',
-        name_formula  => '=Sheet1!$C$1',
-    );
 
 =back
 
@@ -2752,8 +2696,6 @@ The C<set_legend()> method is used to set properties of the chart legend.
     $chart->set_legend( position => 'none' );
 
 The properties that can be set are:
-
-    position      (optional)
 
 =over
 
@@ -2775,51 +2717,40 @@ The other legend positions will be added soon.
 
 =head2 set_chartarea()
 
-The C<set_chartarea()> method is used to set properties of the chart area of a chart. In Excel the chart area is the area behind the axes.
+The C<set_chartarea()> method is used to set the properties of the chart area. In Excel the chart area is the background area behind the chart.
 
 The properties that can be set are:
-
-    color         (optional)
-    line_color    (optional)
-    line_pattern  (optional)
-    line_weight   (optional)
 
 =over
 
 =item * C<color>
 
-Set the colour of the chart area:
-
-    $chart->set_chartarea( color => 'yellow' );
-
-The Excel default chart area color is 'white', index 9. See L</Chart object colours>.
+Set the colour of the chart area. The Excel default chart area color is 'white', index 9. See L</Chart object colours>.
 
 =item * C<line_color>
 
-Set the colour of the chart area border line:
-
-    $chart->set_chartarea( line_color => 'gray' );
-
-The Excel default border line colour is 'black', index 9. See L</Chart object colours>.
+Set the colour of the chart area border line. The Excel default border line colour is 'black', index 9.  See L</Chart object colours>.
 
 =item * C<line_pattern>
 
-Set the pattern of the of the chart area border line:
-
-    $chart->set_chartarea( line_pattern => 'dash' );
-
-The Excel default pattern is 'none', index 0. See L</Chart line patterns>.
+Set the pattern of the of the chart area border line. The Excel default pattern is 'none', index 0 for a chart sheet and 'solid', index 1, for an embedded chart. See L</Chart line patterns>.
 
 =item * C<line_weight>
 
-Set the weight of the of the chart area border line:
-
-    $chart->set_chartarea( line_weight => 'hairline' );
-
-The Excel default weight is 'narrow', index 2. See L</Chart line weights>.
+Set the weight of the of the chart area border line. The Excel default weight is 'narrow', index 2. See L</Chart line weights>.
 
 =back
 
+Here is an example of setting several properties:
+
+    $chart->set_chartarea(
+        color        => 'red',
+        line_color   => 'black',
+        line_pattern => 2,
+        line_weight  => 3,
+    );
+
+Note, for chart sheets the chart area border is off by default. For embedded charts is is on by default.
 
 =head2 set_plotarea()
 
@@ -2827,53 +2758,38 @@ The C<set_plotarea()> method is used to set properties of the plot area of a cha
 
 The properties that can be set are:
 
-    visible       (optional)
-    color         (optional)
-    line_color    (optional)
-    line_pattern  (optional)
-    line_weight   (optional)
-
 =over
 
 =item * C<visible>
 
-Set the visibility of the plot area. The default is 1 for visible. Set to 0 to hide the plot area and have the same colour as the background chart area:
-
-    $chart->set_plotarea( visible => 0 );
+Set the visibility of the plot area. The default is 1 for visible. Set to 0 to hide the plot area and have the same colour as the background chart area.
 
 =item * C<color>
 
-Set the colour of the plot area:
-
-    $chart->set_plotarea( color => 'white' );
-
-The Excel default plot area color is 'silver', index 23. See L</Chart object colours>.
+Set the colour of the plot area. The Excel default plot area color is 'silver', index 23. See L</Chart object colours>.
 
 =item * C<line_color>
 
-Set the colour of the plot area border line:
-
-    $chart->set_plotarea( line_color => 'black' );
-
-The Excel default border line colour is 'gray', index 22. See L</Chart object colours>.
+Set the colour of the plot area border line. The Excel default border line colour is 'gray', index 22. See L</Chart object colours>.
 
 =item * C<line_pattern>
 
-Set the pattern of the of the plot area border line:
-
-    $chart->set_plotarea( line_pattern => 'dash' );
-
-The Excel default pattern is 'solid', index 1. See L</Chart line patterns>.
+Set the pattern of the of the plot area border line. The Excel default pattern is 'solid', index 1. See L</Chart line patterns>.
 
 =item * C<line_weight>
 
-Set the weight of the of the plot area border line:
-
-    $chart->set_plotarea( line_weight => 'hairline' );
-
-The Excel default weight is 'narrow', index 2. See L</Chart line weights>.
+Set the weight of the of the plot area border line. The Excel default weight is 'narrow', index 2. See L</Chart line weights>.
 
 =back
+
+Here is an example of setting several properties:
+
+    $chart->set_plotarea(
+        color        => 'red',
+        line_color   => 'black',
+        line_pattern => 2,
+        line_weight  => 3,
+    );
 
 
 
@@ -2982,7 +2898,7 @@ For example the following are equivalent.
     $chart->set_plotarea( color => 10    );
     $chart->set_plotarea( color => 'red' );
 
-The colour palette is shown in L<palette.html> in the C<docs> directory  of the distro. An Excel version of the palette can be generated using C<colors.pl> in the C<examples> directory.
+The colour palette is shown in C<palette.html> in the C<docs> directory  of the distro. An Excel version of the palette can be generated using C<colors.pl> in the C<examples> directory.
 
 User defined colours can be set using the C<set_custom_color()> workbook method. This and other aspects of using colours are discussed in the "Colours in Excel" section of the main Spreadsheet::WriteExcel documentation: L<http://search.cpan.org/dist/Spreadsheet-WriteExcel/lib/Spreadsheet/WriteExcel.pm#COLOURS_IN_EXCEL>.
 

@@ -1,6 +1,9 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-2.37 TODO January XX 2010 - Minor
+2.37 February 2 2010 - Minor
+
+    + Added set_chartarea() and set_plotarea() methods to set
+      chart and plot background colours and border lines.
 
     ! Fixed bug where embedded charts gave "Data may be lost"
       warning. Reported by Andreas Strobitzer. 
@@ -8,6 +11,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
     ! Fixed issue where set_properties() didn't work with ::Big.
       Marked ::Big as deprecated in the docs in favour of using
       Spreadsheet::WriteExcel directly. Removed WorkbookBig.pm.
+
 
 2.36 January 21 2010 - Minor
 

@@ -59,6 +59,8 @@ t/52_name_print_titles.t
 t/53_name_autofilter.t
 t/60_chart_generic.t
 t/61_chart_subclasses.t
+t/62_chart_formats.t
+t/63_chart_area_formats.t
 t/90_pod.t
 t/91_minimumversion.t
 t/92_meta.t
