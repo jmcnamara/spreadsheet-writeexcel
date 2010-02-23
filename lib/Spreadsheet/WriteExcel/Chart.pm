@@ -456,6 +456,11 @@ sub _close {
         $self->_store_window2();
     }
 
+    # Store the sheet SCL record.
+    if ( !$self->{_embedded} ) {
+        $self->_store_zoom();
+    }
+
     $self->_store_eof();
 }
 
@@ -802,7 +807,11 @@ sub _store_chart_stream {
 
     $self->_store_begin();
 
-    # Ignore SCL record for now.
+    # Store the chart SCL record.
+    if ( !$self->{_embedded} ) {
+        $self->_store_zoom();
+    }
+
     $self->_store_plotgrowth();
 
     if ( $self->{_chartarea}->{_visible} ) {

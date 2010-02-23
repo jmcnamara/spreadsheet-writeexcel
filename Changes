@@ -1,5 +1,11 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.38 XXX
+
+    ! Enabled set_zoom() for Chart worksheets. It was documented but
+      wasn't working. Reported by Praphull Kumar.
+
+
 2.37 February 2 2010 - Minor
 
     + Added set_chartarea() and set_plotarea() methods to set
