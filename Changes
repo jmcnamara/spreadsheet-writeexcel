@@ -5,6 +5,9 @@ Revision history for Perl module Spreadsheet::WriteExcel.
     ! Enabled set_zoom() for Chart worksheets. It was documented but
       wasn't working. Reported by Praphull Kumar.
 
+    ! Enabled set_tab_color() for Chart worksheets. It was documented
+      but wasn't working.
+
 
 2.37 February 2 2010 - Minor
 
