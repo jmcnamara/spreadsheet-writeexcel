@@ -404,6 +404,9 @@ sub _close {
     # Store the chart BOF.
     $self->_store_bof( 0x0020 );
 
+    # Store the tab color.
+    $self->_store_tab_color();
+
     # Store the page header
     $self->_store_header();
 
