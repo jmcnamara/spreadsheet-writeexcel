@@ -306,7 +306,7 @@ This is useful for setting ranges in Chart objects:
 
     $chart->add_series(
         categories    => xl_range_formula('Sheet1', 1, 9, 0, 0),
-        values        => xl_range_formula('Sheet1', 1, 9, 1, 1);,
+        values        => xl_range_formula('Sheet1', 1, 9, 1, 1),
     );
 
     # Which is the same as:

@@ -20,7 +20,7 @@ require 5.008;
 # Use perl 5.8's feature of using a scalar as a filehandle.
 my   $fh;
 my   $str = '';
-open $fh, '>', \$str or die "Failed to open filehandle: $!";;
+open $fh, '>', \$str or die "Failed to open filehandle: $!";
 
 
 # Or replace the previous three lines with this:

@@ -84,7 +84,7 @@ sub rowcol_to_cell {
 
 
     if ($frac != 0) {
-        $chr2 = chr (ord('A') + $frac -1);;
+        $chr2 = chr (ord('A') + $frac -1);
     }
 
     if ($int > 0) {

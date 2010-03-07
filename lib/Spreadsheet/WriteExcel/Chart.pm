@@ -3013,7 +3013,7 @@ If you include it in your program, using the standard import syntax, you can use
     # Then use it as required.
     $chart->add_series(
         categories    => xl_range_formula( 'Sheet1', 1, 9, 0, 0 ),
-        values        => xl_range_formula( 'Sheet1', 1, 9, 1, 1 );,
+        values        => xl_range_formula( 'Sheet1', 1, 9, 1, 1 ),
     );
 
     # Which is the same as:
