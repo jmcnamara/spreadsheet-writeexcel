@@ -3921,7 +3921,7 @@ The above example would look like this in Excel: L<http://homepage.eircom.net/~j
 =begin html
 
 <center>
-<img src="http://homepage.eircom.net/~jmcnamara/perl/data_validation.jpg" alt="The output from the above example">
+<img src="http://homepage.eircom.net/~jmcnamara/perl/data_validation.jpg" alt="The output from the above example"/>
 </center>
 
 =end html
@@ -5314,10 +5314,10 @@ There is a Google group for discussing and asking questions about Spreadsheet::W
 =begin html
 
 <center>
-<table style="background-color: #fff; padding: 5px;" cellspacing=0>
+<table style="background-color: #fff; padding: 5px;" cellspacing="0">
   <tr><td>
   <img src="http://groups.google.com/intl/en/images/logos/groups_logo_sm.gif"
-         height=30 width=140 alt="Google Groups">
+         height="30" width="140" alt="Google Groups"/>
   </td></tr>
   <tr><td>
   <a href="http://groups.google.com/group/spreadsheet-writeexcel">Spreadsheet::WriteExcel</a>
