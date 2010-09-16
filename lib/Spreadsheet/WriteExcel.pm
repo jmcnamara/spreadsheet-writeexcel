@@ -1251,7 +1251,7 @@ See the note about L<Cell notation>. For more information about writing Excel fo
 
 See also the section "Improving performance when working with formulas" and the C<store_formula()> and C<repeat_formula()> methods.
 
-If required, it is also possible to specify the calculated value of the formula. This is occasionally necessary when working with non-Excel applications that don't calculated the value of the formula. The calculated C<$value> is added at the end of the argument list:
+If required, it is also possible to specify the calculated value of the formula. This is occasionally necessary when working with non-Excel applications that don't calculate the value of the formula. The calculated C<$value> is added at the end of the argument list:
 
     $worksheet->write('A1', '=2+2', $format, 4);
 
@@ -2734,7 +2734,7 @@ Cell formatting is defined through a Format object. Format objects are created b
 
 The format object holds all the formatting properties that can be applied to a cell, a row or a column. The process of setting these properties is discussed in the next section.
 
-Once a Format object has been constructed and it properties have been set it can be passed as an argument to the worksheet C<write> methods as follows:
+Once a Format object has been constructed and its properties have been set it can be passed as an argument to the worksheet C<write> methods as follows:
 
     $worksheet->write(0, 0, 'One', $format);
     $worksheet->write_string(1, 0, 'Two', $format);
@@ -2830,7 +2830,7 @@ You can also store the properties in one or more named hashes and pass them to t
     my $format2 = $workbook->add_format(%font, %shading); # Font and shading
 
 
-The provision of two ways of setting properties might lead you to wonder which is the best way. The method mechanism may be better is you prefer setting properties via method calls (which the author did when they were code was first written) otherwise passing properties to the constructor has proved to be a little more flexible and self documenting in practice. An additional advantage of working with property hashes is that it allows you to share formatting between workbook objects as shown in the example above.
+The provision of two ways of setting properties might lead you to wonder which is the best way. The method mechanism may be better is you prefer setting properties via method calls (which the author did when the code was first written) otherwise passing properties to the constructor has proved to be a little more flexible and self documenting in practice. An additional advantage of working with property hashes is that it allows you to share formatting between workbook objects as shown in the example above.
 
 The Perl/Tk style of adding properties is also supported:
 
@@ -4356,7 +4356,7 @@ Formulas can also refer to cells in other worksheets of the current workbook. Fo
     q{='Test Data'!A1}
     q{='Test Data1:Test Data2'!A1}
 
-The sheet reference and the cell reference are separated by  C<!> the exclamation mark symbol. If worksheet names contain spaces, commas o parentheses then Excel requires that the name is enclosed in single quotes as shown in the last two examples above. In order to avoid using a lot of escape characters you can use the quote operator C<q{}> to protect the quotes. See C<perlop> in the main Perl documentation. Only valid sheet names that have been added using the C<add_worksheet()> method can be used in formulas. You cannot reference external workbooks.
+The sheet reference and the cell reference are separated by  C<!> the exclamation mark symbol. If worksheet names contain spaces, commas or parentheses then Excel requires that the name is enclosed in single quotes as shown in the last two examples above. In order to avoid using a lot of escape characters you can use the quote operator C<q{}> to protect the quotes. See C<perlop> in the main Perl documentation. Only valid sheet names that have been added using the C<add_worksheet()> method can be used in formulas. You cannot reference external workbooks.
 
 
 The following table lists the operators that are available in Excel's formulas. The majority of the operators are the same as Perl's, differences are indicated:
@@ -5433,4 +5433,3 @@ John McNamara jmcnamara@cpan.org
 Copyright MM-MMX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
-
