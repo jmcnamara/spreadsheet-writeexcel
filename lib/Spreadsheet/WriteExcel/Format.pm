@@ -438,7 +438,7 @@ sub get_font_key {
 #
 # get_xf_index()
 #
-# Returns the used by Worksheet->_XF()
+# Returns the index used by Worksheet->_XF()
 #
 sub get_xf_index {
     my $self   = shift;
@@ -808,6 +808,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMX, John McNamara.
+ï¿½ MM-MMX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.

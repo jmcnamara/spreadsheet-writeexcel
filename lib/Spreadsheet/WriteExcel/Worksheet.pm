@@ -2095,12 +2095,11 @@ sub write_number {
 # write_string ($row, $col, $string, $format)
 #
 # Write a string to the specified row and column (zero indexed).
-# NOTE: there is an Excel 5 defined limit of 255 characters.
 # $format is optional.
 # Returns  0 : normal termination
 #         -1 : insufficient number of arguments
 #         -2 : row or column out of range
-#         -3 : long string truncated to 255 chars
+#         -3 : long string truncated to max chars
 #
 sub write_string {
 
@@ -2265,7 +2264,7 @@ sub write_formula {
     my $row       = $_[0];      # Zero indexed row
     my $col       = $_[1];      # Zero indexed column
     my $formula   = $_[2];      # The formula text string
-    my $value     = $_[4];      # The formula text string
+    my $value     = $_[4];      # The formula value.
 
 
     my $xf        = _XF($self, $row, $col, $_[3]);  # The cell format
@@ -3298,7 +3297,7 @@ sub set_row {
     my $reserved    = 0x0000;               # Reserved
     my $grbit       = 0x0000;               # Option flags
     my $ixfe;                               # XF index
-    my $height      = $_[1];                # Format object
+    my $height      = $_[1];                # Row height
     my $format      = $_[2];                # Format object
     my $hidden      = $_[3] || 0;           # Hidden flag
     my $level       = $_[4] || 0;           # Outline level
@@ -3369,7 +3368,7 @@ sub set_row {
 
 
     # Store the row sizes for use when calculating image vertices.
-    # Also store the column formats.
+    # Also store the row formats.
     $self->{_row_sizes}->{$_[0]}   = $height;
     $self->{_row_formats}->{$_[0]} = $format if defined $format;
 }
