@@ -1712,7 +1712,7 @@ sub write_col {
 
     # Catch non array refs passed by user.
     if (ref $_[2] ne 'ARRAY') {
-        croak "Not an array ref in call to write_row()$!";
+        croak "Not an array ref in call to write_col()$!";
     }
 
     my $row     = shift;
