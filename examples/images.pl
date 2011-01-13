@@ -31,11 +31,7 @@ $worksheet2->insert_image('A1', 'republic.png', 32, 10);
 $worksheet3->write('A10', "Image scaled: width x 2, height x 0.8.");
 $worksheet3->insert_image('A1', 'republic.png', 0, 0, 2, 0.8);
 
-# Insert an image over varied column and row sizes
-# This does not require any additional work
-
-# Set the cols and row sizes
-# NOTE: you must do this before you call insert_image()
+# Insert an image over varied column and row sizes.
 $worksheet4->set_column('A:A', 5);
 $worksheet4->set_column('B:B', undef, undef, 1); # Hidden
 $worksheet4->set_column('C:D', 10);

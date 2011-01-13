@@ -1535,7 +1535,9 @@ This option is used to change the y offset, in pixels, of a comment within a cel
 
 You can apply as many of these options as you require.
 
-B<Note about row height and comments>. If you specify the height of a row that contains a comment then Spreadsheet::WriteExcel will adjust the height of the comment to maintain the default or user specified dimensions. However, the height of a row can also be adjusted automatically by Excel if the text wrap property is set or large fonts are used in the cell. This means that the height of the row is unknown to WriteExcel at run time and thus the comment box is stretched with the row. Use the C<set_row()> method to specify the row height explicitly and avoid this problem.
+See also L<ROW HEIGHTS AND WORKSHEET OBJECTS>.
+
+
 
 
 =head2 show_comments()
@@ -1663,10 +1665,9 @@ The parameters C<$scale_x> and C<$scale_y> can be used to scale the inserted ima
 
 See also the C<images.pl> program in the C<examples> directory of the distro.
 
-Note: you must call C<set_row()> or C<set_column()> before C<insert_image()> if you wish to change the default dimensions of any of the rows or columns that the image occupies. The height of a row can also change if you use a font that is larger than the default. This in turn will affect the scaling of your image. To avoid this you should explicitly set the height of the row using C<set_row()> if it contains a font size that will change the row height.
-
-
 BMP images must be 24 bit, true colour, bitmaps. In general it is best to avoid BMP images since they aren't compressed. The older C<insert_bitmap()> method is still supported but deprecated.
+
+See also L<ROW HEIGHTS AND WORKSHEET OBJECTS>.
 
 
 
@@ -1698,7 +1699,7 @@ The parameters C<$scale_x> and C<$scale_y> can be used to scale the inserted ima
 
 The easiest way to calculate the required scaling is to create a test chart worksheet with Spreadsheet::WriteExcel. Then open the file, select the chart and drag the corner to get the required size. While holding down the mouse the scale of the resized chart is shown to the left of the formula bar.
 
-Note: you must call C<set_row()> or C<set_column()> before C<insert_chart()> if you wish to change the default dimensions of any of the rows or columns that the chart occupies. The height of a row can also change if you use a font that is larger than the default. This in turn will affect the scaling of your chart. To avoid this you should explicitly set the height of the row using C<set_row()> if it contains a font size that will change the row height.
+See also L<ROW HEIGHTS AND WORKSHEET OBJECTS>.
 
 
 
@@ -4300,6 +4301,18 @@ Example 7. Displaying a message when the cell is selected.
         });
 
 See also the C<data_validate.pl> program in the examples directory of the distro.
+
+
+
+=head1 ROW HEIGHTS AND WORKSHEET OBJECTS
+
+The following relates to worksheet objects such as images, comments and charts.
+
+If you specify the height of a row that contains a worksheet object then Spreadsheet::WriteExcel will adjust the height of the object to maintain its default or user specified dimensions. In this way the object won't appear stretched or compressed in Excel.
+
+However, Excel can also adjust the height of a row automatically if it contains cells that have the text wrap property set or contain large fonts. In these cases the height of the row is unknown to Spreadsheet::WriteExcel at execution time and the scaling calculations it performs are incorrect. The effect of this is that the  object is stretched with the row when it is displayed in Excel.
+
+In order to avoid this issue you should use the C<set_row()> method to explicitly specify the height of any row that may otherwise be changed automatically by Excel.
 
 
 
