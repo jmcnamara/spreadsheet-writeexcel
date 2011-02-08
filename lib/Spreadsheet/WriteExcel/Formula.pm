@@ -351,6 +351,12 @@ sub parse_tokens {
             pop @class;
             $num_args = 0; # Reset after use
         }
+        elsif ($token eq '_funcV') {
+            $token = shift @_;
+            $parse_str .= $self->_convert_function($token, $num_args, 1);
+            pop @class;
+            $num_args = 0; # Reset after use
+        }
         elsif (exists $ptg{$token}) {
             $parse_str .= pack("C", $ptg{$token});
         }
@@ -448,7 +454,7 @@ sub _check_volatile {
 
     for my $i (0..@tokens-1) {
         # If the next token is a function check if it is volatile.
-        if ($tokens[$i] eq '_func' and $functions{$tokens[$i+1]}[3]) {
+        if ($tokens[$i] =~ m/^_func/ and $functions{$tokens[$i+1]}[3]) {
             $volatile = 1;
             last;
         }
@@ -887,7 +893,7 @@ sub set_ext_name {
 #
 # _convert_function()
 #
-# Convert a function to a ptgFunc or ptgFuncVarV depending on the number of
+# Convert a function to a ptgFuncV or ptgFuncVarV depending on the number of
 # args that it takes.
 #
 sub _convert_function {
@@ -895,6 +901,7 @@ sub _convert_function {
     my $self     = shift;
     my $token    = shift;
     my $num_args = shift;
+    my $non_var  = shift;
 
     die "Unknown function $token() in formula\n"
         unless defined $functions{$token}[0];
@@ -908,13 +915,25 @@ sub _convert_function {
             die "Incorrect number of arguments for $token() in formula\n";
         }
         else {
-            return pack("Cv", $ptg{ptgFuncV}, $functions{$token}[0]);
+            if ($non_var) {
+                return pack("Cv", $ptg{ptgFunc},  $functions{$token}[0]);
+            }
+            else {
+                return pack("Cv", $ptg{ptgFuncV}, $functions{$token}[0]);
+            }
         }
     }
 
     # Variable number of args eg. SUM($i,$j,$k, ..).
     if ($args == -1) {
-        return pack "CCv", $ptg{ptgFuncVarV}, $num_args, $functions{$token}[0];
+        if ($non_var) {
+            return pack "CCv", $ptg{ptgFuncVar},
+                                $num_args, $functions{$token}[0];
+        }
+        else {
+            return pack "CCv", $ptg{ptgFuncVarV},
+                                $num_args, $functions{$token}[0];
+        }
     }
 }
 
