@@ -256,7 +256,7 @@ sub xl_cell_to_rowcol {
 
     my $cell = shift;
 
-    $cell =~ /(\$?)([A-Z]{1,3})(\$?)(\d+)/;
+    $cell =~ /(\$?)([A-Z]{1,3})(\$?)(\d+)/i;
 
     my $col_abs = $1 eq "" ? 0 : 1;
     my $col     = $2;
