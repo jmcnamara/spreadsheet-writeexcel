@@ -5286,9 +5286,14 @@ sub _store_autofilters {
         # Skip if column doesn't have an active filter.
         next unless $self->{_filter_cols}->{$col};
 
-        # Retrieve the filter tokens and write the autofilter records.
+        # Retrieve the filter tokens
         my @tokens =  @{$self->{_filter_cols}->{$col}};
-        $self->_store_autofilter($col, @tokens);
+
+        # Filter columns are relative to the first column in the filter.
+        my $filter_col = $col - $col1;
+
+        # Write the autofilter records.
+        $self->_store_autofilter($filter_col, @tokens);
     }
 }
 
