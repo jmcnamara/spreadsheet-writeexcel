@@ -5865,8 +5865,12 @@ sub _store_charts {
     # TODO. Won't work for external data refs. Also should use a more direct
     #       method.
     #
-    my $formula = "='$self->{_name}'!A1";
-    $self->store_formula($formula);
+    my $name = $self->{_name};
+    if ($self->{_encoding} && $] >= 5.008) {
+        require Encode;
+        $name = Encode::decode('UTF-16BE', $name);
+    }
+    $self->store_formula("='$name'!A1");
 
     $self->{_object_ids}->[0] = $spid;
 }
