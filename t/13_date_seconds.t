@@ -6,7 +6,7 @@
 #
 # Tests date and time second handling.
 #
-# reverse('©'), May 2004, John McNamara, jmcnamara@cpan.org
+# reverse('ï¿½'), May 2004, John McNamara, jmcnamara@cpan.org
 #
 
 use strict;
@@ -82,7 +82,10 @@ $date_time = '1899-12-31T00:00:60.000';
 $fail      = ! $worksheet->convert_date_time($date_time);
 ok($fail,  " Testing incorrect time: $date_time\tincorrect secs caught.");
 
-$date_time = '1899-12-31T00:00:59.9999999999999999999';
+$date_time = '1899-12-31T00:00:59.999999999999999999';
+# Workaround for increased precision with longdouble perls.
+$date_time .= "9" x length (1 - 1e-16);
+
 $fail      = ! $worksheet->convert_date_time($date_time);
 ok($fail,  " Testing incorrect time: $date_time\tincorrect secs caught.");
 
