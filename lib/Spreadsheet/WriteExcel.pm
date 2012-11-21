@@ -753,9 +753,9 @@ The general rule is that if the data looks like a I<something> then a I<somethin
     $worksheet->write('A15', [\@array]             ); # write_col()
 
     # And if the keep_leading_zeros property is set:
-    $worksheet->write('A16,  2                     ); # write_number()
-    $worksheet->write('A17,  02                    ); # write_string()
-    $worksheet->write('A18,  00002                 ); # write_string()
+    $worksheet->write('A16', '2'                   ); # write_number()
+    $worksheet->write('A17', '02'                  ); # write_string()
+    $worksheet->write('A18', '00002'               ); # write_string()
 
 
 The "looks like" rule is defined by regular expressions:
