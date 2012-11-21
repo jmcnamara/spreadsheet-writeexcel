@@ -2518,7 +2518,7 @@ sub repeat_formula {
     # result of the formula by appending a result => $value pair to the end
     # of the arguments.
     my $value = undef;
-    if ($pairs[-2] eq 'result') {
+    if (@pairs && $pairs[-2] eq 'result') {
         $value = pop @pairs;
                  pop @pairs;
     }
