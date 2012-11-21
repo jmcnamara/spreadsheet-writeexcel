@@ -2258,6 +2258,8 @@ sub write_formula {
 
     if (@_ < 3) { return -1 }   # Check the number of args
 
+    return if ! defined $_[2];
+
     my $record    = 0x0006;     # Record identifier
     my $length;                 # Bytes to follow
 
