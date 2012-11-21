@@ -31,7 +31,7 @@ print "\n";
 # Create a new workbook and add a worksheet. The special Perl filehandle - will
 # redirect the output to STDOUT
 #
-my $workbook  = Spreadsheet::WriteExcel->new("-");
+my $workbook  = Spreadsheet::WriteExcel->new(\*STDOUT);
 my $worksheet = $workbook->add_worksheet();
 
 
