@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.37'; # A farewell to arms.
+$VERSION = '2.38'; # A farewell to arms.
 
 
 
@@ -64,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.37 of Spreadsheet::WriteExcel, released February 2, 2010.
+This document refers to version 2.38 of Spreadsheet::WriteExcel, released November 22, 2012.
 
 
 
@@ -5285,7 +5285,7 @@ If you wish to submit a bug report run the C<bug_report.pl> program in the C<exa
 
 =head1 TO DO
 
-Spreadsheet::WriteExcel has been superceded by L<Excel::Writer::XLSX>. All new feature and enhancements will be added to that module.
+Spreadsheet::WriteExcel has been superseded by L<Excel::Writer::XLSX>. All new feature and enhancements will be added to that module.
 
 
 =head1 REPOSITORY

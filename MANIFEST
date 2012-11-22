@@ -2,7 +2,6 @@ Makefile.PL
 Changes
 MANIFEST
 README
-INSTALL
 META.yml
 
 lib/Spreadsheet/WriteExcel.pm
@@ -61,13 +60,8 @@ t/60_chart_generic.t
 t/61_chart_subclasses.t
 t/62_chart_formats.t
 t/63_chart_area_formats.t
-t/90_pod.t
-t/91_minimumversion.t
-t/92_meta.t
 
 docs/Perl_Journal_Article.html
-docs/WriteExcel.html
-docs/WriteExcel_Install.html
 docs/images/example.jpg
 docs/images/swe.png
 docs/index.html

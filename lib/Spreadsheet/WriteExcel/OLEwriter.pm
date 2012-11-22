@@ -24,7 +24,7 @@ use FileHandle;
 use vars qw($VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.37';
+$VERSION = '2.38';
 
 ###############################################################################
 #

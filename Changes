@@ -1,12 +1,28 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
-2.38 XXX
+2.38 November 22 2012
+
+    Maintenance release. Minor fixes only.
+
+    ! Removed failing testcases to allow S::WE to be tested/packaged
+      on recent perls.
+
+    ! Fix filter_column bug where filter is applied to the wrong column.
+      Merge pull request #4 from blazzy/master.
 
     ! Enabled set_zoom() for Chart worksheets. It was documented but
       wasn't working. Reported by Praphull Kumar.
 
     ! Enabled set_tab_color() for Chart worksheets. It was documented
       but wasn't working.
+
+    ! Fix typo in docs. Closes RT#70432.
+
+    ! Fix for rounding in test with longdoubles. Fixes RT#68954.
+
+    ! Handle chart sheets with utf8 name. Fixes RT#67014.
+
+    ! Fix for undefined formulas. Fixes RT#61560.
 
 
 2.37 February 2 2010 - Minor
