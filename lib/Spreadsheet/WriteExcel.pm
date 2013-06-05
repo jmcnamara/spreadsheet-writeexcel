@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.38'; # A farewell to arms.
+$VERSION = '2.39'; # A farewell to arms.
 
 
 
@@ -64,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.38 of Spreadsheet::WriteExcel, released November 22, 2012.
+This document refers to version 2.39 of Spreadsheet::WriteExcel, released June 6, 2013.
 
 
 

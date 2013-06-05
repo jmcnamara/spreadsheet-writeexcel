@@ -1,5 +1,11 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.39 June 6 2013
+
+    ! Added Debian patch for Pod encoding. RT #85897.
+      Thanks Gregor Herrmann.
+
+
 2.38 November 22 2012
 
     Maintenance release. Minor fixes only.
