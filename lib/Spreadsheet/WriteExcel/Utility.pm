@@ -52,6 +52,7 @@ $VERSION        = '2.38';
 
 
 
+=encoding latin1
 
 =head1 NAME
 

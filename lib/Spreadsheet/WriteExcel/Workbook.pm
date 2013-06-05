@@ -3614,6 +3614,7 @@ sub _store_mso_split_menu_colors {
 
 __END__
 
+=encoding latin1
 
 =head1 NAME
 

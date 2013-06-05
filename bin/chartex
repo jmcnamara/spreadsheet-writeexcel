@@ -214,6 +214,7 @@ for my $i (5 .. $max_font) {
 
 __END__
 
+=encoding latin1
 
 =head1 NAME
 

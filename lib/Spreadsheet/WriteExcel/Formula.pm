@@ -1397,6 +1397,7 @@ sub _initialize_hashes {
 
 __END__
 
+=encoding latin1
 
 =head1 NAME
 

@@ -24,6 +24,8 @@ __END__
 
 =pod
 
+=encoding latin1
+
 =head1 NAME
 
 Examples - Spreadsheet::WriteExcel example programs.

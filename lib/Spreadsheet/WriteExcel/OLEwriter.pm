@@ -425,6 +425,7 @@ sub _write_padding {
 
 __END__
 
+=encoding latin1
 
 =head1 NAME
 

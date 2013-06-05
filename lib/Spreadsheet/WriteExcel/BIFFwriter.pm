@@ -292,6 +292,7 @@ sub _hexout {
 
 __END__
 
+=encoding latin1
 
 =head1 NAME
 
