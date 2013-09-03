@@ -64,7 +64,7 @@ sub _initialize {
     $self->{_datasize}      = -s $filehandle;
     $self->{_using_tmpfile} = 0;
 
-    # Read the entire external chart binary into the the data buffer.
+    # Read the entire external chart binary into the data buffer.
     # This will be retrieved by _get_data() when the chart is closed().
     read( $self->{_filehandle}, $self->{_data}, $self->{_datasize} );
 }
