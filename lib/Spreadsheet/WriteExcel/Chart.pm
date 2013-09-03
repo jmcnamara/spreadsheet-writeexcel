@@ -2762,7 +2762,7 @@ Here is an example of setting several properties:
         line_weight  => 3,
     );
 
-Note, for chart sheets the chart area border is off by default. For embedded charts is is on by default.
+Note, for chart sheets the chart area border is off by default. For embedded charts this is on by default.
 
 =head2 set_plotarea()
 
