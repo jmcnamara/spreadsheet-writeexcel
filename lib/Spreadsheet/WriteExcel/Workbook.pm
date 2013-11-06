@@ -1466,7 +1466,7 @@ sub _calc_mso_sizes {
 
 
         # Include 1 parent MSODRAWING shape, per sheet, in the shape count.
-        my $num_shapes   += 1 + $num_images
+        my $num_shapes    = 1 + $num_images
                               + $num_comments
                               + $num_charts
                               + $num_filters;
