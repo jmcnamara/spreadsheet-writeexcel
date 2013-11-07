@@ -469,7 +469,7 @@ sub add_worksheet {
 #
 # add_chart(%args)
 #
-# Create a chart for embedding or as as new sheet.
+# Create a chart for embedding or as a new sheet.
 #
 #
 sub add_chart {
@@ -3634,6 +3634,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMX, John McNamara.
+ï¿½ MM-MMX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
