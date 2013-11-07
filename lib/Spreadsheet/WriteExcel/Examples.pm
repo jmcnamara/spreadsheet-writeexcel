@@ -16,7 +16,7 @@ package Spreadsheet::WriteExcel::Examples;
 
 use strict;
 use vars qw($VERSION);
-$VERSION = '2.39';
+$VERSION = '2.40';
 
 1;
 
@@ -238,7 +238,7 @@ Source code for this example:
     # A simple example of how to use the Spreadsheet::WriteExcel module to write
     # some  text and numbers to an Excel binary file.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -274,7 +274,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/a_simple.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/a_simple.pl>
 
 =head2 Example: demo.pl
 
@@ -304,7 +304,7 @@ Source code for this example:
     # This program is used to create the project screenshot for Freshmeat:
     # L<http://freshmeat.net/projects/writeexcel/>
     #
-    # reverse('�'), October 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), October 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -413,7 +413,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/demo.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/demo.pl>
 
 =head2 Example: regions.pl
 
@@ -439,7 +439,7 @@ Source code for this example:
     # An example of how to use the Spreadsheet:WriteExcel module to write a basic
     # Excel workbook with multiple worksheets.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -480,7 +480,7 @@ Source code for this example:
     $south->set_selection(0, 1);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/regions.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/regions.pl>
 
 =head2 Example: stats.pl
 
@@ -506,7 +506,7 @@ Source code for this example:
     # A simple example of how to use functions with the Spreadsheet::WriteExcel
     # module.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -571,7 +571,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/stats.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/stats.pl>
 
 =head2 Example: formats.pl
 
@@ -603,7 +603,7 @@ Source code for this example:
     # running this program and viewing the output Excel file if you are interested
     # in the various formatting possibilities.
     #
-    # reverse('�'), September 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2002, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -1081,7 +1081,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/formats.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/formats.pl>
 
 =head2 Example: bug_report.pl
 
@@ -1102,7 +1102,7 @@ Run this program and read the output from the command line.
     #
     # Run this program and read the output from the command line.
     #
-    # reverse('�'), March 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -1237,7 +1237,7 @@ Run this program and read the output from the command line.
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/bug_report.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/bug_report.pl>
 
 =head2 Example: autofilter.pl
 
@@ -1269,7 +1269,7 @@ Source code for this example:
     # of worksheet data. This is turn allow users to filter the data based on
     # simple criteria so that some data is shown and some is hidden.
     #
-    # reverse('�'), September 2007, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2007, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -1531,7 +1531,7 @@ Source code for this example:
     East      Grape     6000      February
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/autofilter.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/autofilter.pl>
 
 =head2 Example: autofit.pl
 
@@ -1595,7 +1595,7 @@ Source code for this example:
     # method using an external module. For more complicated applications you will
     # probably have to work out your own methods.
     #
-    # reverse('�'), May 2006, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2006, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -1751,7 +1751,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/autofit.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/autofit.pl>
 
 =head2 Example: bigfile.pl
 
@@ -1782,7 +1782,7 @@ Source code for this example:
     # This is exactly that same as any other Spreadsheet::WriteExcel program except
     # that is requires that the OLE::Storage module is installed.
     #
-    # reverse('�'), Jan 2007, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), Jan 2007, John McNamara, jmcnamara@cpan.org
     
     
     use strict;
@@ -1803,7 +1803,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/bigfile.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/bigfile.pl>
 
 =head2 Example: cgi.pl
 
@@ -1837,7 +1837,7 @@ that line as shown below.
     # the file. If you want to stream the file to the browser instead, comment out
     # that line as shown below.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -1876,7 +1876,7 @@ that line as shown below.
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/cgi.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/cgi.pl>
 
 =head2 Example: chart_area.pl
 
@@ -1900,7 +1900,7 @@ Source code for this example:
     #
     # A simple demo of Area charts in Spreadsheet::WriteExcel.
     #
-    # reverse('�'), December 2009, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), December 2009, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -2018,7 +2018,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/chart_area.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/chart_area.pl>
 
 =head2 Example: chart_bar.pl
 
@@ -2042,7 +2042,7 @@ Source code for this example:
     #
     # A simple demo of Bar charts in Spreadsheet::WriteExcel.
     #
-    # reverse('�'), December 2009, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), December 2009, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -2160,7 +2160,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/chart_bar.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/chart_bar.pl>
 
 =head2 Example: chart_column.pl
 
@@ -2184,7 +2184,7 @@ Source code for this example:
     #
     # A simple demo of Column charts in Spreadsheet::WriteExcel.
     #
-    # reverse('�'), December 2009, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), December 2009, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -2302,7 +2302,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/chart_column.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/chart_column.pl>
 
 =head2 Example: chart_line.pl
 
@@ -2326,7 +2326,7 @@ Source code for this example:
     #
     # A simple demo of Line charts in Spreadsheet::WriteExcel.
     #
-    # reverse('�'), December 2009, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), December 2009, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -2444,7 +2444,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/chart_line.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/chart_line.pl>
 
 =head2 Example: chart_pie.pl
 
@@ -2468,7 +2468,7 @@ Source code for this example:
     #
     # A simple demo of Pie charts in Spreadsheet::WriteExcel.
     #
-    # reverse('�'), December 2009, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), December 2009, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -2573,7 +2573,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/chart_pie.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/chart_pie.pl>
 
 =head2 Example: chart_scatter.pl
 
@@ -2597,7 +2597,7 @@ Source code for this example:
     #
     # A simple demo of Scatter charts in Spreadsheet::WriteExcel.
     #
-    # reverse('�'), December 2009, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), December 2009, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -2715,7 +2715,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/chart_scatter.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/chart_scatter.pl>
 
 =head2 Example: chart_stock.pl
 
@@ -2739,7 +2739,7 @@ Source code for this example:
     #
     # A simple demo of Stock charts in Spreadsheet::WriteExcel.
     #
-    # reverse('©'), January 2010, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), January 2010, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -2896,7 +2896,7 @@ Source code for this example:
     2009-08-31  102.30  103.71  102.16  102.37
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/chart_stock.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/chart_stock.pl>
 
 =head2 Example: chess.pl
 
@@ -2948,7 +2948,7 @@ Source code for this example:
     # properties and then add them together to create the 14 Format
     # configurations.
     #
-    # reverse('�'), July 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), July 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -3076,7 +3076,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/chess.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/chess.pl>
 
 =head2 Example: colors.pl
 
@@ -3108,7 +3108,7 @@ Source code for this example:
     # The set_custom_color() Worksheet method can be used to override one of the
     # built-in palette values with a more suitable colour. See the main docs.
     #
-    # reverse('�'), March 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2002, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -3207,7 +3207,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/colors.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/colors.pl>
 
 =head2 Example: comments1.pl
 
@@ -3241,7 +3241,7 @@ Source code for this example:
     #
     # For more advanced comment options see comments2.pl.
     #
-    # reverse('�'), November 2005, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), November 2005, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -3258,7 +3258,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/comments1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/comments1.pl>
 
 =head2 Example: comments2.pl
 
@@ -3292,7 +3292,7 @@ Source code for this example:
     #
     # Each of the worksheets demonstrates different features of cell comments.
     #
-    # reverse('�'), November 2005, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), November 2005, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -3666,7 +3666,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/comments2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/comments2.pl>
 
 =head2 Example: copyformat.pl
 
@@ -3694,7 +3694,7 @@ Source code for this example:
     #
     # This feature isn't required very often.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -3740,7 +3740,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/copyformat.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/copyformat.pl>
 
 =head2 Example: data_validate.pl
 
@@ -3774,7 +3774,7 @@ Source code for this example:
     # that a users enters in a cell and to display help and warning messages. It
     # also allows you to restrict input to values in a drop down list.
     #
-    # reverse('�'), August 2008, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2008, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4047,7 +4047,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/data_validate.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/data_validate.pl>
 
 =head2 Example: date_time.pl
 
@@ -4073,7 +4073,7 @@ Source code for this example:
     # Spreadsheet::WriteExcel example of writing dates and times using the
     # write_date_time() Worksheet method.
     #
-    # reverse('�'), August 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2004, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4158,7 +4158,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/date_time.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/date_time.pl>
 
 =head2 Example: defined_name.pl
 
@@ -4188,7 +4188,7 @@ Source code for this example:
     # This method is used to defined a name that can be used to represent a value,
     # a single cell or a range of cells in a workbook.
     #
-    # reverse('�'), September 2008, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2008, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4218,7 +4218,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/defined_name.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/defined_name.pl>
 
 =head2 Example: diag_border.pl
 
@@ -4244,7 +4244,7 @@ Source code for this example:
     # A simple formatting example that demonstrates how to add a diagonal cell
     # border with Spreadsheet::WriteExcel
     #
-    # reverse('�'), May 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2004, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4279,7 +4279,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/diag_border.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/diag_border.pl>
 
 =head2 Example: easter_egg.pl
 
@@ -4297,7 +4297,7 @@ in Excel 97 SR2.
     # This uses the Win32::OLE module to expose the Flight Simulator easter egg
     # in Excel 97 SR2.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4321,7 +4321,7 @@ in Excel 97 SR2.
     $application->InputBox($message);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/easter_egg.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/easter_egg.pl>
 
 =head2 Example: filehandle.pl
 
@@ -4347,7 +4347,7 @@ Source code for this example:
     # Example of using Spreadsheet::WriteExcel to write Excel files to
     # different filehandles.
     #
-    # reverse('�'), April 2003, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), April 2003, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4456,7 +4456,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/filehandle.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/filehandle.pl>
 
 =head2 Example: formula_result.pl
 
@@ -4488,7 +4488,7 @@ Source code for this example:
     # This is generally only required when writing a spreadsheet for an
     # application other than Excel where the formula isn't evaluated.
     #
-    # reverse('�'), August 2005, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2005, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4509,7 +4509,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/formula_result.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/formula_result.pl>
 
 =head2 Example: headers.pl
 
@@ -4589,7 +4589,7 @@ Source code for this example:
     #
     # See the main Spreadsheet::WriteExcel documentation for more information.
     #
-    # reverse('�'), March 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2002, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -4700,7 +4700,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/headers.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/headers.pl>
 
 =head2 Example: hide_sheet.pl
 
@@ -4724,7 +4724,7 @@ Source code for this example:
     #
     # Example of how to hide a worksheet with Spreadsheet::WriteExcel.
     #
-    # reverse('�'), April 2005, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), April 2005, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4746,7 +4746,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/hide_sheet.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/hide_sheet.pl>
 
 =head2 Example: hyperlink1.pl
 
@@ -4774,7 +4774,7 @@ Source code for this example:
     #
     # See also hyperlink2.pl for worksheet URL examples.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -4808,7 +4808,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/hyperlink1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/hyperlink1.pl>
 
 =head2 Example: hyperlink2.pl
 
@@ -4846,7 +4846,7 @@ See also hyperlink1.pl for web URL examples.
     #
     # See also hyperlink1.pl for web URL examples.
     #
-    # reverse('�'), February 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), February 2002, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -4956,7 +4956,7 @@ See also hyperlink1.pl for web URL examples.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/hyperlink2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/hyperlink2.pl>
 
 =head2 Example: images.pl
 
@@ -4982,7 +4982,7 @@ Source code for this example:
     # Example of how to insert images into an Excel worksheet using the
     # Spreadsheet::WriteExcel insert_image() method.
     #
-    # reverse('�'), October 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), October 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -5023,7 +5023,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/images.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/images.pl>
 
 =head2 Example: indent.pl
 
@@ -5051,7 +5051,7 @@ Source code for this example:
     #
     # This program demonstrates the indentation cell format.
     #
-    # reverse('�'), May 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -5074,7 +5074,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/indent.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/indent.pl>
 
 =head2 Example: merge1.pl
 
@@ -5108,7 +5108,7 @@ Source code for this example:
     # modern approach use the merge_range() worksheet method instead.
     # See the merge3.pl - merge6.pl programs.
     #
-    # reverse('�'), August 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2002, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -5135,7 +5135,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/merge1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/merge1.pl>
 
 =head2 Example: merge2.pl
 
@@ -5169,7 +5169,7 @@ Source code for this example:
     # modern approach use the merge_range() worksheet method instead.
     # See the merge3.pl - merge6.pl programs.
     #
-    # reverse('�'), August 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2002, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -5205,7 +5205,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/merge2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/merge2.pl>
 
 =head2 Example: merge3.pl
 
@@ -5233,7 +5233,7 @@ Source code for this example:
     # merged cell. There are two options write_url_range() with a standard merge
     # format or merge_range().
     #
-    # reverse('�'), September 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2002, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -5292,7 +5292,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/merge3.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/merge3.pl>
 
 =head2 Example: merge4.pl
 
@@ -5318,7 +5318,7 @@ Source code for this example:
     # Example of how to use the Spreadsheet::WriteExcel merge_range() workbook
     # method with complex formatting.
     #
-    # reverse('�'), September 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2002, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -5403,7 +5403,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/merge4.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/merge4.pl>
 
 =head2 Example: merge5.pl
 
@@ -5431,7 +5431,7 @@ Source code for this example:
     # method with complex formatting and rotation.
     #
     #
-    # reverse('�'), September 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2002, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -5466,7 +5466,7 @@ Source code for this example:
     
     ###############################################################################
     #
-    # Rotation 2, 90� anticlockwise
+    # Rotation 2, 90 deg anticlockwise
     #
     my $format2 = $workbook->add_format(
                                         border      => 6,
@@ -5478,13 +5478,13 @@ Source code for this example:
                                       );
     
     
-    $worksheet->merge_range('D4:D9', 'Rotation 90�', $format2);
+    $worksheet->merge_range('D4:D9', 'Rotation 90 deg', $format2);
     
     
     
     ###############################################################################
     #
-    # Rotation 3, 90� clockwise
+    # Rotation 3, 90 deg clockwise
     #
     my $format3 = $workbook->add_format(
                                         border      => 6,
@@ -5496,11 +5496,11 @@ Source code for this example:
                                       );
     
     
-    $worksheet->merge_range('F4:F9', 'Rotation -90�', $format3);
+    $worksheet->merge_range('F4:F9', 'Rotation -90 deg', $format3);
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/merge5.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/merge5.pl>
 
 =head2 Example: merge6.pl
 
@@ -5528,7 +5528,7 @@ Source code for this example:
     # method with Unicode strings.
     #
     #
-    # reverse('�'), December 2005, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), December 2005, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -5604,7 +5604,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/merge6.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/merge6.pl>
 
 =head2 Example: mod_perl1.pl
 
@@ -5728,7 +5728,7 @@ The PerlHandler name above and the package name below *have* to match.
     1;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/mod_perl1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/mod_perl1.pl>
 
 =head2 Example: mod_perl2.pl
 
@@ -5856,7 +5856,7 @@ The PerlResponseHandler must match the package name below.
     1;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/mod_perl2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/mod_perl2.pl>
 
 =head2 Example: outline.pl
 
@@ -5990,7 +5990,7 @@ Source code for this example:
     #
     # See the main Spreadsheet::WriteExcel documentation for more information.
     #
-    # reverse('�'), April 2003, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), April 2003, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -6186,7 +6186,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/outline.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/outline.pl>
 
 =head2 Example: outline_collapsed.pl
 
@@ -6218,7 +6218,7 @@ Source code for this example:
     # These example focus mainly on collapsed outlines. See also the
     # outlines.pl example program for more general examples.
     #
-    # reverse('�'), March 2008, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2008, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -6422,7 +6422,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/outline_collapsed.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/outline_collapsed.pl>
 
 =head2 Example: panes.pl
 
@@ -6446,7 +6446,7 @@ Source code for this example:
     #
     # Example of using the WriteExcel module to create worksheet panes.
     #
-    # reverse('�'), May 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -6574,7 +6574,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/panes.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/panes.pl>
 
 =head2 Example: properties.pl
 
@@ -6598,7 +6598,7 @@ Source code for this example:
     #
     # An example of adding document properties to a Spreadsheet::WriteExcel file.
     #
-    # reverse('�'), August 2008, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2008, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -6627,7 +6627,7 @@ Source code for this example:
     __END__
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/properties.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/properties.pl>
 
 =head2 Example: protection.pl
 
@@ -6653,7 +6653,7 @@ Source code for this example:
     # Example of cell locking and formula hiding in an Excel worksheet via
     # the Spreadsheet::WriteExcel module.
     #
-    # reverse('�'), August 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -6690,7 +6690,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/protection.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/protection.pl>
 
 =head2 Example: repeat.pl
 
@@ -6714,7 +6714,7 @@ Source code for this example:
     #
     # Example of writing repeated formulas.
     #
-    # reverse('�'), August 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2002, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -6756,14 +6756,14 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/repeat.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/repeat.pl>
 
 =head2 Example: right_to_left.pl
 
 
 
 Example of how to change the default worksheet direction from
-left-to-right to right-to-left as required by some eastern versions
+left-to-right to right-to-left as required by some eastern verions
 of Excel.
 
 
@@ -6781,10 +6781,10 @@ Source code for this example:
     #######################################################################
     #
     # Example of how to change the default worksheet direction from
-    # left-to-right to right-to-left as required by some eastern versions
+    # left-to-right to right-to-left as required by some eastern verions
     # of Excel.
     #
-    # reverse('�'), January 2006, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), January 2006, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -6803,7 +6803,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/right_to_left.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/right_to_left.pl>
 
 =head2 Example: row_wrap.pl
 
@@ -6851,7 +6851,7 @@ Source code for this example:
     # In order to achieve this we use a single worksheet reference and
     # reinitialise it to point to a new worksheet when required.
     #
-    # reverse('�'), May 2006, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2006, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -6889,7 +6889,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/row_wrap.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/row_wrap.pl>
 
 =head2 Example: sales.pl
 
@@ -6915,7 +6915,7 @@ Source code for this example:
     # Example of a sales worksheet to demonstrate several different features.
     # Also uses functions from the L<Spreadsheet::WriteExcel::Utility> module.
     #
-    # reverse('�'), October 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), October 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7016,7 +7016,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/sales.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/sales.pl>
 
 =head2 Example: sendmail.pl
 
@@ -7042,7 +7042,7 @@ See the L<Mail::Sender> module for further details.
     #
     # See the L<Mail::Sender> module for further details.
     #
-    # reverse('�'), August 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), August 2002, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -7078,7 +7078,7 @@ See the L<Mail::Sender> module for further details.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/sendmail.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/sendmail.pl>
 
 =head2 Example: stats_ext.pl
 
@@ -7108,7 +7108,7 @@ Source code for this example:
     # This is a simple example of how to use functions that reference cells in
     # other worksheets within the same workbook.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7179,7 +7179,7 @@ Source code for this example:
     $worksheet2->write('B9', 24.8, $numformat);
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/stats_ext.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/stats_ext.pl>
 
 =head2 Example: stocks.pl
 
@@ -7209,7 +7209,7 @@ Source code for this example:
     # This example shows how to use a conditional numerical format
     # with colours to indicate if a share price has gone up or down.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7279,7 +7279,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/stocks.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/stocks.pl>
 
 =head2 Example: tab_colors.pl
 
@@ -7303,7 +7303,7 @@ Source code for this example:
     #
     # Example of how to set Excel worksheet tab colours.
     #
-    # reverse('�'), May 2006, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2006, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7323,7 +7323,7 @@ Source code for this example:
     $worksheet4->set_tab_color(0x35); # Orange
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/tab_colors.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/tab_colors.pl>
 
 =head2 Example: textwrap.pl
 
@@ -7359,7 +7359,7 @@ Source code for this example:
     # With vertical justification the text is wrapped automatically to fit the
     # column width. With text wrap you must specify a newline with an embedded \n.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7429,7 +7429,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/textwrap.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/textwrap.pl>
 
 =head2 Example: win32ole.pl
 
@@ -7447,7 +7447,7 @@ Win32::OLE module for the sake of comparison.
     # This is a simple example of how to create an Excel file using the
     # Win32::OLE module for the sake of comparison.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7486,7 +7486,7 @@ Win32::OLE module for the sake of comparison.
     $workbook->Close;
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/win32ole.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/win32ole.pl>
 
 =head2 Example: write_arrays.pl
 
@@ -7520,7 +7520,7 @@ Source code for this example:
     # perlreftut manpages. To find out more about 2D arrays or "list of
     # lists" refer to the perllol manpage.
     #
-    # reverse('�'), March 2002, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2002, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -7581,7 +7581,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/write_arrays.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/write_arrays.pl>
 
 =head2 Example: write_handler1.pl
 
@@ -7613,7 +7613,7 @@ Source code for this example:
     # The following example shows how to add a handler for a 7 digit ID number.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7669,7 +7669,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/write_handler1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/write_handler1.pl>
 
 =head2 Example: write_handler2.pl
 
@@ -7705,7 +7705,7 @@ Source code for this example:
     # filters data that isn't in the third column.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7766,7 +7766,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/write_handler2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/write_handler2.pl>
 
 =head2 Example: write_handler3.pl
 
@@ -7802,7 +7802,7 @@ Source code for this example:
     #
     # See write_handler4.pl for a more rigorous example with error handling.
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7856,7 +7856,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/write_handler3.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/write_handler3.pl>
 
 =head2 Example: write_handler4.pl
 
@@ -7892,7 +7892,7 @@ Source code for this example:
     #
     # This is a more rigorous version of write_handler3.pl.
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -7982,7 +7982,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/write_handler4.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/write_handler4.pl>
 
 =head2 Example: write_to_scalar.pl
 
@@ -8006,7 +8006,7 @@ see the filehandle.pl program and IO:Scalar.
     # For an examples of how to write to a scalar in versions prior to perl 5.8
     # see the filehandle.pl program and IO:Scalar.
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -8044,7 +8044,7 @@ see the filehandle.pl program and IO:Scalar.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/write_to_scalar.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/write_to_scalar.pl>
 
 =head2 Example: unicode_utf16.pl
 
@@ -8074,7 +8074,7 @@ Source code for this example:
     # This example shows UTF16 encoding. With perl 5.8 it is also possible to use
     # utf8 without modification.
     #
-    # reverse('�'), May 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8110,7 +8110,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_utf16.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_utf16.pl>
 
 =head2 Example: unicode_utf16_japan.pl
 
@@ -8148,7 +8148,7 @@ Source code for this example:
     #
     # See also the unicode_2022_jp.pl and unicode_shift_jis.pl examples.
     #
-    # reverse('�'), May 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8186,7 +8186,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_utf16_japan.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_utf16_japan.pl>
 
 =head2 Example: unicode_cyrillic.pl
 
@@ -8212,7 +8212,7 @@ Source code for this example:
     # A simple example of writing some Russian cyrillic text using
     # Spreadsheet::WriteExcel and perl 5.8.
     #
-    # reverse('�'), March 2005, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2005, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8255,7 +8255,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_cyrillic.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_cyrillic.pl>
 
 =head2 Example: unicode_list.pl
 
@@ -8281,7 +8281,7 @@ Source code for this example:
     # A simple example using Spreadsheet::WriteExcel to display all available
     # Unicode characters in a font.
     #
-    # reverse('�'), May 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), May 2004, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -8325,7 +8325,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_list.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_list.pl>
 
 =head2 Example: unicode_2022_jp.pl
 
@@ -8357,7 +8357,7 @@ Source code for this example:
     # This example generates some Japanese from a file with ISO-2022-JP
     # encoded text.
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8394,7 +8394,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_2022_jp.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_2022_jp.pl>
 
 =head2 Example: unicode_8859_11.pl
 
@@ -8426,7 +8426,7 @@ Source code for this example:
     # This example generates some Thai from a file with ISO-8859-11 encoded text.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8463,7 +8463,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_8859_11.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_8859_11.pl>
 
 =head2 Example: unicode_8859_7.pl
 
@@ -8495,7 +8495,7 @@ Source code for this example:
     # This example generates some Greek from a file with ISO-8859-7 encoded text.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8532,7 +8532,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_8859_7.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_8859_7.pl>
 
 =head2 Example: unicode_big5.pl
 
@@ -8564,7 +8564,7 @@ Source code for this example:
     # This example generates some Chinese from a file with BIG5 encoded text.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8601,7 +8601,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_big5.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_big5.pl>
 
 =head2 Example: unicode_cp1251.pl
 
@@ -8633,7 +8633,7 @@ Source code for this example:
     # This example generates some Russian from a file with CP1251 encoded text.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8670,7 +8670,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_cp1251.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_cp1251.pl>
 
 =head2 Example: unicode_cp1256.pl
 
@@ -8702,7 +8702,7 @@ Source code for this example:
     # This example generates some Arabic text from a CP-1256 encoded file.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8739,7 +8739,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_cp1256.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_cp1256.pl>
 
 =head2 Example: unicode_koi8r.pl
 
@@ -8771,7 +8771,7 @@ Source code for this example:
     # This example generates some Russian from a file with KOI8-R encoded text.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8808,7 +8808,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_koi8r.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_koi8r.pl>
 
 =head2 Example: unicode_polish_utf8.pl
 
@@ -8840,7 +8840,7 @@ Source code for this example:
     # This example generates some Polish from a file with UTF8 encoded text.
     #
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8877,7 +8877,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_polish_utf8.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_polish_utf8.pl>
 
 =head2 Example: unicode_shift_jis.pl
 
@@ -8909,7 +8909,7 @@ Source code for this example:
     # This example generates some Japenese text from a file with Shift-JIS
     # encoded text.
     #
-    # reverse('�'), September 2004, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), September 2004, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -8946,7 +8946,7 @@ Source code for this example:
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/unicode_shift_jis.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/unicode_shift_jis.pl>
 
 =head2 Example: csv2xls.pl
 
@@ -8992,7 +8992,7 @@ See the examples/csv2xls link here:
     # See the examples/csv2xls link here:
     #     L<http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST>
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -9036,7 +9036,7 @@ See the examples/csv2xls link here:
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/csv2xls.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/csv2xls.pl>
 
 =head2 Example: tab2xls.pl
 
@@ -9078,7 +9078,7 @@ See the examples/csv2xls link here:
     # See the examples/csv2xls link here:
     #     L<http://search.cpan.org/~hmbrand/Text-CSV_XS/MANIFEST>
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     
@@ -9117,7 +9117,7 @@ See the examples/csv2xls link here:
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/tab2xls.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/tab2xls.pl>
 
 =head2 Example: datecalc1.pl
 
@@ -9379,7 +9379,7 @@ the 1900 serials of Excel for dates before 1 Mar 1900.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/datecalc1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/datecalc1.pl>
 
 =head2 Example: datecalc2.pl
 
@@ -9401,7 +9401,7 @@ NOTE: An easier way of writing dates and times is to use the newer
     # NOTE: An easier way of writing dates and times is to use the newer
     #       write_date_time() Worksheet method. See the date_time.pl example.
     #
-    # reverse('�'), June 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), June 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -9498,7 +9498,7 @@ NOTE: An easier way of writing dates and times is to use the newer
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/datecalc2.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/datecalc2.pl>
 
 =head2 Example: lecxe.pl
 
@@ -9863,7 +9863,7 @@ program using Win32::OLE
     modify it under the same terms as Perl itself.
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/lecxe.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/lecxe.pl>
 
 =head2 Example: convertA1.pl
 
@@ -9885,7 +9885,7 @@ These functions have been superseded by L<Spreadsheet::WriteExcel::Utility>.
     #
     # These functions have been superseded by L<Spreadsheet::WriteExcel::Utility>.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -10097,422 +10097,8 @@ These functions have been superseded by L<Spreadsheet::WriteExcel::Utility>.
     
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/convertA1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/convertA1.pl>
 
-=head2 Example: function_locale.pl
-
-
-
-Generate function names for different locales.
-
-This program can be used to generate the hash of known functions for use in
-the Formula.pm module. By default the function names are in English but you
-can also choose to support the following languages: German, French, Spanish,
-Portuguese, Dutch, Finnish, Italian and Swedish.
-
-This would allow you to do something like the following:
-
-      $worksheet->write(0, 0, '=SUM(C1:C3)'  );
-      $worksheet->write(1, 0, '=SUMME(C1:C3)');
-      $worksheet->write(2, 0, '=SOMME(C1:C3)');
-      $worksheet->write(3, 0, '=SUMA(C1:C3)' );
-      $worksheet->write(4, 0, '=SOMA(C1:C3)' );
-      $worksheet->write(5, 0, '=SOM(C1:C3)'  );
-      $worksheet->write(6, 0, '=SUMMA(C1:C3)');
-      $worksheet->write(7, 0, '=SOMMA(C1:C3)');
-
-Unfortunately, if you wish to support more than one language there are some
-conflicts between function names:
-
-      Function        Language 1              Language 2
-      ========        ==========              ==========
-      NB              French                  Dutch
-      NA              English/French          Finnish
-      TRIM            French                  English
-      DIA             Spanish/Portuguese      German
-
-Therefore, if you try to generate a hash of function names to support both
-French and English then the function TRIM will be assigned the meaning of the
-first language that defines it, which in this case is French. You can get
-around this by renaming the function for one of the languages and documenting
-the change, for example: TRIM.EN or TRIM.FR.
-
-Please note that this only partially solves the problem of localisation.
-There are also number formats to consider (1.5 == 1,5) and the fact that the
-list separator "," and the array separator ";" are interchanged in different
-locales.
-
-The longest function name is LOI.NORMALE.STANDARD.INVERSE (29 chars) followed
-by NORM.JAKAUMA.NORMIT.K��NT (25 chars).
-The shortest function name in all languages is T.
-
-
-
-
-    #!/usr/bin/perl -w
-    
-    ###############################################################################
-    #
-    # Generate function names for different locales.
-    #
-    # This program can be used to generate the hash of known functions for use in
-    # the Formula.pm module. By default the function names are in English but you
-    # can also choose to support the following languages: German, French, Spanish,
-    # Portuguese, Dutch, Finnish, Italian and Swedish.
-    #
-    # This would allow you to do something like the following:
-    #
-    #       $worksheet->write(0, 0, '=SUM(C1:C3)'  );
-    #       $worksheet->write(1, 0, '=SUMME(C1:C3)');
-    #       $worksheet->write(2, 0, '=SOMME(C1:C3)');
-    #       $worksheet->write(3, 0, '=SUMA(C1:C3)' );
-    #       $worksheet->write(4, 0, '=SOMA(C1:C3)' );
-    #       $worksheet->write(5, 0, '=SOM(C1:C3)'  );
-    #       $worksheet->write(6, 0, '=SUMMA(C1:C3)');
-    #       $worksheet->write(7, 0, '=SOMMA(C1:C3)');
-    #
-    # Unfortunately, if you wish to support more than one language there are some
-    # conflicts between function names:
-    #
-    #       Function        Language 1              Language 2
-    #       ========        ==========              ==========
-    #       NB              French                  Dutch
-    #       NA              English/French          Finnish
-    #       TRIM            French                  English
-    #       DIA             Spanish/Portuguese      German
-    #
-    # Therefore, if you try to generate a hash of function names to support both
-    # French and English then the function TRIM will be assigned the meaning of the
-    # first language that defines it, which in this case is French. You can get
-    # around this by renaming the function for one of the languages and documenting
-    # the change, for example: TRIM.EN or TRIM.FR.
-    #
-    # Please note that this only partially solves the problem of localisation.
-    # There are also number formats to consider (1.5 == 1,5) and the fact that the
-    # list separator "," and the array separator ";" are interchanged in different
-    # locales.
-    #
-    # The longest function name is LOI.NORMALE.STANDARD.INVERSE (29 chars) followed
-    # by NORM.JAKAUMA.NORMIT.K��NT (25 chars).
-    # The shortest function name in all languages is T.
-    #
-    #
-    # reverse('�'); John McNamara, March 2001, jmcnamara@cpan.org
-    #
-    
-    
-    
-    use strict;
-    
-    
-    #
-    # Modify the following variables to add the language to the function name hash
-    #
-    my $english    = 1;
-    my $german     = 0;
-    my $french     = 0;
-    my $spanish    = 0;
-    my $portuguese = 0;
-    my $dutch      = 0;
-    my $finnish    = 0;
-    my $italian    = 0;
-    my $swedish    = 0;
-    
-    my %funcs;
-    
-    # Ignore the headings
-    <DATA>;
-    
-    # Print the beginning of the hash definition
-    print "    %functions  = (\n";
-    print "        #" . " " x 37 ;
-    print "ptg  args  class  vol\n";
-    
-    while (<DATA>){
-        my @F = split " ";
-        my $value = $F[0];
-        my $args  = $F[1];
-        my $ref   = $F[2];
-        my $vol   = $F[3];
-    
-        print_function($F[4],  $value, $args, $ref, $vol) if $english;
-        print_function($F[5],  $value, $args, $ref, $vol) if $german;
-        print_function($F[6],  $value, $args, $ref, $vol) if $french;
-        print_function($F[7],  $value, $args, $ref, $vol) if $spanish;
-        print_function($F[8],  $value, $args, $ref, $vol) if $portuguese;
-        print_function($F[9],  $value, $args, $ref, $vol) if $dutch;
-        print_function($F[10], $value, $args, $ref, $vol) if $finnish;
-        print_function($F[11], $value, $args, $ref, $vol) if $italian;
-        print_function($F[12], $value, $args, $ref, $vol) if $swedish;
-    }
-    # Print the end of the hash definition
-    print "    );\n";
-    
-    
-    ###############################################################################
-    #
-    # Function to print the function names. It prints a warning if there is a
-    # clash.
-    #
-    sub print_function {
-    
-        my $func  = shift;
-        my $value = shift;
-        my $args  = shift;
-        my $ref   = shift;
-        my $vol   = shift;
-    
-        $func = "'$func'";
-    
-        if (not exists $funcs{$func}) {
-            printf("        %-31s => [%4d, %4d, %4d, %4d ],\n",
-                                       $func, $value, $args, $ref, $vol);
-            $funcs{$func} = $value;
-        }
-        else {
-            if ($funcs{$func} != $value) {
-                print "        # Warning ";
-                print $func, " is already defined in another language\n";
-                printf("        #%-31s => [%4d, %4d, %4d, %4d ],\n",
-                                            $func, $value, $args, $ref, $vol);
-            }
-        }
-    }
-    
-    
-    # Note: The following data contains the function names in the various
-    # languages. These lines are LONG.
-    
-    __DATA__
-    Value   Args    Refclass   Volatile   English                            German                             French                             Spanish                            Portuguese                         Dutch                        Finnish                            Italian                            Swedish
-    0       -1      0          0          COUNT                              ANZAHL                             NB                                 CONTAR                             CONT.N�M                           AANTAL                       LASKE                              CONTA.NUMERI                       ANTAL
-    1       -1      1          0          IF                                 WENN                               SI                                 SI                                 SE                                 ALS                          JOS                                SE                                 OM
-    2        1      1          0          ISNA                               ISTNV                              ESTNA                              ESNOD                              �.N�O.DISP                         ISNB                         ONPUUTTUU                          VAL.NON.DISP                       �RSAKNAD
-    3        1      1          0          ISERROR                            ISTFEHLER                          ESTERREUR                          ESERROR                            �ERROS                             ISFOUT                       ONVIRHE                            VAL.ERRORE                         �RFEL
-    4       -1      0          0          SUM                                SUMME                              SOMME                              SUMA                               SOMA                               SOM                          SUMMA                              SOMMA                              SUMMA
-    5       -1      0          0          AVERAGE                            MITTELWERT                         MOYENNE                            PROMEDIO                           M�DIA                              GEMIDDELDE                   KESKIARVO                          MEDIA                              MEDEL
-    6       -1      0          0          MIN                                MIN                                MIN                                MIN                                M�NIMO                             MIN                          MIN                                MIN                                MIN
-    7       -1      0          0          MAX                                MAX                                MAX                                MAX                                M�XIMO                             MAX                          MAKS                               MAX                                MAX
-    8       -1      0          0          ROW                                ZEILE                              LIGNE                              FILA                               LIN                                RIJ                          RIVI                               RIF.RIGA                           RAD
-    9       -1      0          0          COLUMN                             SPALTE                             COLONNE                            COLUMNA                            COL                                KOLOM                        SARAKE                             RIF.COLONNA                        KOLUMN
-    10       0      0          0          NA                                 NV                                 NA                                 NOD                                N�O.DISP                           NB                           PUUTTUU                            NON.DISP                           SAKNAS
-    11      -1      1          0          NPV                                NBW                                VAN                                VNA                                VPL                                NHW                          NNA                                VAN                                NETNUV�RDE
-    12      -1      0          0          STDEV                              STABW                              ECARTYPE                           DESVEST                            DESVPAD                            STDEV                        KESKIHAJONTA                       DEV.ST                             STDAV
-    13      -1      1          0          DOLLAR                             DM                                 FRANC                              MONEDA                             MOEDA                              GULDEN                       VALUUTTA                           VALUTA                             VALUTA
-    14      -1      1          0          FIXED                              FEST                               CTXT                               DECIMAL                            DEF.N�M.DEC                        VAST                         KIINTE�                            FISSO                              FASTTAL
-    15       1      1          0          SIN                                SIN                                SIN                                SENO                               SEN                                SIN                          SIN                                SEN                                SIN
-    16       1      1          0          COS                                COS                                COS                                COS                                COS                                COS                          COS                                COS                                COS
-    17       1      1          0          TAN                                TAN                                TAN                                TAN                                TAN                                TAN                          TAN                                TAN                                TAN
-    18       1      1          0          ATAN                               ARCTAN                             ATAN                               ATAN                               ATAN                               BOOGTAN                      ATAN                               ARCTAN                             ARCTAN
-    19       0      1          0          PI                                 PI                                 PI                                 PI                                 PI                                 PI                           PII                                PI.GRECO                           PI
-    20       1      1          0          SQRT                               WURZEL                             RACINE                             RAIZ                               RAIZ                               WORTEL                       NELI�JUURI                         RADQ                               ROT
-    21       1      1          0          EXP                                EXP                                EXP                                EXP                                EXP                                EXP                          EKSPONENTTI                        EXP                                EXP
-    22       1      1          0          LN                                 LN                                 LN                                 LN                                 LN                                 LN                           LUONNLOG                           LN                                 LN
-    23       1      1          0          LOG10                              LOG10                              LOG10                              LOG10                              LOG10                              LOG10                        LOG10                              LOG10                              LOG10
-    24       1      1          0          ABS                                ABS                                ABS                                ABS                                ABS                                ABS                          ITSEISARVO                         ASS                                ABS
-    25       1      1          0          INT                                GANZZAHL                           ENT                                ENTERO                             INT                                INTEGER                      KOKONAISLUKU                       INT                                HELTAL
-    26       1      1          0          SIGN                               VORZEICHEN                         SIGNE                              SIGNO                              SINAL                              POS.NEG                      ETUMERKKI                          SEGNO                              TECKEN
-    27       2      1          0          ROUND                              RUNDEN                             ARRONDI                            REDONDEAR                          ARRED                              AFRONDEN                     PY�RIST�                           ARROTONDA                          AVRUNDA
-    28      -1      0          0          LOOKUP                             VERWEIS                            RECHERCHE                          BUSCAR                             PROC                               ZOEKEN                       HAKU                               CERCA                              LETAUPP
-    29      -1      0          1          INDEX                              INDEX                              INDEX                              INDICE                             �NDICE                             INDEX                        INDEKSI                            INDICE                             INDEX
-    30       2      1          0          REPT                               WIEDERHOLEN                        REPT                               REPETIR                            REPETIR                            HERHALING                    TOISTA                             RIPETI                             REP
-    31       3      1          0          MID                                TEIL                               STXT                               EXTRAE                             EXT.TEXTO                          DEEL                         POIMI.TEKSTI                       STRINGA.ESTRAI                     EXTEXT
-    32       1      1          0          LEN                                L�NGE                              NBCAR                              LARGO                              N�M.CARACT                         LENGTE                       PITUUS                             LUNGHEZZA                          L�NGD
-    33       1      1          0          VALUE                              WERT                               CNUM                               VALOR                              VALOR                              WAARDE                       ARVO                               VALORE                             TEXTNUM
-    34       0      1          0          TRUE                               WAHR                               VRAI                               VERDADERO                          VERDADEIRO                         WAAR                         TOSI                               VERO                               SANT
-    35       0      1          0          FALSE                              FALSCH                             FAUX                               FALSO                              FALSO                              ONWAAR                       EP�TOSI                            FALSO                              FALSKT
-    36      -1      0          0          AND                                UND                                ET                                 Y                                  E                                  EN                           JA                                 E                                  OCH
-    37      -1      0          0          OR                                 ODER                               OU                                 O                                  OU                                 OF                           TAI                                O                                  ELLER
-    38       1      1          0          NOT                                NICHT                              NON                                NO                                 N�O                                NIET                         EI                                 NON                                ICKE
-    39       2      1          0          MOD                                REST                               MOD                                RESIDUO                            MOD                                REST                         JAKOJ                              RESTO                              REST
-    40       3      0          0          DCOUNT                             DBANZAHL                           BDNB                               BDCONTAR                           BDCONTAR                           DBAANTAL                     TLASKE                             DB.CONTA.NUMERI                    DANTAL
-    41       3      0          0          DSUM                               DBSUMME                            BDSOMME                            BDSUMA                             BDSOMA                             DBSOM                        TSUMMA                             DB.SOMMA                           DSUMMA
-    42       3      0          0          DAVERAGE                           DBMITTELWERT                       BDMOYENNE                          BDPROMEDIO                         BDM�DIA                            DBGEMIDDELDE                 TKESKIARVO                         DB.MEDIA                           DMEDEL
-    43       3      0          0          DMIN                               DBMIN                              BDMIN                              BDMIN                              BDM�N                              DBMIN                        TMIN                               DB.MIN                             DMIN
-    44       3      0          0          DMAX                               DBMAX                              BDMAX                              BDMAX                              BDM�X                              DBMAX                        TMAKS                              DB.MAX                             DMAX
-    45       3      0          0          DSTDEV                             DBSTDABW                           BDECARTYPE                         BDDESVEST                          BDEST                              DBSTDEV                      TKESKIHAJONTA                      DB.DEV.ST                          DSTDAV
-    46      -1      0          0          VAR                                VARIANZ                            VAR                                VAR                                VAR                                VAR                          VAR                                VAR                                VARIANS
-    47       3      0          0          DVAR                               DBVARIANZ                          BDVAR                              BDVAR                              BDVAREST                           DBVAR                        TVARIANSSI                         DB.VAR                             DVARIANS
-    48       2      1          0          TEXT                               TEXT                               TEXTE                              TEXTO                              TEXTO                              TEKST                        TEKSTI                             TESTO                              TEXT
-    49      -1      0          0          LINEST                             RGP                                DROITEREG                          ESTIMACION.LINEAL                  PROJ.LIN                           LIJNSCH                      LINREGR                            REGR.LIN                           REGR
-    50      -1      0          0          TREND                              TREND                              TENDANCE                           TENDENCIA                          TEND�NCIA                          TREND                        SUUNTAUS                           TENDENZA                           TREND
-    51      -1      0          0          LOGEST                             RKP                                LOGREG                             ESTIMACION.LOGARITMICA             PROJ.LOG                           LOGSCH                       LOGREGR                            REGR.LOG                           EXPREGR
-    52      -1      0          0          GROWTH                             VARIATION                          CROISSANCE                         CRECIMIENTO                        CRESCIMENTO                        GROEI                        KASVU                              CRESCITA                           EXPTREND
-    56      -1      1          0          PV                                 BW                                 VA                                 VA                                 VP                                 HW                           NA                                 VA                                 NUV�RDE
-    57      -1      1          0          FV                                 ZW                                 VC                                 VF                                 VF                                 TW                           TULEVA.ARVO                        VAL.FUT                            SLUTV�RDE
-    58      -1      1          0          NPER                               ZZR                                NPM                                NPER                               NPER                               NPER                         NJAKSO                             NUM.RATE                           PERIODER
-    59      -1      1          0          PMT                                RMZ                                VPM                                PAGO                               PGTO                               BET                          MAKSU                              RATA                               BETALNING
-    60      -1      1          0          RATE                               ZINS                               TAUX                               TASA                               TAXA                               RENTE                        KORKO                              TASSO                              R�NTA
-    61       3      0          0          MIRR                               QIKV                               TRIM                               TIRM                               MTIR                               GIR                          MSIS�INEN                          TIR.VAR                            MODIR
-    62      -1      0          0          IRR                                IKV                                TRI                                TIR                                TIR                                IR                           SIS�INEN.KORKO                     TIR.COST                           IR
-    63       0      1          1          RAND                               ZUFALLSZAHL                        ALEA                               ALEATORIO                          ALEAT�RIO                          ASELECT                      SATUNNAISLUKU                      CASUALE                            SLUMP
-    64      -1      0          0          MATCH                              VERGLEICH                          EQUIV                              COINCIDIR                          CORRESP                            VERGELIJKEN                  VASTINE                            CONFRONTA                          PASSA
-    65       3      1          0          DATE                               DATUM                              DATE                               FECHA                              DATA                               DATUM                        P�IV�YS                            DATA                               DATUM
-    66       3      1          0          TIME                               ZEIT                               TEMPS                              NSHORA                             TEMPO                              TIJD                         AIKA                               ORARIO                             KLOCKSLAG
-    67       1      1          0          DAY                                TAG                                JOUR                               DIA                                DIA                                DAG                          P�IV�                              GIORNO                             DAG
-    68       1      1          0          MONTH                              MONAT                              MOIS                               MES                                M�S                                MAAND                        KUUKAUSI                           MESE                               M�NAD
-    69       1      1          0          YEAR                               JAHR                               ANNEE                              A�O                                ANO                                JAAR                         VUOSI                              ANNO                               �R
-    70      -1      1          0          WEEKDAY                            WOCHENTAG                          JOURSEM                            DIASEM                             DIA.DA.SEMANA                      WEEKDAG                      VIIKONP�IV�                        GIORNO.SETTIMANA                   VECKODAG
-    71       1      1          0          HOUR                               STUNDE                             HEURE                              HORA                               HORA                               UUR                          TUNNIT                             ORA                                TIMME
-    72       1      1          0          MINUTE                             MINUTE                             MINUTE                             MINUTO                             MINUTO                             MINUUT                       MINUUTIT                           MINUTO                             MINUT
-    73       1      1          0          SECOND                             SEKUNDE                            SECONDE                            SEGUNDO                            SEGUNDO                            SECONDE                      SEKUNNIT                           SECONDO                            SEKUND
-    74       0      1          1          NOW                                JETZT                              MAINTENANT                         AHORA                              AGORA                              NU                           NYT                                ADESSO                             NU
-    75       1      0          1          AREAS                              BEREICHE                           ZONES                              AREAS                              �REAS                              BEREIKEN                     ALUEET                             AREE                               OMR�DEN
-    76       1      0          1          ROWS                               ZEILEN                             LIGNES                             FILAS                              LINS                               RIJEN                        RIVIT                              RIGHE                              RADER
-    77       1      0          1          COLUMNS                            SPALTEN                            COLONNES                           COLUMNAS                           COLS                               KOLOMMEN                     SARAKKEET                          COLONNE                            KOLUMNER
-    78      -1      0          1          OFFSET                             BEREICH.VERSCHIEBEN                DECALER                            DESREF                             DESLOC                             VERSCHUIVING                 SIIRTYM�                           SCARTO                             F�RSKJUTNING
-    82      -1      1          0          SEARCH                             SUCHEN                             CHERCHE                            HALLAR                             LOCALIZAR                          VIND.SPEC                    K�Y.L�PI                           RICERCA                            S�K
-    83       1      1          0          TRANSPOSE                          MTRANS                             TRANSPOSE                          TRANSPONER                         TRANSPOR                           TRANSPONEREN                 TRANSPONOI                         MATR.TRASPOSTA                     TRANSPONERA
-    86       1      1          0          TYPE                               TYP                                TYPE                               TIPO                               TIPO                               TYPE                         TYYPPI                             TIPO                               V�RDETYP
-    97       2      1          0          ATAN2                              ARCTAN2                            ATAN2                              ATAN2                              ATAN2                              BOOGTAN2                     ATAN2                              ARCTAN.2                           ARCTAN2
-    98       1      1          0          ASIN                               ARCSIN                             ASIN                               ASENO                              ASEN                               BOOGSIN                      ASIN                               ARCSEN                             ARCSIN
-    99       1      1          0          ACOS                               ARCCOS                             ACOS                               ACOS                               ACOS                               BOOGCOS                      ACOS                               ARCCOS                             ARCCOS
-    100     -1      1          0          CHOOSE                             WAHL                               CHOISIR                            ELEGIR                             ESCOLHER                           KIEZEN                       VALITSE.INDEKSI                    SCEGLI                             V�LJ
-    101     -1      0          0          HLOOKUP                            WVERWEIS                           RECHERCHEH                         BUSCARH                            PROCH                              HORIZ.ZOEKEN                 VHAKU                              CERCA.ORIZZ                        LETAKOLUMN
-    102     -1      0          0          VLOOKUP                            SVERWEIS                           RECHERCHEV                         BUSCARV                            PROCV                              VERT.ZOEKEN                  PHAKU                              CERCA.VERT                         LETARAD
-    105      1      0          0          ISREF                              ISTBEZUG                           ESTREF                             ESREF                              �REF                               ISVERWIJZING                 ONVIITT                            VAL.RIF                            �RREF
-    109     -1      1          0          LOG                                LOG                                LOG                                LOG                                LOG                                LOG                          LOG                                LOG                                LOG
-    111      1      1          0          CHAR                               ZEICHEN                            CAR                                CARACTER                           CARACT                             TEKEN                        MERKKI                             CODICE.CARATT                      TECKENKOD
-    112      1      1          0          LOWER                              KLEIN                              MINUSCULE                          MINUSC                             MIN�SCULA                          KLEINE.LETTERS               PIENET                             MINUSC                             GEMENER
-    113      1      1          0          UPPER                              GROSS                              MAJUSCULE                          MAYUSC                             MAI�SCULA                          HOOFDLETTERS                 ISOT                               MAIUSC                             VERSALER
-    114      1      1          0          PROPER                             GROSS2                             NOMPROPRE                          NOMPROPIO                          PRI.MAI�SCULA                      BEGINLETTERS                 ERISNIMI                           MAIUSC.INIZ                        INITIAL
-    115     -1      1          0          LEFT                               LINKS                              GAUCHE                             IZQUIERDA                          ESQUERDA                           LINKS                        VASEN                              SINISTRA                           V�NSTER
-    116     -1      1          0          RIGHT                              RECHTS                             DROITE                             DERECHA                            DIREITA                            RECHTS                       OIKEA                              DESTRA                             H�GER
-    117      2      1          0          EXACT                              IDENTISCH                          EXACT                              IGUAL                              EXATO                              GELIJK                       VERTAA                             IDENTICO                           EXAKT
-    118      1      1          0          TRIM                               GL�TTEN                            SUPPRESPACE                        ESPACIOS                           ARRUMAR                            SPATIES.WISSEN               POISTA.V�LIT                       ANNULLA.SPAZI                      RENSA
-    119      4      1          0          REPLACE                            ERSETZEN                           REMPLACER                          REEMPLAZAR                         MUDAR                              VERVANGEN                    KORVAA                             RIMPIAZZA                          ERS�TT
-    120     -1      1          0          SUBSTITUTE                         WECHSELN                           SUBSTITUE                          SUSTITUIR                          SUBSTITUIR                         SUBSTITUEREN                 VAIHDA                             SOSTITUISCI                        BYT.UT
-    121      1      1          0          CODE                               CODE                               CODE                               CODIGO                             C�DIGO                             CODE                         KOODI                              CODICE                             KOD
-    124     -1      1          0          FIND                               FINDEN                             TROUVE                             ENCONTRAR                          PROCURAR                           VIND.ALLES                   ETSI                               TROVA                              HITTA
-    125     -1      0          1          CELL                               ZELLE                              CELLULE                            CELDA                              C�L                                CEL                          SOLU                               CELLA                              CELL
-    126      1      1          0          ISERR                              ISTFEHL                            ESTERR                             ESERR                              �ERRO                              ISFOUT2                      ONVIRH                             VAL.ERR                            �RF
-    127      1      1          0          ISTEXT                             ISTTEXT                            ESTTEXTE                           ESTEXTO                            �TEXTO                             ISTEKST                      ONTEKSTI                           VAL.TESTO                          �RTEXT
-    128      1      1          0          ISNUMBER                           ISTZAHL                            ESTNUM                             ESNUMERO                           �N�M                               ISGETAL                      ONLUKU                             VAL.NUMERO                         �RTAL
-    129      1      1          0          ISBLANK                            ISTLEER                            ESTVIDE                            ESBLANCO                           �C�L.VAZIA                         ISLEEG                       ONTYHJ�                            VAL.VUOTO                          �RTOM
-    130      1      0          0          T                                  T                                  T                                  T                                  T                                  T                            T                                  T                                  T
-    131      1      0          0          N                                  N                                  N                                  N                                  N                                  N                            N                                  NUM                                N
-    140      1      1          0          DATEVALUE                          DATWERT                            DATEVAL                            FECHANUMERO                        DATA.VALOR                         DATUMWAARDE                  P�IV�YSARVO                        DATA.VALORE                        DATUMV�RDE
-    141      1      1          0          TIMEVALUE                          ZEITWERT                           TEMPSVAL                           HORANUMERO                         VALOR.TEMPO                        TIJDWAARDE                   AIKA_ARVO                          ORARIO.VALORE                      TIDV�RDE
-    142      3      1          0          SLN                                LIA                                AMORLIN                            SLN                                DPD                                LIN.AFSCHR                   STP                                AMMORT.COST                        LINAVSKR
-    143      4      1          0          SYD                                DIA                                SYD                                SYD                                SDA                                SYD                          VUOSIPOISTO                        AMMORT.ANNUO                       �RSAVSKR
-    144     -1      1          0          DDB                                GDA                                DDB                                DDB                                BDD                                DDB                          DDB                                AMMORT                             DEGAVSKR
-    148     -1      1          1          INDIRECT                           INDIREKT                           INDIRECT                           INDIRECTO                          INDIRETO                           INDIRECT                     EP�SUORA                           INDIRETTO                          INDIREKT
-    150     -1      1          0          CALL                               AUFRUFEN                           FONCTION.APPELANTE                 LLAMAR                             CHAMAR                             ROEPEN                       KUTSU                              RICHIAMA                           ANROPA
-    162      1      1          0          CLEAN                              S�UBERN                            EPURAGE                            LIMPIAR                            TIRAR                              WISSEN.CONTROL               SIIVOA                             LIBERA                             ST�DA
-    163      1      2          0          MDETERM                            MDET                               DETERMAT                           MDETERM                            MATRIZ.DETERM                      DETERMINANTMAT               MDETERM                            MATR.DETERM                        MDETERM
-    164      1      2          0          MINVERSE                           MINV                               INVERSEMAT                         MINVERSA                           MATRIZ.INVERSO                     INVERSEMAT                   MK��NTEINEN                        MATR.INVERSA                       MINVERT
-    165      2      2          0          MMULT                              MMULT                              PRODUITMAT                         MMULT                              MATRIZ.MULT                        PRODUKTMAT                   MKERRO                             MATR.PRODOTTO                      MMULT
-    167     -1      1          0          IPMT                               ZINSZ                              INTPER                             PAGOINT                            IPGTO                              IBET                         IPMT                               INTERESSI                          RBETALNING
-    168     -1      1          0          PPMT                               KAPZ                               PRINCPER                           PAGOPRIN                           PPGTO                              PBET                         PPMT                               P.RATA                             AMORT
-    169     -1      0          0          COUNTA                             ANZAHL2                            NBVAL                              CONTARA                            CONT.VALORES                       AANTALARG                    LASKE.A                            CONTA.VALORI                       ANTALV
-    183     -1      0          0          PRODUCT                            PRODUKT                            PRODUIT                            PRODUCTO                           MULT                               PRODUKT                      TULO                               PRODOTTO                           PRODUKT
-    184      1      1          0          FACT                               FAKULT�T                           FACT                               FACT                               FATORIAL                           FACULTEIT                    KERTOMA                            FATTORIALE                         FAKULTET
-    189      3      0          0          DPRODUCT                           DBPRODUKT                          BDPRODUIT                          BDPRODUCTO                         BDMULTIPL                          DBPRODUKT                    TTULO                              DB.PRODOTTO                        DPRODUKT
-    190      1      1          0          ISNONTEXT                          ISTKTEXT                           ESTNONTEXTE                        ESNOTEXTO                          �.N�O.TEXTO                        ISGEENTEKST                  ONEI_TEKSTI                        VAL.NON.TESTO                      �REJTEXT
-    193     -1      0          0          STDEVP                             STABWN                             ECARTYPEP                          DESVESTP                           DESVPADP                           STDEVP                       KESKIHAJONTAP                      DEV.ST.POP                         STDAVP
-    194     -1      0          0          VARP                               VARIANZEN                          VAR.P                              VARP                               VARP                               VARP                         VARP                               VAR.POP                            VARIANSP
-    195      3      0          0          DSTDEVP                            DBSTDABWN                          BDECARTYPEP                        BDDESVESTP                         BDDESVPA                           DBSTDEVP                     TKESKIHAJONTAP                     DB.DEV.ST.POP                      DSTDAVP
-    196      3      0          0          DVARP                              DBVARIANZEN                        BDVARP                             BDVARP                             BDVARP                             DBVARP                       TVARIANSSIP                        DB.VAR.POP                         DVARIANSP
-    197     -1      1          0          TRUNC                              K�RZEN                             TRONQUE                            TRUNCAR                            TRUNCAR                            GEHEEL                       KATKAISE                           TRONCA                             AVKORTA
-    198      1      1          0          ISLOGICAL                          ISTLOG                             ESTLOGIQUE                         ESLOGICO                           �L�GICO                            ISLOGISCH                    ONTOTUUS                           VAL.LOGICO                         �RLOGISK
-    199      3      0          0          DCOUNTA                            DBANZAHL2                          BDNBVAL                            BDCONTARA                          BDCONTARA                          DBAANTALC                    TLASKEA                            DB.CONTA.VALORI                    DANTALV
-    212      2      1          0          ROUNDUP                            AUFRUNDEN                          ARRONDI.SUP                        REDONDEAR.MAS                      ARREDONDAR.PARA.CIMA               AFRONDEN.NAAR.BOVEN          PY�RIST�.DES.YL�S                  ARROTONDA.PER.ECC                  AVRUNDA.UPP�T
-    213      2      1          0          ROUNDDOWN                          ABRUNDEN                           ARRONDI.INF                        REDONDEAR.MENOS                    ARREDONDAR.PARA.BAIXO              AFRONDEN.NAAR.BENEDEN        PY�RIST�.DES.ALAS                  ARROTONDA.PER.DIF                  AVRUNDA.NED�T
-    216     -1      0          0          RANK                               RANG                               RANG                               JERARQUIA                          ORDEM                              RANG                         ARVON.MUKAAN                       RANGO                              RANG
-    219     -1      1          0          ADDRESS                            ADRESSE                            ADRESSE                            DIRECCION                          ENDERE�O                           ADRES                        OSOITE                             INDIRIZZO                          ADRESS
-    220     -1      1          0          DAYS360                            TAGE360                            JOURS360                           DIAS360                            DIAS360                            DAGEN360                     P�IV�T360                          GIORNO360                          DAGAR360
-    221      0      1          1          TODAY                              HEUTE                              AUJOURDHUI                         HOY                                HOJE                               VANDAAG                      T�M�.P�IV�                         OGGI                               IDAG
-    222     -1      1          0          VDB                                VDB                                VDB                                DVS                                BDV                                VDB                          VDB                                AMMORT.VAR                         VDEGRAVSKR
-    227     -1      0          0          MEDIAN                             MEDIAN                             MEDIANE                            MEDIANA                            MED                                MEDIAAN                      MEDIAANI                           MEDIANA                            MEDIAN
-    228     -1      2          0          SUMPRODUCT                         SUMMENPRODUKT                      SOMMEPROD                          SUMAPRODUCTO                       SOMARPRODUTO                       SOMPRODUKT                   TULOJEN.SUMMA                      MATR.SOMMA.PRODOTTO                PRODUKTSUMMA
-    229      1      1          0          SINH                               SINHYP                             SINH                               SENOH                              SENH                               SINH                         SINH                               SENH                               SINH
-    230      1      1          0          COSH                               COSHYP                             COSH                               COSH                               COSH                               COSH                         COSH                               COSH                               COSH
-    231      1      1          0          TANH                               TANHYP                             TANH                               TANH                               TANH                               TANH                         TANH                               TANH                               TANH
-    232      1      1          0          ASINH                              ARCSINHYP                          ASINH                              ASENOH                             ASENH                              BOOGSINH                     ASINH                              ARCSENH                            ARCSINH
-    233      1      1          0          ACOSH                              ARCCOSHYP                          ACOSH                              ACOSH                              ACOSH                              BOOGCOSH                     ACOSH                              ARCCOSH                            ARCCOSH
-    234      1      1          0          ATANH                              ARCTANHYP                          ATANH                              ATANH                              ATANH                              BOOGTANH                     ATANH                              ARCTANH                            ARCTANH
-    235      3      0          0          DGET                               DBAUSZUG                           BDLIRE                             BDEXTRAER                          BDEXTRAIR                          DBLEZEN                      TNOUDA                             DB.VALORI                          DH�MTA
-    244      1      1          1          INFO                               INFO                               INFO                               INFO                               INFORMA��O                         INFO                         KUVAUS                             AMBIENTE.INFO                      INFO
-    247     -1      1          0          DB                                 GDA2                               DB                                 DB                                 BD                                 DB                           DB                                 AMMORT.FISSO                       DB
-    252      2      0          0          FREQUENCY                          H�UFIGKEIT                         FREQUENCE                          FRECUENCIA                         FREQ��NCIA                         INTERVAL                     TAAJUUS                            FREQUENZA                          FREKVENS
-    261      1      1          0          ERROR.TYPE                         FEHLER.TYP                         TYPE.ERREUR                        TIPO.DE.ERROR                      TIPO.ERRO                          TYPE.FOUT                    VIRHEEN.LAJI                       ERRORE.TIPO                        FEL.TYP
-    267     -1      1          0          REGISTER.ID                        REGISTER.KENNUMMER                 REGISTRE.NUMERO                    ID.REGISTRO                        IDENT.REGISTRO                     REGISTRATIE.ID               REKISTERI.TUNNUS                   IDENTIFICATORE.REGISTRO            REGISTRERA.ID
-    269     -1      0          0          AVEDEV                             MITTELABW                          ECART.MOYEN                        DESVPROM                           DESV.M�DIO                         GEM.DEVIATIE                 KESKIPOIKKEAMA                     MEDIA.DEV                          MEDELAVV
-    270     -1      1          0          BETADIST                           BETAVERT                           LOI.BETA                           DISTR.BETA                         DISTBETA                           BETA.VERD                    BEETAJAKAUMA                       DISTRIB.BETA                       BETAF�RD
-    271      1      1          0          GAMMALN                            GAMMALN                            LNGAMMA                            GAMMA.LN                           LNGAMA                             GAMMA.LN                     GAMMALN                            LN.GAMMA                           GAMMALN
-    272     -1      1          0          BETAINV                            BETAINV                            BETA.INVERSE                       DISTR.BETA.INV                     BETA.ACUM.INV                      BETA.INV                     BEETAJAKAUMA.K��NT                 INV.BETA                           BETAINV
-    273      4      1          0          BINOMDIST                          BINOMVERT                          LOI.BINOMIALE                      DISTR.BINOM                        DISTRBINOM                         BINOMIALE.VERD               BINOMIJAKAUMA                      DISTRIB.BINOM                      BINOMF�RD
-    274      2      1          0          CHIDIST                            CHIVERT                            LOI.KHIDEUX                        DISTR.CHI                          DIST.QUI                           CHI.KWADRAAT                 CHIJAKAUMA                         DISTRIB.CHI                        CHI2F�RD
-    275      2      1          0          CHIINV                             CHIINV                             KHIDEUX.INVERSE                    PRUEBA.CHI.INV                     INV.QUI                            CHI.KWADRAAT.INV             CHIJAKAUMA.K��NT                   INV.CHI                            CHI2INV
-    276      2      1          0          COMBIN                             KOMBINATIONEN                      COMBIN                             COMBINAT                           COMBIN                             COMBINATIES                  KOMBINAATIO                        COMBINAZIONE                       KOMBIN
-    277      3      1          0          CONFIDENCE                         KONFIDENZ                          INTERVALLE.CONFIANCE               INTERVALO.CONFIANZA                INT.CONFIAN�A                      BETROUWBAARHEID              LUOTTAMUSV�LI                      CONFIDENZA                         KONFIDENS
-    278      3      1          0          CRITBINOM                          KRITBINOM                          CRITERE.LOI.BINOMIALE              BINOM.CRIT                         CRIT.BINOM                         CRIT.BINOM                   BINOMIJAKAUMA.KRIT                 CRIT.BINOM                         KRITBINOM
-    279      1      1          0          EVEN                               GERADE                             PAIR                               REDONDEA.PAR                       PAR                                EVEN                         PARILLINEN                         PARI                               J�MN
-    280      3      1          0          EXPONDIST                          EXPONVERT                          LOI.EXPONENTIELLE                  DISTR.EXP                          DISTEXPON                          EXPON.VERD                   EKSPONENTIAALIJAKAUMA              DISTRIB.EXP                        EXPONF�RD
-    281      3      1          0          FDIST                              FVERT                              LOI.F                              DISTR.F                            DISTF                              F.VERDELING                  FJAKAUMA                           DISTRIB.F                          FF�RD
-    282      3      1          0          FINV                               FINV                               INVERSE.LOI.F                      DISTR.F.INV                        INVF                               F.INVERSE                    FJAKAUMA.K��NT                     INV.F                              FINV
-    283      1      1          0          FISHER                             FISHER                             FISHER                             FISHER                             FISHER                             FISHER                       FISHER                             FISHER                             FISHER
-    284      1      1          0          FISHERINV                          FISHERINV                          FISHER.INVERSE                     PRUEBA.FISHER.INV                  FISHERINV                          FISHER.INV                   FISHER.K��NT                       INV.FISHER                         FISHERINV
-    285      2      1          0          FLOOR                              UNTERGRENZE                        PLANCHER                           MULTIPLO.INFERIOR                  ARREDMULTB                         AFRONDEN.BENEDEN             PY�RIST�.KERR.ALAS                 ARROTONDA.DIFETTO                  RUNDA.NER
-    286      4      1          0          GAMMADIST                          GAMMAVERT                          LOI.GAMMA                          DISTR.GAMMA                        DISTGAMA                           GAMMA.VERD                   GAMMAJAKAUMA                       DISTRIB.GAMMA                      GAMMAF�RD
-    287      3      1          0          GAMMAINV                           GAMMAINV                           LOI.GAMMA.INVERSE                  DISTR.GAMMA.INV                    INVGAMA                            GAMMA.INV                    GAMMAJAKAUMA.K��NT                 INV.GAMMA                          GAMMAINV
-    288      2      1          0          CEILING                            OBERGRENZE                         PLAFOND                            MULTIPLO.SUPERIOR                  TETO                               AFRONDEN.BOVEN               PY�RIST�.KERR.YL�S                 ARROTONDA.ECCESSO                  RUNDA.UPP
-    289      4      1          0          HYPGEOMDIST                        HYPGEOMVERT                        LOI.HYPERGEOMETRIQUE               DISTR.HIPERGEOM                    DIST.HIPERGEOM                     HYPERGEO.VERD                HYPERGEOM.JAKAUMA                  DISTRIB.IPERGEOM                   HYPGEOMF�RD
-    290      3      1          0          LOGNORMDIST                        LOGNORMVERT                        LOI.LOGNORMALE                     DISTR.LOG.NORM                     DIST.LOGNORMAL                     LOG.NORM.VERD                LOGNORM.JAKAUMA                    DISTRIB.LOGNORM                    LOGNORMF�RD
-    291      3      1          0          LOGINV                             LOGINV                             LOI.LOGNORMALE.INVERSE             DISTR.LOG.INV                      INVLOG                             LOG.NORM.INV                 LOGNORM.JAKAUMA.K��NT              INV.LOGNORM                        LOGINV
-    292      3      1          0          NEGBINOMDIST                       NEGBINOMVERT                       LOI.BINOMIALE.NEG                  NEGBINOMDIST                       DIST.BIN.NEG                       NEG.BINOM.VERD               BINOMIJAKAUMA.NEG                  DISTRIB.BINOM.NEG                  NEGBINOMF�RD
-    293      4      1          0          NORMDIST                           NORMVERT                           LOI.NORMALE                        DISTR.NORM                         DIST.NORM                          NORM.VERD                    NORM.JAKAUMA                       DISTRIB.NORM                       NORMF�RD
-    294      1      1          0          NORMSDIST                          STANDNORMVERT                      LOI.NORMALE.STANDARD               DISTR.NORM.ESTAND                  DIST.NORMP                         STAND.NORM.VERD              NORM.JAKAUMA.NORMIT                DISTRIB.NORM.ST                    NORMSF�RD
-    295      3      1          0          NORMINV                            NORMINV                            LOI.NORMALE.INVERSE                DISTR.NORM.INV                     INV.NORM                           NORM.INV                     NORM.JAKAUMA.K��NT                 INV.NORM                           NORMINV
-    296      1      1          0          NORMSINV                           STANDNORMINV                       LOI.NORMALE.STANDARD.INVERSE       DISTR.NORM.ESTAND.INV              INV.NORMP                          STAND.NORM.INV               NORM.JAKAUMA.NORMIT.K��NT          INV.NORM.ST                        NORMSINV
-    297      3      1          0          STANDARDIZE                        STANDARDISIERUNG                   CENTREE.REDUITE                    NORMALIZACION                      PADRONIZAR                         NORMALISEREN                 NORMITA                            NORMALIZZA                         STANDARDISERA
-    298      1      1          0          ODD                                UNGERADE                           IMPAIR                             REDONDEA.IMPAR                     �MPAR                              ONEVEN                       PARITON                            DISPARI                            UDDA
-    299      2      1          0          PERMUT                             VARIATIONEN                        PERMUTATION                        PERMUTACIONES                      PERMUT                             PERMUTATIES                  PERMUTAATIO                        PERMUTAZIONE                       PERMUT
-    300      3      1          0          POISSON                            POISSON                            LOI.POISSON                        POISSON                            POISSON                            POISSON                      POISSON                            POISSON                            POISSON
-    301      3      1          0          TDIST                              TVERT                              LOI.STUDENT                        DISTR.T                            DISTT                              T.VERD                       TJAKAUMA                           DISTRIB.T                          TF�RD
-    302      4      1          0          WEIBULL                            WEIBULL                            LOI.WEIBULL                        DIST.WEIBULL                       WEIBULL                            WEIBULL                      WEIBULL                            WEIBULL                            WEIBULL
-    303      2      2          0          SUMXMY2                            SUMMEXMY2                          SOMME.XMY2                         SUMAXMENOSY2                       SOMAXMY2                           SOM.XMINY.2                  EROTUSTEN.NELI�SUMMA               SOMMA.Q.DIFF                       SUMMAXMY2
-    304      2      2          0          SUMX2MY2                           SUMMEX2MY2                         SOMME.X2MY2                        SUMAX2MENOSY2                      SOMAX2DY2                          SOM.X2MINY2                  NELI�SUMMIEN.EROTUS                SOMMA.DIFF.Q                       SUMMAX2MY2
-    305      2      2          0          SUMX2PY2                           SUMMEX2PY2                         SOMME.X2PY2                        SUMAX2MASY2                        SOMAX2SY2                          SOM.X2PLUSY2                 NELI�SUMMIEN.SUMMA                 SOMMA.SOMMA.Q                      SUMMAX2PY2
-    306      2      2          0          CHITEST                            CHITEST                            TEST.KHIDEUX                       PRUEBA.CHI                         TESTE.QUI                          CHI.TOETS                    CHITESTI                           TEST.CHI                           CHI2TEST
-    307      2      2          0          CORREL                             KORREL                             COEFFICIENT.CORRELATION            COEF.DE.CORREL                     CORREL                             CORRELATIE                   KORRELAATIO                        CORRELAZIONE                       KORREL
-    308      2      2          0          COVAR                              KOVAR                              COVARIANCE                         COVAR                              COVAR                              COVARIANTIE                  KOVARIANSSI                        COVARIANZA                         KOVAR
-    309      3      2          0          FORECAST                           SCH�TZER                           PREVISION                          PRONOSTICO                         PREVIS�O                           VOORSPELLEN                  ENNUSTE                            PREVISIONE                         PREDIKTION
-    310      2      2          0          FTEST                              FTEST                              TEST.F                             PRUEBA.F                           TESTEF                             F.TOETS                      FTESTI                             TEST.F                             FTEST
-    311      2      2          0          INTERCEPT                          ACHSENABSCHNITT                    ORDONNEE.ORIGINE                   INTERSECCION                       INTERCEP��O                        SNIJPUNT                     LEIKKAUSPISTE                      INTERCETTA                         SK�RNINGSPUNKT
-    312      2      2          0          PEARSON                            PEARSON                            PEARSON                            PEARSON                            PEARSON                            PEARSON                      PEARSON                            PEARSON                            PEARSON
-    313      2      2          0          RSQ                                BESTIMMTHEITSMASS                  COEFFICIENT.DETERMINATION          COEFICIENTE.R2                     RQUAD                              R.KWADRAAT                   PEARSON.NELI�                      RQ                                 RKV
-    314      2      2          0          STEYX                              STFEHLERYX                         ERREUR.TYPE.XY                     ERROR.TIPICO.XY                    EPADYX                             STAND.FOUT.YX                KESKIVIRHE                         ERR.STD.YX                         STDFELYX
-    315      2      2          0          SLOPE                              STEIGUNG                           PENTE                              PENDIENTE                          INCLINA��O                         RICHTING                     KULMAKERROIN                       PENDENZA                           LUTNING
-    316      4      2          0          TTEST                              TTEST                              TEST.STUDENT                       PRUEBA.T                           TESTET                             T.TOETS                      TTESTI                             TEST.T                             TTEST
-    317     -1      2          0          PROB                               WAHRSCHBEREICH                     PROBABILITE                        PROBABILIDAD                       PROB                               KANS                         TODENN�K�ISYYS                     PROBABILIT�                        SANNOLIKHET
-    318     -1      0          0          DEVSQ                              SUMQUADABW                         SOMME.CARRES.ECARTS                DESVIA2                            DESVQ                              DEV.KWAD                     OIKAISTU.NELI�SUMMA                DEV.Q                              KVADAVV
-    319     -1      0          0          GEOMEAN                            GEOMITTEL                          MOYENNE.GEOMETRIQUE                MEDIA.GEOM                         M�DIA.GEOM�TRICA                   MEETK.GEM                    KESKIARVO.GEOM                     MEDIA.GEOMETRICA                   GEOMEDEL
-    320     -1      0          0          HARMEAN                            HARMITTEL                          MOYENNE.HARMONIQUE                 MEDIA.ARMO                         M�DIA.HARM�NICA                    HARM.GEM                     KESKIARVO.HARM                     MEDIA.ARMONICA                     HARMMEDEL
-    321     -1      0          0          SUMSQ                              QUADRATESUMME                      SOMME.CARRES                       SUMA.CUADRADOS                     SOMAQUAD                           KWADRATENSOM                 NELI�SUMMA                         SOMMA.Q                            KVADRATSUMMA
-    322     -1      0          0          KURT                               KURT                               KURTOSIS                           CURTOSIS                           CURT                               KURTOSIS                     KURT                               CURTOSI                            TOPPIGHET
-    323     -1      0          0          SKEW                               SCHIEFE                            COEFFICIENT.ASYMETRIE              COEFICIENTE.ASIMETRIA              DISTOR��O                          SCHEEFHEID                   JAKAUMAN.VINOUS                    ASIMMETRIA                         SNEDHET
-    324     -1      0          0          ZTEST                              GTEST                              TEST.Z                             PRUEBA.Z                           TESTEZ                             Z.TOETS                      ZTESTI                             TEST.Z                             ZTEST
-    325      2      0          0          LARGE                              KGR�SSTE                           GRANDE.VALEUR                      K.ESIMO.MAYOR                      MAIOR                              GROOTSTE                     SUURI                              GRANDE                             ST�RSTA
-    326      2      0          0          SMALL                              KKLEINSTE                          PETITE.VALEUR                      K.ESIMO.MENOR                      MENOR                              KLEINSTE                     PIENI                              PICCOLO                            MINSTA
-    327      2      0          0          QUARTILE                           QUARTILE                           QUARTILE                           CUARTIL                            QUARTIL                            KWARTIEL                     NELJ�NNES                          QUARTILE                           KVARTIL
-    328      2      0          0          PERCENTILE                         QUANTIL                            CENTILE                            PERCENTIL                          PERCENTIL                          PERCENTIEL                   PROSENTTIPISTE                     PERCENTILE                         PERCENTIL
-    329     -1      0          0          PERCENTRANK                        QUANTILSRANG                       RANG.POURCENTAGE                   RANGO.PERCENTIL                    ORDEM.PORCENTUAL                   PERCENT.RANG                 PROSENTTIJ�RJESTYS                 PERCENT.RANGO                      PROCENTRANG
-    330     -1      2          0          MODE                               MODALWERT                          MODE                               MODA                               MODO                               MODUS                        MOODI                              MODA                               TYPV�RDE
-    331      2      0          0          TRIMMEAN                           GESTUTZTMITTEL                     MOYENNE.REDUITE                    MEDIA.ACOTADA                      M�DIA.INTERNA                      GETRIMD.GEM                  KESKIARVO.TASATTU                  MEDIA.TRONCATA                     TRIMMEDEL
-    332      2      1          0          TINV                               TINV                               LOI.STUDENT.INVERSE                DISTR.T.INV                        INVT                               T.INV                        TJAKAUMA.K��NT                     INV.T                              TINV
-    336     -1      1          0          CONCATENATE                        VERKETTEN                          CONCATENER                         CONCATENAR                         CONCATENAR                         TEKST.SAMENVOEGEN            KETJUTA                            CONCATENA                          SAMMANFOGA
-    337      2      1          0          POWER                              POTENZ                             PUISSANCE                          POTENCIA                           POT�NCIA                           MACHT                        POTENSSI                           POTENZA                            UPPH�JT.TILL
-    342      1      1          0          RADIANS                            RADIANT                            RADIANS                            RADIANES                           RADIANOS                           RADIALEN                     RADIAANIT                          RADIANTI                           RADIANER
-    343      1      1          0          DEGREES                            GRAD                               DEGRES                             GRADOS                             GRAUS                              GRADEN                       ASTEET                             GRADI                              GRADER
-    344     -1      0          0          SUBTOTAL                           TEILERGEBNIS                       SOUS.TOTAL                         SUBTOTALES                         SUBTOTAL                           SUBTOTAAL                    V�LISUMMA                          SUBTOTALE                          DELSUMMA
-    345     -1      0          0          SUMIF                              SUMMEWENN                          SOMME.SI                           SUMAR.SI                           SOMASE                             SOM.ALS                      SUMMA.JOS                          SOMMA.SE                           SUMMA.OM
-    346      2      0          0          COUNTIF                            Z�HLENWENN                         NB.SI                              CONTAR.SI                          CONT.SE                            AANTAL.ALS                   LASKE.JOS                          CONTA.SE                           ANTAL.OM
-    347      1      0          0          COUNTBLANK                         ANZAHLLEEREZELLEN                  NB.VIDE                            CONTAR.BLANCO                      CONTAR.VAZIO                       AANTAL.LEGE.CELLEN           LASKE.TYHJ�T                       CONTA.VUOTE                        ANTAL.TOMMA
-    354     -1      1          0          ROMAN                              R�MISCH                            ROMAIN                             NUMERO.ROMANO                      ROMANO                             ROMEINS                      ROMAN                              ROMANO                             ROMERSK
-
-
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/function_locale.pl>
 
 =head2 Example: writeA1.pl
 
@@ -10540,7 +10126,7 @@ code directly.
     # serves as an example of how the module can be extended without modifying the
     # code directly.
     #
-    # reverse('�'), March 2001, John McNamara, jmcnamara@cpan.org
+    # reverse('(c)'), March 2001, John McNamara, jmcnamara@cpan.org
     #
     
     use strict;
@@ -10617,7 +10203,7 @@ code directly.
     }
 
 
-Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.39/examples/writeA1.pl>
+Download this example: L<http://cpansearch.perl.org/src/JMCNAMARA/Spreadsheet-WriteExcel-2.40/examples/writeA1.pl>
 
 =head1 AUTHOR
 

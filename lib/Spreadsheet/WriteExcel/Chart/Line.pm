@@ -22,7 +22,7 @@ use Spreadsheet::WriteExcel::Chart;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Chart Exporter);
 
-$VERSION = '2.39';
+$VERSION = '2.40';
 
 ###############################################################################
 #

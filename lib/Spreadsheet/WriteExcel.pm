@@ -21,7 +21,7 @@ use Spreadsheet::WriteExcel::Workbook;
 use vars qw($VERSION @ISA);
 @ISA = qw(Spreadsheet::WriteExcel::Workbook Exporter);
 
-$VERSION = '2.39'; # A farewell to arms.
+$VERSION = '2.40'; # A farewell to arms.
 
 
 
@@ -64,7 +64,7 @@ Spreadsheet::WriteExcel - Write to a cross-platform Excel binary file.
 
 =head1 VERSION
 
-This document refers to version 2.39 of Spreadsheet::WriteExcel, released June 6, 2013.
+This document refers to version 2.40 of Spreadsheet::WriteExcel, released November 6, 2013.
 
 
 
@@ -109,7 +109,7 @@ The module will work on the majority of Windows, UNIX and Mac platforms. Generat
 
 This module cannot be used to write to an existing Excel file (See L</MODIFYING AND REWRITING EXCEL FILES>).
 
-For the Excel 2007+ xlsx file format see the L<Excel::Writer::XLSX> module.
+B<Note: This module is in maintenance only mode> and in future will only be updated with bug fixes. The newer, more feature rich and API compatible L<Excel::Writer::XLSX> module is recommended instead. See, L</Migrating to Excel::Writer::XLSX>.
 
 
 
@@ -5283,9 +5283,39 @@ If you wish to submit a bug report run the C<bug_report.pl> program in the C<exa
 
 
 
-=head1 TO DO
+=head1 Migrating to Excel::Writer::XLSX
 
-Spreadsheet::WriteExcel has been superseded by L<Excel::Writer::XLSX>. All new feature and enhancements will be added to that module.
+Spreadsheet::WriteExcel is in maintenance only mode and has effectively been superseded by L<Excel::Writer::XLSX>.
+
+Excel::Writer::XLSX is an API compatible, drop-in replacement for Spreadsheet::WriteExcel. It also has many more features such as conditional formats, better charts, better formula handling, Excel tables and even sparklines.
+
+
+To convert your Spreadsheet::WriteExcel program to Excel::Writer::XLSX you only need do the following:
+
+=over
+
+=item * Substitute Excel::Writer::XLSX for Spreadsheet::WriteExcel in your program.
+
+=item * Change the file extension of the output file from C<.xls> to C<.xlsx>.
+
+=item * Optionally replace C<store_formula()> and C<repeat_formula()> with C<write_formula()> which is no longer an expensive operation in Excel::Writer::XLSX. However, you can leave them unchanged if required.
+
+=back
+
+There are some differences between the formats and the modules that are worth noting:
+
+=over
+
+=item * The default font in the XLSX format is Calibri 11 not Arial 10.
+
+=item * Default column widths and row heights are different between XLS and XLSX.
+
+=item * The Excel::Writer::XLSX module uses more memory by default but has a optimisation mode to reduce usage for large files.
+
+=item * The XLSX format doesn't have reading support that is as complete as Spreadsheet::ParseExcel.
+
+=back
+
 
 
 =head1 REPOSITORY

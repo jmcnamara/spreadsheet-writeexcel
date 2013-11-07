@@ -1,5 +1,11 @@
 Revision history for Perl module Spreadsheet::WriteExcel.
 
+2.40 2013-11-06
+
+    ! Fix for minor typo/bug that caused issues with Math::BigInt.
+      RT 90061.
+
+
 2.39 2013-06-06
 
     ! Added Debian patch for Pod encoding. RT #85897.
@@ -37,7 +43,7 @@ Revision history for Perl module Spreadsheet::WriteExcel.
       chart and plot background colours and border lines.
 
     ! Fixed bug where embedded charts gave "Data may be lost"
-      warning. Reported by Andreas Strobitzer. 
+      warning. Reported by Andreas Strobitzer.
 
     ! Fixed issue where set_properties() didn't work with ::Big.
       Marked ::Big as deprecated in the docs in favour of using

@@ -24,7 +24,7 @@ use Carp;
 use vars qw($AUTOLOAD $VERSION @ISA);
 @ISA = qw(Exporter);
 
-$VERSION = '2.39';
+$VERSION = '2.40';
 
 ###############################################################################
 #
@@ -809,6 +809,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-� MM-MMX, John McNamara.
+Copyright MM-MMX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
