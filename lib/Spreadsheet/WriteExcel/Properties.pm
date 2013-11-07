@@ -193,7 +193,7 @@ sub _pack_property_data {
     my $codepage = $properties[0]->[2];
 
     # The properties start after 8 bytes for size + num_properties + 8 bytes
-    # for each propety type/offset pair.
+    # for each property type/offset pair.
     $offset += 8 * (@properties + 1);
 
     for my $property (@properties) {
@@ -348,6 +348,6 @@ John McNamara jmcnamara@cpan.org
 
 =head1 COPYRIGHT
 
-© MM-MMX, John McNamara.
+ï¿½ MM-MMX, John McNamara.
 
 All Rights Reserved. This module is free software. It may be used, redistributed and/or modified under the same terms as Perl itself.
