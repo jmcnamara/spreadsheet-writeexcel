@@ -2066,7 +2066,7 @@ sub write_number {
 
     my $row     = $_[0];                         # Zero indexed row
     my $col     = $_[1];                         # Zero indexed column
-    my $num     = $_[2];
+    my $num     = $_[2] // 0;                    # Avoid undef warnings
     my $xf      = _XF($self, $row, $col, $_[3]); # The cell format
 
     # Check that row and col are valid and store max and min values
